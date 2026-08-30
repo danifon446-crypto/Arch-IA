@@ -5,3 +5,15 @@ dist/
 *.exe
 *.gguf
 Versiones de Arche/
+
+Database/
+Arche/Database/
+Arche/core/IA/conocimiento.json
+Arche/core/IA/conocimiento.json.bak
+Arche/core/IA/conversaciones.json
+Arche/core/IA/dataset_entrenamiento.jsonl
+Arche/core/IA/meta.json
+Arche/core/IA/respuestas.json
+Arche/core/IA/telemetria.jsonl
+Arche/core/IA/clasificador.pkl
+*.pkl

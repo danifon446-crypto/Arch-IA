@@ -1,0 +1,3 @@
+git add .
+git commit -m "Agrega nota sobre archivos sin uso"
+git push
