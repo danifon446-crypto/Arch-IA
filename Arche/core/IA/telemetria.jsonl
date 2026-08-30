@@ -1,0 +1,47 @@
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.6862, "error": null, "timestamp": 1785788648.8569496}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.9746, "error": null, "timestamp": 1785788727.3835793}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.5644, "error": null, "timestamp": 1785788754.898581}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.9414, "error": null, "timestamp": 1785788780.6928768}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.3802, "error": null, "timestamp": 1785788812.6553373}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.9662, "error": null, "timestamp": 1785788844.9174948}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 30.2889, "error": null, "timestamp": 1785788879.8834004}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 28.7152, "error": null, "timestamp": 1785788914.1849682}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 15.3402, "error": null, "timestamp": 1785788930.460407}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 134.8438, "error": null, "timestamp": 1785789069.3052993}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 110.6998, "error": null, "timestamp": 1785789192.4648094}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 155.6495, "error": null, "timestamp": 1785789361.312851}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 128.0838, "error": null, "timestamp": 1785789499.3830614}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 138.1852, "error": null, "timestamp": 1785789655.0921938}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 165.1176, "error": null, "timestamp": 1785789831.8717666}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 170.2269, "error": null, "timestamp": 1785790025.057266}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 106.6209, "error": null, "timestamp": 1785790144.6058648}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 29.707, "error": null, "timestamp": 1785790179.257223}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.1402, "error": null, "timestamp": 1785790209.1768553}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.4699, "error": null, "timestamp": 1785790240.6338108}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.1878, "error": null, "timestamp": 1785790266.755139}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.0528, "error": null, "timestamp": 1785790291.8711784}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.4617, "error": null, "timestamp": 1785790316.4583898}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.6038, "error": null, "timestamp": 1785790342.2866786}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.4138, "error": null, "timestamp": 1785790366.879968}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 28.4339, "error": null, "timestamp": 1785790399.7916558}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.1817, "error": null, "timestamp": 1785790424.232165}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.4454, "error": null, "timestamp": 1785790448.5796473}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.4921, "error": null, "timestamp": 1785790476.294188}
+{"tipo": "comando", "comando": "hola que tal", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394050.4822075}
+{"tipo": "comando", "comando": "bien bien", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394204.6649268}
+{"tipo": "comando", "comando": "bien bien", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394212.826873}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787239961.407871}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787240112.5062814}
+{"tipo": "comando", "comando": "que sabes hacer", "intencion": "ayuda", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787240336.2475297}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 52.0149, "error": null, "timestamp": 1787240427.0028548}
+{"tipo": "comando", "comando": "busca c++ en google", "intencion": "buscar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1787240427.6147869}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350701.2882318}
+{"tipo": "comando", "comando": "abre tlauncher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350797.9768884}
+{"tipo": "comando", "comando": "abre tlauncher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350814.9663117}
+{"tipo": "comando", "comando": "abre visual studios code", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350857.749581}
+{"tipo": "comando", "comando": "abre visual studio code", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350901.0328603}
+{"tipo": "comando", "comando": "abre epic games launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787709824.7734587}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.045, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1787709875.7899077}
+{"tipo": "comando", "comando": "que haces", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1787709875.7991848}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0311, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1787709889.2751658}
+{"tipo": "comando", "comando": "sabes hacer", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1787709889.2816973}

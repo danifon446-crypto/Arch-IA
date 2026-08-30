@@ -1,0 +1,30 @@
+[
+    {
+        "tipo": "recordatorio",
+        "contenido": "comprar sensores",
+        "fecha": "2026-07-27 13:43:49",
+        "prioridad": "normal",
+        "estado": "pendiente"
+    },
+    {
+        "tipo": "recordatorio",
+        "contenido": "que mañana tengo examen",
+        "fecha": "2026-07-27 13:44:32",
+        "prioridad": "alta",
+        "estado": "pendiente"
+    },
+    {
+        "tipo": "otro",
+        "contenido": "me",
+        "fecha": "2026-07-27 20:35:15",
+        "prioridad": "normal",
+        "estado": "pendiente"
+    },
+    {
+        "tipo": "gusto",
+        "contenido": "que mi color favorito es azul",
+        "fecha": "2026-07-28 20:43:37",
+        "prioridad": "normal",
+        "estado": "pendiente"
+    }
+]

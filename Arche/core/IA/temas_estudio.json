@@ -1,0 +1,12 @@
+[
+    {"tema": "arduino", "descripcion": "microcontrolador para proyectos de electrónica y automatización"},
+    {"tema": "sensores infrarrojos", "descripcion": "componentes que detectan luz infrarroja, como el TCRT5000"},
+    {"tema": "microcontroladores", "descripcion": null},
+    {"tema": "esp32", "descripcion": "microcontrolador con wifi y bluetooth integrado"},
+    {"tema": "python", "descripcion": "lenguaje de programación usado para construir Arché"},
+    {"tema": "inteligencia artificial", "descripcion": null},
+    {"tema": "machine learning", "descripcion": "aprendizaje automático, entrenamiento de modelos a partir de datos"},
+    {"tema": "reconocimiento de voz", "descripcion": "conversión de audio hablado a texto"},
+    {"tema": "redes neuronales", "descripcion": null},
+    {"tema": "ollama", "descripcion": "herramienta de software para correr modelos de lenguaje de IA localmente en tu computadora"}
+]

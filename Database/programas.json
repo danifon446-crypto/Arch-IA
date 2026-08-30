@@ -1,0 +1,29 @@
+{
+    "calculadora": "calc.exe",
+    "bloc": "notepad.exe",
+    "bloc de notas": "notepad.exe",
+    "paint": "mspaint.exe",
+    "explorador": "explorer.exe",
+    "cmd": "cmd.exe",
+    "terminal": "cmd.exe",
+    "powershell": "powershell.exe",
+    "administrador de tareas": "taskmgr.exe",
+    "panel de control": "control.exe",
+    "configuracion": "ms-settings:",
+    "wordpad": "write.exe",
+    "lupa": "magnify.exe",
+    "teclado": "osk.exe",
+    "recortes": "snippingtool.exe",
+    "camara": "microsoft.windows.camera:",
+    "calculadora cientifica": "calc.exe",
+    "word": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+    "excel": "C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE",
+    "chatgpt": {
+        "tipo": "exe",
+        "ruta": "C:\\Users\\danif\\AppData\\Local\\Microsoft\\WindowsApps\\chatgpt-classic.exe"
+    },
+    "notas": {
+        "tipo": "app",
+        "ruta": "Microsoft.WindowsNotepad_8wekyb3d8bbwe!App"
+    }
+}

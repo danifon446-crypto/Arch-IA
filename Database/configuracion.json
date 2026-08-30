@@ -1,0 +1,12 @@
+{
+    "version": "2.0",
+    "nombre_asistente": "Arché",
+    "nombre_usuario": "Inge. Daniel",
+    "voz": false,
+    "saludo_inicial": true,
+    "mostrar_estado": true,
+    "mostrar_recordatorios": true,
+    "buscar_programas_automaticamente": true,
+    "actualizar_indice_automaticamente": false,
+    "velocidad_respuesta": 1.0
+}
