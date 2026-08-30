@@ -1,6 +1,9 @@
 import time
 import threading
 
+from core.instalador import verificar_e_instalar
+verificar_e_instalar()
+
 from core.utilidades import *
 from core.navegador import *
 from core.programaV2 import *
@@ -17,6 +20,21 @@ from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
 from core.IA.telemetria import resumen as resumen_telemetria
+
+# NOTA: archivos que existen en el proyecto pero NO se usan en ningún
+# lado (no rompen nada si se quedan, es solo peso muerto):
+#   - core/cerebro/  (carpeta completa: abrir.py, ayuda.py, buscar.py,
+#     crear_recordatorio.py, editar_memoria.py, eliminar_recordatorio.py,
+#     fecha.py, hora.py, mostrar_memoria.py, mostrar_recordatorios.py,
+#     presentacion.py, recordar.py, saludo.py) -> listas de frases de
+#     ejemplo de una versión vieja de reconocimiento de comandos, ya
+#     reemplazada por Ollama + embeddings + la red neuronal.
+#   - core/programas.py      -> reemplazado por core/programaV2.py
+#   - core/prueba.py         -> archivo de pruebas sueltas
+#   - core/compresion.py     -> intento viejo de interpretar comandos,
+#     reemplazado por core/IA/aprendizaje.py + Ollama
+#   - core/archivos1.py      -> reemplazado por core/archivos.py
+# Pero igual siguen ahi por que con esos es que sirve copia(seguridad)
 
 
 def _barra_progreso(valor, ancho=20):
