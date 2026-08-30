@@ -53,7 +53,8 @@ def recordar(texto):
         for recuerdo in recuerdos
     ):
             print("Arché: Ya recordaba eso.")
-        return
+            return
+
         recuerdos.append(nuevo) 
 
         with open(archivo_memoria, "w", encoding="utf-8") as archivo:

@@ -9,7 +9,7 @@ from core.sistema import *
 from core.memoria import *
 from core.notas import *
 from core.recordatorio import *
-from core.conversacion import *
+from core.conversacion import responder as responder_conversacion
 from core.archivos import *
 from core.configuracion import *
 from core.calculadora import *
@@ -355,6 +355,12 @@ while True:
                     print(f"  • {tema}")
         else:
             print("Arché: Todavía no tengo temas de estudio. Agrega uno con 'agregar tema <tema>'.")
+        continue
+
+    # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)
+    # Respuestas instantáneas sin pasar por el clasificador ni Ollama.
+
+    if responder_conversacion(comando):
         continue
 
     # Nada determinístico coincidió -> AHORA sí vale la pena clasificar

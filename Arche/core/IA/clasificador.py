@@ -263,13 +263,19 @@ def predecir(embedding_pregunta):
 
 
 def info_modelo():
-    """Muestra el estado actual del clasificador (para debug/curiosidad)."""
+    """
+    Devuelve el estado del clasificador como diccionario, para que
+    main.py lo muestre (con barra de progreso, etc.). Antes esta función
+    solo imprimía y no retornaba nada, así que main.py siempre recibía
+    None y mostraba "Inactiva" aunque la red sí estuviera entrenada.
+    """
     _, metadata, _ = _cargar_modelo()
     if metadata is None:
-        print("Arché: Todavía no hay una red neuronal entrenada.")
-        return
-    print("Arché: Estado de la red neuronal:")
-    print(f"  Precisión de validación: {metadata['score']:.0%}")
-    print(f"  Ejemplos de entrenamiento: {metadata['n_ejemplos']} (balanceados a {metadata['n_ejemplos_balanceados']})")
-    print(f"  Intenciones: {', '.join(metadata['clases'])}")
-    print(f"  Configuración: {metadata['hiperparametros']}")
+        return {"activo": False}
+    return {
+        "activo": True,
+        "precision": metadata["score"],
+        "num_ejemplos": metadata["n_ejemplos"],
+        "clases": metadata["clases"],
+        "arquitectura": str(metadata["hiperparametros"]),
+    }

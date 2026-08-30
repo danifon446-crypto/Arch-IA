@@ -37,9 +37,10 @@ def guardar_recordatorios(recordatorios):
         json.dump(recordatorios, archivo, indent=4, ensure_ascii=False)
 
 def crear_recordatorio(texto=None):
-    if texto is None:
-        texto = input("¿Qué debo recordarte?\nTú: ").strip()
-    titulo = input("Arché: ¿Qué debo recordarte?\nTú: ").strip()
+    if texto:
+        titulo = texto.strip()
+    else:
+        titulo = input("Arché: ¿Qué debo recordarte?\nTú: ").strip()
     fecha = input("Arché: Fecha (AAAA-MM-DD):\nTú: ").strip()
     hora = input("Arché: Hora (HH:MM):\nTú: ").strip()
     prioridad = input(

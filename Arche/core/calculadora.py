@@ -3,6 +3,7 @@ import math
 import operator
 import json
 import os
+import re
 
 from core.rutas import DATABASE
 
@@ -109,6 +110,18 @@ def evaluar(nodo):
 
 def limpiar(expresion):
     expresion = expresion.lower().strip()
+
+    # Frases de varias palabras SIEMPRE primero: si "por" o "raiz" ya se
+    # reemplazaron por separado, la frase completa ("dividido por",
+    # "raiz de") deja de existir y nunca hace match.
+    reemplazos_frase = {
+        "dividido por": "/",
+        "raiz de": "sqrt",
+        "raíz de": "sqrt",
+    }
+    for viejo, nuevo in reemplazos_frase.items():
+        expresion = expresion.replace(viejo, nuevo)
+
     reemplazos = {
         "más": "+",
         "mas": "+",
@@ -117,10 +130,7 @@ def limpiar(expresion):
         "x": "*",
         "entre": "/",
         "dividido": "/",
-        "dividido por": "/",
         "^": "**",
-        "raiz de": "sqrt",
-        "raíz de": "sqrt",
         "raiz": "sqrt",
         "raíz": "sqrt",
         "sen": "sin",
@@ -128,6 +138,15 @@ def limpiar(expresion):
     }
     for viejo, nuevo in reemplazos.items():
         expresion = expresion.replace(viejo, nuevo)
+
+    # Las funciones (sqrt, sin, cos...) necesitan paréntesis para ser
+    # sintaxis válida de Python: "sqrt 16" -> "sqrt(16)"
+    expresion = re.sub(
+        r'\b(sqrt|sin|cos|tan|log|ln|abs|round)\s+(-?\d+(?:\.\d+)?)',
+        r'\1(\2)',
+        expresion
+    )
+
     return expresion
 
 
