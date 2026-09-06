@@ -19,9 +19,11 @@ from core.calculadora import *
 from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
-from core.IA.telemetria import resumen as resumen_telemetria
+from core.IA.telemetria import resumen as resumen_telemetria, registrar_comando
 from core.IA.introspeccion import reporte_texto
 from core.IA.autoconocimiento import manejar_autoconocimiento
+from core.IA.respuestas import buscar_respuesta, guardar_respuesta, _normalizar
+from core.IA.preguntas_frecuentes import PREGUNTAS_FRECUENTES
 
 # NOTA: archivos que existen en el proyecto pero NO se usan en ningún
 # lado (no rompen nada si se quedan, es solo peso muerto):
@@ -321,6 +323,42 @@ while True:
                 print(f"  • '{d['pregunta']}' (tenía {d['accion']}/{d['contenido']} mal reutilizado)")
         continue
 
+    # AUTO-MODIFICACIÓN DE CÓDIGO
+    # Arché nunca escribe directo a un archivo real: genera una
+    # propuesta (buscar/reemplazar acotado), y solo se aplica al
+    # correr "revisar cambios de codigo" con tu aprobación explícita.
+
+    if comando.startswith("escribe en "):
+        resto = comando[len("escribe en "):].strip()
+        if " : " in resto:
+            archivo, instruccion = resto.split(" : ", 1)
+            from core.IA.proponer_cambio_codigo import proponer_cambio_ia
+            propuesta, error = proponer_cambio_ia(archivo.strip(), instruccion.strip())
+            if error:
+                print(f"Arché: {error}")
+            else:
+                print(f"Arché: Generé la propuesta {propuesta['id']} para {propuesta['archivo']}. "
+                      f"Corré 'revisar cambios de codigo' para verla y aprobarla.")
+        else:
+            print("Arché: Usá el formato 'escribe en <archivo> : <qué querés que cambie>'.")
+        continue
+
+    if comando in ["revisar cambios de codigo", "revisar cambios de código"]:
+        from core.IA.revisar_cambios_codigo import main as revisar_cambios_codigo
+        revisar_cambios_codigo()
+        continue
+
+    if comando in ["cambios de codigo pendientes", "cambios de código pendientes"]:
+        from core.IA.proponer_cambio_codigo import _cargar_pendientes
+        pendientes = [p for p in _cargar_pendientes() if p["estado"] == "pendiente"]
+        if not pendientes:
+            print("Arché: No tengo propuestas de código pendientes.")
+        else:
+            print(f"Arché: Tengo {len(pendientes)} propuesta(s) pendiente(s):")
+            for p in pendientes:
+                print(f"  • [{p['id']}] {p['archivo']}: {p['que']}")
+        continue
+
     # MODO ESTUDIO
 
     if comando == "estudiar":
@@ -383,17 +421,11 @@ while True:
     if responder_conversacion(comando):
         continue
 
-        # AUTOCONOCIMIENTO (changelog / dependencia de Ollama)
+    # AUTOCONOCIMIENTO (changelog / dependencia de Ollama)
 
     respuesta_auto = manejar_autoconocimiento(comando)
     if respuesta_auto:
         print(f"Arché: {respuesta_auto}")
-        continue
-
-    # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)
-    # Respuestas instantáneas sin pasar por el clasificador ni Ollama.
-
-    if responder_conversacion(comando):
         continue
 
     # Nada determinístico coincidió -> AHORA sí vale la pena clasificar
@@ -491,16 +523,27 @@ while True:
                 print("Arché: Cancelado.")
 
     elif intencion == "conversar":
-        from core.IA.respuestas import buscar_respuesta, guardar_respuesta
+        contenido_norm = _normalizar(contenido)
 
-        respuesta_propia = buscar_respuesta(contenido)
-
-        if respuesta_propia:
-            print(f"Arché: {respuesta_propia}")
+        if contenido_norm in PREGUNTAS_FRECUENTES:
+            # Capa 0: lookup fijo, comparación de texto exacta.
+            # No calcula embeddings ni llama a Ollama.
+            respuesta_fija = PREGUNTAS_FRECUENTES[contenido_norm]
+            print(f"Arché: {respuesta_fija}")
+            registrar_comando(contenido, "conversar", resuelto_por="pregunta_frecuente")
         else:
-            respuesta = conversar(contenido)
-            print(f"Arché: {respuesta}")
-            guardar_respuesta(contenido, respuesta)
+            respuesta_propia = buscar_respuesta(contenido)
+
+            if respuesta_propia:
+                # Capa 1: caché de respuestas por similitud semántica.
+                print(f"Arché: {respuesta_propia}")
+                registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
+            else:
+                # Capa 2: última instancia, llamada nueva a Ollama.
+                respuesta = conversar(contenido)
+                print(f"Arché: {respuesta}")
+                guardar_respuesta(contenido, respuesta)
+                registrar_comando(contenido, "conversar", resuelto_por="ollama_conversar")
 
     # COMANDO DESCONOCIDO
 

@@ -100,7 +100,7 @@ def generar_propuestas_desde_candidatos(candidatos):
 
 
 if __name__ == "__main__":
-    from core.IA.detector_patrones import detectar_candidatos
+    from core.IA.detector_de_patrones import detectar_candidatos
 
     candidatos = detectar_candidatos()
     nuevas = generar_propuestas_desde_candidatos(candidatos)
