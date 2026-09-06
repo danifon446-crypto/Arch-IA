@@ -61,18 +61,22 @@ def ultima_version_confirmada(historial):
     return confirmadas[-1] if confirmadas else None
 
 
-def raiz_git():
-    """Encuentra la raiz real del repositorio git, sin importar desde
-    que subcarpeta se ejecute este script."""
+def hay_repo_git():
+    """Confirma que exista un repositorio git en algun nivel arriba de
+    RAIZ_APP, sin usar la salida de texto de git como ruta (en Windows
+    esa salida puede llegar con la codificacion de caracteres rota,
+    ej. la 'e' de 'Arche', y producir una ruta invalida -> WinError 267).
+    En vez de eso, usamos RAIZ_APP directamente como cwd para todo:
+    git encuentra el repositorio real solo, sin importar los niveles
+    de carpetas en el medio."""
     try:
-        salida = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, check=True,
-            cwd=str(RAIZ_APP),
+        resultado = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            capture_output=True, text=True, cwd=str(RAIZ_APP),
         )
-        return salida.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return None
+        return resultado.returncode == 0
+    except FileNotFoundError:
+        return False
 
 
 def commits_desde(commit_hash, cwd):
@@ -80,7 +84,8 @@ def commits_desde(commit_hash, cwd):
     try:
         salida = subprocess.run(
             ["git", "log", rango, "--pretty=format:%H|%s"],
-            capture_output=True, text=True, check=True, cwd=cwd
+            capture_output=True, text=True, check=True, cwd=cwd,
+            encoding="utf-8", errors="replace",
         )
     except subprocess.CalledProcessError as e:
         print("Error al leer commits de git:", e.stderr)
@@ -95,7 +100,10 @@ def commits_desde(commit_hash, cwd):
 
 def obtener_diff(commit_hash, cwd):
     cmd = ["git", "diff", f"{commit_hash}..HEAD"] if commit_hash else ["git", "diff", "HEAD~1..HEAD"]
-    salida = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
+    salida = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=cwd,
+        encoding="utf-8", errors="replace",
+    )
     return salida.stdout
 
 
@@ -103,18 +111,22 @@ def archivos_modificados(commit_hash, cwd):
     rango = f"{commit_hash}..HEAD" if commit_hash else "HEAD~1..HEAD"
     salida = subprocess.run(
         ["git", "diff", "--name-only", rango],
-        capture_output=True, text=True, cwd=cwd
+        capture_output=True, text=True, cwd=cwd,
+        encoding="utf-8", errors="replace",
     )
     return [f for f in salida.stdout.splitlines() if f.strip()]
 
 
 def siguiente_numero_version(historial):
+    """Incrementa el ULTIMO segmento del numero de version, sin importar
+    si tiene 2 partes (0.1 -> 0.2) o 3 partes (2.0.1 -> 2.0.2)."""
     if not historial:
         return "0.1"
     ultima = historial[-1]["version"]
+    partes = ultima.split(".")
     try:
-        mayor, menor = ultima.split(".")
-        return f"{mayor}.{int(menor) + 1}"
+        partes[-1] = str(int(partes[-1]) + 1)
+        return ".".join(partes)
     except ValueError:
         return ultima + ".1"
 
@@ -152,11 +164,12 @@ ni texto adicional."""
 
 
 def main():
-    cwd_git = raiz_git()
-    if cwd_git is None:
+    if not hay_repo_git():
         print("No encontre un repositorio git desde esta ubicacion.")
         print("Verifica que exista un .git en algun nivel arriba (ver GUIA_GIT.md).")
         sys.exit(1)
+
+    cwd_git = str(RAIZ_APP)  # RAIZ_APP ya esta bien codificada; git encuentra el repo real solo
 
     historial = cargar_historial()
     ultima = ultima_version_confirmada(historial)
@@ -182,7 +195,8 @@ def main():
         print(f"  - {c}")
 
     hash_actual = subprocess.run(
-        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=cwd_git
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=cwd_git,
+        encoding="utf-8", errors="replace",
     ).stdout.strip()
 
     while True:

@@ -15,6 +15,12 @@ Con el uso, Arché depende cada vez menos de Ollama para preguntas
 repetidas o cercanas, sin arriesgarse a devolver una respuesta que no
 corresponde a la pregunta real (el bug que motivó este módulo).
 
+MODIFICADO: cada entrada ahora lleva "veces_usada", que se incrementa
+cada vez que se reutiliza (no solo cuando se crea). Esto es lo que le
+permite a detector_patrones.py saber, de forma real y no estimada,
+qué preguntas se repiten lo suficiente como para promoverlas a un
+lookup fijo en preguntas_frecuentes.py.
+
 Requiere lo mismo que aprendizaje.py: sentence-transformers instalado
 (core/IA/embeddings.py). Si no está disponible, este módulo se salta
 solo y Arché sigue funcionando (todo va a Ollama, como antes).
@@ -23,6 +29,7 @@ solo y Arché sigue funcionando (todo va a Ollama, como antes).
 import json
 import os
 import threading
+import unicodedata
 
 BASE = os.path.dirname(__file__)
 ARCHIVO = os.path.join(BASE, "respuestas.json")
@@ -36,7 +43,6 @@ UMBRAL_RESPUESTA = 0.90
 
 
 def _normalizar(texto):
-    import unicodedata
     texto = texto.strip().lower()
     texto = unicodedata.normalize("NFKD", texto)
     return "".join(c for c in texto if not unicodedata.combining(c))
@@ -79,6 +85,7 @@ def guardar_respuesta(pregunta, respuesta):
             if dato["pregunta"] == pregunta_norm:
                 dato["respuesta"] = respuesta
                 dato["embedding"] = embedding
+                # no reseteamos veces_usada: sigue siendo la misma pregunta de siempre
                 guardar(datos)
                 return
 
@@ -86,6 +93,7 @@ def guardar_respuesta(pregunta, respuesta):
             "pregunta": pregunta_norm,
             "respuesta": respuesta,
             "embedding": embedding,
+            "veces_usada": 1,
         })
         guardar(datos)
 
@@ -96,35 +104,41 @@ def buscar_respuesta(pregunta, umbral=UMBRAL_RESPUESTA):
     significado. Devuelve el texto de la respuesta, o None si no hay
     nada suficientemente parecido (en ese caso, hay que preguntarle a
     Ollama y luego llamar a guardar_respuesta()).
+
+    Cada vez que hay un match, incrementa "veces_usada" de esa entrada
+    y lo persiste -- es el dato real que usa detector_patrones.py.
     """
     try:
         from core.IA.embeddings import calcular_embedding, similitud_coseno
     except Exception:
         return None  # sin embeddings no hay forma segura de comparar
 
-    datos = cargar()
-    if not datos:
-        return None
+    with _lock:
+        datos = cargar()
+        if not datos:
+            return None
 
-    pregunta_norm = _normalizar(pregunta)
+        pregunta_norm = _normalizar(pregunta)
 
-    try:
-        vector_pregunta = calcular_embedding(pregunta_norm)
-    except Exception:
-        return None
+        try:
+            vector_pregunta = calcular_embedding(pregunta_norm)
+        except Exception:
+            return None
 
-    mejor_score = 0.0
-    mejor_respuesta = None
+        mejor_score = 0.0
+        mejor_dato = None
 
-    for dato in datos:
-        if not dato.get("embedding"):
-            continue
-        score = similitud_coseno(vector_pregunta, dato["embedding"])
-        if score > mejor_score:
-            mejor_score = score
-            mejor_respuesta = dato["respuesta"]
+        for dato in datos:
+            if not dato.get("embedding"):
+                continue
+            score = similitud_coseno(vector_pregunta, dato["embedding"])
+            if score > mejor_score:
+                mejor_score = score
+                mejor_dato = dato
 
-    if mejor_score >= umbral:
-        return mejor_respuesta
+        if mejor_score >= umbral and mejor_dato is not None:
+            mejor_dato["veces_usada"] = mejor_dato.get("veces_usada", 1) + 1
+            guardar(datos)
+            return mejor_dato["respuesta"]
 
     return None

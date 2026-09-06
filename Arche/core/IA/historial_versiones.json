@@ -1,0 +1,19 @@
+[
+  {
+    "version": "2.0.1",
+    "fecha": "2026-09-06",
+    "cambios": [
+      "Generó una entrada de changelog.",
+      "Instaló dependencias automáticamente.",
+      "Corrigió bugs relacionados con memoria, calculadora, recordatorios y estado de red.",
+      "Primera versión limpias.",
+      "Redactó mensajes de cambio utilizando Ollama.",
+      "Actualizó la ubicación del archivo a \"generar_changelog.py\".",
+      "Realizó cambios basados en el historial de commits de Git.",
+      "Obtuvo el historial de versiones desde la carpeta raíz del proyecto.",
+      "Corrigió el uso incorrecto de la raíz del proyecto."
+    ],
+    "commit_hash": "913ace7c62d78ba292ee6552e7fa984c1ce2603b",
+    "confirmada": true
+  }
+]

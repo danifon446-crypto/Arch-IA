@@ -20,6 +20,8 @@ from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
 from core.IA.telemetria import resumen as resumen_telemetria
+from core.IA.introspeccion import reporte_texto
+from core.IA.autoconocimiento import manejar_autoconocimiento
 
 # NOTA: archivos que existen en el proyecto pero NO se usan en ningún
 # lado (no rompen nada si se quedan, es solo peso muerto):
@@ -373,6 +375,19 @@ while True:
                     print(f"  • {tema}")
         else:
             print("Arché: Todavía no tengo temas de estudio. Agrega uno con 'agregar tema <tema>'.")
+        continue
+
+    # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)
+    # Respuestas instantáneas sin pasar por el clasificador ni Ollama.
+
+    if responder_conversacion(comando):
+        continue
+
+        # AUTOCONOCIMIENTO (changelog / dependencia de Ollama)
+
+    respuesta_auto = manejar_autoconocimiento(comando)
+    if respuesta_auto:
+        print(f"Arché: {respuesta_auto}")
         continue
 
     # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)

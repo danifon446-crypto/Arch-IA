@@ -10,11 +10,11 @@ real de paquete (core.IA.introspeccion), igual que ya hace tu main.py con
 estaba al lado de main.py, pero en realidad esta en core/IA/.
 
 Pasos:
-  1. Copia las funciones de mas abajo dentro de Arche/main.py (junto a los
-     otros imports de core.IA que ya tenes al principio del archivo).
-  2. En el lugar donde ya evaluas los comandos deterministas ANTES de
-     llamar a comprender()/analizar(), agrega la llamada a
-     manejar_autoconocimiento() como uno mas de esos comandos.
+1. Copia las funciones de mas abajo dentro de Arche/main.py (junto a los
+    otros imports de core.IA que ya tenes al principio del archivo).
+2. En el lugar donde ya evaluas los comandos deterministas ANTES de
+    llamar a comprender()/analizar(), agrega la llamada a
+    manejar_autoconocimiento() como uno mas de esos comandos.
 
 Requiere que ya existan:
     - Arche/core/IA/historial_versiones.json
