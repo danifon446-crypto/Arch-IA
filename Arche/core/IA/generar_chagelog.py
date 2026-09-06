@@ -1,20 +1,28 @@
 """
 generar_changelog.py
 ---------------------
+Ubicacion real en tu proyecto: Arche/core/IA/generar_changelog.py
+(fijate: el archivo que subiste se llama "generar_chagelog.py", con una
+letra de menos -- te recomiendo renombrarlo a "generar_changelog.py" para
+que coincida con lo que espera introspeccion.py en su lista IGNORAR).
+
 Genera automaticamente una entrada de changelog para Arche a partir del
-historial de commits de git, usando Ollama para redactarla en lenguaje
-natural. Nunca se guarda sin que vos la confirmes o edites primero
-(Opcion C: automatico con validacion minima).
+historial de commits de git, usando Ollama (tu funcion real: conversar())
+para redactarla en lenguaje natural. Nunca se guarda sin que vos la
+confirmes o edites primero.
 
-Requisitos:
-    - El proyecto debe estar versionado con git (ver GUIA_GIT.md).
-    - ollamaIA.py debe existir en el mismo directorio.
-    - IMPORTANTE: revisa la funcion redactar_con_ollama() mas abajo y
-      ajusta el nombre de la funcion que usas para consultar a Ollama
-      (se asume una funcion `preguntar(prompt) -> str`).
+CORREGIDO respecto a la version anterior:
+  1. Ya no busca ".git" en su propia carpeta (core/IA) -- ahora usa
+     "git rev-parse --show-toplevel", que encuentra el repo real sin
+     importar cuantos niveles de carpetas haya en el medio.
+  2. Usa la funcion real de tu ollamaIA.py: conversar(prompt), importada
+     como "from core.IA.ollamaIA import conversar" (import absoluto de
+     paquete, igual que hace main.py), agregando la raiz del proyecto
+     a sys.path para que el import funcione sin importar desde donde
+     ejecutes este script.
 
-Uso:
-    python generar_changelog.py
+Uso (desde cualquier carpeta dentro del proyecto):
+    python core/IA/generar_changelog.py
 """
 
 import json
@@ -23,7 +31,16 @@ import sys
 from pathlib import Path
 from datetime import date
 
+# Este archivo vive en Arche/core/IA/generar_changelog.py
+# parents[2] = Arche (la raiz real de la app, donde esta main.py)
+RAIZ_APP = Path(__file__).resolve().parents[2]
 HISTORIAL_PATH = Path(__file__).parent / "historial_versiones.json"
+
+# Agregamos la raiz de la app a sys.path para poder hacer
+# "from core.IA.ollamaIA import conversar" sin importar desde donde
+# se ejecute este script.
+if str(RAIZ_APP) not in sys.path:
+    sys.path.insert(0, str(RAIZ_APP))
 
 
 def cargar_historial():
@@ -44,12 +61,26 @@ def ultima_version_confirmada(historial):
     return confirmadas[-1] if confirmadas else None
 
 
-def commits_desde(commit_hash):
+def raiz_git():
+    """Encuentra la raiz real del repositorio git, sin importar desde
+    que subcarpeta se ejecute este script."""
+    try:
+        salida = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, check=True,
+            cwd=str(RAIZ_APP),
+        )
+        return salida.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return None
+
+
+def commits_desde(commit_hash, cwd):
     rango = f"{commit_hash}..HEAD" if commit_hash else "HEAD"
     try:
         salida = subprocess.run(
             ["git", "log", rango, "--pretty=format:%H|%s"],
-            capture_output=True, text=True, check=True
+            capture_output=True, text=True, check=True, cwd=cwd
         )
     except subprocess.CalledProcessError as e:
         print("Error al leer commits de git:", e.stderr)
@@ -62,17 +93,17 @@ def commits_desde(commit_hash):
     return commits
 
 
-def obtener_diff(commit_hash):
+def obtener_diff(commit_hash, cwd):
     cmd = ["git", "diff", f"{commit_hash}..HEAD"] if commit_hash else ["git", "diff", "HEAD~1..HEAD"]
-    salida = subprocess.run(cmd, capture_output=True, text=True)
+    salida = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
     return salida.stdout
 
 
-def archivos_modificados(commit_hash):
+def archivos_modificados(commit_hash, cwd):
     rango = f"{commit_hash}..HEAD" if commit_hash else "HEAD~1..HEAD"
     salida = subprocess.run(
         ["git", "diff", "--name-only", rango],
-        capture_output=True, text=True
+        capture_output=True, text=True, cwd=cwd
     )
     return [f for f in salida.stdout.splitlines() if f.strip()]
 
@@ -89,13 +120,11 @@ def siguiente_numero_version(historial):
 
 
 def redactar_con_ollama(commits, diff, archivos):
-    # --- AJUSTAR ESTE IMPORT AL NOMBRE REAL DE TU FUNCION EN ollamaIA.py ---
     try:
-        from ollamaIA import preguntar  # <-- cambiar 'preguntar' si tu funcion se llama distinto
-    except ImportError:
-        print("No pude importar una funcion 'preguntar' desde ollamaIA.py.")
-        print("Abri este script y ajusta el import en redactar_con_ollama()")
-        print("para que apunte al nombre real de tu funcion de consulta a Ollama.")
+        from core.IA.ollamaIA import conversar
+    except ImportError as e:
+        print(f"No pude importar 'conversar' desde core.IA.ollamaIA: {e}")
+        print("Verifica que este script se encuentre en Arche/core/IA/")
         sys.exit(1)
 
     mensajes_commits = "\n".join(f"- {c['mensaje']}" for c in commits)
@@ -117,28 +146,29 @@ describiendo QUE cambio, en primera persona ("Cambie...", "Corregi...",
 o el diff. Responde SOLO con las vinetas, una por linea, sin numeracion
 ni texto adicional."""
 
-    respuesta = preguntar(prompt)
+    respuesta = conversar(prompt, num_predict=300)
     lineas = [l.strip("-*• ").strip() for l in respuesta.splitlines() if l.strip()]
     return lineas
 
 
 def main():
-    if not (Path(__file__).parent / ".git").exists():
-        print("No encontre un repositorio git en esta carpeta.")
-        print("Corre 'git init' primero (ver GUIA_GIT.md).")
+    cwd_git = raiz_git()
+    if cwd_git is None:
+        print("No encontre un repositorio git desde esta ubicacion.")
+        print("Verifica que exista un .git en algun nivel arriba (ver GUIA_GIT.md).")
         sys.exit(1)
 
     historial = cargar_historial()
     ultima = ultima_version_confirmada(historial)
     hash_base = ultima.get("commit_hash") if ultima else None
 
-    commits = commits_desde(hash_base)
+    commits = commits_desde(hash_base, cwd_git)
     if not commits:
         print("No hay commits nuevos desde la ultima version registrada.")
         return
 
-    diff = obtener_diff(hash_base)
-    archivos = archivos_modificados(hash_base)
+    diff = obtener_diff(hash_base, cwd_git)
+    archivos = archivos_modificados(hash_base, cwd_git)
     nueva_version = siguiente_numero_version(historial)
 
     print(f"\nArche: Revise el historial desde la ultima vez que actualice mi "
@@ -152,7 +182,7 @@ def main():
         print(f"  - {c}")
 
     hash_actual = subprocess.run(
-        ["git", "rev-parse", "HEAD"], capture_output=True, text=True
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=cwd_git
     ).stdout.strip()
 
     while True:

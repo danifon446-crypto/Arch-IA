@@ -2,26 +2,31 @@
 integracion_autoconocimiento.py
 ---------------------------------
 Este NO es un archivo nuevo para dejar suelto en el proyecto: es una guia
-de que copiar dentro de main.py.
+de que copiar dentro de Arche/main.py.
+
+CORREGIDO respecto a la version anterior: los imports ahora usan la ruta
+real de paquete (core.IA.introspeccion), igual que ya hace tu main.py con
+"from core.IA.ollamaIA import conversar". Antes asumia que introspeccion.py
+estaba al lado de main.py, pero en realidad esta en core/IA/.
 
 Pasos:
-  1. Copia las funciones de mas abajo dentro de main.py (o en un archivo
-     nuevo, ej. autoconocimiento.py, e importalas desde main.py).
-  2. En el lugar donde ya evaluas los comandos deterministas (notas,
-     calculadora, archivos, config) ANTES de llamar a analizar(), agrega
-     la llamada a manejar_autoconocimiento() como uno mas de esos
-     comandos deterministas.
+  1. Copia las funciones de mas abajo dentro de Arche/main.py (junto a los
+     otros imports de core.IA que ya tenes al principio del archivo).
+  2. En el lugar donde ya evaluas los comandos deterministas ANTES de
+     llamar a comprender()/analizar(), agrega la llamada a
+     manejar_autoconocimiento() como uno mas de esos comandos.
 
-Requiere en el mismo directorio:
-    - historial_versiones.json  (Fase 1, paso 1)
-    - introspeccion.py          (Fase 1, paso 3)
+Requiere que ya existan:
+    - Arche/core/IA/historial_versiones.json
+    - Arche/core/IA/introspeccion.py  (version corregida)
 """
 
 import json
 from pathlib import Path
-from introspeccion import reporte_texto
+from core.IA.introspeccion import reporte_texto
 
-HISTORIAL_PATH = Path(__file__).parent / "historial_versiones.json"
+# main.py esta en Arche/, y el historial vive en Arche/core/IA/
+HISTORIAL_PATH = Path(__file__).parent / "core" / "IA" / "historial_versiones.json"
 
 FRASES_CHANGELOG = [
     "en que has mejorado", "en qué has mejorado", "que version tenes",
@@ -57,13 +62,13 @@ def responder_changelog():
 
 
 def responder_dependencia_ollama():
-    return reporte_texto(directorio=str(Path(__file__).parent))
+    return reporte_texto()  # ya no necesita argumento: calcula la raiz solo
 
 
 def manejar_autoconocimiento(texto_usuario: str):
     """
     Devuelve una respuesta (str) si el texto matchea, o None si no,
-    para que el flujo normal de main.py siga su curso hacia analizar().
+    para que el flujo normal de main.py siga su curso hacia comprender().
     """
     texto = texto_usuario.lower()
     if any(f in texto for f in FRASES_CHANGELOG):
@@ -79,4 +84,4 @@ def manejar_autoconocimiento(texto_usuario: str):
 # if respuesta is not None:
 #     print(respuesta)
 # else:
-#     analizar(texto_usuario)  # tu flujo existente
+#     ...tu flujo existente (comprender(), etc.)...
