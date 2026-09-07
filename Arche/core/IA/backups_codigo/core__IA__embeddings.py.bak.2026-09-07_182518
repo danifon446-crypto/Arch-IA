@@ -65,3 +65,11 @@ def similitud_coseno(vector_a, vector_b):
     return float(np.dot(a, b))
 
 
+def precargar():
+    """
+    Llamar esto al arrancar Arché (ej. en main.py) si quieres que la
+    descarga/carga del modelo ocurra al inicio en vez de en el primer
+    comando del usuario (para que el primer "abre spotify" no se sienta
+    lento por la carga del modelo).
+    """
+    _cargar_modelo()

@@ -106,3 +106,58 @@ def buscar_archivo(nombre):
 # ABRIR
 
 
+def abrir_archivo(nombre):
+
+    resultados = buscar_archivo(nombre)
+
+    if len(resultados) == 0:
+
+        print("Arché: No encontré ese archivo.")
+
+        return
+
+    if len(resultados) == 1:
+
+        ruta = resultados[0]
+
+        cache = cargar_cache()
+
+        cache[nombre.lower()] = ruta
+
+        guardar_cache(cache)
+
+        print("Arché: Abriendo archivo...")
+
+        time.sleep(1)
+
+        os.startfile(ruta)
+
+        return
+
+    print("\nArché: Encontré varios archivos:\n")
+
+    for i, ruta in enumerate(resultados, start=1):
+
+        print(f"{i}. {os.path.basename(ruta)}")
+
+    try:
+
+        opcion = int(input("\nNúmero: "))
+
+        ruta = resultados[opcion - 1]
+
+        cache = cargar_cache()
+
+        cache[nombre.lower()] = ruta
+
+        guardar_cache(cache)
+
+        print("Arché: Abriendo archivo...")
+
+        time.sleep(1)
+
+        os.startfile(ruta)
+
+    except:
+
+        print("Arché: Opción inválida.")

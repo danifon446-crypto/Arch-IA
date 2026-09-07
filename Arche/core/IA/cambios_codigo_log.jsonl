@@ -2,3 +2,13 @@
 {"tipo": "cambio_codigo_aplicado", "id": "cod_1", "archivo": "core/notas.py", "backup": "core__notas.py.bak.2026-09-06_205637", "timestamp": "2026-09-06T20:56:37.083937"}
 {"tipo": "propuesta_codigo_generada", "id": "cod_2", "archivo": "core/notas.py", "origen": "ia", "timestamp": "2026-09-06T21:17:48.976980"}
 {"tipo": "cambio_codigo_aplicado", "id": "cod_2", "archivo": "core/notas.py", "backup": "core__notas.py.bak.2026-09-06_212019", "timestamp": "2026-09-06T21:20:19.629969"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_3", "archivo": "core/archivos1.py", "origen": "manual", "timestamp": "2026-09-07T18:19:17.803674"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_4", "archivo": "core/navegador.py", "origen": "manual", "timestamp": "2026-09-07T18:19:17.813960"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_5", "archivo": "core/utilidades.py", "origen": "manual", "timestamp": "2026-09-07T18:19:17.819480"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_6", "archivo": "core/IA/aprendizaje.py", "origen": "manual", "timestamp": "2026-09-07T18:19:17.821909"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_7", "archivo": "core/IA/embeddings.py", "origen": "manual", "timestamp": "2026-09-07T18:19:17.821909"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_3", "archivo": "core/archivos1.py", "backup": "core__archivos1.py.bak.2026-09-07_182150", "timestamp": "2026-09-07T18:21:51.008119"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_4", "archivo": "core/navegador.py", "backup": "core__navegador.py.bak.2026-09-07_182224", "timestamp": "2026-09-07T18:22:24.844224"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_5", "timestamp": "2026-09-07T18:23:31.309358"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_6", "timestamp": "2026-09-07T18:24:32.301087"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_7", "archivo": "core/IA/embeddings.py", "backup": "core__IA__embeddings.py.bak.2026-09-07_182518", "timestamp": "2026-09-07T18:25:19.205498"}

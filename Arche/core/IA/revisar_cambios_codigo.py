@@ -8,16 +8,19 @@ proponer_cambio_codigo.py) como un diff real -- no solo el resumen de
 qué/por qué/cómo -- y pide aprobación explícita [s/n] antes de tocar un
 solo archivo.
 
-Mismo flujo de seguridad que revisar_propuestas.py, generalizado a
-cualquier archivo:
+Flujo de seguridad, generalizado a cualquier archivo:
     1. Backup del archivo completo, con timestamp (nunca se sobreescribe
        un backup viejo).
     2. El cambio se arma primero en memoria.
     3. Si el archivo es .py, se valida que el resultado sea sintácticamente
        válido (ast.parse) ANTES de escribir nada al archivo real.
-    4. Si algo falla en el camino, se aborta y NO se toca el archivo real
-       (o se restaura el backup si ya se alcanzó a escribir).
-    5. Se registra el resultado en el log inmutable (cambios_codigo_log.jsonl).
+    4. Se escribe el cambio al archivo real.
+    5. SMOKE TEST: se intenta IMPORTAR el módulo modificado en un proceso
+       aparte. Esto es distinto (y más fuerte) que solo validar sintaxis:
+       código sintácticamente válido puede romper en tiempo de ejecución
+       (ej. borrar algo que otro módulo referencia). Si el import falla
+       o se cuelga, se restaura el backup automáticamente y se aborta.
+    6. Se registra el resultado en el log inmutable (cambios_codigo_log.jsonl).
 
 Uso:
     python core/IA/revisar_cambios_codigo.py
@@ -27,6 +30,8 @@ import ast
 import difflib
 import json
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 from datetime import datetime
 
@@ -36,6 +41,14 @@ BASE = Path(__file__).parent
 ARCHIVO_PENDIENTES = BASE / "cambios_codigo_pendientes.json"
 ARCHIVO_LOG = BASE / "cambios_codigo_log.jsonl"
 CARPETA_BACKUPS = BASE / "backups_codigo"
+
+# Archivos donde NO tiene sentido (o es peligroso) hacer un smoke test
+# por import: main.py tiene un bucle infinito con input() a nivel de
+# modulo -- importarlo se quedaria colgado esperando texto del usuario.
+# Para estos, solo se valida sintaxis (ast.parse), como antes.
+SMOKE_TEST_EXCLUIDOS = {"main.py"}
+
+TIMEOUT_SMOKE_TEST_SEGUNDOS = 15
 
 
 def _cargar_pendientes():
@@ -85,6 +98,49 @@ def _diff(contenido_actual, contenido_nuevo, archivo):
     ))
 
 
+def _ruta_a_modulo(archivo_norm: str):
+    """'core/notas.py' -> 'core.notas' (para poder importarlo)."""
+    sin_extension = archivo_norm[:-3] if archivo_norm.endswith(".py") else archivo_norm
+    return sin_extension.replace("/", ".")
+
+
+def _smoke_test_import(archivo_norm: str):
+    """
+    Prueba REAL de que el modulo modificado carga sin explotar -- a
+    diferencia de ast.parse, que solo confirma sintaxis valida. Un
+    codigo puede parsear perfecto y aun asi romper en tiempo de
+    ejecucion (ej. borrar una funcion que otro modulo usa por
+    convencion, referenciar un nombre que ya no existe).
+
+    Corre en un proceso aparte (no contamina este proceso, no se ve
+    afectado por imports previos), con timeout por si algo se cuelga.
+    Devuelve (ok: bool, detalle: str).
+    """
+    if archivo_norm in SMOKE_TEST_EXCLUIDOS:
+        return True, "smoke test saltado (archivo en SMOKE_TEST_EXCLUIDOS)"
+
+    modulo = _ruta_a_modulo(archivo_norm)
+
+    try:
+        resultado = subprocess.run(
+            [sys.executable, "-c", f"import {modulo}"],
+            capture_output=True, text=True, cwd=str(RAIZ_APP),
+            timeout=TIMEOUT_SMOKE_TEST_SEGUNDOS,
+            encoding="utf-8", errors="replace",
+        )
+    except subprocess.TimeoutExpired:
+        return False, (
+            f"El import de '{modulo}' se colgó más de "
+            f"{TIMEOUT_SMOKE_TEST_SEGUNDOS}s (posible bucle infinito o "
+            f"input() a nivel de módulo)."
+        )
+
+    if resultado.returncode != 0:
+        return False, resultado.stderr.strip()[-800:]  # ultimas lineas del traceback, alcanza para diagnosticar
+
+    return True, "import correcto"
+
+
 def aplicar_propuesta(propuesta):
     ruta = RAIZ_APP / propuesta["archivo"]
     contenido_actual = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
@@ -117,7 +173,25 @@ def aplicar_propuesta(propuesta):
         _log_inmutable({"tipo": "cambio_codigo_fallido_escritura", "id": propuesta["id"], "error": str(e)})
         return False
 
-    print(f"Arché: Listo, apliqué el cambio en {propuesta['archivo']}. Backup guardado en {backup_path.name}.")
+    # SMOKE TEST: el archivo ya se escribió (protegido por el backup de
+    # arriba). Si no carga, se restaura automaticamente y se informa.
+    if ruta.suffix == ".py":
+        ok, detalle = _smoke_test_import(propuesta["archivo"])
+        if not ok:
+            print(f"Arché: El cambio pasó la validación de sintaxis pero falló al intentar cargarlo de verdad.")
+            print(f"       Detalle: {detalle}")
+            print(f"       Restaurando el backup automáticamente, no dejo el cambio aplicado.")
+            if backup_path.exists():
+                shutil.copy2(backup_path, ruta)
+            _log_inmutable({
+                "tipo": "cambio_codigo_fallido_smoke_test",
+                "id": propuesta["id"],
+                "archivo": propuesta["archivo"],
+                "detalle": detalle,
+            })
+            return False
+
+    print(f"Arché: Listo, apliqué el cambio en {propuesta['archivo']} (pasó sintaxis y smoke test). Backup guardado en {backup_path.name}.")
     _log_inmutable({
         "tipo": "cambio_codigo_aplicado",
         "id": propuesta["id"],

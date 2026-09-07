@@ -22,5 +22,65 @@
     "origen": "ia",
     "estado": "aplicada",
     "fecha_propuesta": "2026-09-06T21:17:48.976980"
+  },
+  {
+    "id": "cod_3",
+    "archivo": "core/archivos1.py",
+    "buscar": "def abrir_archivo(nombre):\n\n    resultados = buscar_archivo(nombre)\n\n    if len(resultados) == 0:\n\n        print(\"Arché: No encontré ese archivo.\")\n\n        return\n\n    if len(resultados) == 1:\n\n        ruta = resultados[0]\n\n        cache = cargar_cache()\n\n        cache[nombre.lower()] = ruta\n\n        guardar_cache(cache)\n\n        print(\"Arché: Abriendo archivo...\")\n\n        time.sleep(1)\n\n        os.startfile(ruta)\n\n        return\n\n    print(\"\\nArché: Encontré varios archivos:\\n\")\n\n    for i, ruta in enumerate(resultados, start=1):\n\n        print(f\"{i}. {os.path.basename(ruta)}\")\n\n    try:\n\n        opcion = int(input(\"\\nNúmero: \"))\n\n        ruta = resultados[opcion - 1]\n\n        cache = cargar_cache()\n\n        cache[nombre.lower()] = ruta\n\n        guardar_cache(cache)\n\n        print(\"Arché: Abriendo archivo...\")\n\n        time.sleep(1)\n\n        os.startfile(ruta)\n\n    except:\n\n        print(\"Arché: Opción inválida.\")",
+    "reemplazar": "",
+    "que": "Eliminar la función 'abrir_archivo', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-07T18:19:17.803674"
+  },
+  {
+    "id": "cod_4",
+    "archivo": "core/navegador.py",
+    "buscar": "def existe_sitio(nombre):\n        return nombre.lower().strip() in sitios\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'existe_sitio', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-07T18:19:17.813960"
+  },
+  {
+    "id": "cod_5",
+    "archivo": "core/utilidades.py",
+    "buscar": "def extraer_contenido(comando, palabras):\n    comando = comando.lower()\n\n    for palabra in palabras:\n        if comando.startswith(palabra):\n            return comando[len(palabra):].strip()\n\n    return \"\"",
+    "reemplazar": "",
+    "que": "Eliminar la función 'extraer_contenido', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-07T18:19:17.816901"
+  },
+  {
+    "id": "cod_6",
+    "archivo": "core/IA/aprendizaje.py",
+    "buscar": "def actualizar_embeddings():\n    \"\"\"\n    Migración: recorre conocimiento.json y calcula el embedding de las\n    entradas que fueron aprendidas ANTES de agregar esta capa (por eso\n    no tienen el campo \"embedding\" todavía). Correr una sola vez luego\n    de instalar sentence-transformers.\n    \"\"\"\n    try:\n        from core.IA.embeddings import calcular_embedding\n    except Exception as e:\n        print(f\"Arché: No se pudo cargar el módulo de embeddings ({e}).\")\n        return\n\n    datos = cargar()\n    actualizados = 0\n\n    for dato in datos:\n        if not dato.get(\"embedding\"):\n            dato[\"embedding\"] = calcular_embedding(dato[\"pregunta\"])\n            actualizados += 1\n\n    guardar(datos)\n    print(f\"Arché: {actualizados} entradas actualizadas con embedding.\")",
+    "reemplazar": "",
+    "que": "Eliminar la función 'actualizar_embeddings', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-07T18:19:17.821909"
+  },
+  {
+    "id": "cod_7",
+    "archivo": "core/IA/embeddings.py",
+    "buscar": "def precargar():\n    \"\"\"\n    Llamar esto al arrancar Arché (ej. en main.py) si quieres que la\n    descarga/carga del modelo ocurra al inicio en vez de en el primer\n    comando del usuario (para que el primer \"abre spotify\" no se sienta\n    lento por la carga del modelo).\n    \"\"\"\n    _cargar_modelo()\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'precargar', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-07T18:19:17.821909"
   }
 ]

@@ -1,0 +1,52 @@
+{
+  "cerebroIA.py::analizar": {
+    "hash": "d55fae961367f230bd79e77f8d43266fd243c6384e89da0468f21140eb9ea2ed",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:03:10.153195"
+  },
+  "main.py::_barra_progreso": {
+    "hash": "64dcbeecc1b5c6ecc14eed590aaf38e60f86d9bf65e9fe33d672eb6b89730511",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:03:14.012417"
+  },
+  "main.py::_mostrar_estado_red": {
+    "hash": "9b44c7807121913d33606f4a03cd8531d99906e1601c4440ba7572247e645215",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:03:25.714362"
+  },
+  "main.py::_mostrar_estadisticas": {
+    "hash": "92a579f2feada6e715c7fa0921ec55f4b4e6c809457cdc3cdae901b972a66cb2",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:03:33.919083"
+  },
+  "core/archivos.py::guardar_indice": {
+    "hash": "c88942043fc30af3bd2453d1d5b2600e980686e01911212ef967a294dca9aba6",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:03:37.451850"
+  },
+  "core/archivos.py::cargar_indice": {
+    "hash": "4f86498d8083ce5338ed913d8f56ba5996a31e8afdab56d293c0415aa5c3783d",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:05:42.886755"
+  },
+  "core/archivos.py::indexar_archivos": {
+    "hash": "2b445f7aa755cfc1ada0c847a676fda533b03256d4d299079b9436285628503b",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:05:52.915768"
+  },
+  "core/archivos.py::actualizar_indice": {
+    "hash": "9bd06cc502d9b01c841402d96814b9c5c671e3b1089a7be182677911ba8374a0",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:05:56.007912"
+  },
+  "core/archivos.py::buscar": {
+    "hash": "dc8ac6b4f533974430f8a1119eb65e641218d513ee9bb40552c404a4479d4656",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:05:59.463282"
+  },
+  "core/archivos.py::mostrar_resultados": {
+    "hash": "4d33c17d30961ed65dd44ebc671456761b4d16c45520c3521b8a20a3504cb283",
+    "resultado": "ok",
+    "fecha": "2026-09-07T18:06:03.691070"
+  }
+}

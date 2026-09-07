@@ -48,6 +48,8 @@ def aprender_sitio(sitio):
         abrir_navegador(sitio)
 
 
+def existe_sitio(nombre):
+        return nombre.lower().strip() in sitios
 
 
 def _buscar_ddg(consulta, max_results=5):
