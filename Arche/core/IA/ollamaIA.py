@@ -357,7 +357,13 @@ Ahora analiza:
         }
 
 
-def conversar(pregunta, num_predict=300):
+def conversar(pregunta, num_predict=300, temperature=0.7):
+    """
+    temperature=0.7 por defecto (charla normal, como siempre).
+    Para tareas que necesitan copiar texto exacto (ej. proponer_cambio_codigo.py
+    generando fragmentos de código), se puede bajar a 0.1 o menos: menos
+    "creatividad" del modelo, más fidelidad al texto original.
+    """
 
     prompt = f"""
 Eres Arché, un asistente inteligente.
@@ -384,7 +390,7 @@ Pregunta:
                 }
             ],
             options={
-                "temperature": 0.7,
+                "temperature": temperature,
                 # Limita la respuesta para que no se extienda de más.
                 # Súbelo si necesitas respuestas largas (resúmenes, explicaciones extensas).
                 "num_predict": num_predict,

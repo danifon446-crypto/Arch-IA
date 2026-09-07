@@ -8,7 +8,7 @@ carpeta_notas = os.path.join(DATABASE, "Notas")
 os.makedirs(carpeta_notas, exist_ok=True)
 
 def crear_nota(nombre):
-    print("Arché: Creando nota...")
+
     nombre = nombre.strip().lower()
     ruta = os.path.join(carpeta_notas, f"{nombre}.txt")
 
@@ -34,6 +34,7 @@ def crear_nota(nombre):
         archivo.write("\n".join(lineas))
 
     print(f"Arché: Nota '{nombre}' creada.")
+
 
 def leer_nota(nombre):
 

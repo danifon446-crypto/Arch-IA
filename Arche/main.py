@@ -125,9 +125,9 @@ def _mostrar_estadisticas():
     print("═" * 46 + "\n")
 
 
-print("=" * 60)
-print("        Arche v2.0.1")
-print("=" * 60)
+
+print("                  Arche v2.0.1")
+
 
 if obtener("nombre_usuario") == "Usuario":
     nombre = input("¿Cómo te llamas?\nTú: ").strip()

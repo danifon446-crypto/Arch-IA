@@ -21,6 +21,16 @@ Dos formas de generar una propuesta:
   2. proponer_cambio_ia(...) -- le pasas una instruccion en lenguaje
      natural y el archivo destino; Ollama redacta buscar/reemplazar.
 
+CORREGIDO (v2): proponer_cambio_ia ya NO le pide al modelo un JSON con
+el codigo escapado adentro -- eso obliga a un modelo chico a escapar
+comillas/saltos de linea correctamente, que es justo donde mas falla
+(devuelve JSON invalido, o corrompe el fragmento). Ahora se usa un
+formato de delimitadores de texto plano (el mismo enfoque que usan
+herramientas como Aider para edicion de codigo con LLMs chicos):
+el modelo copia el codigo tal cual, sin escapar nada. Ademas se llama
+a conversar() con temperature baja (0.1): copiar texto exacto no debe
+depender de la "creatividad" del modelo.
+
 NINGUNA de las dos funciones toca el archivo real. Eso solo pasa en
 revisar_cambios_codigo.py, con tu aprobacion explicita cada vez.
 
@@ -32,6 +42,7 @@ Arche no pueda aflojar sus propias restricciones desde adentro.
 
 import ast
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 
@@ -55,6 +66,48 @@ ARCHIVOS_PROTEGIDOS = {
 # archivos muy largos como contexto completo (mas probabilidad de que
 # "olvide" partes o transcriba mal el fragmento a buscar).
 MAX_CARACTERES_ARCHIVO = 12000
+
+# Reintentos si el modelo no devuelve el formato esperado o el
+# fragmento no coincide -- un modelo chico a veces acierta a la
+# segunda sin cambiar nada mas que el prompt de sistema (temperatura
+# baja igual deja algo de variabilidad).
+MAX_INTENTOS_IA = 2
+
+MARCA_INICIO_BUSCAR = "<<<<<<< BUSCAR"
+MARCA_SEPARADOR = "======="
+MARCA_FIN_REEMPLAZAR = ">>>>>>> REEMPLAZAR"
+
+PATRON_BLOQUE = re.compile(
+    re.escape(MARCA_INICIO_BUSCAR) + r"\n(.*?)\n" + re.escape(MARCA_SEPARADOR) +
+    r"\n(.*?)\n" + re.escape(MARCA_FIN_REEMPLAZAR),
+    re.DOTALL,
+)
+
+PATRON_MENCION_FUNCION = re.compile(r"funci[oó]n\s+([a-zA-Z_][a-zA-Z0-9_]*)")
+
+
+def _extraer_funcion(contenido, nombre_funcion):
+    """
+    Busca la funcion `nombre_funcion` en `contenido` (via ast) y
+    devuelve solo su codigo fuente exacto (con decoradores si los
+    tiene), o None si no la encuentra. Reduce drasticamente el
+    contexto que se le manda al modelo -- de un archivo entero a
+    unas pocas lineas.
+    """
+    try:
+        arbol = ast.parse(contenido)
+    except SyntaxError:
+        return None
+
+    lineas = contenido.splitlines(keepends=True)
+
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)) and nodo.name == nombre_funcion:
+            inicio = nodo.decorator_list[0].lineno if nodo.decorator_list else nodo.lineno
+            fin = nodo.end_lineno
+            return "".join(lineas[inicio - 1:fin])
+
+    return None
 
 
 def _ruta_absoluta(archivo: str) -> Path:
@@ -155,13 +208,62 @@ def proponer_cambio_manual(archivo, buscar, reemplazar, que=""):
     )
 
 
+def _armar_prompt(archivo_norm, contenido_relevante, instruccion):
+    return f"""Copiá un fragmento EXACTO de código y mostrá su versión modificada. No sos un chatbot: no expliques nada, no agregues texto fuera del formato pedido, no uses backticks de markdown.
+
+EJEMPLO de como se ve una respuesta correcta (con OTRO codigo, solo para que veas el formato):
+
+<<<<<<< BUSCAR
+def saludar(nombre):
+    print("Hola")
+=======
+def saludar(nombre):
+    print("Hola")
+    print(f"Bienvenido, {{nombre}}")
+>>>>>>> REEMPLAZAR
+
+Ahora hacé lo mismo para este caso real:
+
+Archivo: {archivo_norm}
+
+Fragmento de código relevante (SOLO esto, copiá de acá, no inventes nada que no este aca):
+---
+{contenido_relevante}
+---
+
+Instrucción: {instruccion}
+
+Respondé usando EXACTAMENTE el mismo formato del ejemplo de arriba (los tres marcadores tal cual: {MARCA_INICIO_BUSCAR}, {MARCA_SEPARADOR}, {MARCA_FIN_REEMPLAZAR}), sin nada mas antes ni despues.
+
+Reglas estrictas:
+- El bloque BUSCAR tiene que ser una copia EXACTA y literal de un fragmento del "Fragmento de código relevante" de arriba (mismos espacios, misma indentación, mismos saltos de línea).
+- El bloque REEMPLAZAR es ese mismo fragmento con el cambio pedido, conservando el resto igual.
+- Elegí el fragmento BUSCAR más chico posible que alcance para hacer el cambio.
+"""
+
+
+def _armar_prompt_archivo_completo(archivo_norm, contenido_actual, instruccion):
+    """Fallback cuando no se pudo aislar una funcion puntual: manda el
+    archivo completo (mismo riesgo de antes, pero es mejor que nada
+    si la instruccion no menciona una funcion reconocible)."""
+    return _armar_prompt(archivo_norm, contenido_actual, instruccion)
+
+
+def _extraer_bloque(texto_respuesta):
+    match = PATRON_BLOQUE.search(texto_respuesta)
+    if not match:
+        return None, None
+    return match.group(1), match.group(2)
+
+
 def proponer_cambio_ia(archivo, instruccion):
     """
     Le pide a Ollama que redacte un cambio tipo buscar/reemplazar para
-    lograr `instruccion` sobre `archivo`. Nunca reescribe el archivo
-    entero: se le pide explícitamente un fragmento acotado, y se valida
-    que ese fragmento exista tal cual en el archivo real antes de
-    aceptar la propuesta.
+    lograr `instruccion` sobre `archivo`, usando un formato de
+    delimitadores de texto plano (no JSON) para que el modelo no tenga
+    que escapar codigo -- solo copiarlo tal cual. Nunca reescribe el
+    archivo entero. Reintenta hasta MAX_INTENTOS_IA veces si el
+    formato o el fragmento no son validos.
     """
     from core.IA.ollamaIA import conversar
 
@@ -186,54 +288,65 @@ def proponer_cambio_ia(archivo, instruccion):
             f"acotado vos mismo, o pedí el cambio sobre una función más puntual."
         )
 
-    prompt = f"""Sos un asistente que propone UN SOLO cambio puntual de código, nunca reescribe archivos completos.
+    # Si la instruccion menciona una funcion puntual, aislarla via ast
+    # reduce muchisimo el contexto que ve el modelo -- mejora notable
+    # en modelos chicos, que se "pierden" con archivos completos.
+    match_funcion = PATRON_MENCION_FUNCION.search(instruccion)
+    contenido_para_prompt = contenido_actual
+    if match_funcion:
+        fragmento_funcion = _extraer_funcion(contenido_actual, match_funcion.group(1))
+        if fragmento_funcion:
+            contenido_para_prompt = fragmento_funcion
 
-Archivo: {archivo_norm}
-Contenido actual completo:
----
-{contenido_actual}
----
+    prompt = _armar_prompt(archivo_norm, contenido_para_prompt, instruccion)
 
-Instrucción: {instruccion}
+    ultimo_error = "No se obtuvo respuesta del modelo."
 
-Respondé SOLO con un JSON con este formato exacto, sin texto adicional ni backticks:
-{{"buscar": "<fragmento EXACTO y literal que existe en el archivo de arriba, copiado carácter por carácter incluyendo indentación>", "reemplazar": "<ese mismo fragmento ya modificado>", "explicacion": "<una frase corta de qué cambia y por qué>"}}
+    for intento in range(1, MAX_INTENTOS_IA + 1):
+        respuesta = conversar(prompt, num_predict=600, temperature=0.1)
 
-Reglas estrictas:
-- "buscar" tiene que ser una copia EXACTA de un fragmento contiguo del archivo de arriba. Si no podés garantizar una copia exacta, elegí un fragmento más chico y simple (por ejemplo una sola línea o un bloque corto).
-- Elegí el fragmento más chico posible que resuelva la instrucción. No reescribas el archivo completo.
-- No agregues nada fuera del JSON.
-"""
+        buscar, reemplazar = _extraer_bloque(respuesta)
 
-    respuesta = conversar(prompt, num_predict=1200)
+        if buscar is None:
+            ultimo_error = (
+                "Ollama no devolvió el formato esperado (BUSCAR/REEMPLAZAR). "
+                f"Intento {intento}/{MAX_INTENTOS_IA}."
+            )
+            continue
 
-    inicio = respuesta.find("{")
-    fin = respuesta.rfind("}") + 1
-    try:
-        datos = json.loads(respuesta[inicio:fin])
-    except (json.JSONDecodeError, ValueError):
-        return None, "Ollama no devolvió un JSON válido para este cambio. Podés reintentar o hacerlo manual con proponer_cambio_manual."
+        # El modelo a veces agrega una linea en blanco de mas al principio/final
+        # del bloque -- eso no cambia la indentacion INTERNA, es seguro recortarlo.
+        buscar_candidatos = [buscar, buscar.strip("\n")]
 
-    buscar = datos.get("buscar", "")
-    reemplazar = datos.get("reemplazar", "")
-    explicacion = datos.get("explicacion", instruccion)
+        encontrado = None
+        for candidato in buscar_candidatos:
+            if candidato and candidato in contenido_actual:
+                encontrado = candidato
+                break
 
-    if not buscar or buscar not in contenido_actual:
-        return None, (
-            "El fragmento que propuso Ollama no coincide exactamente con el "
-            "archivo real (pasa seguido con modelos chicos ante instrucciones "
-            "amplias). No se creó ninguna propuesta -- probá con una instrucción "
-            "más puntual (una función específica) o usá proponer_cambio_manual."
+        if encontrado is None:
+            ultimo_error = (
+                "El fragmento que propuso Ollama no coincide exactamente con el "
+                "archivo real (pasa seguido con modelos chicos ante instrucciones "
+                f"amplias). Intento {intento}/{MAX_INTENTOS_IA}."
+            )
+            continue
+
+        reemplazar_final = reemplazar.strip("\n") if encontrado == buscar.strip("\n") else reemplazar
+
+        return _crear_propuesta(
+            archivo=archivo_norm,
+            buscar=encontrado,
+            reemplazar=reemplazar_final,
+            que=f"Modificar un fragmento de {archivo_norm} según: {instruccion}",
+            por_que=f"Generado por Ollama (arche-lora) a partir de la instrucción: {instruccion}",
+            como="Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición, redactado por Ollama.",
+            origen="ia",
         )
 
-    return _crear_propuesta(
-        archivo=archivo_norm,
-        buscar=buscar,
-        reemplazar=reemplazar,
-        que=f"Modificar un fragmento de {archivo_norm} según: {instruccion}",
-        por_que=explicacion,
-        como="Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición, redactado por Ollama.",
-        origen="ia",
+    return None, (
+        ultimo_error + " Probá con una instrucción más puntual (una función "
+        "específica, un cambio de 1-2 líneas) o usá proponer_cambio_manual."
     )
 
 

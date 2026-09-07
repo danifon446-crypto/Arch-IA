@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cod_1",
+    "archivo": "core/notas.py",
+    "buscar": "def crear_nota(nombre):",
+    "reemplazar": "def crear_nota(nombre):\n    print(\"Arche: creando nota nueva.\")",
+    "que": "Agregar print de confirmacion",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "manual",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-06T20:55:35.981286"
+  },
+  {
+    "id": "cod_2",
+    "archivo": "core/notas.py",
+    "buscar": "def crear_nota(nombre):\n\n    nombre = nombre.strip().lower()\n    ruta = os.path.join(carpeta_notas, f\"{nombre}.txt\")\n\n    if os.path.exists(ruta):\n        print(\"Arché: Esa nota ya existe.\")\n        return\n\n    print(\"Arché: Escribe la nota.\")\n    print(\"Arché: Cuando termines escribe FIN en una línea nueva.\\n\")\n\n    lineas = []\n\n    while True:\n\n        texto = input()\n\n        if texto.upper() == \"FIN\":\n            break\n\n        lineas.append(texto)\n\n    with open(ruta, \"w\", encoding=\"utf-8\") as archivo:\n        archivo.write(\"\\n\".join(lineas))\n\n    print(f\"Arché: Nota '{nombre}' creada.\")\n",
+    "reemplazar": "def crear_nota(nombre):\n    print(\"Arché: Creando nota...\")\n    nombre = nombre.strip().lower()\n    ruta = os.path.join(carpeta_notas, f\"{nombre}.txt\")\n\n    if os.path.exists(ruta):\n        print(\"Arché: Esa nota ya existe.\")\n        return\n\n    print(\"Arché: Escribe la nota.\")\n    print(\"Arché: Cuando termines escribe FIN en una línea nueva.\\n\")\n\n    lineas = []\n\n    while True:\n\n        texto = input()\n\n        if texto.upper() == \"FIN\":\n            break\n\n        lineas.append(texto)\n\n    with open(ruta, \"w\", encoding=\"utf-8\") as archivo:\n        archivo.write(\"\\n\".join(lineas))\n\n    print(f\"Arché: Nota '{nombre}' creada.\")",
+    "que": "Modificar un fragmento de core/notas.py según: agregar un print de confirmacion al inicio de la funcion crear_nota",
+    "por_que": "Generado por Ollama (arche-lora) a partir de la instrucción: agregar un print de confirmacion al inicio de la funcion crear_nota",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición, redactado por Ollama.",
+    "origen": "ia",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-06T21:17:48.976980"
+  }
+]
