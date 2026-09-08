@@ -35,6 +35,16 @@ import sys
 from pathlib import Path
 from datetime import datetime
 
+# Igual que en autorevision.py: si este archivo se corre standalone
+# (python core/IA/revisar_cambios_codigo.py), sys.path[0] apunta a
+# core/IA, no a la raiz del proyecto -- hay que agregarla a mano ANTES
+# de importar nada de core.IA.
+_RAIZ_APP_TEMPRANO = Path(__file__).resolve().parents[2]
+if str(_RAIZ_APP_TEMPRANO) not in sys.path:
+    sys.path.insert(0, str(_RAIZ_APP_TEMPRANO))
+
+from core.IA.evaluar_confianza import evaluar_riesgo
+
 RAIZ_APP = Path(__file__).resolve().parents[2]
 BASE = Path(__file__).parent
 
@@ -201,6 +211,124 @@ def aplicar_propuesta(propuesta):
     return True
 
 
+MAX_ITEMS_POR_LOTE = 8
+
+ETIQUETA_ORIGEN = {
+    "usuario_directo": "pedido directamente por vos",
+    "autorevision": "detectado por autorevisión propia",
+    "generalizado": "extrapolado de un cambio aprobado antes",
+    # valores viejos, por si quedan propuestas pendientes de antes de este cambio
+    "manual": "especificado directo (sin Ollama)",
+    "ia": "redactado por Ollama a pedido tuyo",
+}
+
+
+def _armar_lotes(pendientes):
+    """Agrupa por origen, en orden, con tope de MAX_ITEMS_POR_LOTE por
+    lote. Deliberadamente NO se agrupa por similitud de contenido --
+    eso agregaría un criterio más para auditar y otra fuente de
+    errores. Agrupar por origen ya resuelve el caso real (muchos
+    hallazgos de autorevision juntos) sin ese costo."""
+    por_origen = {}
+    for p in pendientes:
+        por_origen.setdefault(p.get("origen", "usuario_directo"), []).append(p)
+
+    lotes = []
+    for origen, items in por_origen.items():
+        for i in range(0, len(items), MAX_ITEMS_POR_LOTE):
+            lotes.append(items[i:i + MAX_ITEMS_POR_LOTE])
+    return lotes
+
+
+def _mostrar_item_resumen(indice, propuesta):
+    nivel, motivo = evaluar_riesgo(propuesta)
+    origen_texto = ETIQUETA_ORIGEN.get(propuesta.get("origen", ""), propuesta.get("origen", "desconocido"))
+    print(f" [{indice}] {propuesta['archivo']} — {propuesta['que']}")
+    print(f"     Origen: {origen_texto}")
+    print(f"     Riesgo: {nivel} ({motivo})")
+
+
+def _mostrar_diff_item(propuesta):
+    ruta = RAIZ_APP / propuesta["archivo"]
+    contenido_actual = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
+    contenido_nuevo = _calcular_contenido_nuevo(propuesta, contenido_actual)
+    print(f"\nPOR QUÉ: {propuesta['por_que']}")
+    print(f"CÓMO:    {propuesta['como']}")
+    print("\nDIFF:")
+    diff_texto = _diff(contenido_actual, contenido_nuevo, propuesta["archivo"])
+    print(diff_texto if diff_texto else "(archivo nuevo, sin contenido previo)")
+
+
+def _parsear_respuesta(resp, cantidad):
+    """Devuelve el set de índices (1-based) a aprobar, o None si la
+    respuesta no fue reconocida (para volver a preguntar)."""
+    resp = resp.strip().lower()
+    if resp == "s":
+        return set(range(1, cantidad + 1))
+    if resp == "n":
+        return set()
+    if resp.startswith("s "):
+        try:
+            return {int(x) for x in resp[2:].replace(",", " ").split()}
+        except ValueError:
+            return None
+    return None
+
+
+def _procesar_lote(lote, numero_lote, total_lotes):
+    print("\n" + "=" * 60)
+    print(f"LOTE {numero_lote} de {total_lotes} — {len(lote)} cambio(s)")
+    print("=" * 60)
+
+    for i, propuesta in enumerate(lote, start=1):
+        _mostrar_item_resumen(i, propuesta)
+
+    print("-" * 60)
+    print("Opciones: 's' (aprobar todo el lote) | 'n' (rechazar todo) | "
+          "'s 1,3' (aprobar solo esos ítems) | 'ver N' (ver el diff del ítem N)")
+
+    aprobados = None
+    while aprobados is None:
+        resp = input("\nTu respuesta: ").strip().lower()
+
+        if resp.startswith("ver "):
+            try:
+                idx = int(resp[4:].strip())
+                if 1 <= idx <= len(lote):
+                    _mostrar_diff_item(lote[idx - 1])
+                else:
+                    print(f"No hay ítem {idx} en este lote (son {len(lote)}).")
+            except ValueError:
+                print("Usá 'ver N' con el número del ítem, ej: ver 2")
+            continue
+
+        aprobados = _parsear_respuesta(resp, len(lote))
+        if aprobados is None:
+            print("No entendí esa respuesta. Usá 's', 'n', 's 1,3' o 'ver N'.")
+
+    resultados = []  # (indice, propuesta, estado_final, detalle)
+    for i, propuesta in enumerate(lote, start=1):
+        if i in aprobados:
+            aplicada = aplicar_propuesta(propuesta)
+            propuesta["estado"] = "aplicada" if aplicada else "fallida"
+            resultados.append((i, propuesta, propuesta["estado"]))
+        else:
+            propuesta["estado"] = "rechazada"
+            _log_inmutable({"tipo": "cambio_codigo_rechazado", "id": propuesta["id"]})
+            resultados.append((i, propuesta, "rechazada"))
+
+    print("\n" + "-" * 60)
+    print(f"RESUMEN DEL LOTE {numero_lote}")
+    print("-" * 60)
+    for i, propuesta, estado in resultados:
+        if estado == "aplicada":
+            print(f"  ✔ [{i}] {propuesta['archivo']} — aplicado, pasó sintaxis y smoke test")
+        elif estado == "fallida":
+            print(f"  ✘ [{i}] {propuesta['archivo']} — falló la validación, se restauró el backup automáticamente (ver detalle arriba)")
+        else:
+            print(f"  – [{i}] {propuesta['archivo']} — rechazado")
+
+
 def main():
     propuestas = _cargar_pendientes()
     pendientes = [p for p in propuestas if p["estado"] == "pendiente"]
@@ -209,31 +337,9 @@ def main():
         print("No hay propuestas de código pendientes para revisar.")
         return
 
-    for propuesta in pendientes:
-        ruta = RAIZ_APP / propuesta["archivo"]
-        contenido_actual = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
-        contenido_nuevo = _calcular_contenido_nuevo(propuesta, contenido_actual)
-
-        print("\n" + "=" * 60)
-        print(f"Propuesta {propuesta['id']}  (origen: {propuesta['origen']})")
-        print("=" * 60)
-        print(f"ARCHIVO:  {propuesta['archivo']}")
-        print(f"QUÉ:      {propuesta['que']}")
-        print(f"POR QUÉ:  {propuesta['por_que']}")
-        print(f"CÓMO:     {propuesta['como']}")
-        print("\nDIFF:")
-        diff_texto = _diff(contenido_actual, contenido_nuevo, propuesta["archivo"])
-        print(diff_texto if diff_texto else "(archivo nuevo, sin contenido previo)")
-
-        resp = input("\n¿Aprobás este cambio? [s/n]: ").strip().lower()
-
-        if resp == "s":
-            aplicada = aplicar_propuesta(propuesta)
-            propuesta["estado"] = "aplicada" if aplicada else "fallida"
-        else:
-            propuesta["estado"] = "rechazada"
-            _log_inmutable({"tipo": "cambio_codigo_rechazado", "id": propuesta["id"]})
-            print("Arché: Entendido, la descarto.")
+    lotes = _armar_lotes(pendientes)
+    for numero, lote in enumerate(lotes, start=1):
+        _procesar_lote(lote, numero, len(lotes))
 
     _guardar_pendientes(propuestas)
 

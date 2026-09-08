@@ -342,6 +342,7 @@ def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
             buscar=candidato["codigo"],
             reemplazar="",
             que=f"Eliminar la función '{candidato['nombre']}', que no tiene referencias reales en ningún otro lugar del proyecto.",
+            origen="autorevision",
         )
         if propuesta:
             ids_generados.append(propuesta["id"])
@@ -412,7 +413,7 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
             if bug:
                 print(f"⚠ {bug}")
                 reporte["revision_ia"]["bugs_encontrados"].append({"archivo": rel, "funcion": fn["nombre"], "bug": bug})
-                propuesta, error = proponer_cambio_ia(rel, f"corregir este bug: {bug}")
+                propuesta, error = proponer_cambio_ia(rel, f"corregir este bug: {bug}", origen="autorevision")
                 if propuesta:
                     reporte["revision_ia"]["propuestas_generadas"].append(propuesta["id"])
                     print(f"    -> propuesta {propuesta['id']} generada")

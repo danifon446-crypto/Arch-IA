@@ -185,7 +185,7 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
         "que": que,
         "por_que": por_que,
         "como": como,
-        "origen": origen,  # "manual" o "ia"
+        "origen": origen,  # "usuario_directo" | "autorevision" | "generalizado"
         "estado": "pendiente",
         "fecha_propuesta": datetime.now().isoformat(),
     }
@@ -195,8 +195,17 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
     return propuesta, None
 
 
-def proponer_cambio_manual(archivo, buscar, reemplazar, que=""):
-    """100% deterministico, no usa Ollama. Vos das el fragmento exacto."""
+def proponer_cambio_manual(archivo, buscar, reemplazar, que="", origen="usuario_directo"):
+    """100% deterministico, no usa Ollama. Vos das el fragmento exacto.
+
+    origen: quién generó la IDEA de este cambio (no quién lo escribió):
+      - "usuario_directo": lo pediste vos en esta conversación.
+      - "autorevision": Arché lo detectó solo corriendo autorevision.py
+        (por ejemplo, código muerto sin referencias).
+      - "generalizado": Arché lo extrapoló de un cambio aprobado antes
+        (no hay nada todavía que genere este valor automáticamente;
+        el campo queda listo para cuando se construya esa capa).
+    """
     return _crear_propuesta(
         archivo=archivo,
         buscar=buscar,
@@ -204,7 +213,7 @@ def proponer_cambio_manual(archivo, buscar, reemplazar, que=""):
         que=que or f"Reemplazar un fragmento en {archivo}.",
         por_que="Cambio especificado directamente, sin pasar por Ollama.",
         como="Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
-        origen="manual",
+        origen=origen,
     )
 
 
@@ -256,7 +265,7 @@ def _extraer_bloque(texto_respuesta):
     return match.group(1), match.group(2)
 
 
-def proponer_cambio_ia(archivo, instruccion):
+def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
     """
     Le pide a Ollama que redacte un cambio tipo buscar/reemplazar para
     lograr `instruccion` sobre `archivo`, usando un formato de
@@ -264,6 +273,10 @@ def proponer_cambio_ia(archivo, instruccion):
     que escapar codigo -- solo copiarlo tal cual. Nunca reescribe el
     archivo entero. Reintenta hasta MAX_INTENTOS_IA veces si el
     formato o el fragmento no son validos.
+
+    origen: "usuario_directo" (pedido en el chat, vía "escribe en ...")
+    o "autorevision" (Arché lo generó solo al encontrar un bug en
+    autorevision.py). Ver docstring de proponer_cambio_manual.
     """
     from core.IA.ollamaIA import conversar
 
@@ -341,7 +354,7 @@ def proponer_cambio_ia(archivo, instruccion):
             que=f"Modificar un fragmento de {archivo_norm} según: {instruccion}",
             por_que=f"Generado por Ollama (arche-lora) a partir de la instrucción: {instruccion}",
             como="Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición, redactado por Ollama.",
-            origen="ia",
+            origen=origen,
         )
 
     return None, (
