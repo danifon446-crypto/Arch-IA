@@ -360,3 +360,26 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO)
     return None
 
 
+def actualizar_embeddings():
+    """
+    Migración: recorre conocimiento.json y calcula el embedding de las
+    entradas que fueron aprendidas ANTES de agregar esta capa (por eso
+    no tienen el campo "embedding" todavía). Correr una sola vez luego
+    de instalar sentence-transformers.
+    """
+    try:
+        from core.IA.embeddings import calcular_embedding
+    except Exception as e:
+        print(f"Arché: No se pudo cargar el módulo de embeddings ({e}).")
+        return
+
+    datos = cargar()
+    actualizados = 0
+
+    for dato in datos:
+        if not dato.get("embedding"):
+            dato["embedding"] = calcular_embedding(dato["pregunta"])
+            actualizados += 1
+
+    guardar(datos)
+    print(f"Arché: {actualizados} entradas actualizadas con embedding.")

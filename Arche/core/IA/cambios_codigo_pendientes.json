@@ -82,5 +82,89 @@
     "origen": "manual",
     "estado": "aplicada",
     "fecha_propuesta": "2026-09-07T18:19:17.821909"
+  },
+  {
+    "id": "cod_8",
+    "archivo": "core/archivos1.py",
+    "buscar": "def guardar_cache(cache):\n\n    with open(ARCHIVO_CACHE, \"w\", encoding=\"utf-8\") as f:\n\n        json.dump(cache, f, indent=4, ensure_ascii=False)\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'guardar_cache', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-08T09:09:00.825157"
+  },
+  {
+    "id": "cod_9",
+    "archivo": "core/archivos1.py",
+    "buscar": "def buscar_archivo(nombre):\n\n    nombre = nombre.lower().strip()\n\n    cache = cargar_cache()\n\n    # Primero revisar si ya lo conoce\n\n    if nombre in cache:\n\n        if os.path.exists(cache[nombre]):\n\n            return [cache[nombre]]\n\n    resultados = []\n\n    for carpeta in CARPETAS:\n\n        if not os.path.exists(carpeta):\n\n            continue\n\n        for raiz, _, archivos in os.walk(carpeta):\n\n            for archivo in archivos:\n\n                if nombre in archivo.lower():\n\n                    ruta = os.path.join(raiz, archivo)\n\n                    resultados.append(ruta)\n\n    return resultados\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'buscar_archivo', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-08T09:09:00.825157"
+  },
+  {
+    "id": "cod_10",
+    "archivo": "core/prueba_autorevision.py",
+    "buscar": "def calcular_descuento(precio, porcentaje):\n    \"\"\"Bug real a propósito: divide por 100 dos veces, el descuento\n    queda mal calculado.\"\"\"\n    descuento = precio * (porcentaje / 100) / 100\n    return precio - descuento\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'calcular_descuento', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-08T09:09:00.825157"
+  },
+  {
+    "id": "cod_11",
+    "archivo": "core/prueba_autorevision.py",
+    "buscar": "def funcion_que_nadie_usa():\n    \"\"\"Código muerto real: no la llama nada en todo el proyecto.\"\"\"\n    return \"esto no lo usa nadie\"\n",
+    "reemplazar": "",
+    "que": "Eliminar la función 'funcion_que_nadie_usa', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-08T09:09:00.825157"
+  },
+  {
+    "id": "cod_12",
+    "archivo": "core/prueba_autorevision.py",
+    "buscar": "def leer_config_riesgosa(ruta):\n    try:\n        with open(ruta) as f:\n            return f.read()\n    except:  # except desnudo a propósito\n        return None",
+    "reemplazar": "",
+    "que": "Eliminar la función 'leer_config_riesgosa', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-08T09:09:00.825157"
+  },
+  {
+    "id": "cod_13",
+    "archivo": "core/utilidades.py",
+    "buscar": "def extraer_contenido(comando, palabras):\n    comando = comando.lower()\n\n    for palabra in palabras:\n        if comando.startswith(palabra):\n            return comando[len(palabra):].strip()\n\n    return \"\"",
+    "reemplazar": "",
+    "que": "Eliminar la función 'extraer_contenido', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-08T09:09:00.837417"
+  },
+  {
+    "id": "cod_14",
+    "archivo": "core/IA/aprendizaje.py",
+    "buscar": "def actualizar_embeddings():\n    \"\"\"\n    Migración: recorre conocimiento.json y calcula el embedding de las\n    entradas que fueron aprendidas ANTES de agregar esta capa (por eso\n    no tienen el campo \"embedding\" todavía). Correr una sola vez luego\n    de instalar sentence-transformers.\n    \"\"\"\n    try:\n        from core.IA.embeddings import calcular_embedding\n    except Exception as e:\n        print(f\"Arché: No se pudo cargar el módulo de embeddings ({e}).\")\n        return\n\n    datos = cargar()\n    actualizados = 0\n\n    for dato in datos:\n        if not dato.get(\"embedding\"):\n            dato[\"embedding\"] = calcular_embedding(dato[\"pregunta\"])\n            actualizados += 1\n\n    guardar(datos)\n    print(f\"Arché: {actualizados} entradas actualizadas con embedding.\")",
+    "reemplazar": "",
+    "que": "Eliminar la función 'actualizar_embeddings', que no tiene referencias reales en ningún otro lugar del proyecto.",
+    "por_que": "Cambio especificado directamente, sin pasar por Ollama.",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición.",
+    "origen": "autorevision",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-08T09:09:00.837417"
   }
 ]

@@ -1,0 +1,13 @@
+import json  # import que nunca se usa en este archivo
+
+
+
+
+
+
+def leer_config_riesgosa(ruta):
+    try:
+        with open(ruta) as f:
+            return f.read()
+    except:  # except desnudo a propósito
+        return None

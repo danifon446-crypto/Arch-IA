@@ -12,3 +12,17 @@
 {"tipo": "cambio_codigo_rechazado", "id": "cod_5", "timestamp": "2026-09-07T18:23:31.309358"}
 {"tipo": "cambio_codigo_rechazado", "id": "cod_6", "timestamp": "2026-09-07T18:24:32.301087"}
 {"tipo": "cambio_codigo_aplicado", "id": "cod_7", "archivo": "core/IA/embeddings.py", "backup": "core__IA__embeddings.py.bak.2026-09-07_182518", "timestamp": "2026-09-07T18:25:19.205498"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_8", "archivo": "core/archivos1.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.825157"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_9", "archivo": "core/archivos1.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.825157"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_10", "archivo": "core/prueba_autorevision.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.825157"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_11", "archivo": "core/prueba_autorevision.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.825157"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_12", "archivo": "core/prueba_autorevision.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.825157"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_13", "archivo": "core/utilidades.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.837417"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_14", "archivo": "core/IA/aprendizaje.py", "origen": "autorevision", "timestamp": "2026-09-08T09:09:00.837417"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_8", "timestamp": "2026-09-08T09:21:22.403871"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_9", "timestamp": "2026-09-08T09:21:22.420150"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_10", "archivo": "core/prueba_autorevision.py", "backup": "core__prueba_autorevision.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.501133"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_11", "archivo": "core/prueba_autorevision.py", "backup": "core__prueba_autorevision.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.561903"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_12", "archivo": "core/prueba_autorevision.py", "backup": "core__prueba_autorevision.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.616564"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_13", "timestamp": "2026-09-08T09:21:22.619308"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_14", "archivo": "core/IA/aprendizaje.py", "backup": "core__IA__aprendizaje.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.678166"}
