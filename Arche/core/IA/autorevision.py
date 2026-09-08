@@ -432,22 +432,10 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     return reporte
 
 
-if __name__ == "__main__":
-    import sys
-
-    sin_ia = "--sin-ia" in sys.argv
-    limite = None
-    if "--limite" in sys.argv:
-        idx = sys.argv.index("--limite")
-        limite = int(sys.argv[idx + 1])
-
-    print("Ejecutando autorevisión de Arché (todo el proyecto)...")
-    if not sin_ia:
-        print("Los chequeos deterministas son inmediatos; la revisión con Ollama")
-        print("solo se hace sobre funciones nuevas o modificadas desde la última vez.\n")
-
-    reporte = autorevisar(usar_ollama=not sin_ia, limite_nuevas=limite)
-
+def imprimir_reporte(reporte, sin_ia=False):
+    """Muestra el reporte de autorevisar() con el mismo formato tanto
+    si se corre standalone (python core/IA/autorevision.py) como si
+    se dispara desde el chat de main.py con 'revisa tu codigo'."""
     print("\n" + "=" * 60)
     print("REPORTE DE AUTOREVISIÓN")
     print("=" * 60)
@@ -465,7 +453,7 @@ if __name__ == "__main__":
     if reporte["codigo_muerto"]["alta_confianza"]:
         print(f"\nFunciones sin referencias reales, candidatas a eliminar ({len(reporte['codigo_muerto']['alta_confianza'])}):")
         for f in reporte["codigo_muerto"]["alta_confianza"]:
-            print(f"  • {f['archivo']}::{f['nombre']}  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'")
+            print(f"  • {f['archivo']}::{f['nombre']}  -> propuesta de eliminación generada, revisá con 'revisar cambios de codigo'")
 
     if reporte["codigo_muerto"]["revisar_con_cuidado"]:
         print(f"\nFunciones que parecen sin uso pero son de despacho dinámico -- NO se proponen para borrar ({len(reporte['codigo_muerto']['revisar_con_cuidado'])}):")
@@ -489,7 +477,7 @@ if __name__ == "__main__":
     if reporte["revision_ia"]["propuestas_generadas"]:
         print(f"\nEn total se generaron {len(reporte['revision_ia']['propuestas_generadas'])} propuesta(s) "
               f"(código muerto a eliminar + correcciones de bugs).")
-        print("Corré 'python core/IA/revisar_cambios_codigo.py' para revisarlas y aprobarlas.")
+        print("Corré 'revisar cambios de codigo' para revisarlas y aprobarlas.")
 
     hay_hallazgos_deterministas = any([
         reporte["duplicados"], reporte["imports_sin_usar"],
@@ -500,3 +488,21 @@ if __name__ == "__main__":
 
     if not hay_hallazgos_deterministas and not hay_hallazgos_ia:
         print("\nNo encontré nada para reportar esta vez.")
+
+
+if __name__ == "__main__":
+    import sys
+
+    sin_ia = "--sin-ia" in sys.argv
+    limite = None
+    if "--limite" in sys.argv:
+        idx = sys.argv.index("--limite")
+        limite = int(sys.argv[idx + 1])
+
+    print("Ejecutando autorevisión de Arché (todo el proyecto)...")
+    if not sin_ia:
+        print("Los chequeos deterministas son inmediatos; la revisión con Ollama")
+        print("solo se hace sobre funciones nuevas o modificadas desde la última vez.\n")
+
+    reporte = autorevisar(usar_ollama=not sin_ia, limite_nuevas=limite)
+    imprimir_reporte(reporte, sin_ia=sin_ia)

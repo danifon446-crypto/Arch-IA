@@ -359,6 +359,22 @@ while True:
                 print(f"  • [{p['id']}] {p['archivo']}: {p['que']}")
         continue
 
+    if comando in ["revisa tu codigo", "revisa tu código", "autorevisate", "autorevísate"]:
+        from core.IA.autorevision import autorevisar, imprimir_reporte
+        print("Arché: Dale, me reviso entero. Los chequeos rápidos son instantáneos; "
+              "si hay funciones nuevas o modificadas desde la última vez, esas las "
+              "reviso con Ollama, así que puede tardar un poco.")
+        reporte = autorevisar(usar_ollama=True)
+        imprimir_reporte(reporte, sin_ia=False)
+        continue
+
+    if comando in ["revisa tu codigo sin ia", "revisa tu código sin ia"]:
+        from core.IA.autorevision import autorevisar, imprimir_reporte
+        print("Arché: Dale, corro solo los chequeos deterministas (sin Ollama, instantáneo).")
+        reporte = autorevisar(usar_ollama=False)
+        imprimir_reporte(reporte, sin_ia=True)
+        continue
+
     # MODO ESTUDIO
 
     if comando == "estudiar":
