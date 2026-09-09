@@ -26,3 +26,11 @@
 {"tipo": "cambio_codigo_aplicado", "id": "cod_12", "archivo": "core/prueba_autorevision.py", "backup": "core__prueba_autorevision.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.616564"}
 {"tipo": "cambio_codigo_rechazado", "id": "cod_13", "timestamp": "2026-09-08T09:21:22.619308"}
 {"tipo": "cambio_codigo_aplicado", "id": "cod_14", "archivo": "core/IA/aprendizaje.py", "backup": "core__IA__aprendizaje.py.bak.2026-09-08_092122", "timestamp": "2026-09-08T09:21:22.678166"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_15", "archivo": "core/ia/saludo_test.py", "origen": "usuario_directo", "tipo_propuesta": "archivo_nuevo", "timestamp": "2026-09-08T15:30:57.065123"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_16", "archivo": "core/ia/saludo_test.py", "origen": "usuario_directo", "tipo_propuesta": "archivo_nuevo", "timestamp": "2026-09-08T21:11:10.593516"}
+{"tipo": "cambio_codigo_fallido_smoke_test", "id": "cod_15", "archivo": "core/ia/saludo_test.py", "detalle": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'core.ia'", "timestamp": "2026-09-08T21:12:23.387512"}
+{"tipo": "cambio_codigo_fallido_smoke_test", "id": "cod_16", "archivo": "core/ia/saludo_test.py", "detalle": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'core.ia'", "timestamp": "2026-09-08T21:12:23.449291"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_17", "archivo": "core/IA/saludo_test.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-08T21:17:43.398533"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_17", "timestamp": "2026-09-08T21:18:51.637153"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_18", "archivo": "core/IA/prueba_creacion_archivo.py", "origen": "usuario_directo", "tipo_propuesta": "archivo_nuevo", "timestamp": "2026-09-08T21:19:50.995951"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_18", "archivo": "core/IA/prueba_creacion_archivo.py", "backup": "core__IA__prueba_creacion_archivo.py.bak.2026-09-08_212039", "timestamp": "2026-09-08T21:20:39.642176"}

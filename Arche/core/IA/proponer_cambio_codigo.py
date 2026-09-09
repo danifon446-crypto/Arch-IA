@@ -6,30 +6,20 @@ Ubicacion: Arche/core/IA/proponer_cambio_codigo.py
 Genera propuestas de cambio para CUALQUIER archivo del proyecto (a
 diferencia de propuestas.py, que solo puede tocar preguntas_frecuentes.py).
 
-Cada propuesta es un cambio tipo "buscar y reemplazar": un fragmento
-EXACTO de texto que debe existir una sola vez en el archivo, y el texto
-que lo reemplaza. Deliberadamente NUNCA se le pide al modelo que
-reescriba el archivo entero -- con un modelo local chico (arche-lora)
-eso es indefendible: puede truncar, resumir de mas o alucinar partes
-que no tocaste. Un buscar/reemplazar acotado es mucho mas verificable
-(el diff real muestra exactamente que cambia) y mucho mas confiable
-para el modelo.
+Dos tipos de propuesta:
+  1. Editar un archivo existente: un cambio "buscar y reemplazar" --
+     un fragmento EXACTO de texto que debe existir una sola vez, y el
+     texto que lo reemplaza.
+  2. Crear un archivo NUEVO: contenido completo nuevo, para una ruta
+     que todavia no existe.
 
-Dos formas de generar una propuesta:
-  1. proponer_cambio_manual(...) -- vos das buscar/reemplazar directo,
-     sin usar el modelo. 100% deterministico.
+Tres formas de generar una propuesta:
+  1. proponer_cambio_manual(...) -- vos das buscar/reemplazar directo
+     (o solo reemplazar, para un archivo nuevo), sin usar el modelo.
+     100% deterministico.
   2. proponer_cambio_ia(...) -- le pasas una instruccion en lenguaje
-     natural y el archivo destino; Ollama redacta buscar/reemplazar.
-
-CORREGIDO (v2): proponer_cambio_ia ya NO le pide al modelo un JSON con
-el codigo escapado adentro -- eso obliga a un modelo chico a escapar
-comillas/saltos de linea correctamente, que es justo donde mas falla
-(devuelve JSON invalido, o corrompe el fragmento). Ahora se usa un
-formato de delimitadores de texto plano (el mismo enfoque que usan
-herramientas como Aider para edicion de codigo con LLMs chicos):
-el modelo copia el codigo tal cual, sin escapar nada. Ademas se llama
-a conversar() con temperature baja (0.1): copiar texto exacto no debe
-depender de la "creatividad" del modelo.
+     natural y el archivo destino; Ollama redacta buscar/reemplazar
+     (si el archivo existe) o el contenido completo (si es nuevo).
 
 NINGUNA de las dos funciones toca el archivo real. Eso solo pasa en
 revisar_cambios_codigo.py, con tu aprobacion explicita cada vez.
@@ -38,6 +28,12 @@ LIMITE DURO: no se puede proponer un cambio sobre los archivos que
 controlan este mismo sistema (ver ARCHIVOS_PROTEGIDOS). Si necesitas
 tocar esos, hacelo vos a mano -- es la unica forma de garantizar que
 Arche no pueda aflojar sus propias restricciones desde adentro.
+
+VALIDACION DE EXTENSION: cualquier archivo nuevo tiene que tener
+extension (ej. ".py") -- esto existe porque una vez se guardo un
+archivo nuevo sin extension por error humano al copiarlo a mano, y
+quedo huerfano del sistema de imports. Ahora se rechaza en el momento
+de proponer, no despues.
 """
 
 import ast
@@ -60,6 +56,7 @@ ARCHIVOS_PROTEGIDOS = {
     "core/IA/proponer_cambio_codigo.py",
     "core/IA/revisar_cambios_codigo.py",
     "core/IA/revertir_cambio_codigo.py",
+    "core/IA/evaluar_confianza.py",
 }
 
 # Un modelo local chico no puede trabajar de forma confiable con
@@ -77,9 +74,16 @@ MARCA_INICIO_BUSCAR = "<<<<<<< BUSCAR"
 MARCA_SEPARADOR = "======="
 MARCA_FIN_REEMPLAZAR = ">>>>>>> REEMPLAZAR"
 
+MARCA_INICIO_CONTENIDO = "<<<<<<< CONTENIDO"
+MARCA_FIN_CONTENIDO = ">>>>>>> FIN"
+
 PATRON_BLOQUE = re.compile(
-    re.escape(MARCA_INICIO_BUSCAR) + r"\n(.*?)\n" + re.escape(MARCA_SEPARADOR) +
-    r"\n(.*?)\n" + re.escape(MARCA_FIN_REEMPLAZAR),
+    r"<{3,}\s*BUSCAR\s*\n(.*?)\n\s*={3,}\s*\n(.*?)\n\s*>{3,}\s*REEMPLAZAR",
+    re.DOTALL,
+)
+
+PATRON_BLOQUE_CONTENIDO = re.compile(
+    r"<{3,}\s*CONTENIDO\s*\n(.*?)\n\s*>{3,}\s*FIN",
     re.DOTALL,
 )
 
@@ -149,6 +153,24 @@ def _validar_sintaxis_si_python(ruta: Path, codigo: str):
         return False, str(e)
 
 
+def _validar_extension(archivo_norm: str, es_archivo_nuevo: bool):
+    """
+    Rechaza archivos NUEVOS sin extension (el error real que causo
+    que un archivo quedara guardado como 'evaluar_confianza' en vez
+    de 'evaluar_confianza.py', huerfano del sistema de imports).
+    """
+    if not es_archivo_nuevo:
+        return True, None
+    sufijo = Path(archivo_norm).suffix
+    if not sufijo:
+        return False, (
+            f"'{archivo_norm}' no tiene extensión (ej. '.py'). Un archivo "
+            f"nuevo sin extensión queda huérfano del sistema de imports. "
+            f"No se creó la propuesta -- especificá la extensión."
+        )
+    return True, None
+
+
 def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
     archivo_norm = archivo.replace("\\", "/").strip()
 
@@ -160,6 +182,12 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
     except ValueError as e:
         return None, str(e)
 
+    es_archivo_nuevo = not ruta.exists()
+
+    ok_ext, error_ext = _validar_extension(archivo_norm, es_archivo_nuevo)
+    if not ok_ext:
+        return None, error_ext
+
     contenido_actual = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
 
     if buscar:
@@ -170,7 +198,7 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
             return None, f"El texto a buscar aparece {apariciones} veces; tiene que ser único. No se creó la propuesta."
         contenido_simulado = contenido_actual.replace(buscar, reemplazar, 1)
     else:
-        contenido_simulado = reemplazar  # archivo nuevo
+        contenido_simulado = reemplazar  # archivo nuevo, o reemplazo total
 
     ok, error = _validar_sintaxis_si_python(ruta, contenido_simulado)
     if not ok:
@@ -185,27 +213,21 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
         "que": que,
         "por_que": por_que,
         "como": como,
-        "origen": origen,  # "usuario_directo" | "autorevision" | "generalizado"
+        "origen": origen,
+        "tipo": "archivo_nuevo" if es_archivo_nuevo else "edicion",
         "estado": "pendiente",
         "fecha_propuesta": datetime.now().isoformat(),
     }
     pendientes.append(propuesta)
     _guardar_pendientes(pendientes)
-    _log_inmutable({"tipo": "propuesta_codigo_generada", "id": propuesta["id"], "archivo": archivo_norm, "origen": origen})
+    _log_inmutable({"tipo": "propuesta_codigo_generada", "id": propuesta["id"], "archivo": archivo_norm, "origen": origen, "tipo_propuesta": propuesta["tipo"]})
     return propuesta, None
 
 
 def proponer_cambio_manual(archivo, buscar, reemplazar, que="", origen="usuario_directo"):
-    """100% deterministico, no usa Ollama. Vos das el fragmento exacto.
-
-    origen: quién generó la IDEA de este cambio (no quién lo escribió):
-      - "usuario_directo": lo pediste vos en esta conversación.
-      - "autorevision": Arché lo detectó solo corriendo autorevision.py
-        (por ejemplo, código muerto sin referencias).
-      - "generalizado": Arché lo extrapoló de un cambio aprobado antes
-        (no hay nada todavía que genere este valor automáticamente;
-        el campo queda listo para cuando se construya esa capa).
-    """
+    """100% deterministico, no usa Ollama. Vos das el fragmento exacto
+    (o dejás buscar="" para crear un archivo nuevo con `reemplazar`
+    como contenido completo)."""
     return _crear_propuesta(
         archivo=archivo,
         buscar=buscar,
@@ -251,11 +273,31 @@ Reglas estrictas:
 """
 
 
-def _armar_prompt_archivo_completo(archivo_norm, contenido_actual, instruccion):
-    """Fallback cuando no se pudo aislar una funcion puntual: manda el
-    archivo completo (mismo riesgo de antes, pero es mejor que nada
-    si la instruccion no menciona una funcion reconocible)."""
-    return _armar_prompt(archivo_norm, contenido_actual, instruccion)
+def _armar_prompt_archivo_nuevo(archivo_norm, instruccion):
+    return f'''Vas a crear el contenido completo de un archivo Python NUEVO. No sos un chatbot: no expliques nada, no agregues texto fuera del formato pedido, no uses backticks de markdown (```), nunca.
+
+EJEMPLO de como se ve una respuesta correcta (con OTRO caso, solo para que veas el formato):
+
+Instrucción de ejemplo: crear un archivo con una función restar(a, b)
+
+{MARCA_INICIO_CONTENIDO}
+"""
+Funciones de resta simples.
+"""
+
+
+def restar(a, b):
+    return a - b
+{MARCA_FIN_CONTENIDO}
+
+Ahora hacé lo mismo para este caso real:
+
+Archivo a crear: {archivo_norm}
+
+Instrucción: {instruccion}
+
+Respondé usando EXACTAMENTE el mismo formato del ejemplo de arriba: empezá la respuesta con la línea "{MARCA_INICIO_CONTENIDO}" (tal cual, es la primera línea de tu respuesta, no la olvides), después el código completo, y terminá con la línea "{MARCA_FIN_CONTENIDO}". Nada de texto antes del primer marcador ni después del segundo. Sin backticks de markdown en ningún lado.
+'''
 
 
 def _extraer_bloque(texto_respuesta):
@@ -265,21 +307,69 @@ def _extraer_bloque(texto_respuesta):
     return match.group(1), match.group(2)
 
 
-def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
-    """
-    Le pide a Ollama que redacte un cambio tipo buscar/reemplazar para
-    lograr `instruccion` sobre `archivo`, usando un formato de
-    delimitadores de texto plano (no JSON) para que el modelo no tenga
-    que escapar codigo -- solo copiarlo tal cual. Nunca reescribe el
-    archivo entero. Reintenta hasta MAX_INTENTOS_IA veces si el
-    formato o el fragmento no son validos.
+def _extraer_contenido_nuevo(texto_respuesta):
+    match = PATRON_BLOQUE_CONTENIDO.search(texto_respuesta)
+    if not match:
+        return None
+    contenido = match.group(1)
+    # Red de seguridad: si el modelo igual deslizo backticks de markdown
+    # (```python ... ```) alrededor del codigo, los sacamos.
+    contenido = re.sub(r"^```(?:python)?\n", "", contenido.strip())
+    contenido = re.sub(r"\n```$", "", contenido)
+    return contenido
 
-    origen: "usuario_directo" (pedido en el chat, vía "escribe en ...")
-    o "autorevision" (Arché lo generó solo al encontrar un bug en
-    autorevision.py). Ver docstring de proponer_cambio_manual.
-    """
+
+def _proponer_archivo_nuevo_ia(archivo_norm, instruccion, origen):
     from core.IA.ollamaIA import conversar
 
+    ok_ext, error_ext = _validar_extension(archivo_norm, es_archivo_nuevo=True)
+    if not ok_ext:
+        return None, error_ext
+
+    prompt = _armar_prompt_archivo_nuevo(archivo_norm, instruccion)
+
+    ultimo_error = "No se obtuvo respuesta del modelo."
+
+    for intento in range(1, MAX_INTENTOS_IA + 1):
+        respuesta = conversar(prompt, num_predict=800, temperature=0.2)
+        contenido = _extraer_contenido_nuevo(respuesta)
+
+        if contenido is None:
+            ultimo_error = (
+                "Ollama no devolvió el formato esperado (CONTENIDO/FIN). "
+                f"Intento {intento}/{MAX_INTENTOS_IA}."
+            )
+            continue
+
+        return _crear_propuesta(
+            archivo=archivo_norm,
+            buscar="",
+            reemplazar=contenido.strip("\n") + "\n",
+            que=f"Crear el archivo {archivo_norm} según: {instruccion}",
+            por_que=f"Generado por Ollama (arche-lora) a partir de la instrucción: {instruccion}",
+            como="Archivo nuevo, contenido completo redactado por Ollama.",
+            origen=origen,
+        )
+
+    return None, (
+        ultimo_error + " Probá con una instrucción más simple/corta, "
+        "o usá proponer_cambio_manual con el contenido vos mismo."
+    )
+
+
+def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
+    """
+    Le pide a Ollama que redacte un cambio para `archivo` según
+    `instruccion`. Si el archivo YA EXISTE, genera un buscar/reemplazar
+    acotado (formato de delimitadores, sin JSON). Si el archivo NO
+    existe, genera el contenido completo de un archivo nuevo. Nunca
+    reescribe un archivo existente entero. Reintenta hasta
+    MAX_INTENTOS_IA veces si el formato o el fragmento no son validos.
+
+    origen: "usuario_directo" (pedido en el chat, vía "escribe en ...")
+    o "autorevision" (Arché lo generó solo). Ver docstring de
+    proponer_cambio_manual.
+    """
     archivo_norm = archivo.replace("\\", "/").strip()
     if archivo_norm in ARCHIVOS_PROTEGIDOS:
         return None, f"'{archivo_norm}' es un archivo protegido; no se puede proponer un cambio ahi."
@@ -290,7 +380,9 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
         return None, str(e)
 
     if not ruta.exists():
-        return None, f"'{archivo_norm}' no existe. Para crear un archivo nuevo usá proponer_cambio_manual con buscar=''."
+        return _proponer_archivo_nuevo_ia(archivo_norm, instruccion, origen)
+
+    from core.IA.ollamaIA import conversar
 
     contenido_actual = ruta.read_text(encoding="utf-8")
     if len(contenido_actual) > MAX_CARACTERES_ARCHIVO:
@@ -327,8 +419,6 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
             )
             continue
 
-        # El modelo a veces agrega una linea en blanco de mas al principio/final
-        # del bloque -- eso no cambia la indentacion INTERNA, es seguro recortarlo.
         buscar_candidatos = [buscar, buscar.strip("\n")]
 
         encontrado = None

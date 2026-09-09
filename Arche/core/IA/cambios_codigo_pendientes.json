@@ -166,5 +166,57 @@
     "origen": "autorevision",
     "estado": "aplicada",
     "fecha_propuesta": "2026-09-08T09:09:00.837417"
+  },
+  {
+    "id": "cod_15",
+    "archivo": "core/ia/saludo_test.py",
+    "buscar": "",
+    "reemplazar": "\"\"\"\nFunciones de saludo simples.\n\"\"\"\n\n\ndef saludar(nombre):\n    return f\"Hola, {nombre}!\"\n",
+    "que": "Crear el archivo core/ia/saludo_test.py según: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "por_que": "Generado por Ollama (arche-lora) a partir de la instrucción: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "como": "Archivo nuevo, contenido completo redactado por Ollama.",
+    "origen": "usuario_directo",
+    "tipo": "archivo_nuevo",
+    "estado": "fallida",
+    "fecha_propuesta": "2026-09-08T15:30:57.063117"
+  },
+  {
+    "id": "cod_16",
+    "archivo": "core/ia/saludo_test.py",
+    "buscar": "",
+    "reemplazar": "\"\"\"\nFunciones de saludo simples.\n\"\"\"\n\n\ndef saludar(nombre):\n    return f\"Hola, {nombre}!\"\n",
+    "que": "Crear el archivo core/ia/saludo_test.py según: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "por_que": "Generado por Ollama (arche-lora) a partir de la instrucción: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "como": "Archivo nuevo, contenido completo redactado por Ollama.",
+    "origen": "usuario_directo",
+    "tipo": "archivo_nuevo",
+    "estado": "fallida",
+    "fecha_propuesta": "2026-09-08T21:11:10.590619"
+  },
+  {
+    "id": "cod_17",
+    "archivo": "core/IA/saludo_test.py",
+    "buscar": "def saludar(nombre):\n    return f\"Hola, {nombre}!\"",
+    "reemplazar": "def saludar(nombre):\n    print(\"Hola\")\n    print(f\"Bienvenido, {nombre}\")",
+    "que": "Modificar un fragmento de core/IA/saludo_test.py según: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "por_que": "Generado por Ollama (arche-lora) a partir de la instrucción: crear un archivo con una funcion saludar(nombre) que imprima un saludo",
+    "como": "Reemplazo de texto exacto (buscar -> reemplazar), una sola aparición, redactado por Ollama.",
+    "origen": "usuario_directo",
+    "tipo": "edicion",
+    "estado": "rechazada",
+    "fecha_propuesta": "2026-09-08T21:17:43.391194"
+  },
+  {
+    "id": "cod_18",
+    "archivo": "core/IA/prueba_creacion_archivo.py",
+    "buscar": "",
+    "reemplazar": "\"\"\"\nFunciones de multiplicación simples.\n\"\"\"\n\n\ndef multiplicar(a, b):\n    return a * b\n",
+    "que": "Crear el archivo core/IA/prueba_creacion_archivo.py según: crear un archivo con una funcion multiplicar(a, b) que devuelva a por b",
+    "por_que": "Generado por Ollama (arche-lora) a partir de la instrucción: crear un archivo con una funcion multiplicar(a, b) que devuelva a por b",
+    "como": "Archivo nuevo, contenido completo redactado por Ollama.",
+    "origen": "usuario_directo",
+    "tipo": "archivo_nuevo",
+    "estado": "aplicada",
+    "fecha_propuesta": "2026-09-08T21:19:50.993832"
   }
 ]

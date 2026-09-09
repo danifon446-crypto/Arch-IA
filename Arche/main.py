@@ -160,7 +160,8 @@ _hilo_estudio = None
 
 while True:
 
-    comando = input("\nTú: ").lower().strip()
+    comando_original = input("\nTú: ").strip()
+    comando = comando_original.lower()
 
     if not comando:
         continue
@@ -329,7 +330,7 @@ while True:
     # correr "revisar cambios de codigo" con tu aprobación explícita.
 
     if comando.startswith("escribe en "):
-        resto = comando[len("escribe en "):].strip()
+        resto = comando_original[len("escribe en "):].strip()
         if " : " in resto:
             archivo, instruccion = resto.split(" : ", 1)
             from core.IA.proponer_cambio_codigo import proponer_cambio_ia
