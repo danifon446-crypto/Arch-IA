@@ -126,13 +126,3 @@ def listar_notas():
 
         if archivo.endswith(".txt"):
             print("-", archivo[:-4])
-
-
-def contar_txts():
-    import os
-    carpeta_notas = os.path.join(DATABASE, "Notas")
-    return len(os.listdir(carpeta_notas))
-
-
-def contar_notas():
-    return len(os.listdir(carpeta_notas))

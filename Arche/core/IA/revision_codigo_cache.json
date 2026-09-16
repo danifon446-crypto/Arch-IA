@@ -48,5 +48,1035 @@
     "hash": "4d33c17d30961ed65dd44ebc671456761b4d16c45520c3521b8a20a3504cb283",
     "resultado": "ok",
     "fecha": "2026-09-07T18:06:03.691070"
+  },
+  "core/archivos.py::abrir_resultado": {
+    "hash": "1d34022befebb0d19e5f5063864415ccf66902b4ffbbc695616d9b9ee9f6b124",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:53:50.584268"
+  },
+  "core/archivos.py::buscar_y_abrir": {
+    "hash": "a99d0ba5575f9c3ce23cac1bee9b828cd2af3e2820149f0da0d73f60ff89216f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:53:53.973598"
+  },
+  "core/archivos1.py::cargar_cache": {
+    "hash": "b21a1aa1e320d4bbf2d87895d78ebd9c64a889b3e3fe25369f9862eade297ac7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:53:56.462110"
+  },
+  "core/archivos1.py::guardar_cache": {
+    "hash": "2db9141363682cae0e0a382826353c449ba83db65fba40fa2ed2acce7fe3a1bb",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:53:59.170555"
+  },
+  "core/archivos1.py::buscar_archivo": {
+    "hash": "df6caf9405acec1c0a6b30fadc32ceac69e56094a69eadd3aa4ae9f2714ad442",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:03.463099"
+  },
+  "core/busquedas.py::obtener_busqueda": {
+    "hash": "4a2d55dc68371bb3c86b9dfe6ff8d7c5c973d61c79a517902c385026d783b8fa",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:07.053698"
+  },
+  "core/busquedas.py::buscar_google": {
+    "hash": "14c5754689807e68721d78358df26f94b9ce61d40562305c03d0e8c6c03fd2da",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:10.018069"
+  },
+  "core/calculadora.py::guardar_historial": {
+    "hash": "40c884e6734665a6a81ff67271de481e44510e6b74515650fa6cf1bdf052fd04",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:14.235196"
+  },
+  "core/calculadora.py::evaluar": {
+    "hash": "ce18f84ba629c404930594a6585be31ca6d6a6c8da465bd11b1f78efed1751ee",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:20.084278"
+  },
+  "core/calculadora.py::limpiar": {
+    "hash": "7401b3c8b6f3a03ac74a6d002b40be7d11895d924b8b2b64046830a8c799f256",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:28.604072"
+  },
+  "core/calculadora.py::calcular": {
+    "hash": "48aac19046f8d62b78163b16fb99baf6aff3f4c6997dddecdb692eebb37c4874",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:33.391973"
+  },
+  "core/calculadora.py::historial": {
+    "hash": "61cae5f06bfd2ba7e95cb62ebe5c8a4d839063c79631a67b1946a2b43666acf9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:37.825777"
+  },
+  "core/compresion.py::limpiar": {
+    "hash": "924d3601728b97f08f3686f6aeeb93d7dc650b319c7120273086ce2bafe0f65d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:41.626986"
+  },
+  "core/compresion.py::comprender": {
+    "hash": "75dd31b14276679ebf05872428eba79b1525e6155d80e34c1ae4e2399565b1c2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:45.087017"
+  },
+  "core/configuracion.py::hablar": {
+    "hash": "79846842d18bd11caccb9376b2aa555381d3924ef8d95ffa603e28ad8c37d630",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:47.719056"
+  },
+  "core/configuracion.py::cargar_config": {
+    "hash": "bcef8eae2c5318f108d4e7c30b46a6f22e3e1003750f4e77a595a3da58001db6",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:51.901919"
+  },
+  "core/configuracion.py::guardar_config": {
+    "hash": "85c29212a962b9076964d4fc7e7c5f75df9bc1a45291c8bf8e732a7b44bc388c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:54.805375"
+  },
+  "core/configuracion.py::obtener": {
+    "hash": "6b8520b89a034ec10b919c78f2f37f0e3e6bab7e50580799e91e339430a0ee28",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:57.059049"
+  },
+  "core/configuracion.py::cambiar": {
+    "hash": "319b9b84a702f9b2cb3d1072b87b10591b1321b458f86afd97a17ceec81e64c3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:54:59.427494"
+  },
+  "core/configuracion.py::restaurar": {
+    "hash": "1eac0126f05b8a60ba28909595dcc7af30948a2e355d66ff32a74be857f85f48",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:01.751917"
+  },
+  "core/configuracion.py::mostrar": {
+    "hash": "211fdfc72df60166cd580c62fc617dc612f3c3ef5de63a1a757efcdd1b69734f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:04.798361"
+  },
+  "core/conversacion.py::normalizar": {
+    "hash": "2f18ca9261dc255ee6e24288bc4b6d83e65f77796d037761459b73e39a873e4f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:09.003629"
+  },
+  "core/conversacion.py::responder": {
+    "hash": "0cd2a925ebe43b18f3efedf1be1ac2c7cfde013b77b10063a559ca604698c4a7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:12.188305"
+  },
+  "core/instalador.py::_esta_instalado": {
+    "hash": "632f96918b41b29d4b1829fba87b401a2981bc0c7229f63f43d1be3eff068092",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:15.903864"
+  },
+  "core/instalador.py::verificar_e_instalar": {
+    "hash": "6c6026b3296ff4db43fff5d841fc5311aef7c89565970c97ed18159a655dc37e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:31.017980"
+  },
+  "core/memoria.py::detectar_tipo": {
+    "hash": "a5e190aca6c27793a5fd6a0518b230f4ead09c40be1a979a33d9cb77a6b06ab5",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:38.691228"
+  },
+  "core/memoria.py::recordar": {
+    "hash": "07867f8a6e8ca6ae69bc347c05f212270f76ed9aefbdfa733a490339ba58bd14",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:45.321441"
+  },
+  "core/memoria.py::mostrar_recuerdos": {
+    "hash": "e647bd83d967e39313a05b64d566a6a5581f8183423b94c30d0276cfd0c247d9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:49.530198"
+  },
+  "core/memoria.py::detectar_prioridad": {
+    "hash": "834937aa1a08fc7f0a3928fefb727960d16465ea04dff8b2647d4cfcac58c290",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:54.922843"
+  },
+  "core/navegador.py::obtener_sitio": {
+    "hash": "b9e4ea937585b954b04c980610fa163a03da19ce41be0bed37971415034583e9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:55:58.607793"
+  },
+  "core/navegador.py::abrir_navegador": {
+    "hash": "0afacb6f52f292a7fe29f589c5d22730323c7ef7bb006ae45a9216f33c80e7a4",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:02.071391"
+  },
+  "core/navegador.py::aprender_sitio": {
+    "hash": "e22514b0692a14d6e73e5d83f117af3559ff75cdf7c523b2a85c47bbd691a2ca",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:06.173388"
+  },
+  "core/navegador.py::_buscar_ddg": {
+    "hash": "cc17341a61da24b1e9a595232e226807ccee067e296fb537be82ae8535efa75b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:10.462776"
+  },
+  "core/navegador.py::buscar_sitio": {
+    "hash": "aefad1d6d0eae27c356fc83ca8bfaafdae5c662b7c6fd893727cff3a9b43dc52",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:18.448310"
+  },
+  "core/notas.py::crear_nota": {
+    "hash": "8a4eac21e68b7babab79b758b735982e9ae6a0ef85113ad2596511d46a59689e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:23.797829"
+  },
+  "core/notas.py::leer_nota": {
+    "hash": "cb93cd6184053414bd312150c21e7d8191feb3823ad053a92560b888c65bb67f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:27.903705"
+  },
+  "core/notas.py::agregar_nota": {
+    "hash": "db0e5a1fd41247058a6363be15071c90755d78bb3cb178b4de2f61231821f49d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:33.649619"
+  },
+  "core/notas.py::eliminar_nota": {
+    "hash": "69b824fbf61d0e6bdb0a1e0ed07be801b2ce7bd569a21d846cb5db7c2a52387a",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:37.401970"
+  },
+  "core/notas.py::abrir_nota": {
+    "hash": "6f8a4509aa8b518dd9265c63d66f031f91ebd0729cd7c2b3d723809fbe2d0f9f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:41.152527"
+  },
+  "core/notas.py::listar_notas": {
+    "hash": "0c8b0e03280fb35d497f4500fad9541548494a8980684e46f66b5d247a98f4d7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:44.839511"
+  },
+  "core/notas.py::contar_txts": {
+    "hash": "60a2b40b92735acd0063cd9de7dad987f5844395701ca690e43eb6bc79e17ecf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:47.621261"
+  },
+  "core/notas.py::contar_notas": {
+    "hash": "efe4a48989cafed57120c7e478d31bb7146d37ab1ed884a4393d9535601acbc7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:49.976912"
+  },
+  "core/programas.py::guardar_programas": {
+    "hash": "d0ce4d3e306a1b9157dc5e27ea94931670ecd1a3769f0fa814bd5005d2617db7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:53.146628"
+  },
+  "core/programas.py::abrir_programa": {
+    "hash": "367d4c8e27a3b85660273e7c9c2081aaf9915260ac942d1fce1a2d82f8edb073",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:56:57.438259"
+  },
+  "core/programas.py::buscar_programa": {
+    "hash": "fd25c18ab79acb940244638adafcbda5a89667a71fcbc7802872e73321c82511",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:02.983102"
+  },
+  "core/programas.py::aprender_programa": {
+    "hash": "68316f7d221641220908a7ba40e47ceb00665996f59bbf995b663e3c7b4b1ee8",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:08.553654"
+  },
+  "core/programas.py::obtener_programa": {
+    "hash": "d7b59b3c2e0813be9ca601ed60c2294302bff2b3ecd4c85d78b26bdda6057bbc",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:12.091114"
+  },
+  "core/programas.py::buscar_app_windows": {
+    "hash": "26ce31291d8cdea4847df10c651a4da2d71f1e1ead2c9905d1b676e1e8e07e0c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:16.596899"
+  },
+  "core/programaV2.py::cargar_programas": {
+    "hash": "1e7c430b66d18fb3cd57d5730680f528831c0a0d8dae17705644ecb0b60e706c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:22.359553"
+  },
+  "core/programaV2.py::guardar_programas": {
+    "hash": "863325f97a6a4d820801ee1904be3f4a49020c7ce8411d28805bd4926d00544c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:25.509583"
+  },
+  "core/programaV2.py::abrir_programa": {
+    "hash": "f0c16eea8c59043e59058eb782846c2a0f3fc541e05ec614e92d5ca72f63d54b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:30.555732"
+  },
+  "core/programaV2.py::buscar_exe": {
+    "hash": "20b8a5e8f3a283663011f6baea37cd74fa368acd5a054512f0c863bb636815ba",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:38.231787"
+  },
+  "core/programaV2.py::buscar_app_windows": {
+    "hash": "60a276c70a2d53341cdc20beae47652e27cbba6e4f29b42a48714e0f00be8c8a",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:45.429873"
+  },
+  "core/programaV2.py::buscar_programa": {
+    "hash": "2e3cb3c846c90b4850eff585198fd11ce2400b363cc7b8ea229f02de0784a42c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:48.692801"
+  },
+  "core/programaV2.py::aprender_programa": {
+    "hash": "e7eb14f08cc08b577faaa467f1a21a384066468dd96fdaa1e3f1bceb3cbd6999",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:57:56.327373"
+  },
+  "core/programaV2.py::obtener_programa": {
+    "hash": "f679c291f4f653d45763be00a403a56805dcc3437cbb2105c7a5024decc1b704",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:00.353913"
+  },
+  "core/programaV2.py::buscar_acceso_directo": {
+    "hash": "0c4c286af93072b31867027b3134b288319ab0f6899f6c40156870d122ff5075",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:07.791889"
+  },
+  "core/recordatorio.py::cargar_recordatorios": {
+    "hash": "ebcda54f5cf274cb9dd7d1a7cf6cf36d576cc3aad39d84489dcd433399b930fb",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:11.565949"
+  },
+  "core/recordatorio.py::contar_recordatorios": {
+    "hash": "53dd63671f1b4639b80ee19724a6af1916800fbf95eae2c630ed205896e92a3e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:14.611741"
+  },
+  "core/recordatorio.py::guardar_recordatorios": {
+    "hash": "f90fbae4bd0f50f112c271815f85edb44e2cf5b0ec2bd1be8324406691e7324e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:18.750114"
+  },
+  "core/recordatorio.py::crear_recordatorio": {
+    "hash": "82ac149be46e14bd9d2cef5a08ccd4f258672c679ecf7c751517c96df9eb324e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:26.509782"
+  },
+  "core/recordatorio.py::mostrar_recordatorios": {
+    "hash": "9e8039126c6c5f8dc4b33361d273ca61ffec259f9c8c7814b4fa1727b34e8614",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:32.268670"
+  },
+  "core/recordatorio.py::eliminar_recordatorio": {
+    "hash": "5c6e38868d75375fca2bbf9f2bdcc7ce836a3455bb6d8f061f995fefba6052b3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:37.751137"
+  },
+  "core/recordatorio.py::completar_recordatorio": {
+    "hash": "2cdb483cae2de5e1d6ebb8119df291b699a840d491714c69c270d5f6ee9d15a4",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:42.817158"
+  },
+  "core/recordatorio.py::revisar_recordatorios": {
+    "hash": "89e392d706a21cf92e54c930811f54153c881e175146bd7204662357700da560",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:49.062517"
+  },
+  "core/utilidades.py::decir_hora": {
+    "hash": "af3052b1135a26db9c0ddea35cc6a659f0a8bc7be5ba4931c0308ee1847a465c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:52.229174"
+  },
+  "core/utilidades.py::saludar": {
+    "hash": "80934fa4df6fdf20880a67eecb6f8e6f3886637ff2f01df734191553c617f45a",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:54.874844"
+  },
+  "core/utilidades.py::decir_fecha": {
+    "hash": "2c08a32cea7053e809296204ab6821d7814f4a0ee9656bdb5280e84cfa539717",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:58:57.415959"
+  },
+  "core/utilidades.py::despedida": {
+    "hash": "898778125fc1291b79875f5e34adde17e5616f425ffd2fecae9f9ba7dd0d2655",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:00.000928"
+  },
+  "core/utilidades.py::presentarse": {
+    "hash": "63c48238ee7a0513b02bb9ac7e6c5926656371b9c8beb37a0491134b8baf5b81",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:02.697847"
+  },
+  "core/utilidades.py::ayuda": {
+    "hash": "5f840e2599773981b5814f95721ddbd922571f242ea114396186bfdea5184cd0",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:19.623335"
+  },
+  "core/utilidades.py::extraer_contenido": {
+    "hash": "083d10a5a863ecc9247db0be2fe5785c977f7e6940a1bcfc73d4706b9c8f2c71",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:23.188250"
+  },
+  "core/IA/aprendizaje.py::_reentrenar_si_corresponde": {
+    "hash": "e633dc3c232cea96b7e6ff75c23a0bcec8f7fd16d5dfb57a36889c5a79039277",
+    "resultado": "BUG REAL:\n- La variable \"meta\" se inicializa con un diccionario vacío (\"{}\") en lugar de un diccionario vacío (\"{}\"). Esto puede causar errores si se intenta acceder a una clave que no existe.",
+    "fecha": "2026-09-14T13:59:38.648858"
+  },
+  "core/IA/aprendizaje.py::_normalizar": {
+    "hash": "c7b40316dc0a85c9f80a89f42cbe762c80b36bb45b2af8f2fc3a57a7d2b965b3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:42.486767"
+  },
+  "core/IA/aprendizaje.py::cargar": {
+    "hash": "79955b95ca76b80e9cf8faf15cc0c313084484c00ecd0ef4baa0d7c886a0cb83",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:45.962313"
+  },
+  "core/IA/aprendizaje.py::guardar": {
+    "hash": "a65993f250eb93bad483e501cd9e6e781ef18309682625ab373ca674bf6b6444",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:49.424172"
+  },
+  "core/IA/aprendizaje.py::_extraer_template": {
+    "hash": "31b4d0b2f0c1353234bfa9eb1ad2a60c437be738aa6dc373bb4140d3d346085c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:53.976443"
+  },
+  "core/IA/aprendizaje.py::_template_a_regex": {
+    "hash": "4a8b3ab1d457954dbaf1e1d764ef035a18d8407e3a5ff975ac0a506ad83a7773",
+    "resultado": "ok",
+    "fecha": "2026-09-14T13:59:58.002185"
+  },
+  "core/IA/aprendizaje.py::_cobertura": {
+    "hash": "fd0f7a6fb14d8126f32f8759fa424bbffb8bb73db956e4226468f8a77a140810",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:01.930024"
+  },
+  "core/IA/aprendizaje.py::_contenido_seguro": {
+    "hash": "ac35e803a05db0bb2948f98420fba6006c792d03b47a8a6ad7aa63536a7d910e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:09.981664"
+  },
+  "core/IA/aprendizaje.py::aprender": {
+    "hash": "5b2f32755ed9fd06a8357968d4bc239991dfe2eae1396a2e6b5da5d80c1553c0",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:20.046583"
+  },
+  "core/IA/aprendizaje.py::resolver": {
+    "hash": "45dd96f55518c684c064e3fc6f03bfe04421d1903e9f780edad17c0c982a1299",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:34.987425"
+  },
+  "core/IA/aprendizaje.py::_resolver_semantico": {
+    "hash": "34745aa4ca418b7530efc9689bf58027c06b3bf6a69e78e53f65444183ba8d3b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:48.682213"
+  },
+  "core/IA/auditar.py::cargar": {
+    "hash": "798ed4768b72742726293d2ef87fb8e79b6410cf557a38e94763682c62782868",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:52.275670"
+  },
+  "core/IA/auditar.py::es_sospechoso": {
+    "hash": "f02faa0e272b87222f3419f9734c279f8930064b369c42201b38a39f11f2e061",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:00:56.238701"
+  },
+  "core/IA/auditar.py::main": {
+    "hash": "3cf92a22bb42678315dae6a1101023c933430ffcd9540256470986bda57ccc66",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:11.857649"
+  },
+  "core/IA/autoconocimiento.py::cargar_cambios_confirmados": {
+    "hash": "e4d7aae0108d1241c2976057c0f6e511deda7cadf301a64243cdf6121a0a2408",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:15.982658"
+  },
+  "core/IA/autoconocimiento.py::cargar_automodificaciones_aplicadas": {
+    "hash": "69a2939ed64345fabb7539dbd60cdc0264da4e92f931122204ac446c24186ec8",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:21.508397"
+  },
+  "core/IA/autoconocimiento.py::responder_changelog": {
+    "hash": "828c95498158e2542e3730a640e2f17f71896c74d2463ad8c167010b14526a5d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:26.882201"
+  },
+  "core/IA/autoconocimiento.py::responder_automodificacion": {
+    "hash": "e9732fc5c3c83186c7cdbd3d1f68bc3fc5aeb2472f730539e3801c0921271ea5",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:30.959957"
+  },
+  "core/IA/autoconocimiento.py::responder_dependencia_ollama": {
+    "hash": "1619ca6480ed272b3284b6d1e31dfc85fbc757334cbe0727710182f679229230",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:33.346006"
+  },
+  "core/IA/autoconocimiento.py::manejar_autoconocimiento": {
+    "hash": "d1a71746364005c187c5b9459e14ccaa39a4fb49b1af4e66b609dea106db7fa2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:38.316512"
+  },
+  "core/IA/clasificador.py::_preparar_dataset": {
+    "hash": "bdf36e903cfc46e1cc78abd7876ae98c36d998de9e32504f5210979e0c6a2d8e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:41.576351"
+  },
+  "core/IA/clasificador.py::_hay_datos_suficientes": {
+    "hash": "babb7655addbf4a3c3b9294a68883a70797b6f9462bbff464bf0742974ff2051",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:44.652198"
+  },
+  "core/IA/clasificador.py::_balancear_clases": {
+    "hash": "f0979d805abb17c893fc74e6cd651b44ddd69c4be70ad26984eaab76f6d7f554",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:51.177307"
+  },
+  "core/IA/clasificador.py::_metadata_anterior": {
+    "hash": "1638a2bbf1b8e2261ab37864362f5d40f3f5269f3b0acacb90f5a6a234c31400",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:01:54.533537"
+  },
+  "core/IA/clasificador.py::entrenar": {
+    "hash": "fb258fc987753029a3b9800e1825804064cfc7b2ec43a9396d95a6cfdb60e22b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:16.489870"
+  },
+  "core/IA/clasificador.py::_cargar_modelo": {
+    "hash": "2ded7949f5c19c75d7300870b78e2a9e9bc782bdfb1c4ba98a22e3a6af7aa7c2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:20.169951"
+  },
+  "core/IA/clasificador.py::predecir": {
+    "hash": "7e1a6dd546c0a50c694e294679c7ad1a1295c3071774cb78901958516f74c475",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:26.946891"
+  },
+  "core/IA/clasificador.py::info_modelo": {
+    "hash": "14311a7b0bc7ab0dafa81233163a958fb65316bd7bafe44403d08f893b28cb20",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:32.318683"
+  },
+  "core/IA/detector_de_patrones.py::cargar_respuestas": {
+    "hash": "6e04a5c149787e07de434cc6726994d3b951ec3375e1bae3aee452f3fa221b53",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:35.867488"
+  },
+  "core/IA/detector_de_patrones.py::cargar_eventos_telemetria": {
+    "hash": "6f4224133d0994ec63ddadd1827ba29f9cc50707347ffe6d5978dd78fb3d05be",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:39.765122"
+  },
+  "core/IA/detector_de_patrones.py::ya_promovida": {
+    "hash": "7da3373e7342836062cc8c67831ebef854ff38b941072af636a9255426b86fb5",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:42.797328"
+  },
+  "core/IA/detector_de_patrones.py::detectar_candidatos": {
+    "hash": "c51f3d5002d79901cbdf9d2e0cd7972bc3ab6e86a7ed46c03a2103d289b75411",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:49.015917"
+  },
+  "core/IA/detector_de_patrones.py::resumen_dependencia_conversar": {
+    "hash": "e702ee5ca30a1faa70e791ce8eaba07f7313163bdb063d7ec4664fab49e98e90",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:02:56.280970"
+  },
+  "core/IA/embeddings.py::_cargar_modelo": {
+    "hash": "150b67db433152819d7a15ca182ecc7080c3a748e0b5adfd90bc3b685bfa85cd",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:00.731574"
+  },
+  "core/IA/embeddings.py::calcular_embedding": {
+    "hash": "d754a8830409ed6f56855e7a25d01bff4f6aaf333db2b3882c8557027b376a1e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:04.381329"
+  },
+  "core/IA/embeddings.py::similitud_coseno": {
+    "hash": "cbdcc49fa9900ca74fa6b29fe57a178eb7c5294df46db91c8f340922752e717f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:07.830788"
+  },
+  "core/IA/enrutar_cambio.py::_texto_para_embed": {
+    "hash": "f206792164a813e9154b16eb7f58afc7c7d2be1713fb31c61b1d9c24af974a21",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:14.293718"
+  },
+  "core/IA/enrutar_cambio.py::_construir_indice": {
+    "hash": "a12953698594271dddadfc81358847c7ba67e6baba09e9bad2ef2b22c5cad1cf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:21.447560"
+  },
+  "core/IA/enrutar_cambio.py::_cargar_indice": {
+    "hash": "7f95d4c9f31e52c18d976e3f8a78af1fb5bfa0a757902e9d54871a4c6d411dfe",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:24.542611"
+  },
+  "core/IA/enrutar_cambio.py::_guardar_indice": {
+    "hash": "d3be1043ba316a42ef70e5288502d9c16ef63e11fa5def99f9df63552cf90fd9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:27.229665"
+  },
+  "core/IA/enrutar_cambio.py::_sugerir_nombre_archivo_nuevo": {
+    "hash": "097a0e2af479a81de0b88864a090eb69747ee830dbb377f833658baaaae9ff23",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:37.005871"
+  },
+  "core/IA/enrutar_cambio.py::es_pedido_de_agregado": {
+    "hash": "ce5dfca3737fc4d30f42cda8cb88f688791f28d1b675b5e83167c54dfbb5862e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:42.332282"
+  },
+  "core/IA/enrutar_cambio.py::construir_instruccion_final": {
+    "hash": "6fa49060c3d6eda233cdb94cf4b627402f5d1153e5435e45b57574fdbe741b43",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:03:47.835863"
+  },
+  "core/IA/enrutar_cambio.py::decidir_destino": {
+    "hash": "9ba0be99b0d6e8633a9399bb9289836fd5ff48e06a167f34c4df077a831852b9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:06.669323"
+  },
+  "core/IA/estudio.py::_es_linea_de_relleno": {
+    "hash": "a6b0c38dcb3879c9739d951d946468cadac57a2ecf043c5d5f58cf6bf82e9108",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:11.019517"
+  },
+  "core/IA/estudio.py::_parece_completa": {
+    "hash": "274b74fc4f820cefba5cb6e8970889379b01e4da814c0707b23bb3d3e0dfa943",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:15.051524"
+  },
+  "core/IA/estudio.py::_normalizar_lista": {
+    "hash": "7ef3947b442a86e18e001df390dc068f06ead81e446651789e4f3d4e5e3000b4",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:22.914894"
+  },
+  "core/IA/estudio.py::cargar_temas": {
+    "hash": "aa20b1b67ce49cc039b157c03bc430df3f4505b1c91ffa2b631785e8c82f1b78",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:26.540405"
+  },
+  "core/IA/estudio.py::guardar_temas": {
+    "hash": "d520b115f134424ac55c7ea78260d5e0b7027c4b5b204521039ace5828619971",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:29.911253"
+  },
+  "core/IA/estudio.py::agregar_tema": {
+    "hash": "9c71bc6a1a8471426cd42dc9daa48636e2414c026428d4026d9101e973dd46b7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:34.559736"
+  },
+  "core/IA/estudio.py::_texto_tema": {
+    "hash": "de2d565662ed2b363bc9a5761030d22efe6cdb559521b4c21858506686248f66",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:39.505746"
+  },
+  "core/IA/estudio.py::_generar_preguntas_sobre_tema": {
+    "hash": "2fd6e1b3968321de2c86573a6e99272617dc9eb26de6be318fd573a4682d1620",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:50.859911"
+  },
+  "core/IA/estudio.py::_generar_variaciones": {
+    "hash": "35ac048c724cfec240d198b698830c4e49cf44551edc965071839a18b9243fc6",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:04:55.689598"
+  },
+  "core/IA/estudio.py::_estudiar_tema": {
+    "hash": "2995a9f7e2aab90b18676e5700a31b6f994c23a3f6e46ba1b4ead707299f151e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:01.711156"
+  },
+  "core/IA/estudio.py::_estudiar_todos_los_temas": {
+    "hash": "fd6648588ffd8063b64f877db31f24d0da754e5c663c5edec396b49b73acc6c5",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:04.579107"
+  },
+  "core/IA/estudio.py::_estudiar_variaciones_de_comandos": {
+    "hash": "9a9f88de9f5177555c8200eb7a6c202a287973dec21bd4b050060bedef022d2d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:10.276523"
+  },
+  "core/IA/estudio.py::_estudiar_variaciones_de_respuestas": {
+    "hash": "abe1617f3c154fb373e7df9868f8a3f127f1a8a179dce892ad80bcbcf2497b64",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:16.341335"
+  },
+  "core/IA/estudio.py::estudiar_todo": {
+    "hash": "15e0eea771bb042d0f51b6443902f2e9b615d420f76629fc29c71440acbbafbf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:24.141781"
+  },
+  "core/IA/estudio.py::iniciar_estudio_en_background": {
+    "hash": "d5bea57b640b519546cdbd4f4ca60cc670fc4019b448094712373fb4348313d9",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:34.246655"
+  },
+  "core/IA/estudio.py::_tarea": {
+    "hash": "94674dcb612caecefa7bbcdaf57ccc1103078b667b4384538de6f19065c2e0a8",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:39.806104"
+  },
+  "core/IA/exportar_dataset.py::cargar": {
+    "hash": "8b2ec5804014516e8d6b95b110169e1546378a4ee7d7f1ac36a43496a8c276c3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:43.388926"
+  },
+  "core/IA/exportar_dataset.py::main": {
+    "hash": "0bb0fe6f6a35e5c98933b29efcae33a913c4768287b1f7c32b5b5d03e76fe316",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:55.318808"
+  },
+  "core/IA/generar_changelog.py::cargar_historial": {
+    "hash": "3a715f22ea7625041d4eab1de8edbcfca65728b7d4533f7663bd0e3b6d09279c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:05:58.996703"
+  },
+  "core/IA/generar_changelog.py::guardar_historial": {
+    "hash": "8a68f1d49e133b76b28a5e3e789abb1e20c64b9e2f520a35b7c089eda88379ee",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:02.122715"
+  },
+  "core/IA/generar_changelog.py::ultima_version_confirmada": {
+    "hash": "0f704a209f92109c0c896fce26617623ec701d4cad1801cd9c4b5bfcd26cfc21",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:05.095472"
+  },
+  "core/IA/generar_changelog.py::hay_repo_git": {
+    "hash": "0e96140ddf39b89dcffc0ba8b8d9bf10982feba57f32f2551268d7dc4094a59f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:11.037863"
+  },
+  "core/IA/generar_changelog.py::commits_desde": {
+    "hash": "98300d7e338f1f1504fb8cdba943eae6f7a0998798758e4fa0df0e6e384a5a24",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:16.561984"
+  },
+  "core/IA/generar_changelog.py::obtener_diff": {
+    "hash": "cada706afda31484b32a2439feedcb22163e2c5c6d619ebe697b14193674ec35",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:20.158046"
+  },
+  "core/IA/generar_changelog.py::archivos_modificados": {
+    "hash": "66865ff2a43aba36f7ca0fe5348637ebad2219df252b8f9598ec5487ac25ffc2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:23.926719"
+  },
+  "core/IA/generar_changelog.py::siguiente_numero_version": {
+    "hash": "a8ab4436e234db6130edaf9eb735c763921c75ec19c7418b22e2049ddcd16b5f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:28.635372"
+  },
+  "core/IA/generar_changelog.py::redactar_con_ollama": {
+    "hash": "a0c121342293ac38afe2fcf54f8d520ac583a758e2baeb1e58e4e2c851f1575b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:36.966841"
+  },
+  "core/IA/generar_changelog.py::main": {
+    "hash": "546c62301de12bdfa998d34bb907ed51b79b487fca3183f2be54b7d74bc77328",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:49.722521"
+  },
+  "core/IA/introspeccion.py::analizar_archivo": {
+    "hash": "d184647e6f6b66bcdd3ad586094376bfe69f387d6bef3e18faf59d63df51594c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:53.828834"
+  },
+  "core/IA/introspeccion.py::contar_archivos_txt": {
+    "hash": "2b87b2d141cf4986f30bb751167f5d30e64c91223e4f7a62b355be7fafe5e737",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:06:56.712874"
+  },
+  "core/IA/introspeccion.py::analizar_proyecto": {
+    "hash": "c98ced9b9f289b8559e4ea5571cfc93a651370aef2f6503ca16e7019d8fe20a3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:01.280913"
+  },
+  "core/IA/introspeccion.py::resumen": {
+    "hash": "d6969179dec90d803792b12874d1fe7248639da1d7ef58fd3fadb55613da0bf1",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:06.440627"
+  },
+  "core/IA/introspeccion.py::reporte_texto": {
+    "hash": "7877b1a944fd36160a31f71b76074d92dd259f43bf3d7f0d09853ea92e9f172e",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:12.171969"
+  },
+  "core/IA/introspeccion.py::__init__": {
+    "hash": "e36d4d97a2c5bfd3ca71b63fa8687ccc44adafc84be260f4beb8fc11ca3d6eaf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:15.149243"
+  },
+  "core/IA/introspeccion.py::visit_Import": {
+    "hash": "d8b7ed70f38167ccf83acb3000cf06cca4ea5a120bec05440282ac4bfbe65e74",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:18.956633"
+  },
+  "core/IA/introspeccion.py::visit_ImportFrom": {
+    "hash": "cfd0abea2bb7fe076fb6528e42142c695a193d6a88783b0f4c364cc924857ec1",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:22.255837"
+  },
+  "core/IA/introspeccion.py::visit_FunctionDef": {
+    "hash": "d41000624e5500f1d56b3ccfe151965febe0725eeda2e4d1feb3a1e2f837885c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:26.399707"
+  },
+  "core/IA/introspeccion.py::visit_Call": {
+    "hash": "f7fe9bbe2d65b0e5eecd61530a13a76e18b477e1be3c1e2f5c02b5daacbfe440",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:29.827506"
+  },
+  "core/IA/introspeccion.py::_nombre_llamada": {
+    "hash": "3567eb7e270a1390b8a97d107e06dad5ccd117e3b754a87442e7a8d6a09cc4e6",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:33.854819"
+  },
+  "core/IA/limpiar.py::cargar": {
+    "hash": "c57697186c900d547cee1b04fef297af75fddacfaaf82e4e798b3643b1e746cf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:37.267886"
+  },
+  "core/IA/limpiar.py::guardar": {
+    "hash": "2821412dec3457c6642c7daed911e957466f75d47c5d66c8cde9cf8a83bbf146",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:40.433876"
+  },
+  "core/IA/limpiar.py::backup": {
+    "hash": "a2db808ee64b875dfbb18aa3da4d776f68840ba62b1fe4950976801a4e7d4e5f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:43.482990"
+  },
+  "core/IA/limpiar.py::revisar_conocimiento": {
+    "hash": "d6062de7d40f06a8d0aa598785ec1dc52ad8fcbfa7e57e07a2149f170b182ab1",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:50.795141"
+  },
+  "core/IA/limpiar.py::revisar_respuestas": {
+    "hash": "153bffc45866a1496a797d85c5eb41a5555127cc28b07d5347c90c2c5a0d6e90",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:07:57.702998"
+  },
+  "core/IA/limpieza_auto.py::_similitud_simple": {
+    "hash": "28c464811f6d9df3ffb551849ac253779262f5c800481ed10fc1e99d8cc03790",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:01.806771"
+  },
+  "core/IA/limpieza_auto.py::_contenido_extraible": {
+    "hash": "918da6a031251ba01aad196f12582e67e4ac95141b58ffdb145717614202e991",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:05.791738"
+  },
+  "core/IA/limpieza_auto.py::limpiar_automatico": {
+    "hash": "8ca09272ab1ade0af3e8343070821a60f84748ee8b8997a6fa1871ac390794ed",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:19.916073"
+  },
+  "core/IA/modelo.py::buscar": {
+    "hash": "0c7780cae7a7795bdca877f64d0e069601486b5437fcf26239158191d19590e4",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:23.856617"
+  },
+  "core/IA/modelo.py::responder": {
+    "hash": "f4da6837d25be487b270ead4e2047ea5c1727ee8b294cef6267438cd4da3a0d7",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:27.127179"
+  },
+  "core/IA/modelo.py::aprender_nuevo": {
+    "hash": "b9e36dcfe09d54a2c6161a250e00719c1db31c7ad7beb100f216bdf37f5fdcf3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:08:30.285488"
+  },
+  "core/IA/ollamaIA.py::comprender": {
+    "hash": "76d48e33c1edd05392026e63f99c4807bfca16805710c037b1d86262d8791df3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:20.336480"
+  },
+  "core/IA/ollamaIA.py::conversar": {
+    "hash": "abf9133b3c28dc31c0376f940bfaf4b3f42bfe0892438a79f4af3b96bc897745",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:27.968398"
+  },
+  "core/IA/ollamaIA.py::generar_codigo": {
+    "hash": "6141b8357a18acec27dd9fb3b3b7ee931868d88d45dca1bd4dca9a18f3b33f6c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:35.888223"
+  },
+  "core/IA/propuestas.py::cargar_propuestas": {
+    "hash": "a95d489e0fb9f77e76fbf00937445fc954782b5a8e21773771695179f4c88f1c",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:39.444811"
+  },
+  "core/IA/propuestas.py::guardar_propuestas": {
+    "hash": "a22964a49f89d245c3e07cadc0345fcb999d5fbda2c8db474ddcec7c481a137f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:42.459509"
+  },
+  "core/IA/propuestas.py::_log_inmutable": {
+    "hash": "65147162b717cb6f2daa31945294ff46e7664bdb3851f5522246e8a6f6e1eb1b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:45.784298"
+  },
+  "core/IA/propuestas.py::generar_propuestas_desde_candidatos": {
+    "hash": "a408b814dd72cded709db985c9063a36ce2605daf0a12a728898175a7c7fec77",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:09:57.005306"
+  },
+  "core/IA/respuestas.py::_normalizar": {
+    "hash": "e563fdacca29d7f4f7757e46dd006bc6b4dac553aa04ba6256304e2ba4343749",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:00.415809"
+  },
+  "core/IA/respuestas.py::cargar": {
+    "hash": "8b14cccb4283467cb1c9234a51283aaad862337b2c6f866fc3cddd3375067ed0",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:03.677187"
+  },
+  "core/IA/respuestas.py::guardar": {
+    "hash": "a1fd317ddc8edc56772dc255cd5344499234babf6cc7cff2cd21b217274e51ae",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:06.652393"
+  },
+  "core/IA/respuestas.py::guardar_respuesta": {
+    "hash": "f8e2c732684baa2839026c31803bf58920ca4715936028685f1fb77a0c1a1735",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:13.763765"
+  },
+  "core/IA/respuestas.py::buscar_respuesta": {
+    "hash": "e38e8f2815f70f5659994f67af4cc485d78d20e35f25e8b10646a8fb9cd2dbb2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:22.909145"
+  },
+  "core/IA/revertir_ultimo_cambio.py::main": {
+    "hash": "8aa7c92774283619794e6783230d154eef78d665e767bfadae9828dbd31bd308",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:27.440436"
+  },
+  "core/IA/revisar_propuestas.py::cargar_propuestas": {
+    "hash": "3e151ac2d71e40509db855e95d3b3f4c8799fea83a6f4f54aaa0384058eb89b4",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:30.777103"
+  },
+  "core/IA/revisar_propuestas.py::guardar_propuestas": {
+    "hash": "a22964a49f89d245c3e07cadc0345fcb999d5fbda2c8db474ddcec7c481a137f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:33.790264"
+  },
+  "core/IA/revisar_propuestas.py::_log_inmutable": {
+    "hash": "65147162b717cb6f2daa31945294ff46e7664bdb3851f5522246e8a6f6e1eb1b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:37.031208"
+  },
+  "core/IA/revisar_propuestas.py::hacer_backup": {
+    "hash": "a3eb1415a91c210328c43dc2248b6f8d4fa3ad8e407970cd1b8e21b338faa5fc",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:40.767281"
+  },
+  "core/IA/revisar_propuestas.py::leer_diccionario_actual": {
+    "hash": "c3db30b22973c5920358cfad3988324d5f76758f9963d47c43b16a0c158255f5",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:45.245985"
+  },
+  "core/IA/revisar_propuestas.py::generar_codigo_diccionario": {
+    "hash": "408995f3ddf12eeedae0ddbd37c36e67ee96fd4de9dc6c20f7ed805980906784",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:50.212728"
+  },
+  "core/IA/revisar_propuestas.py::validar_sintaxis": {
+    "hash": "c774fdb4ab1772d2899007af3d2806f477aa4b5e22e5c244fe7001e1416b97a3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:10:53.426469"
+  },
+  "core/IA/revisar_propuestas.py::aplicar_propuesta": {
+    "hash": "e05701cf6fdf531ac10be06850dab593d881aeaa25d48162582ef449e0bb7b10",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:02.745805"
+  },
+  "core/IA/revisar_propuestas.py::main": {
+    "hash": "aa1c11d5a2032228deb6e825f2c6f789e69dbdf4cb6df59cba56f4b6bfa60abf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:11.140176"
+  },
+  "core/IA/telemetria.py::_registrar": {
+    "hash": "9dcb8e8e9fb97ff3a89c126c5530e53304856b633e8fcea18250e8d06005dfd1",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:15.994742"
+  },
+  "core/IA/telemetria.py::medir": {
+    "hash": "b802e26d07c4b92ac3c7a591a34bedb75611b222bb22842b50bd52abd5ccbea6",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:21.700096"
+  },
+  "core/IA/telemetria.py::registrar_comando": {
+    "hash": "90dad543d95f3c4c6ecad17c4518a6ef76eb36c03052e5a12c1302a7dd939c3d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:26.361873"
+  },
+  "core/IA/telemetria.py::_cargar_eventos": {
+    "hash": "d48aa2d685dfb28eb91f44f316389bb49a3367f51a01005781e1bac7fa445e3f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:30.548830"
+  },
+  "core/IA/telemetria.py::resumen": {
+    "hash": "8af3e95ada91fff198cfabfa144f5e725b78613b1e55de371abde89a5012717f",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:44.314125"
+  },
+  "core/IA/voz.py::_cargar_whisper": {
+    "hash": "787876959f47cb88bd7eb96759930b2baf9add45c3b7fb4356c157d01ebdf7a2",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:48.790624"
+  },
+  "core/IA/voz.py::_transcribir": {
+    "hash": "2ca8bae8447ca7a72ac52322f014ea752367f9e83c9afb3799b27ad25f2e9277",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:52.653756"
+  },
+  "core/IA/voz.py::_detectar_samplerate": {
+    "hash": "f34d6224018ce2f0d79cc01ef219b34bae843575974d04f3897af8810dae0519",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:11:55.647458"
+  },
+  "core/IA/voz.py::_resamplear": {
+    "hash": "39ef7152774fece0917c4229d56c726b3aa4e29ecc7bb31a588e4a5379998f28",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:02.656746"
+  },
+  "core/IA/voz.py::_normalizar": {
+    "hash": "9e12a1c4433d3dd886d59a7e205e19bdcba32c195c612d3caab84c971be83468",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:06.187522"
+  },
+  "core/IA/voz.py::_es_voz": {
+    "hash": "39b16cd77ec869ca29020604d7f143aa7f49a58d0f0bf2e315b849b3f3c02955",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:10.042206"
+  },
+  "core/IA/voz.py::_extraer_comando": {
+    "hash": "d05b1da038778ee59316c808858621d334e6be39f23d6316c5ced197c9f59fbf",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:14.409817"
+  },
+  "core/IA/voz.py::escuchar_continuo": {
+    "hash": "ee240d7879ae555bb42391cb35bc04a1d30cac11017285fb4312176c1fb4fb63",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:42.735767"
+  },
+  "core/IA/voz.py::callback": {
+    "hash": "4bf468eb9bbcd550cb295bb384a9d66256eac7c18aa06af56af062547c8a5d77",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:45.407408"
+  },
+  "core/IA/voz_calibrar.py::calcular_rms": {
+    "hash": "e68a81f1ae7738e6282391b12b0caf9bc247a167bb5f010e3502120c61aaf49b",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:48.930720"
+  },
+  "core/IA/voz_calibrar.py::main": {
+    "hash": "d55c4bdbf6b68fdaaee6fdd31b2d43546d15cb5302fd98d500cac8f509438123",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:12:58.310954"
+  },
+  "core/IA/voz_calibrar.py::callback": {
+    "hash": "e2c17b72498b033af1699f159a5e9904cddd69e9ee35a4fcaba15a4f7012739d",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:13:03.336759"
+  },
+  "core/IA/voz_test.py::mostrar_comando": {
+    "hash": "0273ac4e2f677a10bc182130c488ce3e146029ef6bf16d5336a5e76019ea92e3",
+    "resultado": "ok",
+    "fecha": "2026-09-14T14:13:06.425725"
   }
 }

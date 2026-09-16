@@ -14,6 +14,16 @@ from core.IA.telemetria import medir
 # --------------------------------------------------------------------
 MODELO = "arche-lora"
 
+# Modelo SEPARADO, especializado en codigo, solo para las tareas de
+# auto-modificacion (proponer_cambio_codigo.py). arche-lora es un
+# modelo chico fine-tuneado para conversar/clasificar con la
+# personalidad de Arche -- mostro comportamiento rigido/sobreajustado
+# para generar codigo (devolvia la misma respuesta sin importar el
+# prompt, ni siquiera reaccionaba a retroalimentacion de errores
+# explicita). qwen2.5-coder:1.5b esta entrenado especificamente para
+# codigo y no tiene ese sesgo.
+MODELO_CODIGO = "qwen2.5-coder:1.5b"
+
 # keep_alive mantiene el modelo cargado en memoria entre llamadas.
 # Con "30m" evitas que se descargue si pasan más de 5 min (default de Ollama)
 # entre un comando y otro.
@@ -393,6 +403,41 @@ Pregunta:
                 "temperature": temperature,
                 # Limita la respuesta para que no se extienda de más.
                 # Súbelo si necesitas respuestas largas (resúmenes, explicaciones extensas).
+                "num_predict": num_predict,
+            }
+        )
+
+    return respuesta["message"]["content"]
+
+
+def generar_codigo(prompt, num_predict=400, temperature=0.2):
+    """
+    Igual que conversar(), pero usa MODELO_CODIGO (un modelo separado,
+    especializado en generar codigo) en vez de MODELO (arche-lora, el
+    modelo conversacional de Arche).
+
+    Se separo porque arche-lora mostro comportamiento sobreajustado
+    para tareas de generacion de codigo -- devolvia la misma respuesta
+    palabra por palabra sin importar cambios sustanciales en el
+    prompt, incluso con retroalimentacion explicita del error anterior.
+    Un modelo especificamente entrenado para codigo no tiene ese sesgo.
+
+    Usada exclusivamente por proponer_cambio_codigo.py (Fase 3: auto-
+    modificacion de codigo). El resto de Arche sigue usando arche-lora
+    normalmente via conversar()/comprender().
+    """
+    with medir("ollama_generar_codigo"):
+        respuesta = ollama.chat(
+            model=MODELO_CODIGO,
+            keep_alive=KEEP_ALIVE,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            options={
+                "temperature": temperature,
                 "num_predict": num_predict,
             }
         )

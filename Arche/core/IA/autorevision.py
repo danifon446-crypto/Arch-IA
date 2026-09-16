@@ -304,26 +304,52 @@ def ejecutar_capa_1():
 # ------------------------- Revisión unificada (determinista + Ollama con memoria) -------------------------
 
 def revisar_funcion_con_ollama(archivo_rel, fn):
-    from core.IA.ollamaIA import conversar
+    """
+    Le pregunta al modelo DOS cosas en una sola llamada (eficiente):
+    si hay un bug real, y si hay una mejora de calidad clara (más
+    simple, más eficiente, menos repetición) -- sin pedir opiniones
+    de estilo subjetivas, solo cosas concretas y accionables.
 
-    prompt = f"""Sos un revisor de codigo Python breve y directo.
+    Usa generar_codigo (modelo especializado en código), no conversar
+    (arche-lora) -- ya vimos hoy que arche-lora es poco confiable para
+    tareas que requieren entender código de verdad.
+
+    Devuelve (bug_o_None, mejora_o_None).
+    """
+    from core.IA.ollamaIA import generar_codigo
+
+    prompt = f"""Sos un revisor de código Python breve y directo.
 
 Archivo: {archivo_rel}
 
-Funcion a revisar:
+Función a revisar:
 ---
 {fn['codigo']}
 ---
 
-¿Ves un bug real y concreto en esta funcion (no estilo, no opinion -- solo bugs reales: variable mal usada, condicion invertida, recurso sin cerrar, comparacion incorrecta, etc)?
+Respondé EXACTAMENTE con este formato, dos líneas:
 
-Si NO ves ningun bug, respondé exactamente: NINGUNO
-Si SI ves un bug, respondé en UNA sola linea corta describiendolo, sin explicaciones largas.
+BUG: <descripción corta de un bug real y concreto (variable mal usada, condición invertida, recurso sin cerrar, comparación incorrecta), o la palabra NINGUNO si no hay ninguno>
+MEJORA: <descripción corta de una mejora de CALIDAD concreta y accionable (código repetido que se puede simplificar, forma más eficiente de hacer lo mismo, manejo de errores faltante), o la palabra NINGUNA si no hay ninguna>
+
+No expliques nada más. No dupliques información entre BUG y MEJORA -- si ya lo pusiste como bug, no lo repitas como mejora.
 """
-    respuesta = conversar(prompt, num_predict=100, temperature=0.1).strip()
-    if respuesta.upper().startswith("NINGUNO"):
-        return None
-    return respuesta
+    respuesta = generar_codigo(prompt, num_predict=150, temperature=0.1).strip()
+
+    bug = None
+    mejora = None
+    for linea in respuesta.splitlines():
+        linea = linea.strip()
+        if linea.upper().startswith("BUG:"):
+            valor = linea.split(":", 1)[1].strip()
+            if valor and not valor.upper().startswith("NINGUNO"):
+                bug = valor
+        elif linea.upper().startswith("MEJORA:"):
+            valor = linea.split(":", 1)[1].strip()
+            if valor and not valor.upper().startswith("NINGUNA"):
+                mejora = valor
+
+    return bug, mejora
 
 
 def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
@@ -342,7 +368,6 @@ def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
             buscar=candidato["codigo"],
             reemplazar="",
             que=f"Eliminar la función '{candidato['nombre']}', que no tiene referencias reales en ningún otro lugar del proyecto.",
-            origen="autorevision",
         )
         if propuesta:
             ids_generados.append(propuesta["id"])
@@ -378,6 +403,7 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
         "nuevas_o_modificadas": 0,
         "saltadas_por_cache": 0,
         "bugs_encontrados": [],
+        "mejoras_encontradas": [],
         "propuestas_generadas": [],
     }
 
@@ -408,23 +434,36 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
             reporte["revision_ia"]["nuevas_o_modificadas"] += 1
 
             print(f"  revisando {clave} (nueva o modificada)...", end=" ", flush=True)
-            bug = revisar_funcion_con_ollama(rel, fn)
+            bug, mejora = revisar_funcion_con_ollama(rel, fn)
 
-            if bug:
-                print(f"⚠ {bug}")
-                reporte["revision_ia"]["bugs_encontrados"].append({"archivo": rel, "funcion": fn["nombre"], "bug": bug})
-                propuesta, error = proponer_cambio_ia(rel, f"corregir este bug: {bug}", origen="autorevision")
-                if propuesta:
-                    reporte["revision_ia"]["propuestas_generadas"].append(propuesta["id"])
-                    print(f"    -> propuesta {propuesta['id']} generada")
-                elif error:
-                    print(f"    -> no se pudo generar propuesta: {error}")
-            else:
+            if not bug and not mejora:
                 print("ok")
+            else:
+                if bug:
+                    print(f"⚠ bug: {bug}")
+                    reporte["revision_ia"]["bugs_encontrados"].append({"archivo": rel, "funcion": fn["nombre"], "bug": bug})
+                    instruccion_bug = f"en la función '{fn['nombre']}': corregir este bug: {bug}"
+                    propuesta, error = proponer_cambio_ia(rel, instruccion_bug, origen="autorevision")
+                    if propuesta:
+                        reporte["revision_ia"]["propuestas_generadas"].append(propuesta["id"])
+                        print(f"    -> propuesta {propuesta['id']} generada")
+                    elif error:
+                        print(f"    -> no se pudo generar propuesta: {error}")
+
+                if mejora:
+                    print(f"  ✎ mejora: {mejora}")
+                    reporte["revision_ia"]["mejoras_encontradas"].append({"archivo": rel, "funcion": fn["nombre"], "mejora": mejora})
+                    instruccion_mejora = f"en la función '{fn['nombre']}': mejorar esto (sin cambiar su comportamiento): {mejora}"
+                    propuesta_m, error_m = proponer_cambio_ia(rel, instruccion_mejora, origen="autorevision")
+                    if propuesta_m:
+                        reporte["revision_ia"]["propuestas_generadas"].append(propuesta_m["id"])
+                        print(f"    -> propuesta {propuesta_m['id']} generada")
+                    elif error_m:
+                        print(f"    -> no se pudo generar propuesta: {error_m}")
 
             cache[clave] = {
                 "hash": hash_actual,
-                "resultado": bug or "ok",
+                "resultado": bug or mejora or "ok",
                 "fecha": datetime.now().isoformat(),
             }
 
@@ -433,9 +472,11 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
 
 
 def imprimir_reporte(reporte, sin_ia=False):
-    """Muestra el reporte de autorevisar() con el mismo formato tanto
-    si se corre standalone (python core/IA/autorevision.py) como si
-    se dispara desde el chat de main.py con 'revisa tu codigo'."""
+    """
+    Imprime el reporte de autorevisar() en formato legible. Separada
+    de autorevisar() para que main.py (u otro llamador) pueda pedir
+    el reporte y mostrarlo sin depender de que se ejecute como script.
+    """
     print("\n" + "=" * 60)
     print("REPORTE DE AUTOREVISIÓN")
     print("=" * 60)
@@ -453,7 +494,7 @@ def imprimir_reporte(reporte, sin_ia=False):
     if reporte["codigo_muerto"]["alta_confianza"]:
         print(f"\nFunciones sin referencias reales, candidatas a eliminar ({len(reporte['codigo_muerto']['alta_confianza'])}):")
         for f in reporte["codigo_muerto"]["alta_confianza"]:
-            print(f"  • {f['archivo']}::{f['nombre']}  -> propuesta de eliminación generada, revisá con 'revisar cambios de codigo'")
+            print(f"  • {f['archivo']}::{f['nombre']}  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'")
 
     if reporte["codigo_muerto"]["revisar_con_cuidado"]:
         print(f"\nFunciones que parecen sin uso pero son de despacho dinámico -- NO se proponen para borrar ({len(reporte['codigo_muerto']['revisar_con_cuidado'])}):")
@@ -474,10 +515,15 @@ def imprimir_reporte(reporte, sin_ia=False):
             for h in ia["bugs_encontrados"]:
                 print(f"  • {h['archivo']}::{h['funcion']}: {h['bug']}")
 
+        if ia["mejoras_encontradas"]:
+            print(f"\nMejoras de calidad detectadas ({len(ia['mejoras_encontradas'])}):")
+            for m in ia["mejoras_encontradas"]:
+                print(f"  • {m['archivo']}::{m['funcion']}: {m['mejora']}")
+
     if reporte["revision_ia"]["propuestas_generadas"]:
         print(f"\nEn total se generaron {len(reporte['revision_ia']['propuestas_generadas'])} propuesta(s) "
               f"(código muerto a eliminar + correcciones de bugs).")
-        print("Corré 'revisar cambios de codigo' para revisarlas y aprobarlas.")
+        print("Corré 'python core/IA/revisar_cambios_codigo.py' para revisarlas y aprobarlas.")
 
     hay_hallazgos_deterministas = any([
         reporte["duplicados"], reporte["imports_sin_usar"],

@@ -339,7 +339,7 @@ while True:
                 print(f"Arché: {error}")
             else:
                 print(f"Arché: Generé la propuesta {propuesta['id']} para {propuesta['archivo']}. "
-                      f"Corré 'revisar cambios de codigo' para verla y aprobarla.")
+                    f"Corré 'revisar cambios de codigo' para verla y aprobarla.")
         else:
             print("Arché: Usá el formato 'escribe en <archivo> : <qué querés que cambie>'.")
         continue
@@ -347,6 +347,52 @@ while True:
     if comando in ["revisar cambios de codigo", "revisar cambios de código"]:
         from core.IA.revisar_cambios_codigo import main as revisar_cambios_codigo
         revisar_cambios_codigo()
+        continue
+
+    if comando.startswith("cambia esto") or comando.startswith("mejora esto") or comando.startswith("arreglá esto") or comando.startswith("arregla esto"):
+        instruccion = ""
+        for prefijo in ["cambia esto", "mejora esto", "arreglá esto", "arregla esto"]:
+            if comando_original.lower().startswith(prefijo):
+                instruccion = comando_original[len(prefijo):].strip(" :")
+                break
+        if not instruccion:
+            print("Arché: Decime qué querés que cambie. Ej: 'cambia esto: agregá una función que cuente las notas'.")
+            continue
+
+        from core.IA.enrutar_cambio import decidir_destino, construir_instruccion_final, es_pedido_de_agregado
+        from core.IA.proponer_cambio_codigo import proponer_cambio_ia, proponer_agregar_funcion_cerca, _extraer_funcion
+
+        decision = decidir_destino(instruccion)
+        print(f"Arché: {decision['explicacion']}")
+
+        if decision["tipo"] == "editar_existente" and not decision.get("confianza_alta", True):
+            confirmar = input(
+                "Arché: No estoy muy seguro de este destino. "
+                "¿Seguimos igual (s), o preferís decirme vos el archivo con "
+                "'escribe en <archivo> : ...' en su lugar? [s/n]\nTú: "
+            ).strip().lower()
+            if confirmar not in ("s", "si", "sí"):
+                print("Arché: Dale, cancelado. Usá 'escribe en <archivo> : <instrucción>' cuando sepas el destino.")
+                continue
+
+        if decision["tipo"] == "editar_existente" and decision["funcion"] and es_pedido_de_agregado(instruccion):
+            ruta_archivo = decision["archivo"]
+            contenido_archivo = open(ruta_archivo, "r", encoding="utf-8").read()
+            codigo_ancla = _extraer_funcion(contenido_archivo, decision["funcion"])
+            if codigo_ancla is None:
+                print("Arché: No pude aislar esa función para anclar el cambio, lo intento como edición genérica.")
+                instruccion_final = construir_instruccion_final(decision, instruccion)
+                propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
+            else:
+                propuesta, error = proponer_agregar_funcion_cerca(decision["archivo"], codigo_ancla, instruccion, origen="autonomo")
+        else:
+            instruccion_final = construir_instruccion_final(decision, instruccion)
+            propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
+
+        if error:
+            print(f"Arché: {error}")
+        else:
+            print(f"Arché: Generé la propuesta {propuesta['id']}. Corré 'revisar cambios de codigo' para verla y aprobarla.")
         continue
 
     if comando in ["cambios de codigo pendientes", "cambios de código pendientes"]:

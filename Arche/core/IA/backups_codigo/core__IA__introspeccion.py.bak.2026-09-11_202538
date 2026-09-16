@@ -112,13 +112,6 @@ def analizar_archivo(ruta: Path):
     return [(str(ruta.relative_to(RAIZ_PROYECTO)), fn, dep) for fn, dep in detector.funciones_totales]
 
 
-def contar_archivos_txt(ruta: Path):
-    contador = 0
-    for archivo in ruta.rglob('*.txt'):
-        contador += 1
-    return contador
-
-
 def analizar_proyecto(directorio=None):
     """
     directorio: si no se pasa nada, usa la raiz real del proyecto
