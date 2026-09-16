@@ -1,131 +1,28 @@
-import time
-def decir_hora ():
-    print("Arché:", time.strftime("%H:%M:%S"))
+﻿import os
+import shutil
+import psutil
 
-def saludar(nombre):
-    print(f"Hola, {nombre}.¿Como estás?")
+def espacio_disponible():
+    # Obtener el espacio disponible en el disco
+    espacio_disponible = shutil.disk_usage("/")
+    espacio_total = espacio_disponible.total
+    espacio_usado = espacio_disponible.used
 
-def decir_fecha():
-    print("Arché:", time.strftime("%d/%m/%Y"))
+    # Calcular el porcentaje de espacio libre
+    porcentaje_libre = (100 * espacio_disponible.free) / espacio_total
 
-def despedida():
-    print("Arché: Hasta luego.")
+    return porcentaje_libre
 
-def presentarse():
-    print("Soy Arche tu IA personal")
+# Ejemplo de uso
+print(f"Porcentaje de espacio libre: {espacio_disponible()}")
 
-def ayuda(categoria=None):
-    if categoria is None:
-        print("\nArché: Actualmente puedo ayudarte con:\n")
-        print("•  Saludos")
-        print("•  Fecha y hora")
-        print("•  Páginas web")
-        print("•  Programas")
-        print("•  Archivos")
-        print("•  Notas")
-        print("•  Recordatorios")
-        print("•  Memoria")
-        print("•  Calculadora")
-        print("•  Configuración")
-        print("•  Búsqueda en Google")
-        print("\nEjemplos:")
-        print("• ¿Qué hace notas?")
-        print("• ¿Qué hace programas?")
-        print("• ¿Qué hace calculadora?")
-        return
-    categoria = categoria.lower()
-    ayudas = {
-        "saludos": [
-            "Saludar",
-            "Presentarme",
-            "Despedirme"
-        ],
-        "fecha y hora": [
-            "Decir la fecha",
-            "Decir la hora"
-        ],
-        "páginas web": [
-            "Abrir páginas web",
-            "Aprender nuevas páginas web"
-        ],
-        "programas": [
-            "Abrir programas",
-            "Aprender nuevos programas"
-        ],
-        "archivos": [
-            "Buscar archivos",
-            "Abrir archivos",
-            "Actualizar índice"
-        ],
-        "notas": [
-            "Crear notas",
-            "Leer notas",
-            "Abrir notas",
-            "Agregar texto",
-            "Eliminar notas",
-            "Mostrar todas las notas"
-        ],
-        "recordatorios": [
-            "Crear recordatorios",
-            "Mostrar recordatorios",
-            "Completar recordatorios",
-            "Eliminar recordatorios",
-            "Avisar pendientes al iniciar"
-        ],
-        "memoria": [
-            "Recordar información",
-            "Mostrar recuerdos"
-        ],
-        "calculadora": [
-            "Operaciones básicas",
-            "Potencias",
-            "Raíz cuadrada",
-            "Seno",
-            "Coseno",
-            "Tangente",
-            "Logaritmos",
-            "Historial de cálculos"
-        ],
-        "configuración": [
-            "Cambiar tu nombre",
-            "Cambiar mi nombre",
-            "Mostrar configuración",
-            "Restablecer configuración"
-        ],
-        "búsqueda en google": [
-            "Buscar cualquier tema en Google"
-        ]
-    }
-    alias = {
 
-        "configuracion": "configuración",
+def funcion_inexistente_de_prueba():
+    return '¡Función reparada y operativa!'
 
-        "paginas web": "páginas web",
+def funcion_inexistente_de_prueba():
+    return 'Funcion reparada y operativa con exito'
 
-        "busqueda en google": "búsqueda en google",
 
-        "google": "búsqueda en google",
-
-        "fecha": "fecha y hora",
-
-        "hora": "fecha y hora"
-
-    }
-
-    categoria = alias.get(categoria, categoria)
-
-    if categoria in ayudas:
-        print(f"\nArché: {categoria.upper()}\n")
-        for funcion in ayudas[categoria]:
-            print(f"• {funcion}")
-    else:
-        print("Arché: No conozco esa categoría.")
-
-def extraer_contenido(comando, palabras):
-    comando = comando.lower()
-
-    for palabra in palabras:
-        if comando.startswith(palabra):
-            return comando[len(palabra):].strip()
-
-    return ""
+def funcion_inexistente_de_prueba():
+    return 'Funcion reparada y operativa con exito'
