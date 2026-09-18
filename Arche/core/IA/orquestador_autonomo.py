@@ -7,215 +7,147 @@ Motor de Autonomía de Arché:
 Modifica archivos directamente usando la API de Ollama, respaldado por 
 un sistema de backups preventivos y Smoke Tests (AST) con auto-rollback.
 
-REGLAS OBLIGATORIAS DE REPARACIÓN:
+
+REGLAS DE REPARACIÓN:
 1. Si falta una función o variable (NameError), DEBES definir la función directamente en el archivo fallido.
 2. NO agregues sentencias 'import' hacia funciones que no existan previamente en otros módulos.
 3. Genera código Python válido en UTF-8 puro, sin usar caracteres especiales o acentos en cadenas de texto si no es necesario.
 
+
+Motor de auto-reparación de Arché. Se dispara cuando algo falla en
+tiempo de ejecución (ver autodiagnostico.py) y trata de arreglarlo
+solo -- pero SIEMPRE pidiendo tu aprobación antes de tocar un archivo
+real, en lenguaje natural, y dándote la posibilidad de sugerir un
+ajuste antes de que se aplique.
+
+REESCRITO por completo respecto a la version anterior. La version
+vieja tenia dos problemas graves de seguridad:
+  1. Reescribia el archivo ENTERO pidiendole a Ollama el contenido
+     completo modificado -- el mismo enfoque de alto riesgo que se
+     evito deliberadamente en todo el resto del sistema (un modelo
+     chico puede truncar, resumir de mas, o alucinar partes que no
+     tocaste).
+  2. Aplicaba el cambio directo al archivo real, SIN pedir ninguna
+     aprobacion -- rompia la regla de seguridad mas importante de
+     todo el proyecto.
+
+Ahora reutiliza el MISMO pipeline validado que usa el resto de Arche
+(proponer_cambio_codigo.py: fragmentos chicos, sin alucinaciones, sin
+confundir tipos, ejecucion real cuando es posible) y el MISMO paso de
+aplicacion segura que usa revisar_cambios_codigo.py (backup + smoke
+test + log inmutable) -- nada de codigo duplicado ni caminos nuevos
+sin las mismas protecciones.
 """
 
-import ast
-import json
-import urllib.request
-import urllib.parse
 import sys
-from datetime import datetime
 from pathlib import Path
 
-# Configuración de importación de la raíz (Arche/)
 _RAIZ_APP = Path(__file__).resolve().parents[2]
 if str(_RAIZ_APP) not in sys.path:
     sys.path.insert(0, str(_RAIZ_APP))
 
-from core.IA.proponer_cambio_codigo import RAIZ_APP, ARCHIVOS_PROTEGIDOS
+from core.IA.enrutar_cambio import decidir_destino, es_pedido_de_agregado
+from core.IA.proponer_cambio_codigo import (
+    proponer_cambio_ia, proponer_agregar_funcion_cerca, _extraer_funcion,
+    _cargar_pendientes, _guardar_pendientes,
+)
+from core.IA.revisar_cambios_codigo import aplicar_propuesta, _area_natural, _log_inmutable
 
-DIR_IA = Path(__file__).parent
-DIR_BACKUPS = DIR_IA / "backups_codigo"
-DIR_BACKUPS.mkdir(exist_ok=True, parents=True)
-
-IGNORAR_CARPETAS = {
-    "__pycache__", ".git", "venv", ".venv", "env", "modelos", "Database",
-    "backups_codigo", "backups_autoconocimiento", "build", "dist"
-}
-
-
-# ==============================================================================
-# 1. MAPEO DEL PROYECTO
-# ==============================================================================
-
-def obtener_mapa_proyecto():
-    """Recorre Arché/ y extrae la estructura de archivos."""
-    mapa = {}
-    for archivo in RAIZ_APP.rglob("*.py"):
-        rel = archivo.relative_to(RAIZ_APP).as_posix()
-        if any(p in IGNORAR_CARPETAS for p in archivo.parts) or rel in ARCHIVOS_PROTEGIDOS:
-            continue
-        try:
-            contenido = archivo.read_text(encoding="utf-8")
-            arbol = ast.parse(contenido, filename=str(archivo))
-            funciones = [n.name for n in ast.walk(arbol) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))]
-            clases = [n.name for n in ast.walk(arbol) if isinstance(n, ast.ClassDef)]
-            mapa[rel] = {"clases": clases, "funciones": funciones}
-        except Exception:
-            continue
-    return mapa
-
-
-# ==============================================================================
-# 2. SEGURIDAD, BACKUP Y SMOKE TEST
-# ==============================================================================
-
-def crear_backup_emergencia(archivo_rel):
-    """Crea una copia física antes de modificar cualquier código."""
-    ruta_origen = RAIZ_APP / archivo_rel
-    if not ruta_origen.exists():
-        return None
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nombre_backup = f"{archivo_rel.replace('/', '_')}_{timestamp}.bak"
-    ruta_backup = DIR_BACKUPS / nombre_backup
-    ruta_backup.write_text(ruta_origen.read_text(encoding="utf-8"), encoding="utf-8")
-    return ruta_backup
-
-
-def restaurar_backup_emergencia(archivo_rel, ruta_backup):
-    """Restaura el archivo si la modificación falla la compilación."""
-    if ruta_backup and ruta_backup.exists():
-        ruta_destino = RAIZ_APP / archivo_rel
-        ruta_destino.write_text(ruta_backup.read_text(encoding="utf-8"), encoding="utf-8")
-        return True
-    return False
-
-
-def validar_smoke_test(archivo_rel):
-    """Verifica sintaxis y validez del árbol sintáctico (AST)."""
-    ruta_abs = RAIZ_APP / archivo_rel
-    if not ruta_abs.exists():
-        return False, f"El archivo {archivo_rel} no existe tras la operación."
-
-    try:
-        contenido = ruta_abs.read_text(encoding="utf-8")
-        ast.parse(contenido, filename=str(ruta_abs))
-    except SyntaxError as se:
-        return False, f"SyntaxError en línea {se.lineno}: {se.msg}"
-    except Exception as e:
-        return False, f"Error en lectura de AST: {str(e)}"
-
-    return True, "Sintaxis válida."
-
-
-# ==============================================================================
-# 3. MOTOR DE EDICIÓN VÍA OLLAMA API
-# ==============================================================================
-
-def modificar_codigo_con_ollama(instruccion: str, archivo_target: str, modelo: str = "arche-lora") -> tuple[bool, str]:
-    """
-    Envía el contenido actual del archivo a Ollama y reescribe el archivo con el código generado.
-    """
-    ruta_abs = RAIZ_APP / archivo_target
-    contenido_actual = ""
-    if ruta_abs.exists():
-        contenido_actual = ruta_abs.read_text(encoding="utf-8")
-
-    prompt = (
-        f"Eres un asistente experto en Python. Tu tarea es modificar el código del archivo de forma precisa.\n\n"
-        f"CÓDIGO ACTUAL DE {archivo_target}:\n"
-        f"```python\n{contenido_actual}\n```\n\n"
-        f"INSTRUCCIÓN: {instruccion}\n\n"
-        f"REGLAS:\n"
-        f"1. Devuelve ÚNICAMENTE el código Python completo y modificado dentro de un bloque ```python ... ```.\n"
-        f"2. No agregues explicaciones, saludos ni texto adicional fuera del bloque de código."
-    )
-
-    datos = json.dumps({
-        "model": modelo,
-        "prompt": prompt,
-        "stream": False
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        "http://localhost:11434/api/generate",
-        data=datos,
-        headers={"Content-Type": "application/json"}
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=120) as respuesta:
-            res_json = json.loads(respuesta.read().decode("utf-8"))
-            texto_generado = res_json.get("response", "")
-
-            # Extraer el bloque ```python ```
-            if "```python" in texto_generado:
-                codigo_nuevo = texto_generado.split("```python")[1].split("```")[0].strip()
-            elif "```" in texto_generado:
-                codigo_nuevo = texto_generado.split("```")[1].split("```")[0].strip()
-            else:
-                codigo_nuevo = texto_generado.strip()
-
-            if not codigo_nuevo:
-                return False, "Ollama devolvió un código vacío."
-
-            # Escribir el nuevo código en el archivo de destino
-            ruta_abs.write_text(codigo_nuevo + "\n", encoding="utf-8")
-            return True, "Código actualizado correctamente."
-
-    except Exception as e:
-        return False, f"Error en la conexión con Ollama: {str(e)}"
-
-
-# ==============================================================================
-# 4. ORQUESTADOR AUTÓNOMO
-# ==============================================================================
 
 class OrquestadorAutonomo:
-    def __init__(self, reintentos_max=3):
+    """
+    Intenta reparar un problema por su cuenta, pero SIEMPRE pasa por
+    el mismo gate de aprobación que cualquier otro cambio de código
+    en Arché -- esto no es una excepción a la regla, es una aplicación
+    más de la misma regla.
+    """
+
+    def __init__(self, reintentos_max=2):
         self.reintentos_max = reintentos_max
 
-    def _inferir_archivo_objetivo(self, orden_usuario):
-        """Infiere el archivo a modificar en base a la orden del usuario."""
-        for rel in obtener_mapa_proyecto().keys():
-            if Path(rel).name.lower() in orden_usuario.lower() or rel.lower() in orden_usuario.lower():
-                return rel
+    def _generar_propuesta(self, orden_usuario, sugerencia_extra=None):
+        """
+        Genera una propuesta de arreglo usando el mismo pipeline
+        confiable de siempre (routing + generación aislada/acotada +
+        validaciones). Si `sugerencia_extra` viene de vos (una vuelta
+        de corrección), se le suma a la instrucción original.
+        """
+        instruccion = orden_usuario
+        if sugerencia_extra:
+            instruccion = f"{orden_usuario} Además, quien te pidió esto agregó: {sugerencia_extra}"
 
-        try:
-            from core.IA.enrutar_cambio import enrutar_instruccion
-            archivo = enrutar_instruccion(orden_usuario)
-            if archivo:
-                return archivo
-        except Exception:
-            pass
+        decision = decidir_destino(instruccion)
 
-        return "core/utilidades.py"
+        if decision["tipo"] == "editar_existente" and decision["funcion"] and es_pedido_de_agregado(instruccion):
+            ruta = _RAIZ_APP / decision["archivo"]
+            contenido = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
+            ancla = _extraer_funcion(contenido, decision["funcion"])
+            if ancla:
+                return proponer_agregar_funcion_cerca(decision["archivo"], ancla, instruccion, origen="autodiagnostico")
+
+        return proponer_cambio_ia(decision["archivo"], instruccion, origen="autodiagnostico")
 
     def ejecutar_meta(self, orden_usuario: str):
-        print("\n" + "=" * 60)
-        print(f"🤖 [ORQUESTADOR AUTÓNOMO] Meta: '{orden_usuario}'")
-        print("=" * 60)
+        """
+        Genera una propuesta de arreglo y la lleva por un ciclo de
+        aprobación EN LENGUAJE NATURAL: podés aprobarla, descartarla,
+        o escribir una sugerencia de qué cambiar -- en ese caso se
+        regenera con tu sugerencia sumada, hasta reintentos_max veces.
 
-        archivo_target = self._inferir_archivo_objetivo(orden_usuario)
-        print(f"🎯 Archivo seleccionado: {archivo_target}")
+        Devuelve True si el arreglo quedó aplicado, False si no.
+        """
+        propuesta, error = self._generar_propuesta(orden_usuario)
 
-        backup_file = crear_backup_emergencia(archivo_target)
-        print("📝 Backup preventivo creado.")
-
-        print(f"⚙️ Procesando modificación vía Ollama local...")
-        exito, msj = modificar_codigo_con_ollama(orden_usuario, archivo_target)
-
-        if not exito:
-            print(f"❌ Error durante la generación:\n{msj}")
-            if backup_file:
-                restaurar_backup_emergencia(archivo_target, backup_file)
+        if error:
+            print(f"\nArché: Intenté armar un arreglo, pero no lo logré: {error}")
             return False
 
-        ok_test, detalle_test = validar_smoke_test(archivo_target)
-        if ok_test:
-            print(f"✅ Smoke Test APROBADO: {detalle_test}")
-            print("🎉 Cambio aplicado e integrado exitosamente.")
-            return True
-        else:
-            print(f"⚠️ Smoke Test FALLIDO: {detalle_test}")
-            print("🔄 Ejecutando rollback...")
-            restaurar_backup_emergencia(archivo_target, backup_file)
-            return False
+        intentos_usados = 1
+        while True:
+            area = _area_natural(propuesta["archivo"])
+            print(f"\nArché: Tuve un problema en {area}. Esto es lo que se me ocurre para arreglarlo:")
+            print(f"       {propuesta['que'].split('según:', 1)[-1].strip()}")
+            if propuesta.get("por_que"):
+                print(f"       {propuesta['por_que']}")
+
+            respuesta = input(
+                "\nArché: ¿Lo aplico? Decime 's' para aprobar, 'n' para descartar, "
+                "o contame directamente qué te gustaría que ajuste.\nTú: "
+            ).strip()
+
+            if respuesta.lower() in ("s", "si", "sí"):
+                aplicado = aplicar_propuesta(propuesta)
+                if aplicado:
+                    print(f"\nArché: Listo, ya quedó aplicado en {area}.")
+                else:
+                    print(f"\nArché: Lo intenté pero no pasó una verificación final, así que no quedó aplicado -- no se rompió nada, se restauró solo.")
+                return aplicado
+
+            if respuesta.lower() in ("n", "no"):
+                pendientes = _cargar_pendientes()
+                for p in pendientes:
+                    if p["id"] == propuesta["id"]:
+                        p["estado"] = "rechazada"
+                _guardar_pendientes(pendientes)
+                _log_inmutable({"tipo": "cambio_codigo_rechazado", "id": propuesta["id"]})
+                print(f"\nArché: Entendido, no toco nada en {area}.")
+                return False
+
+            # Cualquier otra cosa se toma como una sugerencia para regenerar
+            if intentos_usados >= self.reintentos_max:
+                print(f"\nArché: Ya lo intenté un par de veces con tus sugerencias y no logro cerrarlo bien. "
+                      f"Mejor lo dejamos así por ahora -- podés pedírmelo de nuevo más adelante, o hacerlo vos con 'escribe en {propuesta['archivo']} : ...'.")
+                return False
+
+            print("\nArché: Dale, lo intento de nuevo con eso en cuenta...")
+            nueva_propuesta, nuevo_error = self._generar_propuesta(orden_usuario, sugerencia_extra=respuesta)
+            intentos_usados += 1
+
+            if nuevo_error:
+                print(f"\nArché: No pude regenerarlo con tu sugerencia: {nuevo_error}")
+                return False
+
+            propuesta = nueva_propuesta
 
 
 if __name__ == "__main__":
@@ -224,4 +156,4 @@ if __name__ == "__main__":
         orquestador = OrquestadorAutonomo()
         orquestador.ejecutar_meta(meta)
     else:
-        print("Uso: python core/IA/orquestador_autonomo.py \"<instrucción>\"")
+        print('Uso: python core/IA/orquestador_autonomo.py "<instrucción>"')

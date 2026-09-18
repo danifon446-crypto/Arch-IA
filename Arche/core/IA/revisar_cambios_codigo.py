@@ -4,9 +4,9 @@ revisar_cambios_codigo.py
 Ubicacion: Arche/core/IA/revisar_cambios_codigo.py
 
 Muestra cada propuesta de cambio de código pendiente (generada por
-proponer_cambio_codigo.py) como un diff real -- no solo el resumen de
-qué/por qué/cómo -- y pide aprobación explícita [s/n] antes de tocar un
-solo archivo.
+proponer_cambio_codigo.py) en LENGUAJE NATURAL -- sin jerga técnica,
+sin mostrar código -- y pide aprobación explícita [s/n] antes de tocar
+un solo archivo. El diff real solo se muestra si lo pedís con 'ver N'.
 
 Flujo de seguridad, generalizado a cualquier archivo:
     1. Backup del archivo completo, con timestamp (nunca se sobreescribe
@@ -29,6 +29,7 @@ Uso:
 import ast
 import difflib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -52,12 +53,7 @@ ARCHIVO_PENDIENTES = BASE / "cambios_codigo_pendientes.json"
 ARCHIVO_LOG = BASE / "cambios_codigo_log.jsonl"
 CARPETA_BACKUPS = BASE / "backups_codigo"
 
-# Archivos donde NO tiene sentido (o es peligroso) hacer un smoke test
-# por import: main.py tiene un bucle infinito con input() a nivel de
-# modulo -- importarlo se quedaria colgado esperando texto del usuario.
-# Para estos, solo se valida sintaxis (ast.parse), como antes.
 SMOKE_TEST_EXCLUIDOS = {"main.py"}
-
 TIMEOUT_SMOKE_TEST_SEGUNDOS = 15
 
 
@@ -95,7 +91,7 @@ def _hacer_backup(ruta_real: Path, archivo_norm: str):
 def _calcular_contenido_nuevo(propuesta, contenido_actual):
     if propuesta["buscar"]:
         return contenido_actual.replace(propuesta["buscar"], propuesta["reemplazar"], 1)
-    return propuesta["reemplazar"]  # archivo nuevo
+    return propuesta["reemplazar"]
 
 
 def _diff(contenido_actual, contenido_nuevo, archivo):
@@ -109,23 +105,11 @@ def _diff(contenido_actual, contenido_nuevo, archivo):
 
 
 def _ruta_a_modulo(archivo_norm: str):
-    """'core/notas.py' -> 'core.notas' (para poder importarlo)."""
     sin_extension = archivo_norm[:-3] if archivo_norm.endswith(".py") else archivo_norm
     return sin_extension.replace("/", ".")
 
 
 def _smoke_test_import(archivo_norm: str):
-    """
-    Prueba REAL de que el modulo modificado carga sin explotar -- a
-    diferencia de ast.parse, que solo confirma sintaxis valida. Un
-    codigo puede parsear perfecto y aun asi romper en tiempo de
-    ejecucion (ej. borrar una funcion que otro modulo usa por
-    convencion, referenciar un nombre que ya no existe).
-
-    Corre en un proceso aparte (no contamina este proceso, no se ve
-    afectado por imports previos), con timeout por si algo se cuelga.
-    Devuelve (ok: bool, detalle: str).
-    """
     if archivo_norm in SMOKE_TEST_EXCLUIDOS:
         return True, "smoke test saltado (archivo en SMOKE_TEST_EXCLUIDOS)"
 
@@ -146,7 +130,7 @@ def _smoke_test_import(archivo_norm: str):
         )
 
     if resultado.returncode != 0:
-        return False, resultado.stderr.strip()[-800:]  # ultimas lineas del traceback, alcanza para diagnosticar
+        return False, resultado.stderr.strip()[-800:]
 
     return True, "import correcto"
 
@@ -183,8 +167,6 @@ def aplicar_propuesta(propuesta):
         _log_inmutable({"tipo": "cambio_codigo_fallido_escritura", "id": propuesta["id"], "error": str(e)})
         return False
 
-    # SMOKE TEST: el archivo ya se escribió (protegido por el backup de
-    # arriba). Si no carga, se restaura automaticamente y se informa.
     if ruta.suffix == ".py":
         ok, detalle = _smoke_test_import(propuesta["archivo"])
         if not ok:
@@ -214,54 +196,99 @@ def aplicar_propuesta(propuesta):
 MAX_ITEMS_POR_LOTE = 8
 
 ETIQUETA_ORIGEN = {
-    "usuario_directo": "pedido directamente por vos",
-    "autorevision": "detectado por autorevisión propia",
-    "generalizado": "extrapolado de un cambio aprobado antes",
-    # valores viejos, por si quedan propuestas pendientes de antes de este cambio
-    "manual": "especificado directo (sin Ollama)",
-    "ia": "redactado por Ollama a pedido tuyo",
+    "usuario_directo": "me lo pediste vos",
+    "autorevision": "lo encontré yo solo revisándome",
+    "generalizado": "es una extensión de un cambio que ya aprobaste antes",
+    "manual": "lo armé sin usar el modelo",
+    "ia": "lo redactó el modelo a tu pedido",
+}
+
+MAPA_AREAS_NATURALES = {
+    "notas": "las notas",
+    "recordatorio": "los recordatorios",
+    "calculadora": "la calculadora",
+    "archivos": "la búsqueda de archivos",
+    "archivos1": "la búsqueda de archivos (versión vieja)",
+    "memoria": "la memoria",
+    "configuracion": "la configuración",
+    "navegador": "el navegador",
+    "conversacion": "las respuestas rápidas",
+    "utilidades": "las utilidades generales",
+    "sistema": "el sistema",
+    "busquedas": "las búsquedas",
+    "programaV2": "el manejo de programas",
+    "introspeccion": "el análisis interno de mi propio código",
+    "autorevision": "mi sistema de autorevisión",
+    "ollamaIA": "la conexión con Ollama",
+    "aprendizaje": "mi sistema de aprendizaje",
+    "respuestas": "mi caché de respuestas",
+    "telemetria": "las estadísticas de uso",
+    "estudio": "el modo estudio",
+    "clasificador": "mi clasificador de intenciones",
+    "embeddings": "el sistema de comparación semántica",
 }
 
 
-def _armar_lotes(pendientes):
-    """Agrupa por origen, en orden, con tope de MAX_ITEMS_POR_LOTE por
-    lote. Deliberadamente NO se agrupa por similitud de contenido --
-    eso agregaría un criterio más para auditar y otra fuente de
-    errores. Agrupar por origen ya resuelve el caso real (muchos
-    hallazgos de autorevision juntos) sin ese costo."""
-    por_origen = {}
-    for p in pendientes:
-        por_origen.setdefault(p.get("origen", "usuario_directo"), []).append(p)
+def _area_natural(archivo_norm):
+    nombre = archivo_norm
+    if nombre.startswith("core/IA/"):
+        nombre = nombre[len("core/IA/"):]
+    elif nombre.startswith("core/"):
+        nombre = nombre[len("core/"):]
+    if nombre.endswith(".py"):
+        nombre = nombre[:-3]
 
-    lotes = []
-    for origen, items in por_origen.items():
-        for i in range(0, len(items), MAX_ITEMS_POR_LOTE):
-            lotes.append(items[i:i + MAX_ITEMS_POR_LOTE])
-    return lotes
+    if nombre in MAPA_AREAS_NATURALES:
+        return MAPA_AREAS_NATURALES[nombre]
+
+    return nombre.replace("_", " ")
+
+
+def _texto_amigable_que(que_texto):
+    match = re.search(r"según:\s*(.+)$", que_texto, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+
+    match_eliminar = re.search(r"Eliminar la función '([^']+)'", que_texto)
+    if match_eliminar:
+        return f"eliminar la función '{match_eliminar.group(1)}', que no se usa en ningún otro lugar"
+
+    return que_texto
+
+
+def _frase_confianza(nivel, motivo):
+    nivel_norm = (nivel or "").strip().lower()
+    if "bajo" in nivel_norm:
+        return "Es un cambio chico y me da bastante confianza."
+    if "medio" in nivel_norm:
+        return "Toca algo de lógica real, no es trivial -- vale la pena que lo mires con algo de atención."
+    return "Este es más delicado que lo habitual -- prestale especial atención antes de aprobar."
 
 
 def _mostrar_item_resumen(indice, propuesta):
     nivel, motivo = evaluar_riesgo(propuesta)
-    origen_texto = ETIQUETA_ORIGEN.get(propuesta.get("origen", ""), propuesta.get("origen", "desconocido"))
-    print(f" [{indice}] {propuesta['archivo']} — {propuesta['que']}")
-    print(f"     Origen: {origen_texto}")
-    print(f"     Riesgo: {nivel} ({motivo})")
+    origen_texto = ETIQUETA_ORIGEN.get(propuesta.get("origen", ""), propuesta.get("origen", "no sé bien de dónde salió"))
+    area = _area_natural(propuesta["archivo"])
+    que_natural = _texto_amigable_que(propuesta["que"])
+    confianza = _frase_confianza(nivel, motivo)
+
+    print(f" [{indice}] En {area}: {que_natural}")
+    print(f"     {origen_texto.capitalize()}. {confianza}")
+    if propuesta.get("por_que"):
+        print(f"     {propuesta['por_que']}")
 
 
 def _mostrar_diff_item(propuesta):
     ruta = RAIZ_APP / propuesta["archivo"]
     contenido_actual = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
     contenido_nuevo = _calcular_contenido_nuevo(propuesta, contenido_actual)
-    print(f"\nPOR QUÉ: {propuesta['por_que']}")
-    print(f"CÓMO:    {propuesta['como']}")
-    print("\nDIFF:")
+    print(f"\nArchivo real: {propuesta['archivo']}")
+    print("\nDIFF (código real, lo que vas a ver aplicado si aprobás):")
     diff_texto = _diff(contenido_actual, contenido_nuevo, propuesta["archivo"])
     print(diff_texto if diff_texto else "(archivo nuevo, sin contenido previo)")
 
 
 def _parsear_respuesta(resp, cantidad):
-    """Devuelve el set de índices (1-based) a aprobar, o None si la
-    respuesta no fue reconocida (para volver a preguntar)."""
     resp = resp.strip().lower()
     if resp == "s":
         return set(range(1, cantidad + 1))
@@ -275,17 +302,29 @@ def _parsear_respuesta(resp, cantidad):
     return None
 
 
+def _armar_lotes(pendientes):
+    por_origen = {}
+    for p in pendientes:
+        por_origen.setdefault(p.get("origen", "usuario_directo"), []).append(p)
+
+    lotes = []
+    for origen, items in por_origen.items():
+        for i in range(0, len(items), MAX_ITEMS_POR_LOTE):
+            lotes.append(items[i:i + MAX_ITEMS_POR_LOTE])
+    return lotes
+
+
 def _procesar_lote(lote, numero_lote, total_lotes):
-    print("\n" + "=" * 60)
-    print(f"LOTE {numero_lote} de {total_lotes} — {len(lote)} cambio(s)")
-    print("=" * 60)
+    if total_lotes == 1:
+        print(f"\nTengo {len(lote)} cosa(s) para contarte:")
+    else:
+        print(f"\nGrupo {numero_lote} de {total_lotes} ({len(lote)} cosa(s) en este grupo):")
 
     for i, propuesta in enumerate(lote, start=1):
         _mostrar_item_resumen(i, propuesta)
 
-    print("-" * 60)
-    print("Opciones: 's' (aprobar todo el lote) | 'n' (rechazar todo) | "
-          "'s 1,3' (aprobar solo esos ítems) | 'ver N' (ver el diff del ítem N)")
+    print("\n¿Qué hacemos? 's' = aprobar todo | 'n' = descartar todo | "
+          "'s 1,3' = aprobar solo esos | 'ver N' = mostrarte el código de ese ítem")
 
     aprobados = None
     while aprobados is None:
@@ -297,16 +336,16 @@ def _procesar_lote(lote, numero_lote, total_lotes):
                 if 1 <= idx <= len(lote):
                     _mostrar_diff_item(lote[idx - 1])
                 else:
-                    print(f"No hay ítem {idx} en este lote (son {len(lote)}).")
+                    print(f"No hay ítem {idx} acá (son {len(lote)}).")
             except ValueError:
                 print("Usá 'ver N' con el número del ítem, ej: ver 2")
             continue
 
         aprobados = _parsear_respuesta(resp, len(lote))
         if aprobados is None:
-            print("No entendí esa respuesta. Usá 's', 'n', 's 1,3' o 'ver N'.")
+            print("No te entendí. Usá 's', 'n', 's 1,3' o 'ver N'.")
 
-    resultados = []  # (indice, propuesta, estado_final, detalle)
+    resultados = []
     for i, propuesta in enumerate(lote, start=1):
         if i in aprobados:
             aplicada = aplicar_propuesta(propuesta)
@@ -317,16 +356,15 @@ def _procesar_lote(lote, numero_lote, total_lotes):
             _log_inmutable({"tipo": "cambio_codigo_rechazado", "id": propuesta["id"]})
             resultados.append((i, propuesta, "rechazada"))
 
-    print("\n" + "-" * 60)
-    print(f"RESUMEN DEL LOTE {numero_lote}")
-    print("-" * 60)
+    print()
     for i, propuesta, estado in resultados:
+        area = _area_natural(propuesta["archivo"])
         if estado == "aplicada":
-            print(f"  ✔ [{i}] {propuesta['archivo']} — aplicado, pasó sintaxis y smoke test")
+            print(f"  ✔ Listo, ya está aplicado en {area}.")
         elif estado == "fallida":
-            print(f"  ✘ [{i}] {propuesta['archivo']} — falló la validación, se restauró el backup automáticamente (ver detalle arriba)")
+            print(f"  ✘ Lo intenté en {area} pero falló una verificación, no quedó aplicado (no se rompió nada, se restauró solo).")
         else:
-            print(f"  – [{i}] {propuesta['archivo']} — rechazado")
+            print(f"  – Descartado el cambio en {area}.")
 
 
 def main():
@@ -334,7 +372,7 @@ def main():
     pendientes = [p for p in propuestas if p["estado"] == "pendiente"]
 
     if not pendientes:
-        print("No hay propuestas de código pendientes para revisar.")
+        print("Arché: No tengo nada pendiente para mostrarte por ahora.")
         return
 
     lotes = _armar_lotes(pendientes)

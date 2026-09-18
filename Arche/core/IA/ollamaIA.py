@@ -63,6 +63,7 @@ editar_memoria
 crear_recordatorio
 mostrar_recordatorios
 eliminar_recordatorio
+modificar_codigo
 conversar
 desconocido
 
@@ -307,6 +308,51 @@ Investiga cómo hacer arroz.
 
 Respuesta:
 {{"intencion":"buscar","contenido":"cómo hacer arroz"}}
+
+REGLA IMPORTANTE PARA "MODIFICAR_CODIGO":
+
+Usa "modificar_codigo" cuando el usuario te pida a VOS (Arché) que cambies, arregles, mejores, simplifiques, optimices o agregues algo a TU PROPIO código o funcionamiento interno -- no cuando te pida información sobre código en general, ni una explicación de programación.
+
+Indicadores típicos: "arreglá", "arregla", "che arreglá", "corregí", "mejorá", "simplificá", "optimizá", "agregale", "agregá una función", "che, la función de X está mal", "hacé que X funcione mejor", "eso se puede hacer más simple", "sería bueno que X también hiciera Y".
+
+El campo "contenido" debe llevar la instrucción del cambio tal cual la dijo el usuario, sin recortarla.
+
+Ejemplos:
+
+Usuario:
+che, arreglá el bug de contar_notas
+
+Respuesta:
+{{"intencion":"modificar_codigo","contenido":"arreglá el bug de contar_notas"}}
+
+Usuario:
+sería bueno que las notas también cuenten cuántas hay guardadas
+
+Respuesta:
+{{"intencion":"modificar_codigo","contenido":"que las notas también cuenten cuántas hay guardadas"}}
+
+Usuario:
+la función que busca archivos está muy repetida, se podría simplificar
+
+Respuesta:
+{{"intencion":"modificar_codigo","contenido":"la función que busca archivos está muy repetida, se podría simplificar"}}
+
+Usuario:
+agregale a recordatorios una opción para contar cuántos hay
+
+Respuesta:
+{{"intencion":"modificar_codigo","contenido":"agregale a recordatorios una opción para contar cuántos hay"}}
+
+Diferencia con "conversar": si el usuario pregunta CÓMO se hace algo en general (sin pedirte que vos cambies tu propio código), es "conversar", no "modificar_codigo".
+
+Ejemplo:
+
+Usuario:
+¿cómo se cuenta cuántos archivos hay en una carpeta en Python?
+
+Respuesta:
+{{"intencion":"conversar","contenido":"cómo se cuenta cuántos archivos hay en una carpeta en Python"}}
+
 IMPORTANTE:
 El formato final debe ser exactamente:
 

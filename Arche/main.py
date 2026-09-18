@@ -125,6 +125,55 @@ def _mostrar_estadisticas():
     print("═" * 46 + "\n")
 
 
+def manejar_pedido_de_cambio(instruccion):
+    """
+    Punto de entrada UNICO para cualquier pedido de que Arche modifique
+    su propio codigo -- sin importar si llego por el trigger literal
+    ("cambia esto: ...") o porque el clasificador (comprender()) lo
+    reconocio en lenguaje natural como intencion "modificar_codigo".
+
+    Rutea solo el destino, genera la propuesta con el camino mas
+    confiable segun el caso (agregar funcion aislada vs editar), y
+    avisa en una frase natural -- sin ID tecnico ni ruta de archivo
+    cruda, eso ya lo vas a ver bien explicado en 'revisar cambios de
+    codigo' si hace falta.
+    """
+    from core.IA.enrutar_cambio import decidir_destino, construir_instruccion_final, es_pedido_de_agregado
+    from core.IA.proponer_cambio_codigo import proponer_cambio_ia, proponer_agregar_funcion_cerca, _extraer_funcion
+
+    decision = decidir_destino(instruccion)
+    print(f"Arché: {decision['explicacion']}")
+
+    if decision["tipo"] == "editar_existente" and not decision.get("confianza_alta", True):
+        confirmar = input(
+            "Arché: No estoy muy seguro de este destino. "
+            "¿Seguimos igual (s), o preferís decirme vos el archivo con "
+            "'escribe en <archivo> : ...' en su lugar? [s/n]\nTú: "
+        ).strip().lower()
+        if confirmar not in ("s", "si", "sí"):
+            print("Arché: Dale, cancelado. Usá 'escribe en <archivo> : <instrucción>' cuando sepas el destino.")
+            return
+
+    if decision["tipo"] == "editar_existente" and decision["funcion"] and es_pedido_de_agregado(instruccion):
+        ruta_archivo = decision["archivo"]
+        contenido_archivo = open(ruta_archivo, "r", encoding="utf-8").read()
+        codigo_ancla = _extraer_funcion(contenido_archivo, decision["funcion"])
+        if codigo_ancla is None:
+            print("Arché: No pude aislar esa función para anclar el cambio, lo intento como edición genérica.")
+            instruccion_final = construir_instruccion_final(decision, instruccion)
+            propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
+        else:
+            propuesta, error = proponer_agregar_funcion_cerca(decision["archivo"], codigo_ancla, instruccion, origen="autonomo")
+    else:
+        instruccion_final = construir_instruccion_final(decision, instruccion)
+        propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
+
+    if error:
+        print(f"Arché: No lo pude resolver bien: {error}")
+    else:
+        print("Arché: Listo, ya tengo el cambio armado. Decime 'revisar cambios de codigo' cuando quieras que te lo cuente y lo aprobés.")
+
+
 
 print("                  Arche v2.0.1")
 
@@ -359,40 +408,7 @@ while True:
             print("Arché: Decime qué querés que cambie. Ej: 'cambia esto: agregá una función que cuente las notas'.")
             continue
 
-        from core.IA.enrutar_cambio import decidir_destino, construir_instruccion_final, es_pedido_de_agregado
-        from core.IA.proponer_cambio_codigo import proponer_cambio_ia, proponer_agregar_funcion_cerca, _extraer_funcion
-
-        decision = decidir_destino(instruccion)
-        print(f"Arché: {decision['explicacion']}")
-
-        if decision["tipo"] == "editar_existente" and not decision.get("confianza_alta", True):
-            confirmar = input(
-                "Arché: No estoy muy seguro de este destino. "
-                "¿Seguimos igual (s), o preferís decirme vos el archivo con "
-                "'escribe en <archivo> : ...' en su lugar? [s/n]\nTú: "
-            ).strip().lower()
-            if confirmar not in ("s", "si", "sí"):
-                print("Arché: Dale, cancelado. Usá 'escribe en <archivo> : <instrucción>' cuando sepas el destino.")
-                continue
-
-        if decision["tipo"] == "editar_existente" and decision["funcion"] and es_pedido_de_agregado(instruccion):
-            ruta_archivo = decision["archivo"]
-            contenido_archivo = open(ruta_archivo, "r", encoding="utf-8").read()
-            codigo_ancla = _extraer_funcion(contenido_archivo, decision["funcion"])
-            if codigo_ancla is None:
-                print("Arché: No pude aislar esa función para anclar el cambio, lo intento como edición genérica.")
-                instruccion_final = construir_instruccion_final(decision, instruccion)
-                propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
-            else:
-                propuesta, error = proponer_agregar_funcion_cerca(decision["archivo"], codigo_ancla, instruccion, origen="autonomo")
-        else:
-            instruccion_final = construir_instruccion_final(decision, instruccion)
-            propuesta, error = proponer_cambio_ia(decision["archivo"], instruccion_final, origen="autonomo")
-
-        if error:
-            print(f"Arché: {error}")
-        else:
-            print(f"Arché: Generé la propuesta {propuesta['id']}. Corré 'revisar cambios de codigo' para verla y aprobarla.")
+        manejar_pedido_de_cambio(instruccion)
         continue
 
     if comando in ["cambios de codigo pendientes", "cambios de código pendientes"]:
@@ -553,6 +569,15 @@ while True:
     elif intencion == "eliminar_recordatorio":
         eliminar_recordatorio()
 
+    # AUTO-MODIFICACIÓN RECONOCIDA EN LENGUAJE NATURAL
+    # (el trigger literal "cambia esto: ..." ya se maneja arriba, entre
+    # los comandos deterministas -- esto es para cuando lo decís de
+    # forma mas natural, sin ese formato exacto)
+
+    elif intencion == "modificar_codigo":
+        texto_instruccion = contenido if contenido else comando_original
+        manejar_pedido_de_cambio(texto_instruccion)
+
     # BÚSQUEDAS EN GOOGLE
 
     elif intencion == "buscar":
@@ -611,4 +636,4 @@ while True:
     # COMANDO DESCONOCIDO
 
     elif intencion == "desconocido":
-        print("Arché: Aún no sé hacer eso.")    
+        print("Arché: Aún no sé hacer eso.")
