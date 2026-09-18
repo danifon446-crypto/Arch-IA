@@ -207,6 +207,23 @@ if obtener("mostrar_recordatorios"):
 _evento_detener_estudio = threading.Event()
 _hilo_estudio = None
 
+# ------------------------------------------------------------------
+# AUTOREVISIÓN AUTOMÁTICA: a diferencia del modo estudio, esta SÍ
+# arranca sola al iniciar Arché (si autorevision_automatica está en
+# True, que es el default) -- es de solo lectura, nunca aplica nada
+# sin tu aprobación, así que no hay riesgo en que corra sin que la
+# pidas. Se puede parar con "detener autorevision automatica".
+# ------------------------------------------------------------------
+_evento_detener_autorevision = threading.Event()
+_hilo_autorevision = None
+if obtener("autorevision_automatica"):
+    from core.IA.autorevision import iniciar_autorevision_en_background
+    _hilo_autorevision = iniciar_autorevision_en_background(
+        intervalo_seg=int(obtener("autorevision_intervalo_horas") * 3600),
+        detener_evento=_evento_detener_autorevision,
+        avisar=hablar,
+    )
+
 while True:
 
     comando_original = input("\nTú: ").strip()
@@ -423,19 +440,19 @@ while True:
         continue
 
     if comando in ["revisa tu codigo", "revisa tu código", "autorevisate", "autorevísate"]:
-        from core.IA.autorevision import autorevisar, imprimir_reporte
+        from core.IA.autorevision import autorevisar, imprimir_reporte_natural
         print("Arché: Dale, me reviso entero. Los chequeos rápidos son instantáneos; "
               "si hay funciones nuevas o modificadas desde la última vez, esas las "
               "reviso con Ollama, así que puede tardar un poco.")
         reporte = autorevisar(usar_ollama=True)
-        imprimir_reporte(reporte, sin_ia=False)
+        imprimir_reporte_natural(reporte, sin_ia=False)
         continue
 
     if comando in ["revisa tu codigo sin ia", "revisa tu código sin ia"]:
-        from core.IA.autorevision import autorevisar, imprimir_reporte
+        from core.IA.autorevision import autorevisar, imprimir_reporte_natural
         print("Arché: Dale, corro solo los chequeos deterministas (sin Ollama, instantáneo).")
         reporte = autorevisar(usar_ollama=False)
-        imprimir_reporte(reporte, sin_ia=True)
+        imprimir_reporte_natural(reporte, sin_ia=True)
         continue
 
     # MODO ESTUDIO
@@ -461,6 +478,44 @@ while True:
             print("Arché: Voy a parar de estudiar después de esta ronda.")
         else:
             print("Arché: El estudio automático no está corriendo.")
+        continue
+
+    # AUTOREVISIÓN AUTOMÁTICA
+
+    if comando in ["iniciar autorevision automatica", "iniciar autorevisión automática",
+                   "activar autorevision automatica", "activar autorevisión automática"]:
+        from core.IA.autorevision import iniciar_autorevision_en_background
+        if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
+            print("Arché: La autorevisión automática ya está corriendo.")
+        else:
+            _evento_detener_autorevision.clear()
+            _hilo_autorevision = iniciar_autorevision_en_background(
+                intervalo_seg=int(obtener("autorevision_intervalo_horas") * 3600),
+                detener_evento=_evento_detener_autorevision,
+                avisar=hablar,
+            )
+            cambiar("autorevision_automatica", True)
+            print("Arché: Listo, me voy a autorevisar sola en segundo plano de ahora en más.")
+        continue
+
+    if comando in ["detener autorevision automatica", "detener autorevisión automática"]:
+        if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
+            _evento_detener_autorevision.set()
+            cambiar("autorevision_automatica", False)
+            print("Arché: Dale, dejo de autorevisarme sola. Podés pedírmelo vos cuando quieras con 'revisate'.")
+        else:
+            print("Arché: La autorevisión automática no está corriendo.")
+        continue
+
+    if comando.startswith("autorevisate cada"):
+        resto = comando.replace("autorevisate cada", "", 1).replace("autorevísate cada", "", 1).strip()
+        try:
+            horas = float(resto.split()[0])
+            cambiar("autorevision_intervalo_horas", horas)
+            print(f"Arché: Listo, de ahora en más me autorevisaré cada {horas} hora(s) "
+                  f"(vale a partir del próximo arranque, o de que reinicies la autorevisión automática).")
+        except (ValueError, IndexError):
+            print("Arché: No te entendí el número de horas. Ej: 'autorevisate cada 3'.")
         continue
 
     if comando.startswith("agregar tema"):

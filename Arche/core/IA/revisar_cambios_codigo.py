@@ -14,12 +14,17 @@ Flujo de seguridad, generalizado a cualquier archivo:
     2. El cambio se arma primero en memoria.
     3. Si el archivo es .py, se valida que el resultado sea sintácticamente
        válido (ast.parse) ANTES de escribir nada al archivo real.
-    4. Se escribe el cambio al archivo real.
-    5. SMOKE TEST: se intenta IMPORTAR el módulo modificado en un proceso
-       aparte. Esto es distinto (y más fuerte) que solo validar sintaxis:
-       código sintácticamente válido puede romper en tiempo de ejecución
-       (ej. borrar algo que otro módulo referencia). Si el import falla
-       o se cuelga, se restaura el backup automáticamente y se aborta.
+    4. ENTORNO AISLADO: antes de tocar el archivo real, se arma una copia
+       completa de todo el código (.py) del proyecto en una carpeta
+       temporal, se aplica el cambio SOLO ahí, y se intenta IMPORTAR el
+       módulo modificado desde esa copia. Esto es distinto (y más fuerte)
+       que solo validar sintaxis: código sintácticamente válido puede
+       romper en tiempo de ejecución (ej. borrar algo que otro módulo
+       referencia). Si el import falla o se cuelga, se descarta la copia
+       temporal y se aborta -- el archivo real nunca se llega a tocar.
+    5. Solo si el paso anterior pasó: se escribe el cambio al archivo real
+       (con backup previo, por si la escritura en sí falla por otra razón,
+       ej. disco lleno o permisos).
     6. Se registra el resultado en el log inmutable (cambios_codigo_log.jsonl).
 
 Uso:
@@ -33,6 +38,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from datetime import datetime
 
@@ -109,30 +115,67 @@ def _ruta_a_modulo(archivo_norm: str):
     return sin_extension.replace("/", ".")
 
 
-def _smoke_test_import(archivo_norm: str):
+CARPETAS_EXCLUIDAS_DEL_ENTORNO = {"__pycache__", ".git", "venv", ".venv", "env", "backups_codigo"}
+
+
+def _copiar_codigo_a_entorno_aislado():
+    """
+    Copia todos los .py del proyecto a una carpeta temporal nueva,
+    preservando la estructura de paquetes (core/, core/IA/, etc.) para
+    que los imports relativos ('core.IA.x') funcionen igual que en el
+    proyecto real. No copia caches, backups ni datos -- solo código.
+    """
+    destino = Path(tempfile.mkdtemp(prefix="arche_entorno_aislado_"))
+    for archivo in RAIZ_APP.rglob("*.py"):
+        if any(parte in CARPETAS_EXCLUIDAS_DEL_ENTORNO for parte in archivo.parts):
+            continue
+        rel = archivo.relative_to(RAIZ_APP)
+        destino_archivo = destino / rel
+        destino_archivo.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(archivo, destino_archivo)
+    return destino
+
+
+def _probar_en_entorno_aislado(archivo_norm: str, contenido_nuevo: str):
+    """
+    Aplica el cambio SOLO sobre una copia temporal del proyecto y
+    verifica ahí que el módulo modificado se pueda importar. El
+    archivo real no se toca en ningún momento de esta función --
+    eso es justamente el punto: probar antes de arriesgar nada real.
+    """
     if archivo_norm in SMOKE_TEST_EXCLUIDOS:
-        return True, "smoke test saltado (archivo en SMOKE_TEST_EXCLUIDOS)"
+        return True, "prueba en entorno aislado saltada (archivo en SMOKE_TEST_EXCLUIDOS)"
 
     modulo = _ruta_a_modulo(archivo_norm)
-
+    entorno = None
     try:
-        resultado = subprocess.run(
-            [sys.executable, "-c", f"import {modulo}"],
-            capture_output=True, text=True, cwd=str(RAIZ_APP),
-            timeout=TIMEOUT_SMOKE_TEST_SEGUNDOS,
-            encoding="utf-8", errors="replace",
-        )
-    except subprocess.TimeoutExpired:
-        return False, (
-            f"El import de '{modulo}' se colgó más de "
-            f"{TIMEOUT_SMOKE_TEST_SEGUNDOS}s (posible bucle infinito o "
-            f"input() a nivel de módulo)."
-        )
+        entorno = _copiar_codigo_a_entorno_aislado()
 
-    if resultado.returncode != 0:
-        return False, resultado.stderr.strip()[-800:]
+        ruta_en_entorno = entorno / archivo_norm
+        ruta_en_entorno.parent.mkdir(parents=True, exist_ok=True)
+        ruta_en_entorno.write_text(contenido_nuevo, encoding="utf-8")
 
-    return True, "import correcto"
+        try:
+            resultado = subprocess.run(
+                [sys.executable, "-c", f"import {modulo}"],
+                capture_output=True, text=True, cwd=str(entorno),
+                timeout=TIMEOUT_SMOKE_TEST_SEGUNDOS,
+                encoding="utf-8", errors="replace",
+            )
+        except subprocess.TimeoutExpired:
+            return False, (
+                f"El import de '{modulo}' se colgó más de "
+                f"{TIMEOUT_SMOKE_TEST_SEGUNDOS}s en el entorno aislado "
+                f"(posible bucle infinito o input() a nivel de módulo)."
+            )
+
+        if resultado.returncode != 0:
+            return False, resultado.stderr.strip()[-800:]
+
+        return True, "import correcto en entorno aislado"
+    finally:
+        if entorno is not None:
+            shutil.rmtree(entorno, ignore_errors=True)
 
 
 def aplicar_propuesta(propuesta):
@@ -155,6 +198,19 @@ def aplicar_propuesta(propuesta):
             _log_inmutable({"tipo": "cambio_codigo_fallido", "id": propuesta["id"], "error": str(e)})
             return False
 
+        ok, detalle = _probar_en_entorno_aislado(propuesta["archivo"], contenido_nuevo)
+        if not ok:
+            print(f"Arché: El cambio pasó la validación de sintaxis pero falló al probarlo en un entorno aislado.")
+            print(f"       Detalle: {detalle}")
+            print(f"       No toqué el archivo real -- nada quedó modificado.")
+            _log_inmutable({
+                "tipo": "cambio_codigo_fallido_entorno_aislado",
+                "id": propuesta["id"],
+                "archivo": propuesta["archivo"],
+                "detalle": detalle,
+            })
+            return False
+
     backup_path = _hacer_backup(ruta, propuesta["archivo"])
 
     try:
@@ -167,23 +223,7 @@ def aplicar_propuesta(propuesta):
         _log_inmutable({"tipo": "cambio_codigo_fallido_escritura", "id": propuesta["id"], "error": str(e)})
         return False
 
-    if ruta.suffix == ".py":
-        ok, detalle = _smoke_test_import(propuesta["archivo"])
-        if not ok:
-            print(f"Arché: El cambio pasó la validación de sintaxis pero falló al intentar cargarlo de verdad.")
-            print(f"       Detalle: {detalle}")
-            print(f"       Restaurando el backup automáticamente, no dejo el cambio aplicado.")
-            if backup_path.exists():
-                shutil.copy2(backup_path, ruta)
-            _log_inmutable({
-                "tipo": "cambio_codigo_fallido_smoke_test",
-                "id": propuesta["id"],
-                "archivo": propuesta["archivo"],
-                "detalle": detalle,
-            })
-            return False
-
-    print(f"Arché: Listo, apliqué el cambio en {propuesta['archivo']} (pasó sintaxis y smoke test). Backup guardado en {backup_path.name}.")
+    print(f"Arché: Listo, probé el cambio en un entorno aislado antes de aplicarlo y ya quedó en {propuesta['archivo']}. Backup guardado en {backup_path.name}.")
     _log_inmutable({
         "tipo": "cambio_codigo_aplicado",
         "id": propuesta["id"],
@@ -195,74 +235,13 @@ def aplicar_propuesta(propuesta):
 
 MAX_ITEMS_POR_LOTE = 8
 
-ETIQUETA_ORIGEN = {
-    "usuario_directo": "me lo pediste vos",
-    "autorevision": "lo encontré yo solo revisándome",
-    "generalizado": "es una extensión de un cambio que ya aprobaste antes",
-    "manual": "lo armé sin usar el modelo",
-    "ia": "lo redactó el modelo a tu pedido",
-}
-
-MAPA_AREAS_NATURALES = {
-    "notas": "las notas",
-    "recordatorio": "los recordatorios",
-    "calculadora": "la calculadora",
-    "archivos": "la búsqueda de archivos",
-    "archivos1": "la búsqueda de archivos (versión vieja)",
-    "memoria": "la memoria",
-    "configuracion": "la configuración",
-    "navegador": "el navegador",
-    "conversacion": "las respuestas rápidas",
-    "utilidades": "las utilidades generales",
-    "sistema": "el sistema",
-    "busquedas": "las búsquedas",
-    "programaV2": "el manejo de programas",
-    "introspeccion": "el análisis interno de mi propio código",
-    "autorevision": "mi sistema de autorevisión",
-    "ollamaIA": "la conexión con Ollama",
-    "aprendizaje": "mi sistema de aprendizaje",
-    "respuestas": "mi caché de respuestas",
-    "telemetria": "las estadísticas de uso",
-    "estudio": "el modo estudio",
-    "clasificador": "mi clasificador de intenciones",
-    "embeddings": "el sistema de comparación semántica",
-}
-
-
-def _area_natural(archivo_norm):
-    nombre = archivo_norm
-    if nombre.startswith("core/IA/"):
-        nombre = nombre[len("core/IA/"):]
-    elif nombre.startswith("core/"):
-        nombre = nombre[len("core/"):]
-    if nombre.endswith(".py"):
-        nombre = nombre[:-3]
-
-    if nombre in MAPA_AREAS_NATURALES:
-        return MAPA_AREAS_NATURALES[nombre]
-
-    return nombre.replace("_", " ")
-
-
-def _texto_amigable_que(que_texto):
-    match = re.search(r"según:\s*(.+)$", que_texto, re.DOTALL)
-    if match:
-        return match.group(1).strip()
-
-    match_eliminar = re.search(r"Eliminar la función '([^']+)'", que_texto)
-    if match_eliminar:
-        return f"eliminar la función '{match_eliminar.group(1)}', que no se usa en ningún otro lugar"
-
-    return que_texto
-
-
-def _frase_confianza(nivel, motivo):
-    nivel_norm = (nivel or "").strip().lower()
-    if "bajo" in nivel_norm:
-        return "Es un cambio chico y me da bastante confianza."
-    if "medio" in nivel_norm:
-        return "Toca algo de lógica real, no es trivial -- vale la pena que lo mires con algo de atención."
-    return "Este es más delicado que lo habitual -- prestale especial atención antes de aprobar."
+from core.IA.narrador import (
+    ETIQUETA_ORIGEN,
+    MAPA_AREAS_NATURALES,
+    area_natural as _area_natural,
+    texto_amigable_que as _texto_amigable_que,
+    frase_confianza as _frase_confianza,
+)
 
 
 def _mostrar_item_resumen(indice, propuesta):

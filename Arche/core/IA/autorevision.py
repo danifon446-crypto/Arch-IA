@@ -41,6 +41,8 @@ import ast
 import hashlib
 import json
 import sys
+import threading
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -85,21 +87,36 @@ def _guardar_cache(cache):
     )
 
 
-def _archivos_del_proyecto():
+def _archivos_del_proyecto(incluir_protegidos=False):
+    """
+    incluir_protegidos=False (default): para buscar CANDIDATOS a
+    proponer cambios (duplicados, imports sin usar, codigo muerto) --
+    nunca tiene sentido proponer un cambio sobre un archivo protegido,
+    asi que se excluyen aca.
+
+    incluir_protegidos=True: para CONTAR REFERENCIAS (ver
+    _construir_indice_referencias). Un archivo protegido puede ser el
+    UNICO lugar que usa una funcion (ej. generar_codigo() de
+    ollamaIA.py, que solo se llama desde proponer_cambio_codigo.py,
+    que esta protegido) -- si se lo excluye del conteo, esa funcion
+    parece "sin referencias" y autorevision propondria borrarla,
+    rompiendo el propio sistema de auto-modificacion. El archivo
+    protegido no se toca nunca, pero lo que EL referencia si cuenta.
+    """
     for archivo in RAIZ_APP.rglob("*.py"):
         rel = archivo.relative_to(RAIZ_APP).as_posix()
-        if archivo.name in IGNORAR_ARCHIVOS:
-            continue
         if any(parte in IGNORAR_CARPETAS for parte in archivo.parts):
             continue
-        if rel in ARCHIVOS_PROTEGIDOS:
+        if not incluir_protegidos and archivo.name in IGNORAR_ARCHIVOS:
+            continue
+        if not incluir_protegidos and rel in ARCHIVOS_PROTEGIDOS:
             continue
         yield archivo, rel
 
 
 def _funciones_de(ruta):
     try:
-        contenido = ruta.read_text(encoding="utf-8")
+        contenido = ruta.read_text(encoding="utf-8-sig")
         arbol = ast.parse(contenido, filename=str(ruta))
     except (SyntaxError, UnicodeDecodeError):
         return []
@@ -152,7 +169,7 @@ def buscar_imports_sin_usar():
     resultados = []
     for archivo, rel in _archivos_del_proyecto():
         try:
-            contenido = archivo.read_text(encoding="utf-8")
+            contenido = archivo.read_text(encoding="utf-8-sig")
             arbol = ast.parse(contenido, filename=str(archivo))
         except (SyntaxError, UnicodeDecodeError):
             continue
@@ -204,7 +221,7 @@ def _es_metodo_de_despacho_dinamico(archivo, nombre_funcion):
     if not (nombre_funcion.startswith("visit_") or nombre_funcion == "generic_visit"):
         return False
     try:
-        contenido = archivo.read_text(encoding="utf-8")
+        contenido = archivo.read_text(encoding="utf-8-sig")
         arbol = ast.parse(contenido)
     except (SyntaxError, UnicodeDecodeError):
         return False
@@ -226,9 +243,9 @@ def _construir_indice_referencias():
     -- incluye la propia definicion, por eso el umbral de 'sin usar'
     es <= 1 (solo la definicion) en vez de == 0."""
     conteo = {}
-    for archivo, rel in _archivos_del_proyecto():
+    for archivo, rel in _archivos_del_proyecto(incluir_protegidos=True):
         try:
-            contenido = archivo.read_text(encoding="utf-8")
+            contenido = archivo.read_text(encoding="utf-8-sig")
             arbol = ast.parse(contenido)
         except (SyntaxError, UnicodeDecodeError):
             continue
@@ -237,6 +254,14 @@ def _construir_indice_referencias():
                 conteo[nodo.id] = conteo.get(nodo.id, 0) + 1
             elif isinstance(nodo, ast.Attribute):
                 conteo[nodo.attr] = conteo.get(nodo.attr, 0) + 1
+            elif isinstance(nodo, ast.ImportFrom):
+                # "from X import Y as Z": lo que se usa en el resto del
+                # archivo es el Name "Z" (ya contado arriba), pero el
+                # NOMBRE REAL definido en X es "Y" -- sin esto, una
+                # funcion importada con alias parece "sin referencias"
+                # en su archivo de origen y se propone borrarla por error.
+                for alias in nodo.names:
+                    conteo[alias.name] = conteo.get(alias.name, 0) + 1
             elif isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 # la propia definicion tambien cuenta como una "aparicion"
                 conteo[nodo.name] = conteo.get(nodo.name, 0) + 1
@@ -282,7 +307,7 @@ def buscar_except_desnudos():
     resultados = []
     for archivo, rel in _archivos_del_proyecto():
         try:
-            contenido = archivo.read_text(encoding="utf-8")
+            contenido = archivo.read_text(encoding="utf-8-sig")
             arbol = ast.parse(contenido, filename=str(archivo))
         except (SyntaxError, UnicodeDecodeError):
             continue
@@ -407,9 +432,11 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
         "propuestas_generadas": [],
     }
 
+    reporte["codigo_muerto"]["se_propusieron_eliminaciones"] = False
     if proponer_borrado_codigo_muerto and reporte["codigo_muerto"]["alta_confianza"]:
         ids = generar_propuestas_codigo_muerto(reporte["codigo_muerto"]["alta_confianza"])
         reporte["revision_ia"]["propuestas_generadas"].extend(ids)
+        reporte["codigo_muerto"]["se_propusieron_eliminaciones"] = True
 
     if not usar_ollama:
         return reporte
@@ -471,6 +498,87 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     return reporte
 
 
+def imprimir_reporte_natural(reporte, sin_ia=False):
+    """
+    Como imprimir_reporte(), pero hablado -- sin rutas crudas, sin
+    'archivo.py::funcion', sin símbolos técnicos. Es lo que usa Arché
+    cuando te está hablando en el chat (main.py, comando 'revisate').
+    imprimir_reporte() (la versión técnica, con rutas exactas) sigue
+    disponible para cuando corrés el script vos mismo en la terminal
+    y querés precisión quirúrgica en vez de conversación.
+    """
+    from core.IA.narrador import area_natural, nombre_funcion_hablado
+
+    algo_para_contar = False
+
+    if reporte["duplicados"]:
+        algo_para_contar = True
+        n = len(reporte["duplicados"])
+        print(f"\nArché: Encontré {n} par(es) de funciones que hacen básicamente lo mismo:")
+        for d in reporte["duplicados"]:
+            area_a = area_natural(d["archivo_a"])
+            area_b = area_natural(d["archivo_b"])
+            fn = nombre_funcion_hablado(d["funcion_a"])
+            if d["archivo_a"] == d["archivo_b"]:
+                print(f"  • En {area_a} hay más de una versión de '{fn}' -- probablemente una pisó a la otra sin querer.")
+            else:
+                print(f"  • '{fn}' está repetida entre {area_a} y {area_b}.")
+
+    if reporte["imports_sin_usar"]:
+        algo_para_contar = True
+        n = len(reporte["imports_sin_usar"])
+        print(f"\nArché: Hay {n} import(s) que no se usan para nada:")
+        for i in reporte["imports_sin_usar"]:
+            print(f"  • En {area_natural(i['archivo'])}, el import de '{i['import']}' no lo usa nadie.")
+
+    if reporte["codigo_muerto"]["alta_confianza"]:
+        algo_para_contar = True
+        n = len(reporte["codigo_muerto"]["alta_confianza"])
+        if reporte["codigo_muerto"].get("se_propusieron_eliminaciones"):
+            print(f"\nArché: Encontré {n} función(es) que no usa nadie más en el proyecto, y ya dejé propuesta(s) para borrarlas:")
+        else:
+            print(f"\nArché: Encontré {n} función(es) que no parece usar nadie más en el proyecto (todavía no propuse borrarlas):")
+        for f in reporte["codigo_muerto"]["alta_confianza"]:
+            print(f"  • '{nombre_funcion_hablado(f['nombre'])}' en {area_natural(f['archivo'])}.")
+
+    if reporte["codigo_muerto"]["revisar_con_cuidado"]:
+        algo_para_contar = True
+        n = len(reporte["codigo_muerto"]["revisar_con_cuidado"])
+        print(f"\nArché: Hay {n} función(es) que parecen sin uso, pero no me animo a tocarlas porque se llaman de forma indirecta -- las dejo para que las mires vos:")
+        for f in reporte["codigo_muerto"]["revisar_con_cuidado"]:
+            print(f"  • '{nombre_funcion_hablado(f['nombre'])}' en {area_natural(f['archivo'])} ({f['motivo']}).")
+
+    if reporte["except_desnudos"]:
+        algo_para_contar = True
+        n = len(reporte["except_desnudos"])
+        print(f"\nArché: Encontré {n} lugar(es) donde atrapo cualquier error sin decir cuál -- eso puede estar tapando bugs sin que nadie se entere:")
+        for e in reporte["except_desnudos"]:
+            print(f"  • En {area_natural(e['archivo'])} (línea {e['linea']}).")
+
+    if not sin_ia:
+        ia = reporte["revision_ia"]
+        if ia["bugs_encontrados"]:
+            algo_para_contar = True
+            n = len(ia["bugs_encontrados"])
+            print(f"\nArché: Ollama me señaló {n} posible(s) bug(s) al revisar funciones nuevas o modificadas:")
+            for h in ia["bugs_encontrados"]:
+                print(f"  • En {area_natural(h['archivo'])}, '{nombre_funcion_hablado(h['funcion'])}': {h['bug']}")
+
+        if ia["mejoras_encontradas"]:
+            algo_para_contar = True
+            n = len(ia["mejoras_encontradas"])
+            print(f"\nArché: También vi {n} mejora(s) de calidad posibles (nada urgente):")
+            for m in ia["mejoras_encontradas"]:
+                print(f"  • En {area_natural(m['archivo'])}, '{nombre_funcion_hablado(m['funcion'])}': {m['mejora']}")
+
+    if reporte["revision_ia"]["propuestas_generadas"]:
+        n = len(reporte["revision_ia"]["propuestas_generadas"])
+        print(f"\nArché: En total dejé {n} propuesta(s) listas para que las revises. Decime 'cambios de código pendientes' o corré el revisor cuando quieras.")
+
+    if not algo_para_contar:
+        print("\nArché: Me revisé entero y no encontré nada para reportarte esta vez -- todo parece estar en orden.")
+
+
 def imprimir_reporte(reporte, sin_ia=False):
     """
     Imprime el reporte de autorevisar() en formato legible. Separada
@@ -493,8 +601,11 @@ def imprimir_reporte(reporte, sin_ia=False):
 
     if reporte["codigo_muerto"]["alta_confianza"]:
         print(f"\nFunciones sin referencias reales, candidatas a eliminar ({len(reporte['codigo_muerto']['alta_confianza'])}):")
+        etiqueta = ("-> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'"
+                    if reporte["codigo_muerto"].get("se_propusieron_eliminaciones")
+                    else "-> solo reportada, no se generó propuesta (proponer_borrado_codigo_muerto=False)")
         for f in reporte["codigo_muerto"]["alta_confianza"]:
-            print(f"  • {f['archivo']}::{f['nombre']}  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'")
+            print(f"  • {f['archivo']}::{f['nombre']}  {etiqueta}")
 
     if reporte["codigo_muerto"]["revisar_con_cuidado"]:
         print(f"\nFunciones que parecen sin uso pero son de despacho dinámico -- NO se proponen para borrar ({len(reporte['codigo_muerto']['revisar_con_cuidado'])}):")
@@ -536,10 +647,87 @@ def imprimir_reporte(reporte, sin_ia=False):
         print("\nNo encontré nada para reportar esta vez.")
 
 
+INTERVALO_AUTOREVISION_SEG = 6 * 60 * 60  # cada cuánto se repite sola, mientras Arché sigue abierta
+
+
+def _contar_hallazgos(reporte, sin_ia=False):
+    """Cuántos hallazgos hay en total en un reporte de autorevisar(), sin importar la categoría."""
+    total = (
+        len(reporte["duplicados"])
+        + len(reporte["imports_sin_usar"])
+        + len(reporte["codigo_muerto"]["alta_confianza"])
+        + len(reporte["codigo_muerto"]["revisar_con_cuidado"])
+        + len(reporte["except_desnudos"])
+    )
+    if not sin_ia:
+        total += len(reporte["revision_ia"]["bugs_encontrados"]) + len(reporte["revision_ia"]["mejoras_encontradas"])
+    return total
+
+
+def iniciar_autorevision_en_background(
+    retraso_inicial_seg=15,
+    intervalo_seg=INTERVALO_AUTOREVISION_SEG,
+    usar_ollama=False,
+    detener_evento=None,
+    avisar=None,
+):
+    """
+    Corre autorevisar() sola, en un hilo aparte, cada intervalo_seg
+    mientras Arché esté abierta -- sin que se lo pidas cada vez. Mismo
+    patrón que iniciar_estudio_en_background() en estudio.py.
+
+    SOLO detecta y reporta; nunca propone eliminar código muerto ni
+    aplica nada (eso sigue pidiendo tu aprobación explícita como
+    siempre -- esto no toca esa regla). Si el número de hallazgos NO
+    cambió respecto de la última corrida, se queda callada en vez de
+    repetirte lo mismo cada rato; si cambió, llama a avisar(mensaje)
+    para contarte que apareció algo nuevo.
+
+    usar_ollama=False por defecto: la pasada automática es la
+    determinista (instantánea, no depende de esperar a Ollama de
+    fondo). La pasada completa con Ollama la seguís pidiendo vos con
+    "revisate" cuando quieras.
+
+    detener_evento: threading.Event opcional para cortarla desde
+    afuera (ej. un comando "detener autorevision automatica").
+    avisar: función que recibe un string (típicamente `hablar` de
+    core/configuracion.py). Si no se pasa, no avisa nada por su
+    cuenta -- igual queda todo en el log/reporte para quien lo pida.
+    """
+    def _tarea():
+        ultimo_total = None
+        time.sleep(retraso_inicial_seg)
+        while detener_evento is None or not detener_evento.is_set():
+            try:
+                reporte = autorevisar(usar_ollama=usar_ollama, proponer_borrado_codigo_muerto=False)
+                total = _contar_hallazgos(reporte, sin_ia=not usar_ollama)
+                if total > 0 and total != ultimo_total and avisar is not None:
+                    avisar(
+                        f"Mientras andaba en segundo plano me autorevisé y encontré {total} "
+                        f"cosa(s) para mejorar en el código. Decime 'revisate' cuando quieras el detalle."
+                    )
+                ultimo_total = total
+            except Exception:
+                # Un error acá no debe tirar abajo el hilo de fondo.
+                pass
+
+            # Espera interrumpible: revisa cada segundo si nos pidieron
+            # parar, en vez de dormir el intervalo entero de una vez.
+            for _ in range(intervalo_seg):
+                if detener_evento is not None and detener_evento.is_set():
+                    break
+                time.sleep(1)
+
+    hilo = threading.Thread(target=_tarea, daemon=True)
+    hilo.start()
+    return hilo
+
+
 if __name__ == "__main__":
     import sys
 
     sin_ia = "--sin-ia" in sys.argv
+    tecnico = "--tecnico" in sys.argv
     limite = None
     if "--limite" in sys.argv:
         idx = sys.argv.index("--limite")
@@ -551,4 +739,7 @@ if __name__ == "__main__":
         print("solo se hace sobre funciones nuevas o modificadas desde la última vez.\n")
 
     reporte = autorevisar(usar_ollama=not sin_ia, limite_nuevas=limite)
-    imprimir_reporte(reporte, sin_ia=sin_ia)
+    if tecnico:
+        imprimir_reporte(reporte, sin_ia=sin_ia)
+    else:
+        imprimir_reporte_natural(reporte, sin_ia=sin_ia)

@@ -46,32 +46,6 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from core.IA.ollamaIA import consultar_ollama
-
-def generar_propuesta_codigo(prompt_instruccion, ruta_archivo):
-    """
-    Lee el archivo objetivo, construye la solicitud estructurada
-    y devuelve el código generado libre de texto explicativo.
-    """
-    codigo_actual = ""
-    if os.path.exists(ruta_archivo):
-        with open(ruta_archivo, 'r', encoding='utf-8') as f:
-            codigo_actual = f.read()
-
-    system_prompt = (
-        "Eres el motor de desarrollo interno de Arché. Tu tarea es escribir o refactorizar código en Python.\n"
-        "REGLAS CRÍTICAS:\n"
-        "1. Devuelve ÚNICAMENTE el código Python completo dentro de un bloque ```python ... ```.\n"
-        "2. No agregues explicaciones, introducciones ni saludos.\n"
-        "3. El código debe ser completamente funcional, eficiente y sin errores de sintaxis.\n"
-    )
-
-    user_prompt = f"""
-Instrucción de mejora: {prompt_instruccion}
-
-Código actual del archivo ({os.path.basename(ruta_archivo)}):
-```python
-{codigo_actual}
 
 _NOMBRES_BUILTIN = set(dir(builtins)) | {"self", "cls"}
 

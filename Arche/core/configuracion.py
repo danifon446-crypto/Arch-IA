@@ -27,7 +27,9 @@ CONFIG_DEFAULT = {
     "mostrar_recordatorios": True,
     "buscar_programas_automaticamente": True,
     "actualizar_indice_automaticamente": False,
-    "velocidad_respuesta": 1.0
+    "velocidad_respuesta": 1.0,
+    "autorevision_automatica": True,
+    "autorevision_intervalo_horas": 6
 
 }
 

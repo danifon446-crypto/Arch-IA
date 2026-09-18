@@ -34,6 +34,7 @@ Uso:
 """
 
 import ast
+import hashlib
 import json
 import re
 import textwrap
@@ -86,6 +87,14 @@ def _texto_para_embed(nombre_funcion, codigo):
     return f"{nombre_legible}. {primera_linea_doc}".strip()
 
 
+def _hash_codigo(codigo):
+    """Hash ESTABLE entre reinicios (a diferencia de hash() built-in,
+    que Python randomiza por proceso por seguridad -- usarlo acá haría
+    que el cache de indice_funciones_cache.json nunca sirviera de un
+    arranque de Arché al siguiente, aunque nada hubiese cambiado)."""
+    return hashlib.sha256(codigo.encode("utf-8")).hexdigest()
+
+
 def _construir_indice():
     """Recorre todo el proyecto, calcula el embedding de cada funcion,
     y lo guarda en cache (no se recalcula nada que no cambio, mismo
@@ -100,7 +109,7 @@ def _construir_indice():
             clave = f"{rel}::{fn['nombre']}"
             entrada_previa = indice_previo.get(clave)
 
-            if entrada_previa and entrada_previa.get("codigo_hash") == hash(fn["codigo"]):
+            if entrada_previa and entrada_previa.get("codigo_hash") == _hash_codigo(fn["codigo"]):
                 indice_nuevo[clave] = entrada_previa
                 continue
 
@@ -114,7 +123,7 @@ def _construir_indice():
                 "archivo": rel,
                 "funcion": fn["nombre"],
                 "embedding": embedding,
-                "codigo_hash": hash(fn["codigo"]),
+                "codigo_hash": _hash_codigo(fn["codigo"]),
             }
 
     _guardar_indice(indice_nuevo)
