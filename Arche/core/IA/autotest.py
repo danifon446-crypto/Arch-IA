@@ -197,6 +197,14 @@ def test_revisar_cambios_entorno_aislado_no_toca_archivo_real_si_falla():
 def test_revisar_cambios_aplica_y_revertir_deshace():
     from core.IA.revisar_cambios_codigo import aplicar_propuesta
     from core.IA.revertir_cambio_codigo import revertir
+    import core.IA.ollamaIA as ollamaIA
+
+    # Este test prueba aplicar+revertir, no la verificación con IA (esa
+    # tiene su propio test) -- mockeamos generar_codigo para que no
+    # dependa de tener Ollama corriendo, ya que el cambio de prueba
+    # ("return") cuenta como lógica y dispara esa verificación.
+    generar_codigo_original = ollamaIA.generar_codigo
+    ollamaIA.generar_codigo = lambda prompt, num_predict=400, temperature=0.2: "OK"
 
     archivo_prueba = RAIZ_APP / "core" / "_autotest_scratch.py"
     archivo_prueba.write_text("def saludo():\n    return 'hola'\n", encoding="utf-8")
@@ -215,6 +223,7 @@ def test_revisar_cambios_aplica_y_revertir_deshace():
         assert revertido is True
         assert "hola, mundo" not in archivo_prueba.read_text(encoding="utf-8")
     finally:
+        ollamaIA.generar_codigo = generar_codigo_original
         archivo_prueba.unlink(missing_ok=True)
         carpeta_backups = RAIZ_APP / "core" / "IA" / "backups_codigo"
         for backup in carpeta_backups.glob("core___autotest_scratch.py.bak.*"):
@@ -513,6 +522,61 @@ def test_orquestador_detecta_correccion_que_no_cambio_nada():
         assert len(llamadas) == 2, f"debió cortar tras 1 regeneración sin cambios, gastó {len(llamadas) - 1}"
     finally:
         builtins.input = input_original
+
+
+@_test
+def test_reasoning_sandwich_verifica_riesgo_medio_y_alto_no_bajo():
+    # "Reasoning sandwich": los cambios de bajo riesgo NO pagan el costo
+    # extra de una llamada a Ollama; los de riesgo medio/cuidado sí se
+    # revisan una vez más antes de tocar el archivo real, y si Ollama
+    # marca un problema concreto, el cambio NO se aplica.
+    import hashlib
+    import core.IA.ollamaIA as ollamaIA
+    from core.IA.revisar_cambios_codigo import aplicar_propuesta
+
+    llamadas = []
+
+    def _fake_generar_codigo(prompt, num_predict=400, temperature=0.2):
+        llamadas.append(prompt)
+        if "ELIMINAR TODO" in prompt:
+            return "PROBLEMA: borra la validación de permisos sin reemplazarla"
+        return "OK"
+
+    original = ollamaIA.generar_codigo
+    ollamaIA.generar_codigo = _fake_generar_codigo
+    rutas_creadas = []
+    try:
+        def _archivo(nombre, contenido):
+            ruta = RAIZ_APP / f"core/_autotest_sandwich_{nombre}.py"
+            ruta.write_text(contenido, encoding="utf-8")
+            rutas_creadas.append(ruta)
+            return f"core/_autotest_sandwich_{nombre}.py"
+
+        # bajo riesgo: sin lógica condicional, nombre sin referencias -- 0 llamadas
+        r_bajo = _archivo("bajo", "def funcion_unica_autotest_sandwich_uno():\n    valor = 1\n    return valor\n")
+        aplicado = aplicar_propuesta({"id": "s1", "archivo": r_bajo, "buscar": "    valor = 1", "reemplazar": "    valor = 1  # comentario", "que": "comentario", "por_que": None})
+        assert aplicado is True and len(llamadas) == 0, "un cambio de bajo riesgo no debería llamar a Ollama para verificar"
+
+        # riesgo medio, Ollama aprueba -- se aplica
+        r_medio_ok = _archivo("medio_ok", "def funcion_unica_autotest_sandwich_dos():\n    if True:\n        valor = 1\n    return valor\n")
+        aplicado = aplicar_propuesta({"id": "s2", "archivo": r_medio_ok, "buscar": "    if True:\n        valor = 1", "reemplazar": "    if True:\n        valor = 1\n    else:\n        valor = 2", "que": "agregar rama else", "por_que": None})
+        assert aplicado is True and len(llamadas) == 1
+
+        # riesgo medio, Ollama encuentra un problema -- NO se aplica, archivo intacto
+        r_medio_mal = _archivo("medio_mal", "def funcion_unica_autotest_sandwich_tres():\n    if True:\n        permiso = True\n    return permiso\n")
+        ruta_completa = RAIZ_APP / r_medio_mal
+        hash_antes = hashlib.sha256(ruta_completa.read_bytes()).hexdigest()
+        aplicado = aplicar_propuesta({"id": "s3", "archivo": r_medio_mal, "buscar": "    if True:\n        permiso = True", "reemplazar": "    if True:\n        pass  # ELIMINAR TODO chequeo de permisos", "que": "sacar chequeo", "por_que": None})
+        hash_despues = hashlib.sha256(ruta_completa.read_bytes()).hexdigest()
+        assert aplicado is False, "debió bloquear el cambio marcado como PROBLEMA"
+        assert hash_antes == hash_despues, "no debió tocar el archivo real"
+        assert len(llamadas) == 2
+    finally:
+        ollamaIA.generar_codigo = original
+        for ruta in rutas_creadas:
+            ruta.unlink(missing_ok=True)
+        for backup in (RAIZ_APP / "core" / "IA" / "backups_codigo").glob("core___autotest_sandwich_*"):
+            backup.unlink(missing_ok=True)
 
 
 # ==================== RUNNER ====================

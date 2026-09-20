@@ -51,6 +51,7 @@ if str(_RAIZ_APP_TEMPRANO) not in sys.path:
     sys.path.insert(0, str(_RAIZ_APP_TEMPRANO))
 
 from core.IA.evaluar_confianza import evaluar_riesgo
+from core.IA.verificar_cambio import verificar_cambio_con_ia
 
 RAIZ_APP = Path(__file__).resolve().parents[2]
 BASE = Path(__file__).parent
@@ -210,6 +211,29 @@ def aplicar_propuesta(propuesta):
                 "detalle": detalle,
             })
             return False
+
+        # "Reasoning sandwich" -- segunda punta: lo mecánico (sintaxis +
+        # entorno aislado) ya confirmó que el cambio NO ESTÁ ROTO, pero
+        # nunca confirma que HACE lo que dice que hace. Para cambios que
+        # evaluar_confianza.py marcó como medio riesgo o para revisar con
+        # cuidado, se lo suma a un chequeo con espíritu crítico antes de
+        # tocar el archivo real. Los de bajo riesgo no pagan este costo
+        # extra -- ya están bien cubiertos con lo mecánico.
+        nivel_riesgo, motivo_riesgo = evaluar_riesgo(propuesta)
+        if nivel_riesgo != "bajo":
+            aprobado, detalle_problema = verificar_cambio_con_ia(propuesta, nivel_riesgo, motivo_riesgo)
+            if not aprobado:
+                print(f"Arché: Antes de aplicar esto (era de riesgo {nivel_riesgo}), lo revisé una vez más y encontré algo que no me cierra:")
+                print(f"       {detalle_problema}")
+                print(f"       No lo apliqué -- si igual querés este cambio, decímelo y lo aplico, o ajustá el pedido y lo regenero.")
+                _log_inmutable({
+                    "tipo": "cambio_codigo_fallido_verificacion_ia",
+                    "id": propuesta["id"],
+                    "archivo": propuesta["archivo"],
+                    "nivel_riesgo": nivel_riesgo,
+                    "detalle": detalle_problema,
+                })
+                return False
 
     backup_path = _hacer_backup(ruta, propuesta["archivo"])
 

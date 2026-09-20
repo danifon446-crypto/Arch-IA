@@ -1,108 +1,207 @@
 import os
 import json
+import threading
 import time
+from datetime import datetime
+from core.rutas import DATABASE
 
+archivo_indice = os.path.join(
+    DATABASE,
+    "indice_archivos.json"
+)
 
-# RUTAS
-
-
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-DATABASE = os.path.join(BASE, "Database")
-
-ARCHIVO_CACHE = os.path.join(DATABASE, "archivos.json")
-
-if not os.path.exists(DATABASE):
-    os.makedirs(DATABASE)
-
-if not os.path.exists(ARCHIVO_CACHE):
-    with open(ARCHIVO_CACHE, "w", encoding="utf-8") as f:
-        json.dump({}, f, indent=4, ensure_ascii=False)
-
-
-# CARPETAS A BUSCAR
-
+CARPETAS = []
 
 USUARIO = os.path.expanduser("~")
 
-CARPETAS = [
-
-    os.path.join(USUARIO, "Desktop"),
-    os.path.join(USUARIO, "Documents"),
-    os.path.join(USUARIO, "Downloads"),
-    os.path.join(USUARIO, "Pictures"),
-    os.path.join(USUARIO, "Music"),
-    os.path.join(USUARIO, "Videos"),
-
-    os.path.join(USUARIO, "OneDrive"),
-    os.path.join(USUARIO, "OneDrive", "Desktop"),
-    os.path.join(USUARIO, "OneDrive", "Documents"),
-    os.path.join(USUARIO, "OneDrive", "Downloads")
-
+RUTAS = [
+    "Desktop",
+    "Documents",
+    "Downloads",
+    "Pictures",
+    "Music",
+    "Videos"
 ]
 
+for carpeta in RUTAS:
+    ruta = os.path.join(USUARIO, carpeta)
+    if os.path.exists(ruta):
+        CARPETAS.append(ruta)
+onedrive = os.path.join(USUARIO, "OneDrive")
+if os.path.exists(onedrive):
+    CARPETAS.append(onedrive)
+    for carpeta in RUTAS:
+        ruta = os.path.join(onedrive, carpeta)
+        if os.path.exists(ruta):
+            CARPETAS.append(ruta)
 
-# CACHE
+
+def guardar_indice(indice):
+    with open(
+        archivo_indice,
+        "w",
+        encoding="utf-8"
+    ) as archivo:
+        json.dump(
+            indice,
+            archivo,
+            indent=4,
+            ensure_ascii=False
+        )
 
 
-def cargar_cache():
-
+def cargar_indice():
+    if not os.path.exists(archivo_indice):
+        return []
     try:
-
-        with open(ARCHIVO_CACHE, "r", encoding="utf-8") as f:
-
-            return json.load(f)
-
+        with open(
+            archivo_indice,
+            "r",
+            encoding="utf-8"
+        ) as archivo:
+            return json.load(archivo)
     except:
-
-        return {}
-
-
-def guardar_cache(cache):
-
-    with open(ARCHIVO_CACHE, "w", encoding="utf-8") as f:
-
-        json.dump(cache, f, indent=4, ensure_ascii=False)
+        return []
 
 
-# BUSCAR
+# INDEXAR ARCHIVOS
 
 
-def buscar_archivo(nombre):
-
-    nombre = nombre.lower().strip()
-
-    cache = cargar_cache()
-
-    # Primero revisar si ya lo conoce
-
-    if nombre in cache:
-
-        if os.path.exists(cache[nombre]):
-
-            return [cache[nombre]]
-
-    resultados = []
-
-    for carpeta in CARPETAS:
-
-        if not os.path.exists(carpeta):
-
-            continue
-
-        for raiz, _, archivos in os.walk(carpeta):
-
+def indexar_archivos():
+    indice = []
+    total = 0
+    inicio = time.time()
+    for pasta in CARPETAS:
+        for raiz, carpetas, archivos in os.walk(pasta):
+            # Guardar carpetas
+            for carpeta in carpetas:
+                ruta = os.path.join(raiz, carpeta)
+                try:
+                    datos = {
+                        "nombre": carpeta.lower(),
+                        "ruta": ruta,
+                        "tipo": "carpeta",
+                        "extension": "",
+                        "peso": 0,
+                        "modificado": datetime.fromtimestamp(
+                            os.path.getmtime(ruta)
+                        ).strftime("%Y-%m-%d %H:%M")
+                    }
+                    indice.append(datos)
+                    total += 1
+                except:
+                    pass
+            # Guardar archivos
             for archivo in archivos:
+                ruta = os.path.join(raiz, archivo)
+                try:
+                    nombre, extension = os.path.splitext(archivo)
+                    datos = {
+                        "nombre": nombre.lower(),
+                        "ruta": ruta,
+                        "tipo": "archivo",
+                        "extension": extension.lower(),
+                        "peso": os.path.getsize(ruta),
+                        "modificado": datetime.fromtimestamp(
+                            os.path.getmtime(ruta)
+                        ).strftime("%Y-%m-%d %H:%M")
+                    }
+                    indice.append(datos)
+                    total += 1
+                except:
+                    pass
+    guardar_indice(indice)
+    segundos = round(time.time() - inicio, 2)
+    print()
+    print("=" * 40)
+    print("Arché: Indexación finalizada.")
+    print(f"Arché: {total} elementos indexados.")
+    print(f"Arché: Tiempo: {segundos} segundos.")
+    print("=" * 40)
 
-                if nombre in archivo.lower():
 
-                    ruta = os.path.join(raiz, archivo)
+# INDEXAR EN SEGUNDO PLANO
 
-                    resultados.append(ruta)
 
+def actualizar_indice():
+    hilo = threading.Thread(
+        target=indexar_archivos,
+        daemon=True
+    )
+    hilo.start()
+    print("Arché: Actualizando índice en segundo plano...")
+
+
+# BUSCAR EN EL ÍNDICE
+
+
+def indice_vacio():
+    """True si todavía no se corrió 'actualizar archivos' ni una vez."""
+    return len(cargar_indice()) == 0
+
+
+def buscar(nombre):
+    nombre = nombre.lower().strip()
+    indice = cargar_indice()
+    resultados = []
+    for elemento in indice:
+        if nombre in elemento["nombre"]:
+            resultados.append(elemento)
+    resultados.sort(key=lambda x: len(x["nombre"]))
     return resultados
+
+
+
+# MOSTRAR RESULTADOS
+
+
+def mostrar_resultados(resultados, se_buscó_en_indice_vacío=False):
+    if not resultados:
+        if se_buscó_en_indice_vacío:
+            print("Arché: Todavía no indexé tus archivos. Decime 'actualizar archivos' "
+                  "primero (tarda un rato la primera vez) y después volvé a buscar.")
+        else:
+            print("Arché: No encontré resultados.")
+        return
+    print("\nArché: Encontré estos resultados:\n")
+    for i, r in enumerate(resultados, start=1):
+        print(f"{i}. {os.path.basename(r['ruta'])}")
+        print(f"   Tipo : {r['tipo']}")
+        print(f"   Ruta : {r['ruta']}")
+        print()
+
 
 
 # ABRIR
 
 
+def abrir_resultado(resultado):
+    try:
+        os.startfile(resultado["ruta"])
+        print(f"Arché: Abriendo {os.path.basename(resultado['ruta'])}...")
+    except:
+        print("Arché: No pude abrir ese elemento.")
+
+
+
+# BUSCAR Y ABRIR
+
+
+def buscar_y_abrir(nombre):
+    resultados = buscar(nombre)
+    if len(resultados) == 0:
+        if indice_vacio():
+            print("Arché: Todavía no indexé tus archivos. Decime 'actualizar archivos' "
+                  "primero (tarda un rato la primera vez) y después volvé a intentar.")
+        else:
+            print("Arché: No encontré ese archivo.")
+        return
+    if len(resultados) == 1:
+        abrir_resultado(resultados[0])
+        return
+    mostrar_resultados(resultados)
+    try:
+        opcion = int(input("Número: "))
+        abrir_resultado(resultados[opcion - 1])
+    except:
+        print("Arché: Opción inválida.")

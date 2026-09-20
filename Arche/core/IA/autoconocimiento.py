@@ -68,6 +68,20 @@ def cargar_automodificaciones_aplicadas(n=3):
     return aplicadas[-n:]
 
 
+def novedades_desde(marca_fecha):
+    """
+    Auto-modificaciones APLICADAS (con tu aprobación) desde marca_fecha
+    (exclusive) en adelante -- marca_fecha vacía trae todas. Usado por
+    main.py al arrancar para avisar en una frase qué funciones nuevas
+    puede hacer desde la última vez, en vez de que quede enterrado y
+    solo se sepa si preguntás explícitamente "qué te auto-modificaste".
+    """
+    todas = cargar_automodificaciones_aplicadas(n=10**9)
+    if not marca_fecha:
+        return todas
+    return [a for a in todas if a.get("fecha_propuesta", "") > marca_fecha]
+
+
 def responder_changelog():
     entradas = cargar_cambios_confirmados(n=2)
     automods = cargar_automodificaciones_aplicadas(n=2)

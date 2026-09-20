@@ -79,7 +79,7 @@ def _resumen_completo():
             print(f"    - {comando}")
     print("\n" + "=" * 46)
     print("Decí 'qué hace <categoría>' para más detalle de una sola "
-          "(ej: 'qué hace notas').")
+        "(ej: 'qué hace notas').")
     print("=" * 46 + "\n")
 
 
@@ -94,17 +94,15 @@ def _detalle_categoria(categoria):
 
     if coincidencia is None:
         print(f"Arché: No tengo una categoría de ayuda para '{categoria}'. "
-              f"Decí 'ayuda' para ver todas.")
+            f"Decí 'ayuda' para ver todas.")
         return
 
     print()
-    print("=" * 46)
     print(f"   {coincidencia.upper()}")
-    print("=" * 46)
     for comando, descripcion in CATEGORIAS[coincidencia]:
         print(f"\n• {comando}")
         print(f"  {descripcion}")
-    print("\n" + "=" * 46 + "\n")
+    print("\n" + "-" * 46 + "\n")
 
 
 def ayuda(categoria=None):

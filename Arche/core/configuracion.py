@@ -26,10 +26,11 @@ CONFIG_DEFAULT = {
     "mostrar_estado": True,
     "mostrar_recordatorios": True,
     "buscar_programas_automaticamente": True,
-    "actualizar_indice_automaticamente": False,
+    "actualizar_indice_automaticamente": True,
     "velocidad_respuesta": 1.0,
     "autorevision_automatica": True,
-    "autorevision_intervalo_horas": 6
+    "autorevision_intervalo_horas": 6,
+    "ultima_automod_avisada": ""
 
 }
 

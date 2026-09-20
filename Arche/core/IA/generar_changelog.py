@@ -117,18 +117,37 @@ def archivos_modificados(commit_hash, cwd):
     return [f for f in salida.stdout.splitlines() if f.strip()]
 
 
-def siguiente_numero_version(historial):
-    """Incrementa el ULTIMO segmento del numero de version, sin importar
-    si tiene 2 partes (0.1 -> 0.2) o 3 partes (2.0.1 -> 2.0.2)."""
+def siguiente_numero_version(historial, tamano="pequeno"):
+    """
+    Sube el segmento del número de versión según el tamaño del cambio,
+    y resetea a 0 todo lo que venga después (estilo semver):
+
+      tamano="grande"  -> sube el 1er número (2.0 -> 3.0)
+      tamano="mediano" -> sube el 2do número (2.0 -> 2.1, 2.1.3 -> 2.2.0)
+      tamano="pequeno" -> sube el 3er número, agregándolo si no existe
+                          (2.0 -> 2.0.1, 2.0.1 -> 2.0.2)
+    """
+    posicion = {"grande": 0, "mediano": 1, "pequeno": 2}.get(tamano, 2)
+
     if not historial:
-        return "0.1"
-    ultima = historial[-1]["version"]
-    partes = ultima.split(".")
-    try:
-        partes[-1] = str(int(partes[-1]) + 1)
-        return ".".join(partes)
-    except ValueError:
-        return ultima + ".1"
+        numeros = [0, 0, 0]
+    else:
+        ultima = historial[-1]["version"]
+        numeros = []
+        for parte in ultima.split("."):
+            try:
+                numeros.append(int(parte))
+            except ValueError:
+                numeros.append(0)
+
+    while len(numeros) <= posicion:
+        numeros.append(0)
+
+    numeros[posicion] += 1
+    for i in range(posicion + 1, len(numeros)):
+        numeros[i] = 0
+
+    return ".".join(str(n) for n in numeros)
 
 
 def redactar_con_ollama(commits, diff, archivos):
@@ -182,7 +201,6 @@ def main():
 
     diff = obtener_diff(hash_base, cwd_git)
     archivos = archivos_modificados(hash_base, cwd_git)
-    nueva_version = siguiente_numero_version(historial)
 
     print(f"\nArche: Revise el historial desde la ultima vez que actualice mi "
           f"registro. Encontre {len(commits)} commit(s) y cambios en: "
@@ -190,7 +208,30 @@ def main():
 
     cambios = redactar_con_ollama(commits, diff, archivos)
 
-    print(f"Version {nueva_version} - {date.today().isoformat()}")
+    print(f"\nEstos son los cambios que redacté:")
+    for c in cambios:
+        print(f"  - {c}")
+
+    while True:
+        tamano_resp = input(
+            "\n¿Qué tan grande fue el cambio? "
+            "[g]rande (sube el 1er número) / [m]ediano (2do) / [p]equeño (3er número, default): "
+        ).strip().lower()
+        if tamano_resp in ("g", "grande"):
+            tamano = "grande"
+            break
+        elif tamano_resp in ("m", "mediano"):
+            tamano = "mediano"
+            break
+        elif tamano_resp in ("p", "pequeno", "pequeño", ""):
+            tamano = "pequeno"
+            break
+        else:
+            print("Respondé 'g', 'm' o 'p'.")
+
+    nueva_version = siguiente_numero_version(historial, tamano)
+
+    print(f"\nVersion {nueva_version} - {date.today().isoformat()}")
     for c in cambios:
         print(f"  - {c}")
 

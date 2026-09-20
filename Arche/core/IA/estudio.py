@@ -204,19 +204,23 @@ def _estudiar_tema(item):
         time.sleep(PAUSA_ENTRE_LLAMADAS_SEG)
 
 
-def _estudiar_todos_los_temas():
+def _estudiar_todos_los_temas(detener_evento=None):
     for item in cargar_temas():
+        if detener_evento is not None and detener_evento.is_set():
+            return
         _estudiar_tema(item)
 
 
 # ------------------------------------------------------------------
 # Estudio de variaciones (de lo que ya se aprendió)
 # ------------------------------------------------------------------
-def _estudiar_variaciones_de_comandos():
+def _estudiar_variaciones_de_comandos(detener_evento=None):
     from core.IA.aprendizaje import cargar as cargar_comandos, aprender
 
     datos = cargar_comandos()
     for dato in datos[:MAX_ITEMS_A_VARIAR]:
+        if detener_evento is not None and detener_evento.is_set():
+            return
         variaciones = _generar_variaciones(dato["pregunta"])
         for variacion in variaciones:
             aprender(variacion, dato["accion"], dato["contenido"], fuente="estudio")
@@ -225,11 +229,13 @@ def _estudiar_variaciones_de_comandos():
         time.sleep(PAUSA_ENTRE_LLAMADAS_SEG)
 
 
-def _estudiar_variaciones_de_respuestas():
+def _estudiar_variaciones_de_respuestas(detener_evento=None):
     from core.IA.respuestas import cargar as cargar_respuestas, guardar_respuesta
 
     datos = cargar_respuestas()
     for dato in datos[:MAX_ITEMS_A_VARIAR]:
+        if detener_evento is not None and detener_evento.is_set():
+            return
         variaciones = _generar_variaciones(dato["pregunta"])
         for variacion in variaciones:
             # No hace falta volver a preguntarle a Ollama la respuesta:
@@ -244,13 +250,23 @@ def _estudiar_variaciones_de_respuestas():
 # ------------------------------------------------------------------
 # Orquestación
 # ------------------------------------------------------------------
-def estudiar_todo():
-    """Corre todo el modo estudio de una (temas + variaciones + limpieza). Bloqueante."""
+def estudiar_todo(detener_evento=None):
+    """
+    Corre todo el modo estudio de una (temas + variaciones + limpieza).
+    Bloqueante -- llamala desde un hilo aparte si no querés trabar el
+    resto del programa mientras corre.
+
+    detener_evento: threading.Event opcional. Si se pasa y se activa
+    desde afuera, el estudio corta prolijamente entre items (no a
+    mitad de un tema) en vez de seguir hasta terminar todo.
+    """
     print("Arché: Empezando modo estudio...")
     try:
-        _estudiar_todos_los_temas()
-        _estudiar_variaciones_de_comandos()
-        _estudiar_variaciones_de_respuestas()
+        _estudiar_todos_los_temas(detener_evento)
+        if detener_evento is None or not detener_evento.is_set():
+            _estudiar_variaciones_de_comandos(detener_evento)
+        if detener_evento is None or not detener_evento.is_set():
+            _estudiar_variaciones_de_respuestas(detener_evento)
 
         # Limpieza automática y conservadora al final de cada ronda:
         # borra solo contaminación de patrón obvio (contenido cruzado
@@ -262,7 +278,11 @@ def estudiar_todo():
 
     except Exception as e:
         print(f"Arché: El modo estudio se detuvo por un error ({e}).")
-    print("Arché: Modo estudio terminado.")
+
+    if detener_evento is not None and detener_evento.is_set():
+        print("Arché: Modo estudio detenido.")
+    else:
+        print("Arché: Modo estudio terminado.")
 
 
 def iniciar_estudio_en_background(
@@ -287,7 +307,7 @@ def iniciar_estudio_en_background(
     def _tarea():
         time.sleep(retraso_inicial_seg)
         while detener_evento is None or not detener_evento.is_set():
-            estudiar_todo()
+            estudiar_todo(detener_evento)
             print(f"Arché (estudio): próxima ronda en {intervalo_entre_rondas_seg // 60} min.")
 
             # Espera interrumpible: revisa cada segundo si nos pidieron

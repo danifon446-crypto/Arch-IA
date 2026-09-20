@@ -115,3 +115,74 @@
 {"tipo": "propuesta_codigo_generada", "id": "cod_90", "archivo": "core/IA/ollamaIA.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T07:57:01.153880"}
 {"tipo": "propuesta_codigo_generada", "id": "cod_91", "archivo": "core/IA/ollamaIA.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T07:57:01.162615"}
 {"tipo": "propuesta_codigo_generada", "id": "cod_92", "archivo": "core/IA/ollamaIA.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T07:57:01.176167"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_93", "archivo": "core/archivos1.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.445211"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_94", "archivo": "core/archivos1.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.461993"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_95", "archivo": "core/notas.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.480302"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_96", "archivo": "core/recordatorio.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.494127"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_97", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.511813"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_98", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.531545"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_99", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.555004"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_100", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.571033"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_101", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.586742"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_102", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.608119"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_103", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.618066"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_104", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.645428"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_105", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.665831"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_106", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.681986"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_107", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.697290"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_108", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.714352"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_109", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.733101"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_110", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.747609"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_111", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.765434"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_112", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.773489"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_113", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.801122"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_114", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.826267"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_115", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.845634"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_116", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.862110"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_117", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.877246"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_118", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.893018"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_119", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.908735"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_120", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.914571"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_121", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.943329"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_122", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.945858"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_123", "archivo": "core/IA/introspeccion.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.968818"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_124", "archivo": "core/IA/ollamaIA.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T08:34:03.983653"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_125", "archivo": "core/notas.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.338711"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_126", "archivo": "core/recordatorio.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.341520"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_127", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.341520"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_128", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.354625"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_129", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.354625"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_130", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.366140"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_131", "archivo": "core/sistema.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.372382"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_132", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.372382"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_133", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.390010"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_134", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.390010"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_135", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.408092"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_136", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.414124"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_137", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.420163"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_138", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.422994"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_139", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.436050"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_140", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.436050"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_141", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.436050"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_142", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.451893"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_143", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.460352"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_144", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.467780"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_145", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.467780"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_146", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.483476"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_147", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.483476"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_148", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.499608"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_149", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.508305"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_150", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.515584"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_151", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.515584"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_152", "archivo": "core/IA/autotest.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.531483"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_153", "archivo": "core/IA/introspeccion.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.531483"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_154", "archivo": "core/IA/ollamaIA.py", "origen": "usuario_directo", "tipo_propuesta": "edicion", "timestamp": "2026-09-20T09:24:05.531483"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_155", "archivo": "core/IA/core_calculadora_py_historial.py", "origen": "autonomo", "tipo_propuesta": "archivo_nuevo", "timestamp": "2026-09-20T09:40:49.795331"}
+{"tipo": "cambio_codigo_fallido", "id": "cod_26", "error": "fragmento_no_coincide", "timestamp": "2026-09-20T09:42:18.773611"}
+{"tipo": "cambio_codigo_fallido", "id": "cod_27", "error": "fragmento_no_coincide", "timestamp": "2026-09-20T09:42:18.773611"}
+{"tipo": "cambio_codigo_fallido", "id": "cod_28", "error": "fragmento_no_coincide", "timestamp": "2026-09-20T09:42:18.773611"}
+{"tipo": "cambio_codigo_fallido_verificacion_ia", "id": "cod_29", "archivo": "core/notas.py", "nivel_riesgo": "medio", "detalle": "La función 'contar_notas' no tiene referencias reales en ningún otro lugar del proyecto.", "timestamp": "2026-09-20T09:42:26.908146"}
+{"tipo": "cambio_codigo_fallido_verificacion_ia", "id": "cod_30", "archivo": "core/recordatorio.py", "nivel_riesgo": "medio", "detalle": "La función `contar_recordatorios` no tiene referencias reales en ningún otro lugar del proyecto.", "timestamp": "2026-09-20T09:42:34.546179"}
+{"tipo": "cambio_codigo_fallido", "id": "cod_31", "error": "fragmento_no_coincide", "timestamp": "2026-09-20T09:42:34.547876"}
+{"tipo": "cambio_codigo_fallido_verificacion_ia", "id": "cod_32", "archivo": "core/IA/introspeccion.py", "nivel_riesgo": "medio", "detalle": "La función `contar_archivos_txt` no tiene referencias reales en ningún otro lugar del proyecto.", "timestamp": "2026-09-20T09:42:44.886545"}
+{"tipo": "cambio_codigo_rechazado", "id": "cod_33", "timestamp": "2026-09-20T09:42:44.887653"}
