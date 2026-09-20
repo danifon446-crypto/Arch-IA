@@ -1,5 +1,6 @@
 import time
 import webbrowser
+from urllib.parse import quote_plus
 
 def obtener_busqueda(comando):
     partes = comando.split()    
@@ -16,4 +17,4 @@ def obtener_busqueda(comando):
 def buscar_google(busqueda):
     print (f"Arche esta buscando '{busqueda}' en Google")
     time.sleep(1.5)
-    webbrowser.open("https://www.google.com/search?q=" + busqueda.replace(" ", "+"))
+    webbrowser.open("https://www.google.com/search?q=" + quote_plus(busqueda))

@@ -29,6 +29,143 @@ MODELO_CODIGO = "qwen2.5-coder:1.5b"
 # entre un comando y otro.
 KEEP_ALIVE = "30m"
 
+# --------------------------------------------------------------------
+# HISTORIAL DE CONVERSACIÓN (memoria de corto plazo, dentro de una
+# misma sesión de Arché abierta). Antes conversar() mandaba SOLO la
+# pregunta suelta a Ollama -- sin esto, Arché no podía referirse a
+# nada de lo que se habló un mensaje antes. Es opt-in (usar_historial)
+# para no afectar a quienes usan conversar() para otra cosa que no es
+# charla real (estudio.py arma preguntas de examen, generar_changelog.py
+# redacta un changelog -- ninguno de los dos debe arrastrar charla vieja).
+# --------------------------------------------------------------------
+_historial_conversacion = []
+LIMITE_HISTORIAL_MENSAJES = 20  # ~10 intercambios ida y vuelta
+
+
+def hay_historial_activo():
+    return len(_historial_conversacion) > 0
+
+
+def reiniciar_historial():
+    """Para 'olvidate de lo que hablamos' / arrancar charla nueva a propósito."""
+    _historial_conversacion.clear()
+
+
+def _recortar_historial():
+    exceso = len(_historial_conversacion) - LIMITE_HISTORIAL_MENSAJES
+    if exceso > 0:
+        del _historial_conversacion[:exceso]
+
+
+def razonar_y_responder(pregunta, num_predict=400, temperature=0.7,
+                         usar_historial=False, usar_memoria=False,
+                         mostrar_razonamiento=False):
+    """
+    Para preguntas que lo ameritan (ver necesita_razonamiento_profundo):
+    en vez de contestar de un tiro, primero le pide al modelo un
+    borrador de razonamiento paso a paso (sin mostrárselo a la
+    persona), y RECIÉN AHÍ le pide la respuesta final usando ese
+    borrador como base. Esto es más lento (dos llamadas a Ollama en
+    vez de una), así que solo tiene sentido para preguntas que
+    realmente lo necesitan -- no para un "hola" o un "gracias".
+
+    mostrar_razonamiento=True devuelve (respuesta, razonamiento) en
+    vez de solo la respuesta, por si querés mostrar o loguear el
+    borrador interno.
+    """
+    contexto_memoria = ""
+    if usar_memoria:
+        from core.memoria import resumen_para_contexto
+        contexto_memoria = resumen_para_contexto()
+
+    instrucciones_borrador = (
+        "Eres Arché. Antes de responderle a la persona, pensá el "
+        "problema paso a paso, en borrador -- identificá qué te están "
+        "preguntando en realidad, qué datos o supuestos hacen falta, "
+        "y cómo llegarías a una respuesta sólida. Esto NO se le "
+        "muestra a la persona todavía, así que no le hables "
+        "directamente a ella ni saludes -- es solo tu razonamiento "
+        "interno, en unas pocas líneas."
+    )
+    if contexto_memoria:
+        instrucciones_borrador += f"\n\nDatos que ya sabés de la persona: {contexto_memoria}"
+
+    mensajes_borrador = [{"role": "system", "content": instrucciones_borrador}]
+    if usar_historial:
+        mensajes_borrador.extend(_historial_conversacion)
+    mensajes_borrador.append({"role": "user", "content": pregunta})
+
+    with medir("ollama_razonar_borrador"):
+        respuesta_borrador = ollama.chat(
+            model=MODELO,
+            keep_alive=KEEP_ALIVE,
+            messages=mensajes_borrador,
+            options={"temperature": 0.3, "num_predict": 250},  # menos "creatividad" para el borrador, es análisis, no charla
+        )
+    razonamiento = respuesta_borrador["message"]["content"]
+
+    instrucciones_final = (
+        "Eres Arché, un asistente inteligente. Ya pensaste este problema "
+        "en borrador (te lo paso abajo) -- ahora respondele a la persona "
+        "de forma clara, natural y directa, como en una charla real. "
+        "NO le muestres el borrador ni digas frases como 'pensando en "
+        "esto' o 'mi análisis fue' -- solo dale la respuesta final, ya "
+        "elaborada, con la calidad de haberlo pensado bien."
+        f"\n\nTu borrador de razonamiento:\n{razonamiento}"
+    )
+    if contexto_memoria:
+        instrucciones_final += (
+            f"\n\nDatos que ya sabés de la persona -- usalos con "
+            f"naturalidad si vienen al caso: {contexto_memoria}"
+        )
+
+    mensajes_final = [{"role": "system", "content": instrucciones_final}]
+    if usar_historial:
+        mensajes_final.extend(_historial_conversacion)
+    mensajes_final.append({"role": "user", "content": pregunta})
+
+    with medir("ollama_razonar_final"):
+        respuesta_final = ollama.chat(
+            model=MODELO,
+            keep_alive=KEEP_ALIVE,
+            messages=mensajes_final,
+            options={"temperature": temperature, "num_predict": num_predict},
+        )
+    texto = respuesta_final["message"]["content"]
+
+    if usar_historial:
+        _historial_conversacion.append({"role": "user", "content": pregunta})
+        _historial_conversacion.append({"role": "assistant", "content": texto})
+        _recortar_historial()
+
+    if mostrar_razonamiento:
+        return texto, razonamiento
+    return texto
+
+
+_PISTAS_RAZONAMIENTO_PROFUNDO = (
+    "por qué", "por que", "cómo puedo", "como puedo", "cuál es mejor",
+    "cual es mejor", "qué me conviene", "que me conviene", "deberia",
+    "debería", "compará", "compara", "diferencia entre", "ventajas y desventajas",
+    "pros y contras", "analiza", "analizá", "razoná", "razona", "pensá bien",
+    "piensa bien", "qué opinas", "que opinas", "recomendame", "recomiéndame",
+)
+
+
+def necesita_razonamiento_profundo(texto):
+    """
+    Heurística simple: ¿esta pregunta se beneficia de pensarla en dos
+    pasos, o alcanza con una respuesta directa? Mirá el largo (una
+    pregunta de una sola palabra o muy corta casi nunca lo necesita) y
+    palabras que suelen aparecer en preguntas de comparación, opinión,
+    consejo o "por qué" -- las que más se benefician de un borrador
+    previo en vez de improvisar directo.
+    """
+    texto_norm = (texto or "").lower().strip()
+    if len(texto_norm) < 12:
+        return False
+    return any(pista in texto_norm for pista in _PISTAS_RAZONAMIENTO_PROFUNDO)
+
 
 def comprender(comando):
 
@@ -413,15 +550,29 @@ Ahora analiza:
         }
 
 
-def conversar(pregunta, num_predict=300, temperature=0.7):
+def conversar(pregunta, num_predict=300, temperature=0.7, usar_historial=False, usar_memoria=False):
     """
     temperature=0.7 por defecto (charla normal, como siempre).
     Para tareas que necesitan copiar texto exacto (ej. proponer_cambio_codigo.py
     generando fragmentos de código), se puede bajar a 0.1 o menos: menos
     "creatividad" del modelo, más fidelidad al texto original.
-    """
 
-    prompt = f"""
+    usar_historial=False, usar_memoria=False por defecto: mantiene
+    EXACTAMENTE el comportamiento de siempre (una sola pregunta suelta,
+    sin contexto extra) -- así no le cambia el prompt por debajo a
+    estudio.py ni a generar_changelog.py, que usan esta misma función
+    para tareas puntuales, no para charlar.
+
+    usar_historial=True: manda también los últimos turnos de la charla
+    real (ver _historial_conversacion), para que Arché pueda referirse
+    a lo que se dijo antes en la misma sesión.
+
+    usar_memoria=True: le agrega al prompt un resumen de lo que
+    memoria.py ya tiene guardado (gustos, personas, info personal),
+    para que lo use con naturalidad sin que se lo repitas cada vez.
+    """
+    if not usar_historial and not usar_memoria:
+        prompt = f"""
 Eres Arché, un asistente inteligente.
 
 Responde de forma clara, precisa y útil.
@@ -434,26 +585,51 @@ Pregunta:
 
 {pregunta}
 """
+        with medir("ollama_conversar"):
+            respuesta = ollama.chat(
+                model=MODELO,
+                keep_alive=KEEP_ALIVE,
+                messages=[{"role": "user", "content": prompt}],
+                options={"temperature": temperature, "num_predict": num_predict},
+            )
+        return respuesta["message"]["content"]
+
+    instrucciones = (
+        "Eres Arché, un asistente inteligente. Respondé de forma clara, "
+        "precisa, útil y natural, como en una charla real. Si sabés la "
+        "respuesta, respondela directamente. Si no la sabés, decilo "
+        "honestamente."
+    )
+    if usar_memoria:
+        from core.memoria import resumen_para_contexto
+        contexto = resumen_para_contexto()
+        if contexto:
+            instrucciones += (
+                f"\n\nCosas que ya sabés de la persona con la que hablás -- "
+                f"usalas con naturalidad si vienen al caso, no las repitas "
+                f"todas de una ni las fuerces si no aplican: {contexto}"
+            )
+
+    mensajes = [{"role": "system", "content": instrucciones}]
+    if usar_historial:
+        mensajes.extend(_historial_conversacion)
+    mensajes.append({"role": "user", "content": pregunta})
 
     with medir("ollama_conversar"):
         respuesta = ollama.chat(
             model=MODELO,
             keep_alive=KEEP_ALIVE,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            options={
-                "temperature": temperature,
-                # Limita la respuesta para que no se extienda de más.
-                # Súbelo si necesitas respuestas largas (resúmenes, explicaciones extensas).
-                "num_predict": num_predict,
-            }
+            messages=mensajes,
+            options={"temperature": temperature, "num_predict": num_predict},
         )
+    texto = respuesta["message"]["content"]
 
-    return respuesta["message"]["content"]
+    if usar_historial:
+        _historial_conversacion.append({"role": "user", "content": pregunta})
+        _historial_conversacion.append({"role": "assistant", "content": texto})
+        _recortar_historial()
+
+    return texto
 
 
 def generar_codigo(prompt, num_predict=400, temperature=0.2):

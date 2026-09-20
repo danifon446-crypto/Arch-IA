@@ -132,20 +132,12 @@ def abrir_programa(nombre):
 
 def buscar_exe(nombre):
     nombre = nombre.lower()
+    userprofile = os.environ.get("USERPROFILE")
     carpetas = [
         os.environ.get("ProgramFiles"),
         os.environ.get("ProgramFiles(x86)"),
-        os.path.join(
-            os.environ["USERPROFILE"],
-            "AppData",
-            "Local",
-            "Programs"
-        ),
-        os.path.join(
-            os.environ["USERPROFILE"],
-            "AppData",
-            "Local"
-        )
+        os.path.join(userprofile, "AppData", "Local", "Programs") if userprofile else None,
+        os.path.join(userprofile, "AppData", "Local") if userprofile else None
     ]
     for carpeta in carpetas:
         if not carpeta:
@@ -294,24 +286,14 @@ def obtener_programa(comando):
 
 def buscar_acceso_directo(nombre):
     nombre = nombre.lower()
+    programdata = os.environ.get("ProgramData")
+    appdata = os.environ.get("APPDATA")
     carpetas = [
-        os.path.join(
-            os.environ["ProgramData"],
-            "Microsoft",
-            "Windows",
-            "Start Menu",
-            "Programs"
-        ),
-        os.path.join(
-            os.environ["APPDATA"],
-            "Microsoft",
-            "Windows",
-            "Start Menu",
-            "Programs"
-        )
+        os.path.join(programdata, "Microsoft", "Windows", "Start Menu", "Programs") if programdata else None,
+        os.path.join(appdata, "Microsoft", "Windows", "Start Menu", "Programs") if appdata else None
     ]
     for carpeta in carpetas:
-        if not os.path.exists(carpeta):
+        if not carpeta or not os.path.exists(carpeta):
             continue
         for raiz, _, archivos in os.walk(carpeta):
             for archivo in archivos:

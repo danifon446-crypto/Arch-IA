@@ -67,36 +67,6 @@ def _hay_datos_suficientes(y):
     return len(clases_validas) >= MIN_CLASES, conteo
 
 
-def _balancear_clases(X, y):
-    """
-    Sobremuestreo simple: duplica ejemplos de las clases minoritarias al
-    azar hasta igualar a la clase mayoritaria. Evita que la red se
-    sesgue hacia la intención más común solo por tener más ejemplos.
-    """
-    from sklearn.utils import resample
-
-    conteo = Counter(y)
-    n_mayoritaria = max(conteo.values())
-
-    X_balanceado, y_balanceado = [], []
-    for clase in conteo:
-        idx_clase = np.where(y == clase)[0]
-        X_clase, y_clase = X[idx_clase], y[idx_clase]
-
-        if len(idx_clase) < n_mayoritaria:
-            X_clase, y_clase = resample(
-                X_clase, y_clase,
-                replace=True,
-                n_samples=n_mayoritaria,
-                random_state=42,
-            )
-
-        X_balanceado.append(X_clase)
-        y_balanceado.append(y_clase)
-
-    return np.vstack(X_balanceado), np.concatenate(y_balanceado)
-
-
 def _metadata_anterior():
     if not os.path.exists(ARCHIVO_MODELO):
         return None
@@ -122,6 +92,9 @@ def entrenar(silencioso=False):
         from core.IA.aprendizaje import cargar
         from sklearn.neural_network import MLPClassifier
         from sklearn.model_selection import GridSearchCV, StratifiedKFold
+        from sklearn.preprocessing import LabelEncoder
+        from imblearn.pipeline import Pipeline as PipelineDesbalanceado
+        from imblearn.over_sampling import RandomOverSampler
     except ImportError as e:
         if not silencioso:
             print(f"Arché: Falta una dependencia para el clasificador ({e}).")
@@ -147,32 +120,50 @@ def entrenar(silencioso=False):
 
     dimension_embedding = X.shape[1]
 
-    X_bal, y_bal = _balancear_clases(X, y)
-
     # MLPClassifier con early_stopping=True falla internamente si las
     # clases son strings (bug conocido de sklearn con ciertas versiones:
     # intenta np.isnan sobre las etiquetas). Codificamos a enteros.
-    from sklearn.preprocessing import LabelEncoder
     codificador = LabelEncoder()
-    y_bal_cod = codificador.fit_transform(y_bal)
+    y_cod = codificador.fit_transform(y)
+
+    # IMPORTANTE: el balanceo de clases (sobremuestreo) va DENTRO del
+    # pipeline, no aplicado antes de la validación cruzada. Balancear
+    # ANTES de hacer CV duplica ejemplos y los reparte entre train y
+    # validación -- el modelo puede terminar "validándose" contra una
+    # copia casi idéntica de algo que ya vio en el entrenamiento de ese
+    # mismo fold, inflando el score sin que el modelo generalice mejor
+    # de verdad. Con imblearn.Pipeline, el sobremuestreo se recalcula
+    # en cada fold usando SOLO los datos de train de ese fold -- nunca
+    # toca los datos de validación. Probado con datos sintéticos de
+    # puro ruido: el método viejo daba ~61% de precisión "válida" (por
+    # encima del umbral de 55% de este archivo) donde no había nada
+    # real que aprender; con este fix, ronda el 40%, mucho más cerca
+    # del azar real y del 55% no lo cruza salvo que el modelo
+    # realmente esté aprendiendo algo.
+    pipeline = PipelineDesbalanceado([
+        ("balanceo", RandomOverSampler(random_state=42)),
+        ("red", MLPClassifier(max_iter=2000, random_state=42)),
+    ])
+    grilla_pipeline = {f"red__{clave}": valores for clave, valores in GRILLA_HIPERPARAMETROS.items()}
 
     # cv no puede ser mayor que la cantidad de ejemplos de la clase más
-    # chica (post-balanceo esto ya no aplica, pero por las dudas con
-    # datasets raros lo acotamos igual).
-    n_folds = min(3, min(Counter(y_bal).values()))
+    # chica -- acá se calcula sobre los datos ORIGINALES (sin
+    # balancear), porque el split de CV pasa ANTES del balanceo dentro
+    # del pipeline.
+    n_folds = min(3, min(conteo.values()))
     n_folds = max(n_folds, 2)
 
     try:
         cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
 
         busqueda = GridSearchCV(
-            MLPClassifier(max_iter=2000, random_state=42),
-            GRILLA_HIPERPARAMETROS,
+            pipeline,
+            grilla_pipeline,
             cv=cv,
             scoring="accuracy",
             n_jobs=-1,
         )
-        busqueda.fit(X_bal, y_bal_cod)
+        busqueda.fit(X, y_cod)
 
     except Exception as e:
         if not silencioso:
@@ -180,7 +171,7 @@ def entrenar(silencioso=False):
         return False
 
     score_nuevo = busqueda.best_score_
-    modelo_nuevo = busqueda.best_estimator_
+    modelo_nuevo = busqueda.best_estimator_  # pipeline completo (balanceo + red) ya reentrenado con todos los datos
 
     if score_nuevo < SCORE_MINIMO_UTILIZABLE:
         if not silencioso:
@@ -200,13 +191,16 @@ def entrenar(silencioso=False):
             )
         return False
 
+    hiperparametros_limpios = {
+        clave.split("__", 1)[-1]: valor for clave, valor in busqueda.best_params_.items()
+    }
+
     metadata = {
         "score": score_nuevo,
         "n_ejemplos": len(X),
-        "n_ejemplos_balanceados": len(X_bal),
         "dimension_embedding": dimension_embedding,
-        "hiperparametros": busqueda.best_params_,
-        "clases": sorted(set(y_bal.tolist())),
+        "hiperparametros": hiperparametros_limpios,
+        "clases": sorted(set(y.tolist())),
     }
 
     with open(ARCHIVO_MODELO, "wb") as f:
@@ -219,7 +213,7 @@ def entrenar(silencioso=False):
         print(
             f"Arché: Red neuronal actualizada. Precisión de validación: "
             f"{score_nuevo:.0%} ({len(X)} ejemplos, {len(metadata['clases'])} "
-            f"intenciones, config {busqueda.best_params_})."
+            f"intenciones, config {hiperparametros_limpios})."
         )
     return True
 

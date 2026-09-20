@@ -1,5 +1,6 @@
 import time
 import threading
+import re
 
 from core.instalador import verificar_e_instalar
 verificar_e_instalar()
@@ -17,7 +18,7 @@ from core.archivos import *
 from core.configuracion import *
 from core.calculadora import *
 from cerebroIA import *
-from core.IA.ollamaIA import conversar
+from core.IA.ollamaIA import conversar, hay_historial_activo, reiniciar_historial, razonar_y_responder, necesita_razonamiento_profundo
 from core.IA.clasificador import info_modelo
 from core.IA.telemetria import resumen as resumen_telemetria, registrar_comando
 from core.IA.introspeccion import reporte_texto
@@ -216,6 +217,7 @@ _hilo_estudio = None
 # ------------------------------------------------------------------
 _evento_detener_autorevision = threading.Event()
 _hilo_autorevision = None
+_ultimo_reporte_limpieza = None  # lo llena "analiza limpieza"; lo usa "limpia <categoria>" después
 if obtener("autorevision_automatica"):
     from core.IA.autorevision import iniciar_autorevision_en_background
     _hilo_autorevision = iniciar_autorevision_en_background(
@@ -455,6 +457,52 @@ while True:
         imprimir_reporte_natural(reporte, sin_ia=True)
         continue
 
+    if comando in ["olvida lo que hablamos", "nueva conversacion", "nueva conversación", "reinicia la charla", "empecemos de nuevo"]:
+        reiniciar_historial()
+        print("Arché: Listo, arranco de cero -- no voy a arrastrar nada de lo que veníamos hablando.")
+        continue
+
+    # CONTROL DEL SISTEMA (pilar 2: recursos, búsqueda por contenido, limpieza)
+
+    if comando in ["estado del sistema", "como esta el sistema", "cómo está el sistema", "recursos", "que tal el pc", "qué tal el pc"]:
+        import core.sistema as sistema
+        hablar(sistema.hablar_estado_sistema())
+        continue
+
+    if comando in ["que procesos consumen mas", "qué procesos consumen más", "procesos"]:
+        import core.sistema as sistema
+        print(sistema.hablar_procesos_que_mas_consumen())
+        continue
+
+    if comando.startswith("busca contenido") or comando.startswith("busca en el contenido") or comando.startswith("que archivos mencionan") or comando.startswith("qué archivos mencionan"):
+        import core.sistema as sistema
+        texto_buscado = re.sub(r"^(busca contenido|busca en el contenido|que archivos mencionan|qué archivos mencionan)\s*", "", comando).strip()
+        if not texto_buscado:
+            print("Arché: Decime qué texto buscar. Ej: 'busca contenido presupuesto 2026'.")
+        else:
+            resultados = sistema.buscar_por_contenido(texto_buscado)
+            sistema.mostrar_resultados_contenido(resultados, texto_buscado)
+        continue
+
+    if comando in ["analiza limpieza", "que se puede limpiar", "qué se puede limpiar", "analiza el disco"]:
+        import core.sistema as sistema
+        _ultimo_reporte_limpieza = sistema.analizar_limpieza()
+        print(sistema.hablar_analisis_limpieza(_ultimo_reporte_limpieza))
+        continue
+
+    if comando.startswith("limpia"):
+        import core.sistema as sistema
+        if _ultimo_reporte_limpieza is None:
+            print("Arché: Todavía no analicé qué hay para limpiar en esta sesión. Decime 'analiza limpieza' primero, así ves qué se borraría antes de confirmarlo.")
+        else:
+            categorias = sistema.interpretar_categorias_limpieza(comando)
+            if not categorias:
+                print("Arché: No reconocí qué categoría limpiar. Opciones: 'limpia pycache', 'limpia tmp', 'limpia temporales windows', o 'limpia todo'.")
+            else:
+                resultado = sistema.ejecutar_limpieza(_ultimo_reporte_limpieza, categorias)
+                print(sistema.hablar_resultado_limpieza(resultado))
+        continue
+
     # MODO ESTUDIO
 
     if comando == "estudiar":
@@ -674,19 +722,38 @@ while True:
             respuesta_fija = PREGUNTAS_FRECUENTES[contenido_norm]
             print(f"Arché: {respuesta_fija}")
             registrar_comando(contenido, "conversar", resuelto_por="pregunta_frecuente")
+        elif not hay_historial_activo() and (respuesta_propia := buscar_respuesta(contenido)):
+            # Capa 1: caché de respuestas por similitud semántica.
+            # SOLO si todavía no hay charla en curso en esta sesión --
+            # una vez que hay historial, una pregunta de seguimiento
+            # ("¿y en euros?") depende de lo que se dijo antes, y la
+            # caché podría traer una respuesta vieja de otra
+            # conversación sin ese contexto. Mejor mandarla a Ollama
+            # con el historial real en ese caso.
+            print(f"Arché: {respuesta_propia}")
+            registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
         else:
-            respuesta_propia = buscar_respuesta(contenido)
-
-            if respuesta_propia:
-                # Capa 1: caché de respuestas por similitud semántica.
-                print(f"Arché: {respuesta_propia}")
-                registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
+            # Capa 2: última instancia, llamada a Ollama -- con
+            # historial de la charla y memoria de lo que ya sabe de vos.
+            # Si la pregunta se beneficia de pensarla en dos pasos
+            # (comparación, "por qué", consejo, etc.), o si la pediste
+            # explícitamente con "pensá bien: ...", usa razonar_y_responder
+            # (más lento, dos llamadas) en vez de la respuesta directa.
+            era_pregunta_suelta = not hay_historial_activo()  # antes de esta llamada, no despues
+            pedido_explicito = contenido_norm.startswith("pensa bien") or contenido_norm.startswith("piensa bien") or contenido_norm.startswith("analiza a fondo")
+            if pedido_explicito or necesita_razonamiento_profundo(contenido):
+                respuesta = razonar_y_responder(contenido, usar_historial=True, usar_memoria=True)
             else:
-                # Capa 2: última instancia, llamada nueva a Ollama.
-                respuesta = conversar(contenido)
-                print(f"Arché: {respuesta}")
+                respuesta = conversar(contenido, usar_historial=True, usar_memoria=True)
+            print(f"Arché: {respuesta}")
+            if era_pregunta_suelta:
+                # Solo cacheamos preguntas que fueron el PRIMER mensaje
+                # de la sesión (sin contexto previo) -- una respuesta
+                # que dependió del historial no tiene sentido fuera de
+                # ese contexto, y guardarla podría hacer que aparezca
+                # suelta, sin sentido, en una charla totalmente distinta.
                 guardar_respuesta(contenido, respuesta)
-                registrar_comando(contenido, "conversar", resuelto_por="ollama_conversar")
+            registrar_comando(contenido, "conversar", resuelto_por="ollama_conversar")
 
     # COMANDO DESCONOCIDO
 

@@ -109,7 +109,10 @@ def abrir_nota(nombre):
     print(f"Arché: Abriendo {nombre}...")
     time.sleep(0.5)
 
-    os.startfile(ruta)
+    try:
+        os.startfile(ruta)
+    except Exception:
+        print("Arché: No pude abrir esa nota.")
 
 
 def listar_notas():
@@ -126,12 +129,6 @@ def listar_notas():
 
         if archivo.endswith(".txt"):
             print("-", archivo[:-4])
-
-
-def contar_txts():
-    import os
-    carpeta_notas = os.path.join(DATABASE, "Notas")
-    return len(os.listdir(carpeta_notas))
 
 
 def contar_notas():

@@ -21,10 +21,6 @@ if not os.path.exists(archivo_recordatorios):
             ensure_ascii=False
         )
 
-if not os.path.exists(archivo_recordatorios):
-    with open(archivo_recordatorios, "w", encoding="utf-8") as archivo:
-        json.dump([], archivo, indent=4, ensure_ascii=False)
-
 def cargar_recordatorios():
     try:
         with open(archivo_recordatorios, "r", encoding="utf-8") as archivo:
@@ -138,7 +134,7 @@ def revisar_recordatorios():
         except:
             pass
     if pendientes:
-        
+        print("=" * 50)
         print("        RECORDATORIOS PENDIENTES")
         print("=" * 50)
         for r in pendientes:
