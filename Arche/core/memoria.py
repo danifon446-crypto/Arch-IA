@@ -38,9 +38,16 @@ def detectar_tipo(texto):
             return "fecha"
         return "otro"
 
+def _cargar_recuerdos():
+        try:
+            with open(archivo_memoria, "r", encoding="utf-8") as archivo:
+                return json.load(archivo)
+        except Exception:
+            return []
+
+
 def recordar(texto):
-        with open(archivo_memoria, "r", encoding="utf-8") as archivo:
-            recuerdos = json.load(archivo)
+        recuerdos = _cargar_recuerdos()
         nuevo = {
             "tipo": detectar_tipo(texto),
             "contenido": texto,
@@ -64,37 +71,13 @@ def recordar(texto):
 
 
 def mostrar_recuerdos():
-        with open(archivo_memoria, "r", encoding="utf-8") as archivo:
-            recuerdos = json.load(archivo)
+        recuerdos = _cargar_recuerdos()
         if recuerdos:
             print("Arché: Esto es lo que recuerdo:")
             for recuerdo in recuerdos:
                 print(f"- ({recuerdo['tipo']}) {recuerdo['contenido']}")
         else:
             print("Arché: No recuerdo nada por ahora.")
-
-
-def resumen_para_contexto(max_items=8):
-    """
-    Un resumen corto de lo que ya está guardado en memoria.json, para
-    inyectarlo en el prompt de conversar() (ver ollamaIA.py,
-    usar_memoria=True) y que Arché lo use con naturalidad sin que se
-    lo repitas cada charla. Prioriza gustos/personas/info personal --
-    deja afuera 'recordatorio' (eso lo maneja recordatorio.py aparte,
-    no tiene sentido mezclarlo en una charla natural) y toma los más
-    recientes primero si hay más de max_items.
-    """
-    try:
-        with open(archivo_memoria, "r", encoding="utf-8") as archivo:
-            recuerdos = json.load(archivo)
-    except (OSError, json.JSONDecodeError):
-        return ""
-
-    relevantes = [r for r in recuerdos if r.get("tipo") in ("gusto", "persona", "informacion_personal", "fecha")]
-    relevantes = relevantes[-max_items:]
-    if not relevantes:
-        return ""
-    return "; ".join(r["contenido"] for r in relevantes)
 
 def detectar_prioridad(texto):
         texto = texto.lower()

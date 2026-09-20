@@ -86,6 +86,34 @@ RESPUESTAS = {
 }
 
 
+def saludar(nombre):
+    """
+    Usada por main.py cuando la IA reconoce un saludo ("hola", "buenas",
+    etc.). No existía en ningún lado del proyecto -- llamarla crasheaba
+    con NameError apenas el clasificador identificaba intencion "saludo".
+    """
+    saludos = [
+        f"¡Hola, {nombre}!",
+        f"Hola de nuevo, {nombre}.",
+        f"¡Qué bueno verte, {nombre}!",
+        f"Hola, {nombre}. ¿En qué puedo ayudarte?",
+    ]
+    print(f"Arché: {random.choice(saludos)}")
+
+
+def presentarse():
+    """
+    Usada por main.py para intencion "presentacion" (ej: '¿quién eres?',
+    'preséntate'). Tampoco existía en ningún lado del proyecto.
+    """
+    print(
+        "Arché: Soy Arché, tu asistente personal. Puedo tomar notas, "
+        "recordarte cosas, hacer cálculos, buscar y abrir cosas en tu "
+        "equipo, y también aprender y mejorar mi propio código con tu "
+        "aprobación. Decime 'ayuda' si querés ver todo lo que puedo hacer."
+    )
+
+
 def normalizar(texto):
 
     texto = texto.lower()

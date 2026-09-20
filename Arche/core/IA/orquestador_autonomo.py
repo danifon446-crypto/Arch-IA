@@ -147,6 +147,23 @@ class OrquestadorAutonomo:
                 print(f"\nArché: No pude regenerarlo con tu sugerencia: {nuevo_error}")
                 return False
 
+            # Detección de bucle atascado: si el intento nuevo termina
+            # siendo el MISMO buscar/reemplazar que el anterior, el
+            # modelo no le hizo caso de verdad a tu corrección (o no
+            # supo cómo aplicarla) -- insistir automáticamente hasta
+            # agotar los reintentos sería repetir el mismo error a
+            # ciegas. Mejor cortar acá y decírtelo, en vez de simular
+            # que "lo intentó de nuevo" cuando en los hechos no cambió nada.
+            si_no_cambio_nada = (
+                nueva_propuesta["buscar"] == propuesta["buscar"]
+                and nueva_propuesta["reemplazar"] == propuesta["reemplazar"]
+            )
+            if si_no_cambio_nada:
+                print(f"\nArché: Con tu corrección me salió exactamente el mismo cambio que antes -- "
+                      f"parece que no estoy entendiendo bien qué querés que ajuste. Mejor lo dejamos "
+                      f"acá; si querés, probá pedírmelo de otra forma o hacelo vos directamente.")
+                return False
+
             propuesta = nueva_propuesta
 
 

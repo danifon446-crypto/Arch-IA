@@ -399,7 +399,7 @@ def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
     return ids_generados
 
 
-def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_muerto=True):
+def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_muerto=True, generar_propuestas=False):
     """
     Pase UNICO y unificado sobre todo el proyecto:
       - Corre los chequeos deterministas globales (duplicados, imports
@@ -416,6 +416,14 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
         reviso antes y no cambio, la salta -- esto es la "memoria":
         Arche no vuelve a preguntarle al modelo por algo que ya sabe
         que esta bien.
+      - generar_propuestas: si es True, por cada bug/mejora que
+        encuentra le pide a Ollama que arme un parche BUSCAR/REEMPLAZAR
+        real (2 intentos c/u) -- esto es lo que hace lenta a la
+        revision, y la mayoria de las veces falla igual (archivo
+        demasiado grande, formato inesperado). Por default esta
+        apagado: "revisate" es diagnostico rapido -- si despues
+        queres el parche de un hallazgo puntual, pedilo directo con
+        "cambia esto: <lo que encontró>".
 
     Con el tiempo, a medida que el codigo se estabiliza, cada corrida
     gasta cada vez menos en Ollama (solo lo nuevo/modificado), sin
@@ -443,6 +451,7 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
 
     cache = _cargar_cache()
     revisadas_esta_vez = 0
+    pendientes_de_revisar = []
 
     for archivo, rel in _archivos_del_proyecto():
         for fn in _funciones_de(archivo):
@@ -458,41 +467,37 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
                 continue  # hay mas nuevas/modificadas de las que este pase quiere cubrir
 
             revisadas_esta_vez += 1
-            reporte["revision_ia"]["nuevas_o_modificadas"] += 1
+            pendientes_de_revisar.append((archivo, rel, fn, clave, hash_actual))
 
-            print(f"  revisando {clave} (nueva o modificada)...", end=" ", flush=True)
-            bug, mejora = revisar_funcion_con_ollama(rel, fn)
+    reporte["revision_ia"]["nuevas_o_modificadas"] = len(pendientes_de_revisar)
 
-            if not bug and not mejora:
-                print("ok")
-            else:
-                if bug:
-                    print(f"⚠ bug: {bug}")
-                    reporte["revision_ia"]["bugs_encontrados"].append({"archivo": rel, "funcion": fn["nombre"], "bug": bug})
-                    instruccion_bug = f"en la función '{fn['nombre']}': corregir este bug: {bug}"
-                    propuesta, error = proponer_cambio_ia(rel, instruccion_bug, origen="autorevision")
-                    if propuesta:
-                        reporte["revision_ia"]["propuestas_generadas"].append(propuesta["id"])
-                        print(f"    -> propuesta {propuesta['id']} generada")
-                    elif error:
-                        print(f"    -> no se pudo generar propuesta: {error}")
+    if pendientes_de_revisar:
+        print(f"Arché: Reviso {len(pendientes_de_revisar)} función(es) nueva(s) o modificada(s) con Ollama...", flush=True)
 
-                if mejora:
-                    print(f"  ✎ mejora: {mejora}")
-                    reporte["revision_ia"]["mejoras_encontradas"].append({"archivo": rel, "funcion": fn["nombre"], "mejora": mejora})
-                    instruccion_mejora = f"en la función '{fn['nombre']}': mejorar esto (sin cambiar su comportamiento): {mejora}"
-                    propuesta_m, error_m = proponer_cambio_ia(rel, instruccion_mejora, origen="autorevision")
-                    if propuesta_m:
-                        reporte["revision_ia"]["propuestas_generadas"].append(propuesta_m["id"])
-                        print(f"    -> propuesta {propuesta_m['id']} generada")
-                    elif error_m:
-                        print(f"    -> no se pudo generar propuesta: {error_m}")
+    for archivo, rel, fn, clave, hash_actual in pendientes_de_revisar:
+        bug, mejora = revisar_funcion_con_ollama(rel, fn)
 
-            cache[clave] = {
-                "hash": hash_actual,
-                "resultado": bug or mejora or "ok",
-                "fecha": datetime.now().isoformat(),
-            }
+        if bug:
+            reporte["revision_ia"]["bugs_encontrados"].append({"archivo": rel, "funcion": fn["nombre"], "bug": bug})
+            if generar_propuestas:
+                instruccion_bug = f"en la función '{fn['nombre']}': corregir este bug: {bug}"
+                propuesta, error = proponer_cambio_ia(rel, instruccion_bug, origen="autorevision")
+                if propuesta:
+                    reporte["revision_ia"]["propuestas_generadas"].append(propuesta["id"])
+
+        if mejora:
+            reporte["revision_ia"]["mejoras_encontradas"].append({"archivo": rel, "funcion": fn["nombre"], "mejora": mejora})
+            if generar_propuestas:
+                instruccion_mejora = f"en la función '{fn['nombre']}': mejorar esto (sin cambiar su comportamiento): {mejora}"
+                propuesta_m, error_m = proponer_cambio_ia(rel, instruccion_mejora, origen="autorevision")
+                if propuesta_m:
+                    reporte["revision_ia"]["propuestas_generadas"].append(propuesta_m["id"])
+
+        cache[clave] = {
+            "hash": hash_actual,
+            "resultado": bug or mejora or "ok",
+            "fecha": datetime.now().isoformat(),
+        }
 
     _guardar_cache(cache)
     return reporte
