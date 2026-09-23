@@ -135,6 +135,11 @@ def actualizar_indice():
 # BUSCAR EN EL ÍNDICE
 
 
+def indice_vacio():
+    """True si todavía no se corrió 'actualizar archivos' ni una vez."""
+    return len(cargar_indice()) == 0
+
+
 def buscar(nombre):
     nombre = nombre.lower().strip()
     indice = cargar_indice()
@@ -150,9 +155,13 @@ def buscar(nombre):
 # MOSTRAR RESULTADOS
 
 
-def mostrar_resultados(resultados):
+def mostrar_resultados(resultados, se_buscó_en_indice_vacío=False):
     if not resultados:
-        print("Arché: No encontré resultados.")
+        if se_buscó_en_indice_vacío:
+            print("Arché: Todavía no indexé tus archivos. Decime 'actualizar archivos' "
+                  "primero (tarda un rato la primera vez) y después volvé a buscar.")
+        else:
+            print("Arché: No encontré resultados.")
         return
     print("\nArché: Encontré estos resultados:\n")
     for i, r in enumerate(resultados, start=1):
@@ -181,7 +190,11 @@ def abrir_resultado(resultado):
 def buscar_y_abrir(nombre):
     resultados = buscar(nombre)
     if len(resultados) == 0:
-        print("Arché: No encontré ese archivo.")
+        if indice_vacio():
+            print("Arché: Todavía no indexé tus archivos. Decime 'actualizar archivos' "
+                  "primero (tarda un rato la primera vez) y después volvé a intentar.")
+        else:
+            print("Arché: No encontré ese archivo.")
         return
     if len(resultados) == 1:
         abrir_resultado(resultados[0])

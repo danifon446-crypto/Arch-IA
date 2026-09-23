@@ -1,0 +1,77 @@
+"""
+comandos_extra.py
+-----------------
+Ubicacion: Arche/core/comandos_extra.py
+
+Registro de comandos del chat conectados a funciones que Arche escribio.
+Cada entrada es:
+
+    "frase del comando": ("modulo", "funcion", devuelve_valor, "plantilla o None")
+
+- La frase va sin tildes y en minusculas (Arche normaliza lo que escribis).
+- devuelve_valor: True si la funcion DEVUELVE algo para mostrar; False si
+  ya imprime ella misma.
+- plantilla: como decir el resultado. {0}, {1}... son las partes de una
+  tupla/lista; {clave} si devuelve un diccionario; {0} si devuelve un solo
+  valor. None = mostrarlo tal cual.
+
+Las entradas las agrega Arche (core/IA/conectar_funciones.py) con una
+propuesta que pasa por TU aprobacion. La linea "no borrar" de abajo es el
+punto donde se insertan; si la borras, Arche ya no puede conectar funciones.
+"""
+
+import importlib
+import unicodedata
+
+COMANDOS = {
+    # --- comandos agregados por Arché (no borrar esta línea) ---
+}
+
+
+def _normalizar(texto):
+    """Minusculas, sin tildes, sin signos de pregunta/exclamacion y con
+    espacios simples: 'Último  cálculo?' -> 'ultimo calculo'."""
+    sin_tildes = "".join(
+        c for c in unicodedata.normalize("NFD", texto.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+    for signo in "¿?¡!.,;:":
+        sin_tildes = sin_tildes.replace(signo, "")
+    return " ".join(sin_tildes.split())
+
+
+def _formatear(resultado, plantilla):
+    if plantilla:
+        try:
+            if isinstance(resultado, dict):
+                return plantilla.format(**resultado)
+            if isinstance(resultado, (tuple, list)):
+                return plantilla.format(*resultado)
+            return plantilla.format(resultado)
+        except (IndexError, KeyError, ValueError):
+            pass  # plantilla que no encaja con el resultado: se muestra tal cual
+    return str(resultado)
+
+
+def manejar(comando):
+    """Si `comando` esta registrado, ejecuta la funcion conectada y
+    devuelve True. Si no, devuelve False (y main.py sigue con el resto)."""
+    entrada = COMANDOS.get(_normalizar(comando))
+    if entrada is None:
+        return False
+
+    modulo, nombre, devuelve_valor, plantilla = entrada
+    try:
+        funcion = getattr(importlib.import_module(modulo), nombre)
+        resultado = funcion()
+    except Exception as e:
+        print(f"Arché: No pude ejecutar '{nombre}': {type(e).__name__}: {e}")
+        return True
+
+    if not devuelve_valor:
+        return True  # la funcion ya mostro lo que tenia que mostrar
+    if resultado is None:
+        print("Arché: Todavía no tengo nada para mostrarte.")
+    else:
+        print(f"Arché: {_formatear(resultado, plantilla)}")
+    return True

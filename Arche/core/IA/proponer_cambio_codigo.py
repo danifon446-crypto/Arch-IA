@@ -35,6 +35,10 @@ archivo nuevo sin extension por error humano al copiarlo a mano, y
 quedo huerfano del sistema de imports. Ahora se rechaza en el momento
 de proponer, no despues.
 
+DEDUPLICACION: no se crea una propuesta si ya existe otra con el mismo
+archivo + buscar + reemplazar (sin importar su estado). Asi correr
+"revisate" varias veces no llena la cola de propuestas repetidas.
+
 """
 
 import os
@@ -44,6 +48,7 @@ import json
 import re
 import subprocess
 import sys
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 
@@ -100,6 +105,35 @@ PATRON_BLOQUE_CONTENIDO = re.compile(
 )
 
 PATRON_MENCION_FUNCION = re.compile(r"funci[oó]n\s+['\"]?([a-zA-Z_][a-zA-Z0-9_]*)")
+
+
+def generar_codigo(prompt, num_predict=600, temperature=0.1):
+    """
+    Genera codigo usando core/IA/ollamaIA.generar_codigo -- el modelo se
+    elige en UN solo lugar: MODELO_CODIGO en ollamaIA.py. Se busca ollamaIA
+    en cada llamada (no al importar este modulo) para que los mocks de
+    autotest.py sigan funcionando.
+
+    Si el modelo de codigo no responde (no esta descargado, se quedo sin
+    memoria, etc.) NO se cae a otro modelo: el modelo de conversacion
+    (arche-lora) escribe codigo poco confiable -- una vez genero una
+    propuesta que abria core/calculadora.py como si fuera un JSON. Es
+    mejor no generar nada y avisar claro, que dejar una propuesta mala.
+    """
+    from core.IA import ollamaIA
+
+    try:
+        respuesta = ollamaIA.generar_codigo(prompt, num_predict=num_predict, temperature=temperature)
+        if respuesta and respuesta.strip():
+            return respuesta
+        motivo = "respuesta vacía"
+    except Exception as e:
+        motivo = f"{type(e).__name__}: {str(e)[:120]}"
+
+    print(f"Arché: El modelo de código '{ollamaIA.MODELO_CODIGO}' no respondió ({motivo}). "
+          f"No genero código con otro modelo porque el de conversación no es confiable para eso. "
+          f"Probá de nuevo, o cambiá MODELO_CODIGO en core/IA/ollamaIA.py por uno más liviano.")
+    return ""
 
 
 def _extraer_funcion(contenido, nombre_funcion):
@@ -217,8 +251,32 @@ def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
         return None, f"El cambio generado no produce código Python válido, no se creó la propuesta. Error: {error}"
 
     pendientes = _cargar_pendientes()
+
+    # Deduplicacion: si ya existe una propuesta con el mismo archivo +
+    # buscar + reemplazar (en cualquier estado), no se crea otra. Sin
+    # esto, cada "revisate" volvia a generar las mismas propuestas.
+    for existente in pendientes:
+        if (
+            existente.get("archivo") == archivo_norm
+            and existente.get("buscar") == buscar
+            and existente.get("reemplazar") == reemplazar
+        ):
+            return None, (
+                f"Ya existe una propuesta idéntica ({existente.get('id')}, "
+                f"estado: {existente.get('estado')}). No se creó otra."
+            )
+
+    # Id nuevo = mayor numero existente + 1 (con len(pendientes)+1 los
+    # ids se repetian si alguna vez se borraba una propuesta de la lista).
+    numeros_usados = [
+        int(str(p.get("id", ""))[4:])
+        for p in pendientes
+        if str(p.get("id", "")).startswith("cod_") and str(p.get("id", ""))[4:].isdigit()
+    ]
+    nuevo_id = f"cod_{max(numeros_usados, default=0) + 1}"
+
     propuesta = {
-        "id": f"cod_{len(pendientes) + 1}",
+        "id": nuevo_id,
         "archivo": archivo_norm,
         "buscar": buscar,
         "reemplazar": reemplazar,
@@ -370,8 +428,6 @@ def _extraer_contenido_nuevo(texto_respuesta):
 
 
 def _proponer_archivo_nuevo_ia(archivo_norm, instruccion, origen):
-    from core.IA.ollamaIA import generar_codigo
-
     ok_ext, error_ext = _validar_extension(archivo_norm, es_archivo_nuevo=True)
     if not ok_ext:
         return None, error_ext
@@ -498,7 +554,20 @@ def _definiciones_reales(contenido_archivo):
                         "es_string": es_string,
                     }
         elif isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-            definiciones[nodo.name] = {"linea": lineas_archivo[nodo.lineno - 1].strip(), "es_string": False}
+            # "devuelve_valor": False si la funcion nunca hace "return <algo>"
+            # (solo imprime o modifica cosas y devuelve None). Se le avisa al
+            # modelo para que no la use dentro de len() o de operaciones.
+            devuelve_valor = True
+            if not isinstance(nodo, ast.ClassDef):
+                devuelve_valor = any(
+                    isinstance(n, ast.Return) and n.value is not None
+                    for n in ast.walk(nodo)
+                )
+            definiciones[nodo.name] = {
+                "linea": lineas_archivo[nodo.lineno - 1].strip(),
+                "es_string": False,
+                "devuelve_valor": devuelve_valor,
+            }
 
     return definiciones
 
@@ -640,6 +709,194 @@ def _detectar_len_sobre_string(codigo_funcion, definiciones_reales):
     return None
 
 
+def _sin_tildes(texto):
+    return "".join(
+        c for c in unicodedata.normalize("NFD", texto.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def _cuerpos_relevantes(contenido_archivo, instruccion, max_funciones=4, max_lineas=25):
+    """
+    Devuelve el CODIGO REAL (recortado) de las funciones del archivo
+    cuyo nombre se parece a lo que dice la instruccion (comparando por
+    prefijo de 5 letras, sin tildes: 'guardado' ~ 'guardar', 'calculo'
+    ~ 'calcular'). Asi el modelo ve COMO se guardan y devuelven los
+    datos de verdad (ej. que 'historial' solo imprime y los datos viven
+    en un JSON), en vez de adivinarlo a partir del nombre.
+    """
+    try:
+        arbol = ast.parse(contenido_archivo)
+    except SyntaxError:
+        return ""
+
+    palabras = {p[:5] for p in re.findall(r"[a-z0-9]{5,}", _sin_tildes(instruccion))}
+    if not palabras:
+        return ""
+
+    lineas = contenido_archivo.splitlines()
+    candidatas = []
+    for nodo in arbol.body:
+        if not isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        partes = {p[:5] for p in _sin_tildes(nodo.name).split("_") if len(p) >= 5}
+        puntaje = len(palabras & partes)
+        if puntaje:
+            candidatas.append((puntaje, nodo))
+
+    candidatas.sort(key=lambda par: -par[0])
+    bloques = []
+    for _, nodo in candidatas[:max_funciones]:
+        fragmento = lineas[nodo.lineno - 1:nodo.end_lineno]
+        if len(fragmento) > max_lineas:
+            fragmento = fragmento[:max_lineas] + ["    ..."]
+        bloques.append("\n".join(fragmento))
+
+    if not bloques:
+        return ""
+    return (
+        "\nCódigo REAL de funciones del archivo relacionadas con el pedido "
+        "(leelo para saber cómo se guardan los datos y qué devuelve cada una; "
+        "NO asumas nada que no esté acá):\n---\n" + "\n\n".join(bloques) + "\n---\n"
+    )
+
+
+def _detectar_uso_de_retorno_inexistente(codigo_funcion, definiciones_reales):
+    """
+    Detecta cuando la funcion nueva USA COMO VALOR el resultado de una
+    funcion existente que en realidad no devuelve nada (solo imprime o
+    modifica cosas). Ej: len(historial()) o historial()[-1] cuando
+    historial() devuelve None. Llamarla como sentencia suelta
+    (historial()) esta bien y no se marca.
+
+    Devuelve el nombre de esa funcion, o None.
+    """
+    try:
+        arbol = ast.parse(codigo_funcion)
+    except SyntaxError:
+        return None
+
+    llamadas_como_sentencia = {
+        id(n.value) for n in ast.walk(arbol)
+        if isinstance(n, ast.Expr) and isinstance(n.value, ast.Call)
+    }
+    for nodo in ast.walk(arbol):
+        if (
+            isinstance(nodo, ast.Call)
+            and isinstance(nodo.func, ast.Name)
+            and id(nodo) not in llamadas_como_sentencia
+        ):
+            info = definiciones_reales.get(nodo.func.id)
+            if info and info.get("devuelve_valor") is False:
+                return nodo.func.id
+    return None
+
+
+def _nombres_usados_con_open(contenido):
+    """Nombres de variable que el codigo REAL pasa como primer argumento
+    a open() (ej. {'archivo'}). Muestra con que variable abre este
+    archivo sus datos de verdad."""
+    try:
+        arbol = ast.parse(contenido)
+    except SyntaxError:
+        return set()
+    nombres = set()
+    for nodo in ast.walk(arbol):
+        if (
+            isinstance(nodo, ast.Call)
+            and isinstance(nodo.func, ast.Name)
+            and nodo.func.id == "open"
+            and nodo.args
+            and isinstance(nodo.args[0], ast.Name)
+        ):
+            nombres.add(nodo.args[0].id)
+    return nombres
+
+
+def _pistas_aprendidas_de(archivo_norm, instruccion):
+    """Trae de gran_sabio.py las advertencias de errores YA conocidos
+    para funciones que este pedido menciona, en este mismo archivo."""
+    try:
+        from core.IA import gran_sabio
+        return gran_sabio.pistas_aprendidas(archivo_norm, instruccion)
+    except Exception:
+        return ""
+
+
+def _pista_open(contenido_archivo, definiciones_reales):
+    """Le dice al modelo con que variables globales abre sus datos el
+    codigo real, para que no abra otra cosa (ej. una carpeta)."""
+    conocidos = sorted(_nombres_usados_con_open(contenido_archivo) & set(definiciones_reales))
+    if not conocidos:
+        return ""
+    return (
+        "\nEn este archivo, los datos se abren con open(<variable>) usando SOLO estas "
+        f"variables globales: {', '.join(conocidos)}. Usá esas para leer o escribir datos; "
+        "NO abras otras variables (por ejemplo una carpeta como DATABASE).\n"
+    )
+
+
+def _detectar_open_inusual(codigo_funcion, contenido_archivo, definiciones_reales):
+    """
+    Detecta open(X) sobre una variable global X que el codigo real NUNCA
+    usa para abrir archivos y cuya definicion no parece un archivo (sin
+    extension como '.json'), tipicamente una CARPETA (ej. DATABASE) --
+    eso da PermissionError/IsADirectoryError al ejecutar.
+
+    Devuelve (nombre, conocidos) o None.
+    """
+    conocidos = _nombres_usados_con_open(contenido_archivo) & set(definiciones_reales)
+    if not conocidos:
+        return None
+    try:
+        arbol = ast.parse(codigo_funcion)
+    except SyntaxError:
+        return None
+    for nodo in ast.walk(arbol):
+        if (
+            isinstance(nodo, ast.Call)
+            and isinstance(nodo.func, ast.Name)
+            and nodo.func.id == "open"
+            and nodo.args
+            and isinstance(nodo.args[0], ast.Name)
+        ):
+            nombre = nodo.args[0].id
+            info = definiciones_reales.get(nombre)
+            if info and nombre not in conocidos and not re.search(r"\.\w{2,5}[\"']", info["linea"]):
+                return nombre, sorted(conocidos)
+    return None
+
+
+def _mensaje_open_inusual(nombre, conocidos, definiciones_reales):
+    return (
+        f"Usaste open({nombre}, ...) pero '{nombre}' NO es un archivo de datos "
+        f"(definido como: {definiciones_reales[nombre]['linea']}); probablemente es una carpeta. "
+        f"El código real de este archivo abre sus datos con: {', '.join(conocidos)}. "
+        f"Usá {conocidos[0]} en lugar de {nombre}."
+    )
+
+
+def _registrar_error_aprendido(archivo_norm, funcion, detalle):
+    """Le avisa a gran_sabio.py que un pedido en `archivo_norm` fallo por
+    mal uso de `funcion`, para que la proxima vez avise ANTES de intentar.
+    Import diferido: gran_sabio importa de este modulo, asi que traerlo
+    a nivel de modulo aca crearia un import circular."""
+    try:
+        from core.IA import gran_sabio
+        gran_sabio.registrar_error(archivo_norm, funcion, detalle)
+    except Exception:
+        pass  # que gran_sabio no pueda registrar nunca debe frenar la propuesta
+
+
+def _mensaje_retorno_inexistente(nombre):
+    return (
+        f"Usaste el resultado de {nombre}() pero esa función NO devuelve nada "
+        f"(devuelve None, solo imprime o modifica algo), así que no sirve para "
+        f"obtener datos. Mirá en 'Código REAL' cómo lee los datos y hacelo igual "
+        f"(por ejemplo abriendo el mismo archivo con open y json.load)."
+    )
+
+
 def _armar_prompt_funcion_nueva_aislada(instruccion, pista_nombres="", intento_anterior=None):
     bloque_correccion = ""
     if intento_anterior:
@@ -672,7 +929,7 @@ Respondé usando EXACTAMENTE el mismo formato del ejemplo de arriba: empezá con
 
 Reglas estrictas:
 - Solo el código de la función nueva, nada más.
-- Elegí un nombre de función corto y descriptivo, snake_case, en español.
+- Elegí un nombre de función corto y descriptivo, snake_case, en español, SIN tildes ni ñ (ej. ultimo_calculo, no último_cálculo).
 - Código Python simple, sin dependencias externas salvo que la instrucción las pida.
 '''
 
@@ -693,6 +950,11 @@ def _formatear_pista_definiciones(contenido_archivo, definiciones_reales, nombre
     lineas = []
     for nombre in nombres_validos:
         definicion = definiciones_reales[nombre]["linea"]
+        if not definiciones_reales[nombre].get("devuelve_valor", True):
+            definicion += (
+                "\n    OJO: no devuelve ningún valor (devuelve None, solo imprime o "
+                "modifica algo); NO la uses dentro de len() ni en operaciones."
+            )
         ejemplo = ejemplos.get(nombre)
         if ejemplo:
             lineas.append(f"  {nombre}\n    definido como: {definicion}\n    usado en el resto del archivo así: {ejemplo}")
@@ -806,8 +1068,6 @@ def proponer_agregar_funcion_cerca(archivo_norm, codigo_funcion_ancla, instrucci
     propuesta -- prefiere fallar con un mensaje honesto antes que
     dejarte algo roto para que lo detectes vos.
     """
-    from core.IA.ollamaIA import generar_codigo
-
     try:
         ruta = _ruta_absoluta(archivo_norm)
         contenido_archivo = ruta.read_text(encoding="utf-8") if ruta.exists() else ""
@@ -819,6 +1079,10 @@ def proponer_agregar_funcion_cerca(archivo_norm, codigo_funcion_ancla, instrucci
     # nombres del archivo (no solo el nombre suelto) -- esto es lo que
     # le permite distinguir "carpeta_notas es una ruta" de "es una lista".
     pista_nombres = _formatear_pista_definiciones(contenido_archivo, definiciones_reales)
+    # ademas: el codigo REAL de las funciones relacionadas con el pedido
+    pista_nombres += _cuerpos_relevantes(contenido_archivo, instruccion)
+    pista_nombres += _pista_open(contenido_archivo, definiciones_reales)
+    pista_nombres += _pistas_aprendidas_de(archivo_norm, instruccion)
     intento_anterior = None  # (respuesta_cruda, error_especifico) del intento previo
     ultimo_error = "No se obtuvo respuesta del modelo."
 
@@ -872,6 +1136,22 @@ def proponer_agregar_funcion_cerca(archivo_norm, codigo_funcion_ancla, instrucci
             )
             ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_FUNCION_AISLADA}."
             intento_anterior = (respuesta, error_especifico)
+            continue
+
+        funcion_sin_retorno = _detectar_uso_de_retorno_inexistente(codigo_nuevo, definiciones_reales)
+        if funcion_sin_retorno:
+            error_especifico = _mensaje_retorno_inexistente(funcion_sin_retorno)
+            ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_FUNCION_AISLADA}."
+            intento_anterior = (respuesta, error_especifico)
+            _registrar_error_aprendido(archivo_norm, funcion_sin_retorno, error_especifico)
+            continue
+
+        open_inusual = _detectar_open_inusual(codigo_nuevo, contenido_archivo, definiciones_reales)
+        if open_inusual:
+            error_especifico = _mensaje_open_inusual(open_inusual[0], open_inusual[1], definiciones_reales)
+            ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_FUNCION_AISLADA}."
+            intento_anterior = (respuesta, error_especifico)
+            _registrar_error_aprendido(archivo_norm, open_inusual[0], error_especifico)
             continue
 
         reemplazo = codigo_funcion_ancla.rstrip("\n") + "\n\n\n" + codigo_nuevo.strip("\n") + "\n"
@@ -937,8 +1217,6 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
     if not ruta.exists():
         return _proponer_archivo_nuevo_ia(archivo_norm, instruccion, origen)
 
-    from core.IA.ollamaIA import generar_codigo
-
     contenido_actual = ruta.read_text(encoding="utf-8")
     if len(contenido_actual) > MAX_CARACTERES_ARCHIVO:
         return None, (
@@ -960,6 +1238,9 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
 
     definiciones_reales = _definiciones_reales(contenido_actual)
     pista_definiciones = _formatear_pista_definiciones(contenido_actual, definiciones_reales)
+    pista_definiciones += _cuerpos_relevantes(contenido_actual, instruccion)
+    pista_definiciones += _pista_open(contenido_actual, definiciones_reales)
+    pista_definiciones += _pistas_aprendidas_de(archivo_norm, instruccion)
 
     intento_anterior = None  # (respuesta_cruda, error_especifico)
     ultimo_error = "No se obtuvo respuesta del modelo."
@@ -1015,6 +1296,22 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
             )
             ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_IA}."
             intento_anterior = (respuesta, error_especifico)
+            continue
+
+        funcion_sin_retorno = _detectar_uso_de_retorno_inexistente(reemplazar_final, definiciones_reales)
+        if funcion_sin_retorno:
+            error_especifico = _mensaje_retorno_inexistente(funcion_sin_retorno)
+            ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_IA}."
+            intento_anterior = (respuesta, error_especifico)
+            _registrar_error_aprendido(archivo_norm, funcion_sin_retorno, error_especifico)
+            continue
+
+        open_inusual = _detectar_open_inusual(reemplazar_final, contenido_actual, definiciones_reales)
+        if open_inusual:
+            error_especifico = _mensaje_open_inusual(open_inusual[0], open_inusual[1], definiciones_reales)
+            ultimo_error = f"{error_especifico} Intento {intento}/{MAX_INTENTOS_IA}."
+            intento_anterior = (respuesta, error_especifico)
+            _registrar_error_aprendido(archivo_norm, open_inusual[0], error_especifico)
             continue
 
         # Si el resultado es una funcion completa sin argumentos obligatorios,

@@ -1,0 +1,8 @@
+{
+  "core/calculadora.py::historial": {
+    "veces": 1,
+    "detalles": [
+      "Usaste el resultado de historial() pero esa función NO devuelve nada (devuelve None, solo imprime o modifica algo), así que no sirve para obtener datos. Mirá en 'Código REAL' cómo lee los datos y hacelo igual (por ejemplo abriendo el mismo archivo con open y json.load)."
+    ]
+  }
+}

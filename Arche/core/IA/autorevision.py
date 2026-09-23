@@ -40,6 +40,7 @@ Uso:
 import ast
 import hashlib
 import json
+import re
 import sys
 import threading
 import time
@@ -66,6 +67,18 @@ IGNORAR_CARPETAS = {
     "backups_codigo", "backups_autoconocimiento",
 }
 IGNORAR_ARCHIVOS = {"autorevision.py"}  # este mismo archivo: no tiene sentido auto-revisarse a si mismo aca
+
+# Archivos de prueba: contienen funciones con errores A PROPOSITO
+# (fixtures para probar la autoreparacion) y tests que se descubren
+# por nombre. Ollama los marcaba como "bugs" siempre -- puro ruido.
+IGNORAR_REVISION_IA = {"autotest.py", "prueba_autoreparacion.py", "prueba_autorevision.py"}
+
+# Frases tipicas de falsos positivos del modelo chico (ve una funcion
+# aislada y asume que "falta" algo). Si el "bug" encaja, se descarta.
+_BUG_DUDOSO = re.compile(
+    r"no (existe|est[aá] definid|se encuentra|maneja|tiene (un )?(par[aá]metro|argumento))",
+    re.IGNORECASE,
+)
 
 
 def _hash_funcion(codigo):
@@ -127,7 +140,11 @@ def _funciones_de(ruta):
             inicio = nodo.decorator_list[0].lineno if nodo.decorator_list else nodo.lineno
             fin = nodo.end_lineno
             codigo = "".join(lineas[inicio - 1:fin])
-            funciones.append({"nombre": nodo.name, "codigo": codigo})
+            funciones.append({
+                "nombre": nodo.name,
+                "codigo": codigo,
+                "decorada": bool(nodo.decorator_list),
+            })
     return funciones
 
 
@@ -241,7 +258,11 @@ def _construir_indice_referencias():
     """Recorre TODO el proyecto una sola vez y cuenta cuantas veces
     aparece cada identificador como Name o como atributo (nodo.attr)
     -- incluye la propia definicion, por eso el umbral de 'sin usar'
-    es <= 1 (solo la definicion) en vez de == 0."""
+    es <= 1 (solo la definicion) en vez de == 0.
+
+    Tambien cuenta los strings que son un identificador valido
+    (ej. {"hora": "decir_hora"} o getattr(m, "hablar_estado")):
+    son usos indirectos por nombre, invisibles como Name/Attribute."""
     conteo = {}
     for archivo, rel in _archivos_del_proyecto(incluir_protegidos=True):
         try:
@@ -265,6 +286,9 @@ def _construir_indice_referencias():
             elif isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 # la propia definicion tambien cuenta como una "aparicion"
                 conteo[nodo.name] = conteo.get(nodo.name, 0) + 1
+            elif isinstance(nodo, ast.Constant) and isinstance(nodo.value, str) and nodo.value.isidentifier():
+                # uso indirecto por nombre (despacho por diccionario, getattr, etc.)
+                conteo[nodo.value] = conteo.get(nodo.value, 0) + 1
     return conteo
 
 
@@ -282,6 +306,9 @@ def buscar_codigo_muerto():
         (ej. visit_FunctionDef) -- probablemente SI se usan, pero por
         convencion de nombre, no por texto literal. Nunca se proponen
         para borrar automaticamente.
+
+    Se saltan las funciones test_* (se descubren por nombre) y las que
+    tienen decorador (se registran solas al definirse).
     """
     indice = _construir_indice_referencias()
     alta_confianza = []
@@ -290,6 +317,9 @@ def buscar_codigo_muerto():
     for archivo, rel in _archivos_del_proyecto():
         for fn in _funciones_de(archivo):
             if fn["nombre"].startswith("__"):
+                continue
+
+            if fn["nombre"].startswith("test_") or fn.get("decorada"):
                 continue
 
             if _es_metodo_de_despacho_dinamico(archivo, fn["nombre"]):
@@ -339,7 +369,10 @@ def revisar_funcion_con_ollama(archivo_rel, fn):
     (arche-lora) -- ya vimos hoy que arche-lora es poco confiable para
     tareas que requieren entender código de verdad.
 
-    Devuelve (bug_o_None, mejora_o_None).
+    Devuelve (bug_o_None, None). Las "mejoras" ya no se reportan: el
+    modelo chico las inventaba casi siempre y solo generaban ruido.
+    Los "bugs" que encajan con frases tipicas de falso positivo
+    (_BUG_DUDOSO) se descartan.
     """
     from core.IA.ollamaIA import generar_codigo
 
@@ -352,6 +385,18 @@ Función a revisar:
 {fn['codigo']}
 ---
 
+IMPORTANTE: Estás viendo SOLO esta función, aislada -- no el resto
+del archivo ni del proyecto. Si esta función usa un nombre (función,
+variable, import) que no ves definido en este fragmento, NO asumas
+que no existe -- probablemente está definido en otro lado del
+archivo o del proyecto, fuera de lo que te estoy mostrando. NUNCA
+reportes como bug que "la función/variable X no existe" o "no está
+definida" basándote solo en no verla en este fragmento. Reportá
+únicamente problemas verificables DENTRO del código que tenés
+delante: lógica de una condición, una variable mal usada dentro de
+esta misma función, un recurso que se abre y no se cierra en este
+mismo bloque, una comparación al revés.
+
 Respondé EXACTAMENTE con este formato, dos líneas:
 
 BUG: <descripción corta de un bug real y concreto (variable mal usada, condición invertida, recurso sin cerrar, comparación incorrecta), o la palabra NINGUNO si no hay ninguno>
@@ -362,19 +407,17 @@ No expliques nada más. No dupliques información entre BUG y MEJORA -- si ya lo
     respuesta = generar_codigo(prompt, num_predict=150, temperature=0.1).strip()
 
     bug = None
-    mejora = None
     for linea in respuesta.splitlines():
         linea = linea.strip()
         if linea.upper().startswith("BUG:"):
             valor = linea.split(":", 1)[1].strip()
             if valor and not valor.upper().startswith("NINGUNO"):
                 bug = valor
-        elif linea.upper().startswith("MEJORA:"):
-            valor = linea.split(":", 1)[1].strip()
-            if valor and not valor.upper().startswith("NINGUNA"):
-                mejora = valor
 
-    return bug, mejora
+    if bug and _BUG_DUDOSO.search(bug):
+        bug = None
+
+    return bug, None
 
 
 def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
@@ -399,23 +442,26 @@ def generar_propuestas_codigo_muerto(candidatos_alta_confianza):
     return ids_generados
 
 
-def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_muerto=True, generar_propuestas=False):
+def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_muerto=False, generar_propuestas=False):
     """
     Pase UNICO y unificado sobre todo el proyecto:
       - Corre los chequeos deterministas globales (duplicados, imports
         sin usar, codigo muerto, except desnudos) -- siempre, gratis.
-      - Para el codigo muerto de "alta confianza" (ver
-        buscar_codigo_muerto), genera propuestas de ELIMINACION reales
-        -- vos las aprobas o rechazas en revisar_cambios_codigo.py,
-        igual que cualquier otro cambio. El codigo "a revisar con
-        cuidado" (patron de despacho dinamico) NUNCA se propone para
-        borrar, solo se reporta.
+      - proponer_borrado_codigo_muerto (default False): si es True,
+        para el codigo muerto de "alta confianza" genera propuestas de
+        ELIMINACION reales -- vos las aprobas o rechazas en
+        revisar_cambios_codigo.py, igual que cualquier otro cambio.
+        Por default esta apagado: cada corrida volvia a crear las
+        mismas propuestas y la cola crecia sin control. El codigo "a
+        revisar con cuidado" (patron de despacho dinamico) NUNCA se
+        propone para borrar, solo se reporta.
       - Para cada funcion, decide si vale la pena consultarle a Ollama:
         SOLO si es nueva o cambio desde la ultima autorevision (hash
         distinto al que hay en revision_codigo_cache.json). Si ya la
         reviso antes y no cambio, la salta -- esto es la "memoria":
         Arche no vuelve a preguntarle al modelo por algo que ya sabe
-        que esta bien.
+        que esta bien. Los archivos de prueba (IGNORAR_REVISION_IA) no
+        se revisan con Ollama.
       - generar_propuestas: si es True, por cada bug/mejora que
         encuentra le pide a Ollama que arme un parche BUSCAR/REEMPLAZAR
         real (2 intentos c/u) -- esto es lo que hace lenta a la
@@ -454,6 +500,9 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     pendientes_de_revisar = []
 
     for archivo, rel in _archivos_del_proyecto():
+        if archivo.name in IGNORAR_REVISION_IA:
+            continue  # fixtures de prueba y tests: no tiene sentido pedirle bugs a Ollama
+
         for fn in _funciones_de(archivo):
             clave = f"{rel}::{fn['nombre']}"
             hash_actual = _hash_funcion(fn["codigo"])
@@ -474,7 +523,7 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     if pendientes_de_revisar:
         print(f"Arché: Reviso {len(pendientes_de_revisar)} función(es) nueva(s) o modificada(s) con Ollama...", flush=True)
 
-    for archivo, rel, fn, clave, hash_actual in pendientes_de_revisar:
+    for indice_actual, (archivo, rel, fn, clave, hash_actual) in enumerate(pendientes_de_revisar, start=1):
         bug, mejora = revisar_funcion_con_ollama(rel, fn)
 
         if bug:
@@ -498,6 +547,14 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
             "resultado": bug or mejora or "ok",
             "fecha": datetime.now().isoformat(),
         }
+
+        # Guarda el progreso cada 5 funciones (y no en cada una, para no
+        # generar demasiada escritura a disco) -- así, si esto se corta
+        # a mitad de camino (Ctrl+C, un corte de luz, un error que se
+        # nos escapó), lo ya revisado no se pierde y la próxima corrida
+        # arranca desde ahí en vez de repetir todo de cero.
+        if indice_actual % 5 == 0:
+            _guardar_cache(cache)
 
     _guardar_cache(cache)
     return reporte
@@ -565,7 +622,9 @@ def imprimir_reporte_natural(reporte, sin_ia=False):
         if ia["bugs_encontrados"]:
             algo_para_contar = True
             n = len(ia["bugs_encontrados"])
-            print(f"\nArché: Ollama me señaló {n} posible(s) bug(s) al revisar funciones nuevas o modificadas:")
+            print(f"\nArché: Ollama me señaló {n} posible(s) bug(s) al revisar funciones nuevas o modificadas "
+                  f"(ojo: revisa cada función sola, sin ver el resto del proyecto, así que puede confundirse "
+                  f"-- tratá esto como pistas para chequear, no como confirmado):")
             for h in ia["bugs_encontrados"]:
                 print(f"  • En {area_natural(h['archivo'])}, '{nombre_funcion_hablado(h['funcion'])}': {h['bug']}")
 

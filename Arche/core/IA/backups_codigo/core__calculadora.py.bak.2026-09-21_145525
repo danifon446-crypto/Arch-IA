@@ -214,17 +214,3 @@ def contar_historial():
             return len(json.load(f))
     except (FileNotFoundError, json.JSONDecodeError):
         return 0
-
-
-def ultimo_calculo():
-    try:
-        with open(archivo, "r", encoding="utf-8") as f:
-            datos = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError, TypeError):
-        return None
-    if not isinstance(datos, list) or not datos:
-        return None
-    ultimo = datos[-1]
-    if not isinstance(ultimo, dict) or "expresion" not in ultimo or "resultado" not in ultimo:
-        return None
-    return (ultimo["expresion"], ultimo["resultado"])

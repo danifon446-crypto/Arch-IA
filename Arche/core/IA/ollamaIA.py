@@ -14,20 +14,31 @@ from core.IA.telemetria import medir
 # --------------------------------------------------------------------
 MODELO = "arche-lora"
 
-# Modelo SEPARADO, especializado en codigo, solo para las tareas de
-# auto-modificacion (proponer_cambio_codigo.py). arche-lora es un
-# modelo chico fine-tuneado para conversar/clasificar con la
-# personalidad de Arche -- mostro comportamiento rigido/sobreajustado
-# para generar codigo (devolvia la misma respuesta sin importar el
-# prompt, ni siquiera reaccionaba a retroalimentacion de errores
-# explicita). qwen2.5-coder:1.5b esta entrenado especificamente para
-# codigo y no tiene ese sesgo.
-MODELO_CODIGO = "qwen2.5-coder:1.5b"
+# Modelo SEPARADO, especializado en codigo, para TODO lo que escribe,
+# revisa o verifica codigo (proponer_cambio_codigo.py, autorevision.py,
+# verificar_cambio.py). arche-lora es un modelo chico fine-tuneado para
+# conversar/clasificar con la personalidad de Arche -- mostro
+# comportamiento rigido/sobreajustado para generar codigo (devolvia la
+# misma respuesta sin importar el prompt, ni siquiera reaccionaba a
+# retroalimentacion de errores explicita).
+#
+# Antes era "qwen2.5-coder:1.5b" (1.5B parametros): demasiado chico para
+# entender el codigo que tenia que modificar. "qwen3-coder:30b" es mucho
+# mas potente pero necesita ~19 GB de memoria y en esta PC el servidor de
+# Ollama se caia al cargarlo (GGML_ASSERT mem_buffer != NULL). Se usa
+# "qwen2.5-coder:7b" (~5 GB): mucho mejor que el de 1.5B y si entra.
+# Si proponer_cambio_codigo avisa que el modelo de codigo no respondio,
+# baja a "qwen2.5-coder:3b". Para probar otro, cambia solo esta linea.
+MODELO_CODIGO = "qwen2.5-coder:7b"
 
 # keep_alive mantiene el modelo cargado en memoria entre llamadas.
 # Con "30m" evitas que se descargue si pasan más de 5 min (default de Ollama)
 # entre un comando y otro.
 KEEP_ALIVE = "30m"
+
+# El modelo de codigo es grande: no tiene sentido dejarlo cargado 30 min
+# despues de cada pedido (le quitaria memoria al modelo conversacional).
+KEEP_ALIVE_CODIGO = "5m"
 
 # --------------------------------------------------------------------
 # HISTORIAL DE CONVERSACIÓN (memoria de corto plazo, dentro de una
@@ -96,12 +107,17 @@ def razonar_y_responder(pregunta, num_predict=400, temperature=0.7,
     mensajes_borrador.append({"role": "user", "content": pregunta})
 
     with medir("ollama_razonar_borrador"):
-        respuesta_borrador = ollama.chat(
-            model=MODELO,
-            keep_alive=KEEP_ALIVE,
-            messages=mensajes_borrador,
-            options={"temperature": 0.3, "num_predict": 250},  # menos "creatividad" para el borrador, es análisis, no charla
-        )
+        try:
+            respuesta_borrador = ollama.chat(
+                model=MODELO,
+                keep_alive=KEEP_ALIVE,
+                messages=mensajes_borrador,
+                options={"temperature": 0.3, "num_predict": 250},  # menos "creatividad" para el borrador, es análisis, no charla
+            )
+        except Exception as e:
+            print("Error Ollama:", e)
+            mensaje_error = "No puedo conectarme a Ollama ahora mismo. Fijate que esté corriendo (ollama serve)."
+            return (mensaje_error, "") if mostrar_razonamiento else mensaje_error
     razonamiento = respuesta_borrador["message"]["content"]
 
     instrucciones_final = (
@@ -125,12 +141,17 @@ def razonar_y_responder(pregunta, num_predict=400, temperature=0.7,
     mensajes_final.append({"role": "user", "content": pregunta})
 
     with medir("ollama_razonar_final"):
-        respuesta_final = ollama.chat(
-            model=MODELO,
-            keep_alive=KEEP_ALIVE,
-            messages=mensajes_final,
-            options={"temperature": temperature, "num_predict": num_predict},
-        )
+        try:
+            respuesta_final = ollama.chat(
+                model=MODELO,
+                keep_alive=KEEP_ALIVE,
+                messages=mensajes_final,
+                options={"temperature": temperature, "num_predict": num_predict},
+            )
+        except Exception as e:
+            print("Error Ollama:", e)
+            mensaje_error = "No puedo conectarme a Ollama ahora mismo. Fijate que esté corriendo (ollama serve)."
+            return (mensaje_error, razonamiento) if mostrar_razonamiento else mensaje_error
     texto = respuesta_final["message"]["content"]
 
     if usar_historial:
@@ -586,12 +607,16 @@ Pregunta:
 {pregunta}
 """
         with medir("ollama_conversar"):
-            respuesta = ollama.chat(
-                model=MODELO,
-                keep_alive=KEEP_ALIVE,
-                messages=[{"role": "user", "content": prompt}],
-                options={"temperature": temperature, "num_predict": num_predict},
-            )
+            try:
+                respuesta = ollama.chat(
+                    model=MODELO,
+                    keep_alive=KEEP_ALIVE,
+                    messages=[{"role": "user", "content": prompt}],
+                    options={"temperature": temperature, "num_predict": num_predict},
+                )
+            except Exception as e:
+                print("Error Ollama:", e)
+                return "No puedo conectarme a Ollama ahora mismo. Fijate que esté corriendo (ollama serve)."
         return respuesta["message"]["content"]
 
     instrucciones = (
@@ -616,12 +641,16 @@ Pregunta:
     mensajes.append({"role": "user", "content": pregunta})
 
     with medir("ollama_conversar"):
-        respuesta = ollama.chat(
-            model=MODELO,
-            keep_alive=KEEP_ALIVE,
-            messages=mensajes,
-            options={"temperature": temperature, "num_predict": num_predict},
-        )
+        try:
+            respuesta = ollama.chat(
+                model=MODELO,
+                keep_alive=KEEP_ALIVE,
+                messages=mensajes,
+                options={"temperature": temperature, "num_predict": num_predict},
+            )
+        except Exception as e:
+            print("Error Ollama:", e)
+            return "No puedo conectarme a Ollama ahora mismo. Fijate que esté corriendo (ollama serve)."
     texto = respuesta["message"]["content"]
 
     if usar_historial:
@@ -644,24 +673,33 @@ def generar_codigo(prompt, num_predict=400, temperature=0.2):
     prompt, incluso con retroalimentacion explicita del error anterior.
     Un modelo especificamente entrenado para codigo no tiene ese sesgo.
 
-    Usada exclusivamente por proponer_cambio_codigo.py (Fase 3: auto-
-    modificacion de codigo). El resto de Arche sigue usando arche-lora
-    normalmente via conversar()/comprender().
+    Usada por todo lo que escribe, revisa o verifica codigo:
+    proponer_cambio_codigo.py (Fase 3: auto-modificacion de codigo),
+    autorevision.py y verificar_cambio.py. El resto de Arche sigue
+    usando arche-lora normalmente via conversar()/comprender().
+
+    Si falla (modelo no descargado, Ollama caido), imprime el error y
+    devuelve "" -- proponer_cambio_codigo.generar_codigo() detecta la
+    respuesta vacia y cae al modelo general.
     """
     with medir("ollama_generar_codigo"):
-        respuesta = ollama.chat(
-            model=MODELO_CODIGO,
-            keep_alive=KEEP_ALIVE,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
+        try:
+            respuesta = ollama.chat(
+                model=MODELO_CODIGO,
+                keep_alive=KEEP_ALIVE_CODIGO,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                options={
+                    "temperature": temperature,
+                    "num_predict": num_predict,
                 }
-            ],
-            options={
-                "temperature": temperature,
-                "num_predict": num_predict,
-            }
-        )
+            )
+        except Exception as e:
+            print("Error Ollama:", e)
+            return ""
 
     return respuesta["message"]["content"]

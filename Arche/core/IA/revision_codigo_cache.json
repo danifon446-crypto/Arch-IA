@@ -10,14 +10,14 @@
     "fecha": "2026-09-07T18:03:14.012417"
   },
   "main.py::_mostrar_estado_red": {
-    "hash": "9b44c7807121913d33606f4a03cd8531d99906e1601c4440ba7572247e645215",
-    "resultado": "ok",
-    "fecha": "2026-09-07T18:03:25.714362"
+    "hash": "97f4551339aa3230eb5d30e5859f9b4b47144b1a80e8b8d40d4fd4f9a3e64eb6",
+    "resultado": "La función `_mostrar_estado_red` no maneja correctamente la situación cuando `info` es `None` o no contiene la clave `\"activo\"`.",
+    "fecha": "2026-09-20T16:53:37.876007"
   },
   "main.py::_mostrar_estadisticas": {
-    "hash": "92a579f2feada6e715c7fa0921ec55f4b4e6c809457cdc3cdae901b972a66cb2",
-    "resultado": "ok",
-    "fecha": "2026-09-07T18:03:33.919083"
+    "hash": "1a717245ecac83dce549ce9356754ed25d2fd487a9e22a9da1159520c75596e8",
+    "resultado": "La función `_mostrar_estadisticas` no maneja correctamente la respuesta de `resumen_telemetria()`. Si `resumen_telemetria()` devuelve `None`, la función no muestra nada, lo que podría ser un problema si se espera que se muestren estadísticas.",
+    "fecha": "2026-09-20T16:53:58.815075"
   },
   "core/archivos.py::guardar_indice": {
     "hash": "c88942043fc30af3bd2453d1d5b2600e980686e01911212ef967a294dca9aba6",
@@ -45,9 +45,9 @@
     "fecha": "2026-09-07T18:05:59.463282"
   },
   "core/archivos.py::mostrar_resultados": {
-    "hash": "4d33c17d30961ed65dd44ebc671456761b4d16c45520c3521b8a20a3504cb283",
-    "resultado": "ok",
-    "fecha": "2026-09-07T18:06:03.691070"
+    "hash": "d8d83e7235ff464ab45253276edea281be15f04a81ee9c1600ddbba56fe64b8e",
+    "resultado": "La función `mostrar_resultados` no maneja correctamente la condición de que se busque en un índice vacío. Si no se busca en un índice vacío, la función debería imprimir un mensaje indicando que aún no se han indexado los archivos.",
+    "fecha": "2026-09-20T16:54:57.998231"
   },
   "core/archivos.py::abrir_resultado": {
     "hash": "1d34022befebb0d19e5f5063864415ccf66902b4ffbbc695616d9b9ee9f6b124",
@@ -55,9 +55,9 @@
     "fecha": "2026-09-14T13:53:50.584268"
   },
   "core/archivos.py::buscar_y_abrir": {
-    "hash": "a99d0ba5575f9c3ce23cac1bee9b828cd2af3e2820149f0da0d73f60ff89216f",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:53:53.973598"
+    "hash": "b8ccb021c47150da5583b5def8d03d675f9730a3c44830f37649a9a6769ca663",
+    "resultado": "La función `buscar_y_abrir` no maneja correctamente la opción de \"actualizar archivos\" cuando no se encuentra ningún archivo. Si no se encuentra ningún archivo, la función debería mostrar un mensaje indicando que se debe actualizar los archivos antes de intentar abrir uno.",
+    "fecha": "2026-09-20T16:55:11.710419"
   },
   "core/archivos1.py::cargar_cache": {
     "hash": "b21a1aa1e320d4bbf2d87895d78ebd9c64a889b3e3fe25369f9862eade297ac7",
@@ -80,9 +80,9 @@
     "fecha": "2026-09-14T13:54:07.053698"
   },
   "core/busquedas.py::buscar_google": {
-    "hash": "14c5754689807e68721d78358df26f94b9ce61d40562305c03d0e8c6c03fd2da",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:54:10.018069"
+    "hash": "63893881efa6f636ed1d9a2e5bf221596d430548a4951a7e99598c8181383337",
+    "resultado": "La función `buscar_google` no maneja errores si la búsqueda no se puede realizar. Por ejemplo, si la búsqueda contiene caracteres no permitidos en la URL de Google, el navegador podría no abrir la página.",
+    "fecha": "2026-09-20T16:58:40.003356"
   },
   "core/calculadora.py::guardar_historial": {
     "hash": "40c884e6734665a6a81ff67271de481e44510e6b74515650fa6cf1bdf052fd04",
@@ -180,14 +180,14 @@
     "fecha": "2026-09-14T13:55:38.691228"
   },
   "core/memoria.py::recordar": {
-    "hash": "07867f8a6e8ca6ae69bc347c05f212270f76ed9aefbdfa733a490339ba58bd14",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:55:45.321441"
+    "hash": "ce264de39cc1c6f1ddb5eb8bd28ee89e91b1af2e51c1e09578017701c2ceca6f",
+    "resultado": "La función `recordar` no maneja correctamente la carga de recuerdos existentes. Si el archivo no existe, se intenta cargar vacío, lo que puede causar problemas si el archivo está vacío.",
+    "fecha": "2026-09-20T16:59:30.163000"
   },
   "core/memoria.py::mostrar_recuerdos": {
-    "hash": "e647bd83d967e39313a05b64d566a6a5581f8183423b94c30d0276cfd0c247d9",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:55:49.530198"
+    "hash": "78714c4b96cae1fee58c43e1aa73771125d2612832f6c2f6e833569d2ccf30e0",
+    "resultado": "La función `mostrar_recuerdos` no maneja correctamente la carga de los recuerdos. Si no hay recuerdos, la función no imprime nada, lo que puede causar confusion.",
+    "fecha": "2026-09-20T16:59:40.736153"
   },
   "core/memoria.py::detectar_prioridad": {
     "hash": "834937aa1a08fc7f0a3928fefb727960d16465ea04dff8b2647d4cfcac58c290",
@@ -240,9 +240,9 @@
     "fecha": "2026-09-14T13:56:37.401970"
   },
   "core/notas.py::abrir_nota": {
-    "hash": "6f8a4509aa8b518dd9265c63d66f031f91ebd0729cd7c2b3d723809fbe2d0f9f",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:56:41.152527"
+    "hash": "79772010c305a75be70d8f34a300412ef692a1060257717829e2bdf1de1faa43",
+    "resultado": "La función `abrir_nota` no maneja la excepción `FileNotFoundError` que podría ser lanzada si el archivo no existe. Además, la función no maneja la excepción `PermissionError` que podría ser lanzada si no tienes permiso para abrir el archivo.",
+    "fecha": "2026-09-20T16:59:51.788361"
   },
   "core/notas.py::listar_notas": {
     "hash": "0c8b0e03280fb35d497f4500fad9541548494a8980684e46f66b5d247a98f4d7",
@@ -305,9 +305,9 @@
     "fecha": "2026-09-14T13:57:30.555732"
   },
   "core/programaV2.py::buscar_exe": {
-    "hash": "20b8a5e8f3a283663011f6baea37cd74fa368acd5a054512f0c863bb636815ba",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:57:38.231787"
+    "hash": "5fe0ce31e947c6a636972ac591d0c18d278074a291a5d0832bee381276fcff0f",
+    "resultado": "La función `buscar_exe` no maneja correctamente el caso en que el nombre del archivo incluya espacios o caracteres especiales. Esto puede causar que el archivo no sea encontrado.",
+    "fecha": "2026-09-20T17:00:05.857329"
   },
   "core/programaV2.py::buscar_app_windows": {
     "hash": "60a276c70a2d53341cdc20beae47652e27cbba6e4f29b42a48714e0f00be8c8a",
@@ -330,9 +330,9 @@
     "fecha": "2026-09-14T13:58:00.353913"
   },
   "core/programaV2.py::buscar_acceso_directo": {
-    "hash": "0c4c286af93072b31867027b3134b288319ab0f6899f6c40156870d122ff5075",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:58:07.791889"
+    "hash": "c7ccf41b2c374b348ae5a361412717f336b9e8e1cda47f459e9d403afc938ea9",
+    "resultado": "La función `buscar_acceso_directo` no maneja correctamente el caso en que el nombre de la aplicación no coincida con el nombre de la carpeta o el archivo. Por ejemplo, si el nombre de la aplicación es \"notepad\", pero la carpeta o el archivo es \"Notepad++\", la función no encontrará el archivo.",
+    "fecha": "2026-09-20T17:00:23.399355"
   },
   "core/recordatorio.py::cargar_recordatorios": {
     "hash": "ebcda54f5cf274cb9dd7d1a7cf6cf36d576cc3aad39d84489dcd433399b930fb",
@@ -370,9 +370,9 @@
     "fecha": "2026-09-14T13:58:42.817158"
   },
   "core/recordatorio.py::revisar_recordatorios": {
-    "hash": "89e392d706a21cf92e54c930811f54153c881e175146bd7204662357700da560",
-    "resultado": "ok",
-    "fecha": "2026-09-14T13:58:49.062517"
+    "hash": "f16d6c9fe580c5f06fb8a55866fc65e47c5628639998814b53544e6a88d5b75e",
+    "resultado": "La función `revisar_recordatorios` no maneja correctamente la fecha y hora de los recordatorios. Si el formato de la fecha y hora no es correcto, la función fallará.",
+    "fecha": "2026-09-20T17:00:35.643856"
   },
   "core/utilidades.py::decir_hora": {
     "hash": "af3052b1135a26db9c0ddea35cc6a659f0a8bc7be5ba4931c0308ee1847a465c",
@@ -530,9 +530,9 @@
     "fecha": "2026-09-14T14:01:54.533537"
   },
   "core/IA/clasificador.py::entrenar": {
-    "hash": "fb258fc987753029a3b9800e1825804064cfc7b2ec43a9396d95a6cfdb60e22b",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:02:16.489870"
+    "hash": "02fe374155f0e4f9127e4f2e5d4befc74f5abe5f53863ead2ac20d0ee16403a8",
+    "resultado": "La función `entrenar` no maneja correctamente el caso en que no haya suficientes datos para entrenar la red neuronal. Si no hay suficientes datos, la función debería devolver `False` sin intentar entrenar la red neuronal.",
+    "fecha": "2026-09-20T17:13:03.770702"
   },
   "core/IA/clasificador.py::_cargar_modelo": {
     "hash": "2ded7949f5c19c75d7300870b78e2a9e9bc782bdfb1c4ba98a22e3a6af7aa7c2",
@@ -595,9 +595,9 @@
     "fecha": "2026-09-14T14:03:14.293718"
   },
   "core/IA/enrutar_cambio.py::_construir_indice": {
-    "hash": "a12953698594271dddadfc81358847c7ba67e6baba09e9bad2ef2b22c5cad1cf",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:03:21.447560"
+    "hash": "9097a3d167a65d7a8f623b5bea628086dca3f25ee7a06688baed6e0c60444557",
+    "resultado": "La función `_construir_indice` no maneja correctamente la eliminación de funciones del índice. Si una función se elimina del proyecto, no se actualiza el índice para eliminarla.",
+    "fecha": "2026-09-20T17:13:32.452636"
   },
   "core/IA/enrutar_cambio.py::_cargar_indice": {
     "hash": "7f95d4c9f31e52c18d976e3f8a78af1fb5bfa0a757902e9d54871a4c6d411dfe",
@@ -680,34 +680,34 @@
     "fecha": "2026-09-14T14:05:01.711156"
   },
   "core/IA/estudio.py::_estudiar_todos_los_temas": {
-    "hash": "fd6648588ffd8063b64f877db31f24d0da754e5c663c5edec396b49b73acc6c5",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:04.579107"
+    "hash": "7709df3f96b6750048ca7cf197577ee3c01d3efce44483122486867e4e0eeb14",
+    "resultado": "La función `_estudiar_todos_los_temas` no maneja el caso en que `detener_evento` sea `None`. Si `detener_evento` es `None`, la función no se detiene si se establece el evento.",
+    "fecha": "2026-09-20T17:13:44.978104"
   },
   "core/IA/estudio.py::_estudiar_variaciones_de_comandos": {
-    "hash": "9a9f88de9f5177555c8200eb7a6c202a287973dec21bd4b050060bedef022d2d",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:10.276523"
+    "hash": "93880270343273c43d5b8d7d50fdb1965d8891023b28e5956f6aea7d5c63bc7c",
+    "resultado": "La función `_estudiar_variaciones_de_comandos` no maneja correctamente el evento `detener_evento`. Si este evento se activa, la función no se detiene y continúa generando variaciones de comandos.",
+    "fecha": "2026-09-20T17:13:58.755763"
   },
   "core/IA/estudio.py::_estudiar_variaciones_de_respuestas": {
-    "hash": "abe1617f3c154fb373e7df9868f8a3f127f1a8a179dce892ad80bcbcf2497b64",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:16.341335"
+    "hash": "a2b8eb58b41ed1d383707abf3f6c051537154fa47a2006fdae82cd02164714e1",
+    "resultado": "La función `_estudiar_variaciones_de_respuestas` no maneja correctamente la detención del proceso por el evento `detener_evento`. Si `detener_evento` es `True`, la función no se detiene y continúa ejecutando.",
+    "fecha": "2026-09-20T17:14:13.596582"
   },
   "core/IA/estudio.py::estudiar_todo": {
-    "hash": "15e0eea771bb042d0f51b6443902f2e9b615d420f76629fc29c71440acbbafbf",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:24.141781"
+    "hash": "2119e10be5e9233dc671e19e7cdfad5617ffbb4061ef31ed10318575b75be9b7",
+    "resultado": "La función `estudiar_todo` no maneja correctamente la detención del estudio cuando se recibe un evento `detener_evento`. Si se activa el evento, el estudio se corta inmediatamente, lo que puede causar problemas si el estudio está en proceso de completar un tema o variación.",
+    "fecha": "2026-09-20T17:14:34.829062"
   },
   "core/IA/estudio.py::iniciar_estudio_en_background": {
-    "hash": "d5bea57b640b519546cdbd4f4ca60cc670fc4019b448094712373fb4348313d9",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:34.246655"
+    "hash": "ef1dde5b8de6f61f3b1a9cb8497c70b0ce9bcbfa8e8d836dd505c4b51f71eed9",
+    "resultado": "La función `estudiar_todo()` no se encuentra definida en el archivo `core/IA/estudio.py`.",
+    "fecha": "2026-09-20T17:14:49.870124"
   },
   "core/IA/estudio.py::_tarea": {
-    "hash": "94674dcb612caecefa7bbcdaf57ccc1103078b667b4384538de6f19065c2e0a8",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:05:39.806104"
+    "hash": "7e0240cd8088182a42fc6a84a17007ec11de51002d4dfa80b69b56470523774b",
+    "resultado": "La función `_tarea` no maneja correctamente el evento `detener_evento`. Si `detener_evento` es `None`, la función entra en un bucle infinito, y si `detener_evento` es `True`, la función se detiene inmediatamente. Esto puede causar problemas si `detener_evento` se establece después de que `_tarea` haya comenzado a ejecutarse.",
+    "fecha": "2026-09-20T17:15:05.655792"
   },
   "core/IA/exportar_dataset.py::cargar": {
     "hash": "8b2ec5804014516e8d6b95b110169e1546378a4ee7d7f1ac36a43496a8c276c3",
@@ -755,9 +755,9 @@
     "fecha": "2026-09-14T14:06:23.926719"
   },
   "core/IA/generar_changelog.py::siguiente_numero_version": {
-    "hash": "a8ab4436e234db6130edaf9eb735c763921c75ec19c7418b22e2049ddcd16b5f",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:06:28.635372"
+    "hash": "df70618e491f15f26d97b900bde57867eb364046a5348828caa12c3bb79223fe",
+    "resultado": "La función `siguiente_numero_version` no maneja correctamente el caso de un cambio de tamaño grande, donde se sube el 1er número de versión.",
+    "fecha": "2026-09-20T17:15:20.089060"
   },
   "core/IA/generar_changelog.py::redactar_con_ollama": {
     "hash": "a0c121342293ac38afe2fcf54f8d520ac583a758e2baeb1e58e4e2c851f1575b",
@@ -765,9 +765,9 @@
     "fecha": "2026-09-14T14:06:36.966841"
   },
   "core/IA/generar_changelog.py::main": {
-    "hash": "546c62301de12bdfa998d34bb907ed51b79b487fca3183f2be54b7d74bc77328",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:06:49.722521"
+    "hash": "9aad47edc474c9259ec60927fb395ba163a9c07bed4b81a515985bbccf7cfb87",
+    "resultado": "No se encontró el archivo `.git` en la raíz del proyecto.",
+    "fecha": "2026-09-20T17:15:42.279357"
   },
   "core/IA/introspeccion.py::analizar_archivo": {
     "hash": "d184647e6f6b66bcdd3ad586094376bfe69f387d6bef3e18faf59d63df51594c",
@@ -880,19 +880,19 @@
     "fecha": "2026-09-14T14:08:30.285488"
   },
   "core/IA/ollamaIA.py::comprender": {
-    "hash": "76d48e33c1edd05392026e63f99c4807bfca16805710c037b1d86262d8791df3",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:09:20.336480"
+    "hash": "fb581e1eea848bcb68103d38cd4c0752f2e657c92b0ae358680f28c12af39128",
+    "resultado": "La función `comprender` no maneja correctamente la respuesta de Ollama, lo que puede llevar a errores si el formato de la respuesta no es el esperado.",
+    "fecha": "2026-09-20T17:18:59.416299"
   },
   "core/IA/ollamaIA.py::conversar": {
-    "hash": "abf9133b3c28dc31c0376f940bfaf4b3f42bfe0892438a79f4af3b96bc897745",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:09:27.968398"
+    "hash": "d01b0d7c7f5fe44fb2c9e205a693df6deccffe0d34c6842a414d06ffebdf04a0",
+    "resultado": "La función `conversar` no maneja correctamente la respuesta de Ollama si se produce un error durante la conversación. Esto puede llevar a un comportamiento inesperado en la aplicación.",
+    "fecha": "2026-09-20T17:19:28.107201"
   },
   "core/IA/ollamaIA.py::generar_codigo": {
-    "hash": "6141b8357a18acec27dd9fb3b3b7ee931868d88d45dca1bd4dca9a18f3b33f6c",
-    "resultado": "ok",
-    "fecha": "2026-09-14T14:09:35.888223"
+    "hash": "0b04356c8e0b4b36f9ce711280f45fe9e0d5b80e53fead564ded27465b3a011a",
+    "resultado": "La función `generar_codigo` no maneja correctamente el error que puede ocurrir durante la llamada a `ollama.chat()`. Si el modelo no encuentra una respuesta, la función devuelve una cadena vacía, lo cual puede ser inadecuado en algunos casos.",
+    "fecha": "2026-09-20T17:19:44.541123"
   },
   "core/IA/propuestas.py::cargar_propuestas": {
     "hash": "a95d489e0fb9f77e76fbf00937445fc954782b5a8e21773771695179f4c88f1c",
@@ -1078,5 +1078,455 @@
     "hash": "0273ac4e2f677a10bc182130c488ce3e146029ef6bf16d5336a5e76019ea92e3",
     "resultado": "ok",
     "fecha": "2026-09-14T14:13:06.425725"
+  },
+  "main.py::manejar_pedido_de_cambio": {
+    "hash": "9c3b99806720040b800d7d72456c312aafb6c67b720d0b3c80219637fc446ef3",
+    "resultado": "La función `manejar_pedido_de_cambio` no maneja correctamente la respuesta del clasificador para determinar el tipo de cambio a realizar. Si el clasificador reconoce que es un pedido de agregar una función, la función no se ajusta adecuadamente para anclar el cambio.",
+    "fecha": "2026-09-20T16:54:28.368912"
+  },
+  "prueba_autoreparacion.py::ejecutar_tarea_con_error": {
+    "hash": "490f1d16f64b5c23afa4e105af526696a8802127bda983a7dcb70ede3e131984",
+    "resultado": "La función `funcion_inexistente_de_prueba()` no está definida en el archivo `prueba_autoreparacion.py`.",
+    "fecha": "2026-09-20T16:54:39.508931"
+  },
+  "core/archivos.py::indice_vacio": {
+    "hash": "6a01ae5409abc5deea7d7a47c0681863b31790ba979a57c4ef53148163a1df12",
+    "resultado": "La función `indice_vacio()` no verifica si se ha ejecutado `actualizar_archivos()` antes de verificar si el índice está vacío.",
+    "fecha": "2026-09-20T16:54:47.833107"
+  },
+  "core/archivos1.py::guardar_indice": {
+    "hash": "c88942043fc30af3bd2453d1d5b2600e980686e01911212ef967a294dca9aba6",
+    "resultado": "La función `guardar_indice` no maneja el caso en que el archivo no pueda ser abierto para escritura. Esto podría causar un error si el archivo ya existe o si no tiene permisos de escritura.",
+    "fecha": "2026-09-20T16:55:21.132029"
+  },
+  "core/archivos1.py::cargar_indice": {
+    "hash": "4f86498d8083ce5338ed913d8f56ba5996a31e8afdab56d293c0415aa5c3783d",
+    "resultado": "La función `cargar_indice` no maneja la excepción `FileNotFoundError` cuando el archivo no existe. Esto puede llevar a un error si el archivo no se encuentra en el directorio especificado.",
+    "fecha": "2026-09-20T16:55:30.105742"
+  },
+  "core/archivos1.py::indexar_archivos": {
+    "hash": "2b445f7aa755cfc1ada0c847a676fda533b03256d4d299079b9436285628503b",
+    "resultado": "La función `indexar_archivos` no maneja correctamente la creación de la carpeta `core/archivos1.py` si no existe. Además, la función no maneja la creación de la carpeta `core` si no existe.",
+    "fecha": "2026-09-20T16:55:46.967342"
+  },
+  "core/archivos1.py::actualizar_indice": {
+    "hash": "9bd06cc502d9b01c841402d96814b9c5c671e3b1089a7be182677911ba8374a0",
+    "resultado": "La función `actualizar_indice` no maneja correctamente la excepción que puede ser lanzada por `indexar_archivos`. Si `indexar_archivos` falla, la función no se detiene y continúa ejecutándose, lo que puede llevar a problemas.",
+    "fecha": "2026-09-20T16:55:57.644078"
+  },
+  "core/archivos1.py::indice_vacio": {
+    "hash": "6a01ae5409abc5deea7d7a47c0681863b31790ba979a57c4ef53148163a1df12",
+    "resultado": "La función `indice_vacio()` no verifica si se ha ejecutado `actualizar_archivos()` antes de cargar el índice. Si no se ha ejecutado, la función podría devolver `True` incluso si se ha cargado el índice antes.",
+    "fecha": "2026-09-20T16:56:09.147857"
+  },
+  "core/archivos1.py::buscar": {
+    "hash": "dc8ac6b4f533974430f8a1119eb65e641218d513ee9bb40552c404a4479d4656",
+    "resultado": "La función `buscar` no maneja correctamente el caso en que el nombre no se encuentre en ningún elemento del índice.",
+    "fecha": "2026-09-20T16:56:18.396123"
+  },
+  "core/archivos1.py::mostrar_resultados": {
+    "hash": "d8d83e7235ff464ab45253276edea281be15f04a81ee9c1600ddbba56fe64b8e",
+    "resultado": "La función `mostrar_resultados` no maneja correctamente el caso en que se busque en un índice vacío. Si se busca en un índice vacío, la función debería imprimir un mensaje indicando que aún no se han indexado los archivos y que se debe ejecutar la acción \"actualizar archivos\" primero.",
+    "fecha": "2026-09-20T16:56:33.318227"
+  },
+  "core/archivos1.py::abrir_resultado": {
+    "hash": "1d34022befebb0d19e5f5063864415ccf66902b4ffbbc695616d9b9ee9f6b124",
+    "resultado": "La función `abrir_resultado` no maneja correctamente el caso en que el resultado no sea un diccionario o no tenga la clave \"ruta\". Esto puede causar un error si se intenta acceder a `resultado[\"ruta\"]`.",
+    "fecha": "2026-09-20T16:56:43.796633"
+  },
+  "core/archivos1.py::buscar_y_abrir": {
+    "hash": "b8ccb021c47150da5583b5def8d03d675f9730a3c44830f37649a9a6769ca663",
+    "resultado": "La función `buscar_y_abrir` no maneja correctamente la opción de \"actualizar archivos\" antes de buscar el archivo. Si el usuario no ha actualizado los archivos, la función no buscará nada, lo que puede llevar a errores.",
+    "fecha": "2026-09-20T16:56:56.502938"
+  },
+  "core/autodiagnostico.py::rendir_cuentas": {
+    "hash": "bc9721f99a6125e9dd97d97b0cc07a2c483b11dbef48d7b4e5fc35e0d294c5d1",
+    "resultado": "La función `rendir_cuentas` no maneja correctamente la respuesta de Ollama, lo que puede llevar a errores si la respuesta no es un string.",
+    "fecha": "2026-09-20T16:57:17.008048"
+  },
+  "core/autodiagnostico.py::capturar_y_reparar": {
+    "hash": "386a3255e2d9011bdfb01ed5d0372b13a3cde8202139dcc9e98eef1bc69d2d64",
+    "resultado": "El decorador `capturar_y_reparar` no maneja correctamente la captura y el manejo de errores en la función decorada. Además, no proporciona una forma de interactuar con el usuario para solicitar correcciones.",
+    "fecha": "2026-09-20T16:57:33.399313"
+  },
+  "core/autodiagnostico.py::wrapper": {
+    "hash": "238004500d52dfe83a821329e95be6c2a9815a5719a3b98d18d837451d4fb9b6",
+    "resultado": "La función `autodiagnostico` no maneja correctamente la excepción `KeyboardInterrupt` que puede ser lanzada por el usuario durante la ejecución del código. Esto puede causar que el programa se interrumpa abruptamente, lo que puede llevar a problemas en la autoreparación.",
+    "fecha": "2026-09-20T16:57:49.721305"
+  },
+  "core/autodiagnostico.py::funcion_con_error": {
+    "hash": "2b23560ad6d68f1af9598d31a65e75aab84c727e54b0abea71cd37c3330db30d",
+    "resultado": "La función `funcion_con_error` intenta sumar `variable_inexistente` con 10, pero `variable_inexistente` no está definida. Esto produce un `NameError`.",
+    "fecha": "2026-09-20T16:57:58.569644"
+  },
+  "core/ayuda.py::_resumen_completo": {
+    "hash": "08d3e0da017a5389f5c51b89b21f8202d2af15b1f28e0cbc7640dda7728e0b3b",
+    "resultado": "La función `_resumen_completo` no tiene un argumento obligatorio para el parámetro `categoria`.",
+    "fecha": "2026-09-20T16:58:06.216235"
+  },
+  "core/ayuda.py::_detalle_categoria": {
+    "hash": "fef2f5173b2be1c9d2f7e06bd1c05134dbe759c5912f88565e5ccda69a253797",
+    "resultado": "La función `_detalle_categoria` no maneja correctamente la entrada de la categoría. Si la categoría es un número, la función no hace nada, lo que puede causar errores si se intenta usar la categoría como un comando.",
+    "fecha": "2026-09-20T16:58:18.827958"
+  },
+  "core/ayuda.py::ayuda": {
+    "hash": "795f8eb6e4f657e332a2bdb2ffc8bc6ab4c5fd424fb0577885b5cf0ef9c9051a",
+    "resultado": "La función `ayuda` no maneja correctamente la categoría si no se proporciona. Si se proporciona una categoría, la función debería llamar a `_detalle_categoria(categoria)`. Si no se proporciona una categoría, la función debería llamar a `_resumen_completo()`.",
+    "fecha": "2026-09-20T16:58:26.302913"
+  },
+  "core/conversacion.py::saludar": {
+    "hash": "7a03bcf15dab389d9c612710ef592fb80788e38c65406674d254f003c2961652",
+    "resultado": "La función `saludar` no tiene un parámetro obligatorio para el nombre del usuario. Debería tener un parámetro `nombre` para que pueda recibir el nombre del usuario y saludarlo correctamente.",
+    "fecha": "2026-09-20T16:58:52.747242"
+  },
+  "core/conversacion.py::presentarse": {
+    "hash": "2486846b6a4ed37455cc1db7e1c20ae2a667c1e6e2ab3f92b5f0c5fdcd2ee6ff",
+    "resultado": "La función `presentarse` no tiene un argumento para especificar el tipo de conversación. Esto podría causar problemas si se intenta llamar la función con un argumento que no es el esperado.",
+    "fecha": "2026-09-20T16:59:05.119553"
+  },
+  "core/memoria.py::_cargar_recuerdos": {
+    "hash": "8ba483438173545b607a9ad6362bba2bd6963b926de95c486e7ceb7b00be02ec",
+    "resultado": "La función `_cargar_recuerdos` no maneja correctamente el error que puede surgir si el archivo no existe o no se puede leer. Si el archivo no existe, `open` lanzará una excepción `FileNotFoundError`. Si el archivo se puede leer pero no se puede parsearse como JSON, `json.load` lanzará una excepción `json.JSONDecodeError`. Por lo tanto, la función debe manejar estos errores de manera adecuada.",
+    "fecha": "2026-09-20T16:59:18.849738"
+  },
+  "core/sistema.py::_bytes_legibles": {
+    "hash": "49fcae2327775683f3b12d0bb4da73a8edd37c6c29cd3947f42af84dee3595f1",
+    "resultado": "La función `_bytes_legibles` no maneja correctamente el caso en que la cantidad sea igual a 1024, lo que puede causar un bucle infinito.",
+    "fecha": "2026-09-20T17:00:44.991819"
+  },
+  "core/sistema.py::estado_sistema": {
+    "hash": "9ecf8e25d99b6ad44d79d592a892ecc2db420388848939c5b4abf517254302c1",
+    "resultado": "La función `estado_sistema` no maneja correctamente el uso de `os.path.abspath(os.sep)`. Esto puede causar problemas si la ruta no es absoluta.",
+    "fecha": "2026-09-20T17:00:54.689117"
+  },
+  "core/sistema.py::_frase_nivel": {
+    "hash": "8cb61b40ba6148563c16cc34cde58e9e7f27f6167156cae7d585ff39337a1bc9",
+    "resultado": "La función `_frase_nivel` tiene un problema de condición invertida. Si `pct` es menor que `bajo_ok`, la función debería devolver \"tranquilo\", pero en su actual versión, si `pct` es menor que `bajo_ok`, la función devuelve \"con carga moderada\". Esto es incorrecto porque si `pct` es menor que `bajo_ok`, la frase debería ser \"tranquilo\".",
+    "fecha": "2026-09-20T17:01:08.198563"
+  },
+  "core/sistema.py::hablar_estado_sistema": {
+    "hash": "f0537bad2ebe866094447f28695a2c5f36c0def5c85598ab84678ae7d19e2fb5",
+    "resultado": "La función `hablar_estado_sistema()` no maneja correctamente los errores que pueden ocurrir durante la ejecución de `estado_sistema()`. Por ejemplo, si `estado_sistema()` devuelve `None`, la función podría fallar.",
+    "fecha": "2026-09-20T17:01:21.620730"
+  },
+  "core/sistema.py::procesos_que_mas_consumen": {
+    "hash": "13dfbb3304c1762198101a9629bf644e63edc003510a64790d4c2c9f3f530920",
+    "resultado": "La función `procesos_que_mas_consumen` no maneja correctamente el caso en que no se encuentren procesos en el sistema.",
+    "fecha": "2026-09-20T17:01:30.912765"
+  },
+  "core/sistema.py::hablar_procesos_que_mas_consumen": {
+    "hash": "3ea6d45b1538f636330476c8c4d772d675e0df2969d4a4ef8a945c48c0cd372c",
+    "resultado": "La función `procesos_que_mas_consumen` no se encuentra en el archivo `core/sistema.py`.",
+    "fecha": "2026-09-20T17:01:37.660593"
+  },
+  "core/sistema.py::buscar_por_contenido": {
+    "hash": "ed59cd524ba81927158d74ac6cd1ce786c066ec992da131b53524e6c70cb5055",
+    "resultado": "La función `buscar_por_contenido` no maneja correctamente la extensión del archivo. Si se especifica una extensión, se debe verificar si el archivo tiene esa extensión antes de leerlo.",
+    "fecha": "2026-09-20T17:01:54.721106"
+  },
+  "core/sistema.py::mostrar_resultados_contenido": {
+    "hash": "d24ff89b468497e89e0baa72679b6d31467838db86e9a776939733d25adcc9f0",
+    "resultado": "La función `mostrar_resultados_contenido` no maneja correctamente el caso en que no se encuentren resultados. Si no se encontraron resultados, la función simplemente imprime un mensaje de error y termina sin mostrar nada. Esto puede causar confusion para los usuarios si no se notifica al usuario que no se encontraron resultados.",
+    "fecha": "2026-09-20T17:02:11.820135"
+  },
+  "core/sistema.py::_tamano_de": {
+    "hash": "36d64b14084bf91f1f1fe34ccc631105d09d3112e4d1f5e5fc36502caf91f3f2",
+    "resultado": "La función `_tamano_de` no maneja correctamente el caso en que la ruta no sea un directorio. Si la ruta no es un directorio, `os.walk` lanzará una excepción `NotADirectoryError`. Por lo tanto, la función debe manejar esta excepción para evitar que se produzca un error.",
+    "fecha": "2026-09-20T17:02:26.531158"
+  },
+  "core/sistema.py::analizar_limpieza": {
+    "hash": "802592561ffedc8424cc7d1149df2ed18bdf46d00f48cc31b29a9e51e99c3978",
+    "resultado": "La función `analizar_limpieza` no maneja correctamente la carga de los índices. La función `cargar_indice()` no se llama en la función, por lo que no se pueden cargar los índices y no se pueden verificar si los archivos son temporales.",
+    "fecha": "2026-09-20T17:02:44.699341"
+  },
+  "core/sistema.py::hablar_analisis_limpieza": {
+    "hash": "2fb1c0bd143c81a52e8fb98c6b03c935c8aa9fc4722980f654601e2589d914d1",
+    "resultado": "La función `hablar_analisis_limpieza` no maneja correctamente el caso en que no se encuentren elementos para limpiar en una categoría específica.",
+    "fecha": "2026-09-20T17:02:58.822628"
+  },
+  "core/sistema.py::ejecutar_limpieza": {
+    "hash": "ecc354c65c373611d7054466aae1546557358085819aad79defa57ed6ffdddc8",
+    "resultado": "La función `ejecutar_limpieza` no maneja correctamente el caso en que se encuentre un archivo en uso por otro programa. Esto puede causar un error `OSError` si el archivo no se puede eliminar. Además, la función no maneja el caso en que se encuentre un directorio en uso por otro programa, lo que también puede causar un error `OSError`.",
+    "fecha": "2026-09-20T17:03:18.158271"
+  },
+  "core/sistema.py::hablar_resultado_limpieza": {
+    "hash": "29dcacbc50aa96e1df9d38b00456fd08bc89c27c4b99c4cb922f409f7ef22f2b",
+    "resultado": "La función `hablar_resultado_limpieza` no maneja correctamente el caso en que no se borren ningún elemento. Si `resultado['borrados']` es 0, la función debería devolver un mensaje que indique que no se borraron elementos, pero no se está haciendo eso.",
+    "fecha": "2026-09-20T17:03:31.602276"
+  },
+  "core/sistema.py::interpretar_categorias_limpieza": {
+    "hash": "602cda0909c9c772ccf7fa1354848ade7ce934e7865b57fe08f622ff6294d0d8",
+    "resultado": "La función `interpretar_categorias_limpieza` no maneja correctamente la palabra \"tmp\" cuando se refiere a archivos temporales en general, no solo a la carpeta de Windows.",
+    "fecha": "2026-09-20T17:03:51.843790"
+  },
+  "core/tiempo.py::decir_hora": {
+    "hash": "ecb7cabb31b7d8b8f061d487f34f73e6413f36bab800c28e442aa013e280efbd",
+    "resultado": "La función `decir_hora` no maneja errores si la conversión de `datetime.now()` falla. Por ejemplo, si la hora es \"24:00\", `strftime` fallará y no imprimirá la hora correcta.",
+    "fecha": "2026-09-20T17:04:04.151132"
+  },
+  "core/tiempo.py::decir_fecha": {
+    "hash": "6ee9a017484632f4dcbbc6e7da0142632f816ecaa35739f2a113241fa537a130",
+    "resultado": "La función `decir_fecha` no maneja errores si la fecha no puede ser obtenida. Por ejemplo, si la fecha es incorrecta o no se puede acceder a ella, la función podría lanzar una excepción.",
+    "fecha": "2026-09-20T17:04:19.919283"
+  },
+  "core/utilidades.py::espacio_disponible": {
+    "hash": "899660b05f6b38c3187e8fe41680501cfe1f7d81132d0223e24853e4d7bed524",
+    "resultado": "La función `espacio_disponible` está calculando el porcentaje de espacio libre en disco, pero no está devolviendo el resultado como un porcentaje. Debería devolver un valor entre 0 y 100.",
+    "fecha": "2026-09-20T17:04:33.583688"
+  },
+  "core/utilidades.py::funcion_inexistente_de_prueba": {
+    "hash": "bdbefc22e4f225e1842e6a42ca2b784e9d6e811b469cca6b88700e952e895cd7",
+    "resultado": "La función `funcion_inexistente_de_prueba` no existe en el archivo `core/utilidades.py`.",
+    "fecha": "2026-09-20T17:04:41.973977"
+  },
+  "core/IA/autoconocimiento.py::novedades_desde": {
+    "hash": "6ecc6b84889ed42bf5325a2f7fa539506009d992be25879d6df8ba037a8391ea",
+    "resultado": "La función `novedades_desde` no maneja correctamente la fecha de propuesta de las automodificaciones. Si la fecha de propuesta no está presente en el diccionario de la automodificación, la comparación `a.get(\"fecha_propuesta\", \"\") > marca_fecha` puede fallar.",
+    "fecha": "2026-09-20T17:04:55.391131"
+  },
+  "core/IA/autodiagnostico.py::_avisar_que_hay_un_problema": {
+    "hash": "085db5a7f3158cb3c86331d219e892c1f20aa22c5c3a0309f4a626fea2d5c769",
+    "resultado": "La función `_avisar_que_hay_un_problema` no tiene un argumento para el mensaje de error.",
+    "fecha": "2026-09-20T17:05:02.926542"
+  },
+  "core/IA/autodiagnostico.py::capturar_y_reparar": {
+    "hash": "5e87e8f2156b056bd9438f5409387f73e731121d25615a5c19f121c029f62565",
+    "resultado": "La función `capturar_y_reparar` no maneja correctamente la excepción `KeyboardInterrupt` que puede ser lanzada por el usuario durante la ejecución de la función decorada.",
+    "fecha": "2026-09-20T17:05:18.117998"
+  },
+  "core/IA/autodiagnostico.py::wrapper": {
+    "hash": "28127d9cc5f1e89edd9c68b733ff6281cba6aea6c56b759b51ce68a7547e0b17",
+    "resultado": "La función `wrapper` no maneja correctamente el error que se captura. Si el error es un `TypeError`, por ejemplo, no se muestra el mensaje de error completo.",
+    "fecha": "2026-09-20T17:05:30.505950"
+  },
+  "core/IA/autodiagnostico.py::_funcion_de_prueba": {
+    "hash": "bd8e1d7f4f11f9a4e6079b98a01abfde71ba3f7b02166dd90d44f50d5870396d",
+    "resultado": "La función `_funcion_de_prueba` intenta sumar una variable que no existe (`variable_que_no_existe`) con 10, causando un NameError.",
+    "fecha": "2026-09-20T17:05:38.672319"
+  },
+  "core/IA/autotest.py::_test": {
+    "hash": "23cee4a30164664369b99e5a88fd572785040c813a80078253acef29b9313910",
+    "resultado": "La función `_test` no tiene un argumento obligatorio para el decorador. Debería recibir un argumento que sea la función a testear.",
+    "fecha": "2026-09-20T17:05:47.101089"
+  },
+  "core/IA/autotest.py::test_sintaxis_de_todo_el_proyecto": {
+    "hash": "69e97446f03072d9d79d508146d83b0a74c7a8d243f8b285e20e715204ed42aa",
+    "resultado": "La función `test_sintaxis_de_todo_el_proyecto` no maneja correctamente los errores de sintaxis en archivos que no son `.py`.",
+    "fecha": "2026-09-20T17:05:54.903118"
+  },
+  "core/IA/autotest.py::test_imports_de_modulos_clave": {
+    "hash": "c9c09e917fc854755f2638cab18263336d3476d94088c2dfa1319129c5d7c65d",
+    "resultado": "La función `test_imports_de_modulos_clave` no maneja correctamente los errores que pueden surgir durante la importación de los módulos clave. Por ejemplo, si un módulo no existe, se lanzará una excepción `ModuleNotFoundError`, pero no se maneja adecuadamente.",
+    "fecha": "2026-09-20T17:06:07.573238"
+  },
+  "core/IA/autotest.py::test_narrador_traduce_areas_conocidas": {
+    "hash": "a4f6798a14a7ffd20922b8154e5f9ff566ca5e11f999212b63f61794f914beae",
+    "resultado": "La función `area_natural` no maneja correctamente el caso en que el archivo no tenga un mapeo asociado. Esto puede causar un error si se intenta acceder a una parte de la cadena que no existe.",
+    "fecha": "2026-09-20T17:06:19.659126"
+  },
+  "core/IA/autotest.py::test_sistema_bytes_legibles": {
+    "hash": "501078ef541ded8d36a04193a91bc8538aa180f9c0fba1a09199f8180ac7fb4f",
+    "resultado": "La función `test_sistema_bytes_legibles` está fallando porque la conversión de bytes a kilobytes y megabytes no está correcta. La función debe dividir por 1024 para convertir de bytes a kilobytes y por 1024 * 1024 para convertir de bytes a megabytes.",
+    "fecha": "2026-09-20T17:06:31.724254"
+  },
+  "core/IA/autotest.py::test_sistema_interpretar_categorias_limpieza": {
+    "hash": "91ea18638717ce3fc404a4bca2dd4aa15d1fabfe2869e3d6dc45ad4eda3efa8e",
+    "resultado": "La función `interpretar_categorias_limpieza` no maneja correctamente la entrada \"limpia todo\". Debería devolver una lista vacía, no una lista con todos los subdirectorios.",
+    "fecha": "2026-09-20T17:06:43.091084"
+  },
+  "core/IA/autotest.py::test_sistema_busqueda_por_contenido_y_limpieza": {
+    "hash": "e14cfd9b23abe23972c4372ab51edb4dc9cb767c0d334bd65d11ff48091c8040",
+    "resultado": "La función `test_sistema_busqueda_por_contenido_y_limpieza` tiene un problema en la línea 11, donde se verifica si `resultados` tiene una longitud de 1 y si \"notas.txt\" está en la ruta. Sin embargo, la función no verifica si `resultados` es una lista antes de hacer esta verificación. Esto puede causar un error si `resultados` es None o no es una lista.",
+    "fecha": "2026-09-20T17:07:07.498343"
+  },
+  "core/IA/autotest.py::test_revisar_cambios_entorno_aislado_no_toca_archivo_real_si_falla": {
+    "hash": "951d89bb4d9310692a825d4b8f2bcaf35fe6568e65a9d4444831c06a9d683c6d",
+    "resultado": "La función `test_revisar_cambios_entorno_aislado_no_toca_archivo_real_si_falla` no verifica si el archivo real se modificó a pesar de que el cambio era inválido.",
+    "fecha": "2026-09-20T17:07:17.934830"
+  },
+  "core/IA/autotest.py::test_revisar_cambios_aplica_y_revertir_deshace": {
+    "hash": "5e2dfafeb28832b1f26004886934f73d633cd18ce198d73bbda17bfe9b18dc02",
+    "resultado": "La función `revertir` no se encuentra en el archivo `core/IA/revertir_cambio_codigo.py`.",
+    "fecha": "2026-09-20T17:07:33.746455"
+  },
+  "core/IA/autotest.py::test_autorevision_detectores_corren_sin_explotar": {
+    "hash": "804cbf470ab1dfb0aafece40498d4e6279435a49d013a696f821b3654922b072",
+    "resultado": "La función `buscar_except_desnudos()` no retorna ningún valor, lo que puede causar problemas si se espera que retorne una lista de excepciones desnudos.",
+    "fecha": "2026-09-20T17:07:44.961970"
+  },
+  "core/IA/autotest.py::test_autorevision_no_marca_como_muerto_lo_usado_solo_desde_protegidos": {
+    "hash": "aa9d844b5f364ff8c20749ec50430c92b33be91c6c57dd1937b2471c6f24dcdf",
+    "resultado": "La función `test_autorevision_no_marca_como_muerto_lo_usado_solo_desde_protegidos` de `autotest.py` tiene un problema de bug real. La función `generar_codigo()` de `ollamaIA.py` se usa solo desde archivos protegidos, pero no se marca como código muerto en el índice de autorevision. Esto puede causar problemas si el código no se encuentra en el índice, lo que puede llevar a errores en la autorevision.",
+    "fecha": "2026-09-20T17:08:00.546116"
+  },
+  "core/IA/autotest.py::test_clasificador_entrena_con_senial_real_y_predice_bien": {
+    "hash": "551d435f297b8b70fa33091c489146acceb68af562139b5444e0ae346239c499",
+    "resultado": "La función `test_clasificador_entrena_con_senial_real_y_predice_bien` no maneja correctamente el manejo de errores durante el proceso de entrenamiento del clasificador. En particular, si el archivo de modelo no se puede cargar, la función podría fallar sin proporcionar información útil sobre el error.",
+    "fecha": "2026-09-20T17:08:19.200628"
+  },
+  "core/IA/autotest.py::test_clasificador_rechaza_ruido_sin_senial": {
+    "hash": "91364940a5156714e34b0933a71f27c910b6e81795431224c80e2b3970af5dcb",
+    "resultado": "El código no maneja correctamente el caso de un modelo entrenado sobre puro ruido, lo que puede llevar a errores en la predicción. MEJORA: Se puede mejorar la lógica del código para manejar correctamente el caso de un modelo entrenado sobre puro ruido.",
+    "fecha": "2026-09-20T17:08:32.298391"
+  },
+  "core/IA/autotest.py::_con_ollama_simulado": {
+    "hash": "f0c443567f6f3ca7d15221690015a27aadf12c1e8461ba00a6c9ba352c7e9c6f",
+    "resultado": "La función `_con_ollama_simulado` no maneja correctamente la condición de parada cuando se agotan las respuestas en `respuestas_por_llamada`. Si se agotan las respuestas, la función debería devolver una respuesta predeterminada o lanzar una excepción.",
+    "fecha": "2026-09-20T17:08:47.218272"
+  },
+  "core/IA/autotest.py::test_ollamaIA_sin_historial_es_identico_a_siempre": {
+    "hash": "d4953d567258aa6ddb842093b224bb89c2c76cb825779425e57a959a1a33ac05",
+    "resultado": "La función `test_ollamaIA_sin_historial_es_identico_a_siempre` no verifica si la respuesta de la IA es identica a una respuesta fija (\"respuesta cualquiera\"). La función solo verifica si la respuesta tiene un solo elemento y es de tipo \"user\".",
+    "fecha": "2026-09-20T17:09:01.195229"
+  },
+  "core/IA/autotest.py::test_ollamaIA_historial_mantiene_contexto_entre_turnos": {
+    "hash": "6b485c4065dc2458573905f4348c38b7225ab336f5e5db8c179d3719ec0b06fd",
+    "resultado": "La función `test_ollamaIA_historial_mantiene_contexto_entre_turnos` no maneja correctamente el historial de conversaciones. Al reiniciar el historial, se pierden los mensajes de la primera llamada, lo que puede causar problemas en la segunda llamada.",
+    "fecha": "2026-09-20T17:09:15.801630"
+  },
+  "core/IA/autotest.py::test_ollamaIA_memoria_filtra_recordatorios": {
+    "hash": "4f15daf57ae9c2f41cf4bb90b3baed08afeaaacdf622444be961f0830eae38e1",
+    "resultado": "La función `test_ollamaIA_memoria_filtra_recordatorios` tiene un problema de inyección de datos. Al guardar el contenido del gusto en `memoria.archivo_memoria`, se está guardando el contenido del gusto en la conversación natural, lo que no es lo que se espera. Además, la función no está filtrando correctamente los recordatorios de tareas.",
+    "fecha": "2026-09-20T17:09:35.720251"
+  },
+  "core/IA/autotest.py::test_ollamaIA_razonar_hace_dos_llamadas_y_no_filtra_el_borrador": {
+    "hash": "5c401be782bf4c1e3745037892e1cdd0c7c41d2da1b5946937d34662496df56a",
+    "resultado": "La función `test_ollamaIA_razonar_hace_dos_llamadas_y_no_filtra_el_borrador` no verifica que el borrador no se filtre a la respuesta visible. La respuesta debe ser una respuesta final, no un borrador interno.",
+    "fecha": "2026-09-20T17:09:50.807005"
+  },
+  "core/IA/autotest.py::test_ollamaIA_heuristica_razonamiento_profundo": {
+    "hash": "41f148363d31c4e5ca148d30834b004edeb8f13dde00f40779f3453aeaad01e1",
+    "resultado": "La función `test_ollamaIA_heuristica_razonamiento_profundo` no maneja correctamente la condición de que la respuesta debe ser `True` si el texto contiene la palabra \"razonamiento profundo\". La condición actual es `False`, lo que significa que siempre se considerará que la respuesta debe ser `False`, lo que es incorrecto.",
+    "fecha": "2026-09-20T17:10:05.842218"
+  },
+  "core/IA/autotest.py::test_enrutar_cambio_hash_estable_entre_llamadas": {
+    "hash": "8cb3b184d5021e670c631635b76189420aede6945d14a603e3dbddc31f891a27",
+    "resultado": "El hash() de Python es estable DENTRO de un mismo proceso (el seed se fija una vez al arrancar) -- comparar _hash_codigo(x) == _hash_codigo(x) en el mismo proceso NUNCA hubiera detectado el bug real (que solo aparece entre reinicios de Arché, procesos distintos). Por eso esto compara contra un proceso de Python NUEVO, aparte -- es la única forma de probar esto de verdad.",
+    "fecha": "2026-09-20T17:10:25.210008"
+  },
+  "core/IA/autotest.py::test_enrutar_cambio_decidir_destino_respeta_umbrales": {
+    "hash": "b1133a2a8a7e45b87a682a2d06ff3a6b1bd368f6a16ba1d5b7d7a0ab43f7396f",
+    "resultado": "La función `test_enrutar_cambio_decidir_destino_respeta_umbrales` tiene un problema de flujo de control. Si la función `decidir_destino` devuelve un diccionario con `confianza_alta` como `True`, la función `test_enrutar_cambio_decidir_destino_respeta_umbrales` espera que `confianza_alta` sea `False`. Esto puede causar un fallo en la prueba si la función `decidir_destino` devuelve un diccionario con `confianza_alta` como `True`.",
+    "fecha": "2026-09-20T17:10:46.422950"
+  },
+  "core/IA/autotest.py::test_orquestador_detecta_correccion_que_no_cambio_nada": {
+    "hash": "d573d210a54092261a32f5f70074d229c8efda59570b3e1544fe0a42458b1c7d",
+    "resultado": "La función `test_orquestador_detecta_correccion_que_no_cambio_nada` no corta el bucle de reintentos cuando detecta que la corrección no cambia nada. La función debería cortar el bucle inmediatamente después de detectar la corrección no cambia nada.",
+    "fecha": "2026-09-20T17:11:04.506425"
+  },
+  "core/IA/autotest.py::test_reasoning_sandwich_verifica_riesgo_medio_y_alto_no_bajo": {
+    "hash": "01fa240e61b8cafaeb5e7a8685167b8ad158db6a4fa3e1cbe2df61912107758f",
+    "resultado": "La función `aplicar_propuesta` no se encuentra en el archivo `core.IA.revisar_cambios_codigo`.",
+    "fecha": "2026-09-20T17:11:29.451135"
+  },
+  "core/IA/autotest.py::main": {
+    "hash": "74c99c7c41e8c8dc89c66defda7297ff56a47e71764e0cc2a73a3f84f2301b38",
+    "resultado": "La función `main` no maneja correctamente los errores que pueden surgir durante la ejecución de las funciones testeadas. Por ejemplo, si una función testa falla, la función `main` no muestra el mensaje de error específico.",
+    "fecha": "2026-09-20T17:11:44.423915"
+  },
+  "core/IA/autotest.py::_fake": {
+    "hash": "ca5a8eff84c3d6d96a1fa2744f8c133434338a526a9351bd154983b7906866c2",
+    "resultado": "La variable `iterador` no está definida en el contexto del código proporcionado. Esto puede causar un error si no se proporciona un iterador válido.",
+    "fecha": "2026-09-20T17:11:53.635357"
+  },
+  "core/IA/autotest.py::_fake_generar_codigo": {
+    "hash": "96d16c1c4c0f618ee6173ee84f425b81fd1a9734b290df10f562589a6bb4972d",
+    "resultado": "La función `_fake_generar_codigo` no maneja correctamente la condición de \"ELIMINAR TODO\" en el prompt. Si se encuentra esta palabra, la función devuelve un mensaje de error, pero no elimina la validación de permisos.",
+    "fecha": "2026-09-20T17:12:07.210761"
+  },
+  "core/IA/autotest.py::_generar_falso": {
+    "hash": "b4a7950865e67fc24d57b489541383cf1aa09a45229c708fedcc7265d2719457",
+    "resultado": "La función `_generar_falso` no devuelve nada si `sugerencia_extra` no es `None`. La función debería devolver un diccionario con la propuesta fija y `None` como valor para el error.",
+    "fecha": "2026-09-20T17:12:16.677506"
+  },
+  "core/IA/autotest.py::_archivo": {
+    "hash": "7218075f7cf0bf636d0269b20868a76267548ae92b5ff11cef2a076bf366b2d3",
+    "resultado": "La función `_archivo` no maneja errores si la ruta de escritura falla.",
+    "fecha": "2026-09-20T17:12:22.526925"
+  },
+  "core/IA/enrutar_cambio.py::_hash_codigo": {
+    "hash": "2e22120d0e2966a6707a03c14239408b85f24a725f4571515a17657475594ec3",
+    "resultado": "La función `_hash_codigo` utiliza `hashlib.sha256(codigo.encode(\"utf-8\")).hexdigest()` para generar un hash de un código. Sin embargo, este método utiliza un algoritmo de hash que es vulnerable a ataques de colisión, lo que puede llevar a problemas de seguridad si se utiliza para almacenar claves de acceso o contraseñas.",
+    "fecha": "2026-09-20T17:13:18.381347"
+  },
+  "core/IA/narrador.py::area_natural": {
+    "hash": "d53ab0cf415a7dd33bb7c6113b054be08c6eb4d1bcd9cf750ac267444539c69f",
+    "resultado": "La función `area_natural` no maneja correctamente la ruta del archivo si no comienza con \"core/IA/\". Esto puede causar problemas si se intenta usar la ruta en un contexto que espera una ruta completa.",
+    "fecha": "2026-09-20T17:15:55.276707"
+  },
+  "core/IA/narrador.py::texto_amigable_que": {
+    "hash": "5ea64b1b38cd7b23d03449e1c6e0a26d4f880eef5dc66a3064fdb016181679e9",
+    "resultado": "La función `texto_amigable_que` no maneja correctamente la eliminación de funciones. Si encuentra una función a eliminar, debería devolver una frase que indique que se eliminará esa función, pero no está haciendo eso.",
+    "fecha": "2026-09-20T17:16:08.805839"
+  },
+  "core/IA/narrador.py::frase_confianza": {
+    "hash": "3026cd4e18a578976a17f81b0f6b961fd89a422f6ff40801ffe45dece18e72d1",
+    "resultado": "La función `frase_confianza` no maneja el caso en que `motivo` sea `None`. Si `motivo` es `None`, la función no hace nada, lo que podría causar problemas si se intenta usar la función con un valor de `None` para `motivo`.",
+    "fecha": "2026-09-20T17:16:21.052963"
+  },
+  "core/IA/narrador.py::nombre_funcion_hablado": {
+    "hash": "d8bcb29cd4fdac579b18c8b88282a1d8df330180d10ef58f7f68c08b5affb9a5",
+    "resultado": "La función `nombre_funcion_hablado` tiene un nombre que no sigue el estándar de Python, ya que empieza con un guión bajo (`_`). Esto puede causar problemas en el código si se intenta acceder a la función desde fuera de la clase o si se intenta usar en un contexto que no es adecuado.",
+    "fecha": "2026-09-20T17:16:34.238969"
+  },
+  "core/IA/ollamaIA.py::hay_historial_activo": {
+    "hash": "3f6a061c68d8f3e9493812c50bdd4b75e8c0d7a1f268df368cb9c35d6e15493d",
+    "resultado": "La función `hay_historial_activo()` no verifica si el historial de conversación está vacío. Si el historial está vacío, la función siempre devolverá `True`, lo que puede causar problemas en el comportamiento de la aplicación.",
+    "fecha": "2026-09-20T17:16:45.394434"
+  },
+  "core/IA/ollamaIA.py::reiniciar_historial": {
+    "hash": "18e065966dada8590528e5d712d1281ad8fbd9a7d8e58b2f9d93dbbddc8f9347",
+    "resultado": "La función `reiniciar_historial` no tiene un argumento para especificar el historial a reiniciar. Debería recibir un parámetro para que se pueda especificar el historial que se desea reiniciar.",
+    "fecha": "2026-09-20T17:16:55.949855"
+  },
+  "core/IA/ollamaIA.py::_recortar_historial": {
+    "hash": "f91fb73fa74dc5a429773434840755cfa5c2f50be6d3654e216c6739fa0830ea",
+    "resultado": "La variable `LIMITE_HISTORIAL_MENSAJES` no está definida en el contexto de la función `_recortar_historial()`.",
+    "fecha": "2026-09-20T17:17:05.264387"
+  },
+  "core/IA/ollamaIA.py::razonar_y_responder": {
+    "hash": "9d72120dfe4887c8923092a6ab7037738dbefda4e4786161daf1559c9574813f",
+    "resultado": "La función `razonar_y_responder` no maneja correctamente el caso en que la respuesta final no sea una cadena de texto. Esto puede ocurre si la respuesta del modelo no está en el formato esperado o si hay algún problema en la conversación.",
+    "fecha": "2026-09-20T17:17:39.690073"
+  },
+  "core/IA/ollamaIA.py::necesita_razonamiento_profundo": {
+    "hash": "93c9bf020606091ece6c01f51b6de9ae87e82914e47c8f3516402a1032212505",
+    "resultado": "La función `necesita_razonamiento_profundo` no tiene un parámetro obligatorio para el texto, lo que puede llevar a errores si se llama a la función sin proporcionar el texto.",
+    "fecha": "2026-09-20T17:17:51.150023"
+  },
+  "core/IA/orquestador_autonomo.py::__init__": {
+    "hash": "ff61d3ba7729890523d97686a1c3dcf49ef665fac086f5fcdea76f2f52514f6d",
+    "resultado": "La variable `reintentos_max` no se inicializa en el constructor, lo que puede llevar a errores si no se proporciona un valor.",
+    "fecha": "2026-09-20T17:19:52.343422"
+  },
+  "core/IA/orquestador_autonomo.py::_generar_propuesta": {
+    "hash": "86d480fdddf8e1e751b59c0d2cd34a1be155deedf4b0cea3dac2fb188d336d71",
+    "resultado": "La función `_generar_propuesta` no maneja correctamente la condición de que si `sugerencia_extra` viene de vos, se le suma a la instrucción original. Esto puede llevar a errores si `sugerencia_extra` no es una cadena o si no se puede agregar a la instrucción original.",
+    "fecha": "2026-09-20T17:20:06.885177"
+  },
+  "core/IA/orquestador_autonomo.py::ejecutar_meta": {
+    "hash": "d5ac53e8bd14cdd31b8924a2739b5024c4be71ebb075d7af7851970dfe68113c",
+    "resultado": "La función `ejecutar_meta` no maneja correctamente la respuesta del usuario cuando se le pide que escriba una sugerencia de cómo ajustar el código.",
+    "fecha": "2026-09-20T17:20:34.684263"
+  },
+  "core/IA/verificar_cambio.py::_armar_prompt": {
+    "hash": "d4e3b7fbfe10445ca1d3fc4e13c22ed507cc63e65d2a4379b5098490ba1d716b",
+    "resultado": "El código nuevo no cumple con la especificación del cambio solicitado. Por ejemplo, la función `buscar` no está definida en el código nuevo, lo que podría causar un error en tiempo de ejecución.",
+    "fecha": "2026-09-20T17:20:51.212005"
+  },
+  "core/IA/verificar_cambio.py::_interpretar_respuesta": {
+    "hash": "1cae5635f2b5fdad1c4158d263054b0f5e7afcce72e6069c65e1b932012d91fe",
+    "resultado": "La función `_interpretar_respuesta` no maneja correctamente la condición de que el texto sea \"ninguna\" o vacío. Si el texto es \"ninguna\", la función debería devolver `False, None, False` en lugar de `False, None, True`.",
+    "fecha": "2026-09-20T17:21:05.795792"
+  },
+  "core/IA/verificar_cambio.py::verificar_cambio_con_ia": {
+    "hash": "5d9387cd05977c3b1fdb484c83972541770b8582501926213c761280f5f4b041",
+    "resultado": "La función `verificar_cambio_con_ia` no maneja correctamente la respuesta de Ollama. Si Ollama no puede interpretar la respuesta, la función devuelve `True` sin verificar si hay un problema o no. Esto puede llevar a un cambio que no se ajuste a los criterios de la revisión.",
+    "fecha": "2026-09-20T17:21:22.730542"
+  },
+  "limpiar_propuesta.py::main": {
+    "hash": "9dda14a3e90772276af665e1a2df57f339fd8efe7f693092e52141b9f7ab4729",
+    "resultado": "ok",
+    "fecha": "2026-09-20T17:52:08.443084"
   }
 }
