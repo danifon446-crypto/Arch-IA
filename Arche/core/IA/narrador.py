@@ -31,7 +31,6 @@ MAPA_AREAS_NATURALES = {
     "recordatorio": "los recordatorios",
     "calculadora": "la calculadora",
     "archivos": "la búsqueda de archivos",
-    "archivos1": "la búsqueda de archivos (versión vieja)",
     "memoria": "la memoria",
     "configuracion": "la configuración",
     "navegador": "el navegador",

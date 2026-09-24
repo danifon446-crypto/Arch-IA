@@ -23,6 +23,13 @@ def _reentrenar_si_corresponde():
     reentrenamiento. Al llegar a UMBRAL_REENTRENO, reentrena el
     clasificador solo (en silencio si no hay datos suficientes todavía,
     para no llenar la consola de avisos en cada comando).
+
+    Reentrena TANTO el clasificador de siempre (clasificador.py) COMO
+    el jerárquico (clasificador_jerarquico.py, si está instalado) --
+    así el jerárquico se mantiene al día automáticamente, sin que haga
+    falta acordarse de correr 'entrenar jerarquico' a mano cada vez.
+    Un fallo al entrenar el jerárquico (ej. todavía no tiene datos
+    suficientes en algún dominio) no afecta al reentrenamiento normal.
     """
     meta = {"pendientes": 0}
     if os.path.exists(ARCHIVO_META):
@@ -45,6 +52,14 @@ def _reentrenar_si_corresponde():
             # (más barato que definir un segundo umbral independiente).
         except Exception as e:
             print(f"Arché: No se pudo reentrenar el clasificador ({e}).")
+
+        try:
+            from core.IA.clasificador_jerarquico import entrenar_jerarquico
+            entrenar_jerarquico(silencioso=True)
+        except ImportError:
+            pass  # el clasificador jerárquico es opcional, todavía puede no estar instalado
+        except Exception as e:
+            print(f"Arché: No se pudo reentrenar el clasificador jerárquico ({e}).")
     else:
         with open(ARCHIVO_META, "w", encoding="utf-8") as f:
             json.dump(meta, f)
@@ -298,6 +313,35 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
     return None
 
 
+def _predecir_con_clasificador(vector_pregunta):
+    """
+    Le pide al clasificador su opinión sobre `vector_pregunta`, usando
+    PRIMERO el jerárquico (clasificador_jerarquico.py, dominio + red
+    de intención) y, si no está instalado o todavía no tiene un modelo
+    entrenado para el dominio que corresponda, cae automáticamente al
+    clasificador de siempre (clasificador.py) -- exactamente el mismo
+    comportamiento que había antes de que existiera el jerárquico.
+
+    Devuelve (accion_predicha, confianza). (None, 0.0) si ninguno de
+    los dos pudo opinar.
+    """
+    try:
+        from core.IA.clasificador_jerarquico import predecir_jerarquico
+        accion, confianza, _dominio = predecir_jerarquico(vector_pregunta)
+        if accion is not None:
+            return accion, confianza
+    except ImportError:
+        pass  # el jerárquico es opcional, todavía puede no estar instalado
+    except Exception:
+        pass  # cualquier otro problema del jerárquico: no debe tapar al de siempre
+
+    try:
+        from core.IA.clasificador import predecir
+        return predecir(vector_pregunta)
+    except Exception:
+        return None, 0.0
+
+
 def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO):
     try:
         from core.IA.embeddings import calcular_embedding, similitud_coseno
@@ -339,24 +383,19 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO)
 
     # --- Rescate por clasificador (paso 3.5) ---
     # Caso límite: el vecino más cercano no llegó al umbral, pero está
-    # razonablemente cerca. Le preguntamos al clasificador entrenado (si
-    # existe) su opinión; si coincide en la intención con confianza
-    # suficiente, aceptamos el resultado del vecino más cercano de todas
-    # formas (el clasificador no puede aportar el "contenido", solo
-    # confirma que la intención es plausible; el contenido ya pasó por
-    # el mismo filtro de _contenido_seguro de arriba).
+    # razonablemente cerca. Le preguntamos al clasificador entrenado
+    # (jerárquico si está disponible, si no el de siempre) su opinión;
+    # si coincide en la intención con confianza suficiente, aceptamos
+    # el resultado del vecino más cercano de todas formas (el
+    # clasificador no puede aportar el "contenido", solo confirma que
+    # la intención es plausible; el contenido ya pasó por el mismo
+    # filtro de _contenido_seguro de arriba).
     margen_rescate = 0.08
     confianza_minima = 0.6
 
     if mejor_resultado and mejor_score >= (umbral_semantico - margen_rescate):
-        try:
-            from core.IA.clasificador import predecir
-            accion_predicha, confianza = predecir(vector_pregunta)
-            if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima:
-                return mejor_resultado
-        except Exception:
-            pass
+        accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta)
+        if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima:
+            return mejor_resultado
 
     return None
-
-

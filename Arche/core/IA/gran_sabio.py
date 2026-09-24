@@ -40,6 +40,7 @@ Comandos que usa este modulo (conectados en main.py):
 import ast
 import json
 import re
+import unicodedata
 from pathlib import Path
 
 from core.IA.proponer_cambio_codigo import RAIZ_APP, ARCHIVOS_PROTEGIDOS, _cargar_pendientes
@@ -306,6 +307,33 @@ def pistas_aprendidas(archivo, instruccion):
 # descubrirlo recien despues de 3 intentos fallidos.
 # --------------------------------------------------------------------
 
+def _normalizar_para_buscar(texto):
+    """minusculas, sin tildes, con guiones bajos como espacios -- para
+    poder buscar 'ultimo_calculo' dentro de 'el último cálculo' aunque
+    esten escritos distinto."""
+    texto = (texto or "").lower().replace("_", " ")
+    return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn")
+
+
+def _funciones_mencionadas(instruccion, contenido_archivo):
+    """Funciones REALES del archivo que la instrucción menciona, sea
+    literal ('la función historial') o en lenguaje natural ('el último
+    cálculo' -> ultimo_calculo). Más confiable que buscar solo la frase
+    'función X': agarra menciones naturales, no solo las explícitas."""
+    try:
+        arbol = ast.parse(contenido_archivo or "")
+    except SyntaxError:
+        return set()
+    instruccion_norm = _normalizar_para_buscar(instruccion)
+    encontradas = set()
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            nombre_norm = _normalizar_para_buscar(nodo.name)
+            if len(nombre_norm) >= 4 and nombre_norm in instruccion_norm:
+                encontradas.add(nodo.name)
+    return encontradas
+
+
 def estimar_dificultad(archivo, instruccion, contenido_archivo):
     """Devuelve (nivel, motivos) donde nivel es 'bajo'/'medio'/'alto'."""
     motivos = []
@@ -313,13 +341,14 @@ def estimar_dificultad(archivo, instruccion, contenido_archivo):
 
     _PALABRAS_COMUNES = {"que", "el", "la", "los", "las", "un", "una", "unos", "unas",
                           "de", "del", "para", "con", "al", "lo", "se", "y", "o"}
-    nombres_mencionados = {
+    nombres_explicitos = {
         n for n in re.findall(r"funci[oó]n\s+['\"]?([a-zA-Z_]\w*)", instruccion or "")
         if n.lower() not in _PALABRAS_COMUNES
     }
+    nombres_mencionados = nombres_explicitos | _funciones_mencionadas(instruccion, contenido_archivo)
     if len(nombres_mencionados) > 1:
         puntaje += 20
-        motivos.append(f"menciona varias funciones a la vez ({', '.join(nombres_mencionados)})")
+        motivos.append(f"menciona varias funciones a la vez ({', '.join(sorted(nombres_mencionados))})")
 
     if len(instruccion or "") > 220:
         puntaje += 15

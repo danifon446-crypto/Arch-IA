@@ -231,7 +231,9 @@ def manejar_pedido_de_cambio(instruccion):
         ruta_para_dificultad = RAIZ_APP / decision["archivo"]
         contenido_para_dificultad = ruta_para_dificultad.read_text(encoding="utf-8") if ruta_para_dificultad.is_file() else ""
         nivel, motivos = gran_sabio.estimar_dificultad(decision["archivo"], instruccion, contenido_para_dificultad)
-        if nivel == "alto":
+        if nivel == "medio":
+            print(f"Arché: Ojo, este pedido tiene algo de riesgo de fallar ({'; '.join(motivos)}) -- lo intento igual.")
+        elif nivel == "alto":
             print(f"Arché: Este pedido pinta difícil ({'; '.join(motivos)}).")
             seguir = input("Arché: ¿Lo intento igual (s), o preferís partirlo en pasos más chicos? [s/n]\nTú: ").strip().lower()
             if seguir not in ("s", "si", "sí"):
@@ -321,6 +323,9 @@ _hilo_estudio = None
 # ------------------------------------------------------------------
 _evento_detener_autorevision = threading.Event()
 _hilo_autorevision = None
+
+_evento_detener_examen = threading.Event()
+_hilo_examen = None
 if obtener("autorevision_automatica"):
     from core.IA.autorevision import iniciar_autorevision_en_background
     _hilo_autorevision = iniciar_autorevision_en_background(
@@ -756,6 +761,56 @@ while True:
 
     if comando.startswith("logre ") or comando.startswith("logré "):
         gran_sabio.completar_objetivo(comando_original.split(" ", 1)[1])
+        continue
+
+    # AULA DE ENTRENAMIENTO PROGRESIVO: clasificador jerárquico + examen.
+    # No reemplaza al clasificador actual (clasificador.py) -- corre
+    # aparte, en sus propios archivos, hasta que decidas activarlo.
+
+    if comando in ["entrenar jerarquico", "entrenar clasificador jerarquico"]:
+        from core.IA.clasificador_jerarquico import entrenar_jerarquico
+        entrenar_jerarquico()
+        continue
+
+    if comando in ["estado red jerarquica", "estado clasificador jerarquico"]:
+        from core.IA.clasificador_jerarquico import info_jerarquico
+        info = info_jerarquico()
+        for nombre, datos_info in info.items():
+            if datos_info["activo"]:
+                print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
+            else:
+                print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
+        continue
+
+    if comando in ["examen", "rendir examen"]:
+        from core.IA.examen import rendir_examen
+        try:
+            rendir_examen()
+        except RuntimeError as e:
+            print(f"Arché: {e}")
+        continue
+
+    if comando in ["estado examen", "estado del examen"]:
+        from core.IA.examen import estado_examen
+        print(estado_examen())
+        continue
+
+    if comando in ["iniciar examen automatico", "iniciar examen automático", "activar examen automatico"]:
+        from core.IA.examen import iniciar_examen_en_background
+        if _hilo_examen is not None and _hilo_examen.is_alive():
+            print("Arché: El examen automático ya está corriendo.")
+        else:
+            _evento_detener_examen.clear()
+            _hilo_examen = iniciar_examen_en_background(detener_evento=_evento_detener_examen, avisar=hablar)
+            print("Arché: Empecé a examinarme en segundo plano.")
+        continue
+
+    if comando in ["detener examen automatico", "detener examen automático"]:
+        if _hilo_examen is not None and _hilo_examen.is_alive():
+            _evento_detener_examen.set()
+            print("Arché: Voy a parar de examinarme después de esta ronda.")
+        else:
+            print("Arché: El examen automático no está corriendo.")
         continue
 
     # COMANDOS CONECTADOS POR ARCHÉ (registro en core/comandos_extra.py):
