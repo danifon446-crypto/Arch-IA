@@ -391,11 +391,29 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO)
     # la intención es plausible; el contenido ya pasó por el mismo
     # filtro de _contenido_seguro de arriba).
     margen_rescate = 0.08
-    confianza_minima = 0.6
+    confianza_minima_rescate = 0.6
 
     if mejor_resultado and mejor_score >= (umbral_semantico - margen_rescate):
         accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta)
-        if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima:
+        if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima_rescate:
             return mejor_resultado
+
+    # --- Resolución autónoma por clasificador (paso 4) ---
+    # A diferencia del rescate de arriba, esto NO necesita ningún vecino
+    # parecido -- cubre una frase genuinamente nueva, distinta a todo lo
+    # ya aprendido. Solo se acepta con confianza ALTA (más exigente que
+    # el rescate: ahí el clasificador nunca decide solo, acá si), porque
+    # sin un vecino no hay plantilla de la que extraer el "contenido" --
+    # se usa la frase normalizada tal cual. Para intenciones que ignoran
+    # "contenido" (saludo, hora, mostrar_memoria...) esto es exactamente
+    # tan bueno como una respuesta de Ollama. Para las que sí lo usan
+    # (crear_recordatorio, buscar...), el contenido queda menos prolijo
+    # que uno extraído a mano, pero sigue siendo funcional -- y evita
+    # caer a Ollama para algo que el clasificador ya reconoce bien.
+    confianza_minima_autonoma = 0.85
+
+    accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta)
+    if accion_predicha is not None and confianza >= confianza_minima_autonoma:
+        return {"accion": accion_predicha, "contenido": pregunta_norm}
 
     return None

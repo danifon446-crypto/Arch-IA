@@ -64,6 +64,13 @@ def _actualizar_estado(**cambios):
             json.dump(estado, f, ensure_ascii=False, indent=2)
 
 
+# Mismo criterio que en examen.py: si quedó marcado "corriendo" pero
+# hace mucho que no se actualiza ningún paso, es más probable un corte
+# abrupto (terminal cerrada, compu apagada a mitad de una ronda) que
+# que siga corriendo de verdad.
+_UMBRAL_DESACTUALIZADO_SEG = max(1800, INTERVALO_ENTRE_RONDAS_SEG * 3)
+
+
 def estado_estudio():
     """Para el comando 'estado estudio': resumen legible de qué está
     haciendo el modo estudio ahora mismo (o qué hizo la última vez)."""
@@ -74,7 +81,14 @@ def estado_estudio():
     lineas = []
     if estado.get("corriendo"):
         segundos = time.time() - estado.get("actualizado_ts", time.time())
-        lineas.append(f"🟢 Corriendo -- {estado.get('paso', '...')} (hace {int(segundos)}s que no cambia de paso)")
+        if segundos > _UMBRAL_DESACTUALIZADO_SEG:
+            lineas.append(
+                f"⚪ Parece que el modo estudio se cortó sin avisar hace {int(segundos) // 60} min "
+                f"(¿cerraste la terminal o se apagó la compu?) -- si lo querés seguir, corré "
+                f"'estudiar' o 'iniciar estudio automatico' de nuevo."
+            )
+        else:
+            lineas.append(f"🟢 Corriendo -- {estado.get('paso', '...')} (hace {int(segundos)}s que no cambia de paso)")
     else:
         lineas.append("⚪ No está corriendo ahora mismo.")
 

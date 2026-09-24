@@ -133,10 +133,48 @@ def registrar_resultado(progreso, dominio, acierto):
         info["listo"] = True
 
 
-def estado_examen():
-    """Para el comando 'estado examen': resumen legible del progreso."""
+def _marcar_automatico(corriendo):
+    """Persiste si el LOOP automático (iniciar_examen_en_background) está
+    corriendo ahora mismo -- separado de si hay una ronda de 'examen'
+    manual en curso. Se guarda junto al progreso porque es el mismo
+    archivo/candado que ya existe, no hace falta uno nuevo."""
     progreso = _cargar_progreso()
-    lineas = [f"Nivel grupal actual: {progreso['nivel_grupal']}"]
+    progreso["automatico_corriendo"] = corriendo
+    progreso["automatico_actualizado_ts"] = time.time()
+    _guardar_progreso(progreso)
+
+
+# Si "automatico_corriendo" quedó en True pero hace más de esto que no
+# se refresca, es más probable que el proceso se haya cortado de golpe
+# (cerraste la terminal, apagaste la compu) que que siga corriendo de
+# verdad -- la marca en disco no se entera sola de un corte abrupto.
+# Margen generoso: 3 rondas seguidas perdidas, con un piso de 30 min
+# para no marcar falsos positivos si una ronda tarda de más (Ollama
+# lento, por ejemplo).
+_UMBRAL_DESACTUALIZADO_SEG = max(1800, INTERVALO_ENTRE_RONDAS_SEG * 3)
+
+
+def estado_examen():
+    """Para el comando 'estado examen': resumen legible del progreso,
+    incluyendo si el examen automático está corriendo en background
+    ahora mismo (no solo el progreso del currículo)."""
+    progreso = _cargar_progreso()
+    lineas = []
+
+    if progreso.get("automatico_corriendo"):
+        hace = int(time.time() - progreso.get("automatico_actualizado_ts", time.time()))
+        if hace > _UMBRAL_DESACTUALIZADO_SEG:
+            lineas.append(
+                f"⚪ Parece que el examen automático se cortó sin avisar hace {hace // 60} min "
+                f"(¿cerraste la terminal o se apagó la compu?) -- si lo querés seguir, corré "
+                f"'iniciar examen automatico' de nuevo."
+            )
+        else:
+            lineas.append(f"🟢 Examen automático corriendo en background (hace {hace}s que sigue activo).")
+    else:
+        lineas.append("⚪ Examen automático NO está corriendo en background ahora mismo.")
+
+    lineas.append(f"Nivel grupal actual: {progreso['nivel_grupal']}")
     for nombre in dominios.nombres_de_dominios():
         info = progreso["dominios"][nombre]
         marca = "✅ listo" if info["listo"] else f"racha {info['racha']}/{UMBRAL_RACHA}"
@@ -299,19 +337,51 @@ def _es_eco_del_prompt(frase):
 _LARGO_MAXIMO_RAZONABLE = 260
 
 
+def _conteo_por_intencion(dominio):
+    """Cuántos ejemplos con embedding tiene HOY cada intención de
+    `dominio` en conocimiento.json."""
+    from core.IA.aprendizaje import cargar
+    conteo = {intencion: 0 for intencion in dominios.intenciones_de(dominio)}
+    for d in cargar():
+        if not d.get("embedding"):
+            continue
+        accion = d.get("accion")
+        if accion in conteo:
+            conteo[accion] += 1
+    return conteo
+
+
+def _elegir_intencion_a_examinar(dominio):
+    """
+    Prioriza la intención con MENOS ejemplos dentro de `dominio` (empate:
+    al azar entre las más flacas), en vez de elegir uniforme al azar
+    entre todas. Con selección uniforme, cubrir con MIN_EJEMPLOS_POR_CLASE
+    ejemplos cada intención de un dominio con varias clases tarda mucho
+    más de lo necesario (problema del "coleccionista de figuritas": sigue
+    repitiendo por azar las que ya están cubiertas). Priorizando la más
+    floja, cada ejercicio ataca directo el hueco más grande.
+    """
+    conteo = _conteo_por_intencion(dominio)
+    if not conteo:
+        return None
+    minimo = min(conteo.values())
+    candidatas = [intencion for intencion, n in conteo.items() if n == minimo]
+    return random.choice(candidatas)
+
+
 def generar_ejercicio(dominio, nivel):
     """
-    Arma UN ejercicio: elige una intención al azar dentro de `dominio`
-    y una táctica habilitada para `nivel`, le pide a Ollama la frase, y
-    devuelve {"frase", "intencion_correcta", "dominio", "tactica", "nivel"}
-    -- o None si Ollama no devolvió nada usable.
+    Arma UN ejercicio: elige la intención más floja dentro de `dominio`
+    (ver _elegir_intencion_a_examinar) y una táctica habilitada para
+    `nivel`, le pide a Ollama la frase, y devuelve
+    {"frase", "intencion_correcta", "dominio", "tactica", "nivel"} --
+    o None si Ollama no devolvió nada usable.
     """
     from core.IA.ollamaIA import conversar
 
-    intenciones_posibles = list(dominios.intenciones_de(dominio))
-    if not intenciones_posibles:
+    intencion = _elegir_intencion_a_examinar(dominio)
+    if intencion is None:
         return None
-    intencion = random.choice(intenciones_posibles)
     tema = _PALABRA_POR_INTENCION.get(intencion, intencion.replace("_", " "))
 
     tacticas_disponibles = tacticas_para_nivel(nivel)
@@ -443,6 +513,12 @@ def iniciar_examen_en_background(
     def _tarea():
         time.sleep(retraso_inicial_seg)
         while detener_evento is None or not detener_evento.is_set():
+            # Se refresca en CADA ronda (no solo una vez al arrancar) para
+            # que "hace Ns que sigue activo" en estado_examen() refleje
+            # actividad real, y para que un cierre abrupto (cerrar la
+            # terminal, apagar la compu) se note como desactualizado en
+            # vez de mostrar "corriendo" para siempre.
+            _marcar_automatico(True)
             try:
                 resultado = rendir_examen(silencioso=True)
                 if avisar is not None and resultado["total"] > 0:
@@ -458,6 +534,8 @@ def iniciar_examen_en_background(
                 if detener_evento is not None and detener_evento.is_set():
                     break
                 time.sleep(1)
+
+        _marcar_automatico(False)
 
     hilo = threading.Thread(target=_tarea, daemon=True)
     hilo.start()

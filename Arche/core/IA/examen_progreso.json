@@ -2,7 +2,7 @@
   "nivel_grupal": 2,
   "dominios": {
     "sistema": {
-      "racha": 2,
+      "racha": 0,
       "listo": false
     },
     "codigo": {
@@ -17,5 +17,7 @@
       "racha": 4,
       "listo": true
     }
-  }
+  },
+  "automatico_corriendo": true,
+  "automatico_actualizado_ts": 1790289736.7746086
 }
