@@ -179,11 +179,36 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
     return True
 
 
+def _intencion_unica(nombre_dominio):
+    """
+    Si `nombre_dominio` mapea a UNA sola intención (ej. "codigo" hoy
+    solo tiene "modificar_codigo"), no hace falta -- ni es posible --
+    entrenar una red que "elija" entre las intenciones del dominio: no
+    hay nada que desambiguar. Devuelve esa intención, o None si el
+    dominio tiene 2+ intenciones (el caso normal, sí necesita red).
+
+    Sin este caso especial, un dominio de 1 sola intención nunca junta
+    las MIN_CLASES=2 que pide _hay_datos_suficientes, así que su red
+    nunca entrena y predecir_jerarquico() nunca puede resolverlo -- en
+    el ciclo de examen (examen.py) eso se ve como ese dominio fallando
+    SIEMPRE, sin importar cuántos ejemplos junte, lo que le impide
+    llegar a "listo" y, como el nivel grupal solo sube cuando TODOS los
+    dominios están listos, traba el currículo entero para siempre.
+    """
+    intenciones = dominios.intenciones_de(nombre_dominio)
+    if len(intenciones) == 1:
+        return next(iter(intenciones))
+    return None
+
+
 def entrenar_jerarquico(silencioso=False):
     """
     Entrena la red de dominio y, para cada dominio con datos
-    suficientes, su red de intención. Un dominio sin datos suficientes
-    simplemente no se entrena todavía -- no hace fallar al resto.
+    suficientes Y 2+ intenciones posibles, su red de intención. Un
+    dominio sin datos suficientes simplemente no se entrena todavía --
+    no hace fallar al resto. Un dominio de una sola intención (ver
+    _intencion_unica) no necesita red propia: se marca resuelto sin
+    entrenar nada.
 
     Devuelve un dict {"dominio": bool, "sistema": bool, ...} con qué se
     actualizó en esta corrida.
@@ -199,6 +224,10 @@ def entrenar_jerarquico(silencioso=False):
     )
 
     for nombre_dominio in dominios.nombres_de_dominios():
+        if _intencion_unica(nombre_dominio) is not None:
+            # Nada que entrenar: el dominio ya determina la intención.
+            resultado[nombre_dominio] = True
+            continue
         X_int, y_int = _preparar_dataset_intencion(datos, nombre_dominio)
         resultado[nombre_dominio] = _entrenar_una_red(
             X_int, y_int, _archivo_submodelo(nombre_dominio),
@@ -247,6 +276,12 @@ def predecir_jerarquico(embedding_pregunta):
     except Exception:
         return None, 0.0, None
 
+    intencion_unica = _intencion_unica(dominio_predicho)
+    if intencion_unica is not None:
+        # El dominio ya determina la intención -- no hace falta (ni
+        # existe) un submodelo para este caso.
+        return intencion_unica, confianza_dom, dominio_predicho
+
     modelo_int, meta_int, cod_int = _cargar_pkl(_archivo_submodelo(dominio_predicho))
     if modelo_int is None:
         # Sabemos el dominio pero todavía no hay red entrenada para él
@@ -277,6 +312,12 @@ def info_jerarquico():
             "clases": meta_dom["clases"],
         })
     for nombre_dominio in dominios.nombres_de_dominios():
+        intencion_unica = _intencion_unica(nombre_dominio)
+        if intencion_unica is not None:
+            # No hay (ni hace falta) submodelo: el dominio resuelve
+            # directo a su única intención posible.
+            info[nombre_dominio] = {"activo": True, "intencion_unica": intencion_unica}
+            continue
         _, meta, _ = _cargar_pkl(_archivo_submodelo(nombre_dominio))
         info[nombre_dominio] = {"activo": meta is not None}
         if meta:

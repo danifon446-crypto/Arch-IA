@@ -274,6 +274,31 @@ def _limpiar_frase(texto):
     return ""
 
 
+# Fragmentos que aparecen en TODOS los prompts de _prompt_*() de arriba.
+# Si la respuesta de Ollama los contiene, no generó una frase de
+# ejemplo -- repitió (total o parcialmente) la instrucción. Aceptar
+# eso como ejercicio válido contaminaría conocimiento.json con texto
+# que no es una frase de usuario real (ver caso real: el examen de
+# 'editar_memoria' devolvió literalmente el prompt como "frase").
+_MARCAS_ECO_DEL_PROMPT = (
+    "responde con solo", "sin comillas", "sin numerar", "sin explicacion",
+    "escribi una frase", "escribi un parrafo", "la intencion clara sea",
+    "tipica de un usuario",
+)
+
+
+def _es_eco_del_prompt(frase):
+    frase_norm = _normalizar_como_aprendizaje(frase)
+    return any(marca in frase_norm for marca in _MARCAS_ECO_DEL_PROMPT)
+
+
+# Una frase/párrafo de ejercicio real (incluso la táctica "texto largo",
+# que pide 2-3 oraciones) no debería superar esto. Los prompts en sí
+# miden entre 294 y 405 caracteres (ver TACTICAS) -- si la respuesta se
+# les acerca, es mucho más probable que sea un eco que un ejercicio real.
+_LARGO_MAXIMO_RAZONABLE = 260
+
+
 def generar_ejercicio(dominio, nivel):
     """
     Arma UN ejercicio: elige una intención al azar dentro de `dominio`
@@ -296,6 +321,12 @@ def generar_ejercicio(dominio, nivel):
     respuesta = conversar(prompt, num_predict=120, temperature=0.9)
     frase = _limpiar_frase(respuesta)
     if not frase:
+        return None
+    if len(frase) > _LARGO_MAXIMO_RAZONABLE or _es_eco_del_prompt(frase):
+        # Ollama no generó un ejercicio -- devolvió (parte de) el propio
+        # prompt. Descartamos en vez de usar esto como ejemplo: no es
+        # una frase de usuario real, y si se acepta como fallo, se
+        # guardaría como dato de entrenamiento contaminado.
         return None
 
     return {

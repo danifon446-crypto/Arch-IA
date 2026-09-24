@@ -27,12 +27,68 @@ import threading
 
 BASE = os.path.dirname(__file__)
 ARCHIVO_TEMAS = os.path.join(BASE, "temas_estudio.json")
+ARCHIVO_ESTADO = os.path.join(BASE, "estudio_estado.json")
+_lock_estado = threading.Lock()
 
 PAUSA_ENTRE_LLAMADAS_SEG = 3     # no saturar Ollama mientras se estudia en background
 PREGUNTAS_POR_TEMA = 6
 VARIACIONES_POR_ITEM = 3
 MAX_ITEMS_A_VARIAR = 5           # por ronda, cuántos comandos/preguntas ya aprendidos se toman para generar variaciones
 INTERVALO_ENTRE_RONDAS_SEG = 600  # 10 min de pausa entre una ronda de estudio y la siguiente
+
+
+# ------------------------------------------------------------------
+# Estado: para el comando "estado estudio". A diferencia de
+# examen_progreso.json (que guarda progreso real de currículo), esto
+# es solo un "dónde estoy parada ahora mismo" -- se pisa en cada paso,
+# no se acumula histórico. Sirve para ver, sin esperar a que termine
+# nada, si el modo estudio está trabado o solo tardando una llamada
+# larga a Ollama (ver _generar_preguntas_sobre_tema, num_predict=600).
+# ------------------------------------------------------------------
+def _cargar_estado():
+    if not os.path.exists(ARCHIVO_ESTADO):
+        return {}
+    try:
+        with open(ARCHIVO_ESTADO, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _actualizar_estado(**cambios):
+    with _lock_estado:
+        estado = _cargar_estado()
+        estado.update(cambios)
+        estado["actualizado_ts"] = time.time()
+        with open(ARCHIVO_ESTADO, "w", encoding="utf-8") as f:
+            json.dump(estado, f, ensure_ascii=False, indent=2)
+
+
+def estado_estudio():
+    """Para el comando 'estado estudio': resumen legible de qué está
+    haciendo el modo estudio ahora mismo (o qué hizo la última vez)."""
+    estado = _cargar_estado()
+    if not estado:
+        return "Todavía no corrió el modo estudio en esta instalación."
+
+    lineas = []
+    if estado.get("corriendo"):
+        segundos = time.time() - estado.get("actualizado_ts", time.time())
+        lineas.append(f"🟢 Corriendo -- {estado.get('paso', '...')} (hace {int(segundos)}s que no cambia de paso)")
+    else:
+        lineas.append("⚪ No está corriendo ahora mismo.")
+
+    lineas.append(f"Aprendido en la ronda actual/última: {estado.get('aprendidos_ronda', 0)} ítems nuevos.")
+
+    fin = estado.get("fin_ultima_ronda_ts")
+    if fin:
+        minutos = int((time.time() - fin) // 60)
+        lineas.append(f"Última ronda completa terminó hace {minutos} min.")
+
+    if estado.get("ultimo_error"):
+        lineas.append(f"⚠️ Último error: {estado['ultimo_error']}")
+
+    return "\n".join(lineas)
 
 
 FRASES_DE_RELLENO = (
@@ -192,15 +248,19 @@ def _estudiar_tema(item):
     tema, descripcion = _texto_tema(item)
 
     print(f"Arché (estudio): repasando el tema '{tema}'...")
+    _actualizar_estado(paso=f"generando preguntas sobre '{tema}' (puede tardar varios minutos)")
     preguntas = _generar_preguntas_sobre_tema(tema, descripcion)
 
     for pregunta in preguntas:
         if buscar_respuesta(pregunta):
             continue  # ya la sabe, no gastamos otra llamada a Ollama
 
+        _actualizar_estado(paso=f"respondiendo '{pregunta}' (tema: {tema})")
         respuesta = conversar(pregunta)
         guardar_respuesta(pregunta, respuesta)
         print(f"Arché (estudio): aprendí a responder '{pregunta}'")
+        estado_actual = _cargar_estado()
+        _actualizar_estado(aprendidos_ronda=estado_actual.get("aprendidos_ronda", 0) + 1)
         time.sleep(PAUSA_ENTRE_LLAMADAS_SEG)
 
 
@@ -221,11 +281,14 @@ def _estudiar_variaciones_de_comandos(detener_evento=None):
     for dato in datos[:MAX_ITEMS_A_VARIAR]:
         if detener_evento is not None and detener_evento.is_set():
             return
+        _actualizar_estado(paso=f"generando variaciones de '{dato['pregunta']}'")
         variaciones = _generar_variaciones(dato["pregunta"])
         for variacion in variaciones:
             aprender(variacion, dato["accion"], dato["contenido"], fuente="estudio")
         if variaciones:
             print(f"Arché (estudio): {len(variaciones)} variaciones nuevas para '{dato['pregunta']}'")
+            estado_actual = _cargar_estado()
+            _actualizar_estado(aprendidos_ronda=estado_actual.get("aprendidos_ronda", 0) + len(variaciones))
         time.sleep(PAUSA_ENTRE_LLAMADAS_SEG)
 
 
@@ -236,6 +299,7 @@ def _estudiar_variaciones_de_respuestas(detener_evento=None):
     for dato in datos[:MAX_ITEMS_A_VARIAR]:
         if detener_evento is not None and detener_evento.is_set():
             return
+        _actualizar_estado(paso=f"generando variaciones de la respuesta a '{dato['pregunta']}'")
         variaciones = _generar_variaciones(dato["pregunta"])
         for variacion in variaciones:
             # No hace falta volver a preguntarle a Ollama la respuesta:
@@ -244,6 +308,8 @@ def _estudiar_variaciones_de_respuestas(detener_evento=None):
             guardar_respuesta(variacion, dato["respuesta"])
         if variaciones:
             print("Arché (estudio): variaciones nuevas para una respuesta ya conocida")
+            estado_actual = _cargar_estado()
+            _actualizar_estado(aprendidos_ronda=estado_actual.get("aprendidos_ronda", 0) + len(variaciones))
         time.sleep(PAUSA_ENTRE_LLAMADAS_SEG)
 
 
@@ -261,16 +327,20 @@ def estudiar_todo(detener_evento=None):
     mitad de un tema) en vez de seguir hasta terminar todo.
     """
     print("Arché: Empezando modo estudio...")
+    _actualizar_estado(corriendo=True, paso="arrancando", aprendidos_ronda=0, ultimo_error=None)
     try:
         _estudiar_todos_los_temas(detener_evento)
         if detener_evento is None or not detener_evento.is_set():
+            _actualizar_estado(paso="generando variaciones de comandos ya aprendidos")
             _estudiar_variaciones_de_comandos(detener_evento)
         if detener_evento is None or not detener_evento.is_set():
+            _actualizar_estado(paso="generando variaciones de respuestas ya conocidas")
             _estudiar_variaciones_de_respuestas(detener_evento)
 
         # Limpieza automática y conservadora al final de cada ronda:
         # borra solo contaminación de patrón obvio (contenido cruzado
         # entre preguntas claramente distintas). No toca casos dudosos.
+        _actualizar_estado(paso="limpieza automática")
         from core.IA.limpieza_auto import limpiar_automatico
         resultado_limpieza = limpiar_automatico(simular=False)
         if resultado_limpieza["borrados"] > 0:
@@ -278,11 +348,14 @@ def estudiar_todo(detener_evento=None):
 
     except Exception as e:
         print(f"Arché: El modo estudio se detuvo por un error ({e}).")
+        _actualizar_estado(ultimo_error=str(e))
 
     if detener_evento is not None and detener_evento.is_set():
         print("Arché: Modo estudio detenido.")
+        _actualizar_estado(corriendo=False, paso="detenido")
     else:
         print("Arché: Modo estudio terminado.")
+        _actualizar_estado(corriendo=False, paso="terminado", fin_ultima_ronda_ts=time.time())
 
 
 def iniciar_estudio_en_background(

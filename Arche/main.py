@@ -659,6 +659,11 @@ while True:
             print("Arché: El estudio automático no está corriendo.")
         continue
 
+    if comando in ["estado estudio", "estado del estudio"]:
+        from core.IA.estudio import estado_estudio
+        print(estado_estudio())
+        continue
+
     # AUTOREVISIÓN AUTOMÁTICA
 
     if comando in ["iniciar autorevision automatica", "iniciar autorevisión automática",
@@ -776,10 +781,12 @@ while True:
         from core.IA.clasificador_jerarquico import info_jerarquico
         info = info_jerarquico()
         for nombre, datos_info in info.items():
-            if datos_info["activo"]:
-                print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
-            else:
+            if not datos_info["activo"]:
                 print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
+            elif "intencion_unica" in datos_info:
+                print(f"  • {nombre}: activo (única intención posible: {datos_info['intencion_unica']}, no necesita red propia)")
+            else:
+                print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
         continue
 
     if comando in ["examen", "rendir examen"]:

@@ -1,21 +1,21 @@
 {
-  "nivel_grupal": 1,
+  "nivel_grupal": 2,
   "dominios": {
     "sistema": {
-      "racha": 0,
+      "racha": 2,
       "listo": false
     },
     "codigo": {
-      "racha": 0,
-      "listo": false
+      "racha": 5,
+      "listo": true
     },
     "conversacion": {
-      "racha": 0,
-      "listo": false
+      "racha": 5,
+      "listo": true
     },
     "memoria": {
-      "racha": 0,
-      "listo": false
+      "racha": 4,
+      "listo": true
     }
   }
 }
