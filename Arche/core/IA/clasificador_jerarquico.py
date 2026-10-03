@@ -3,28 +3,35 @@ clasificador_jerarquico.py
 ---------------------------
 Ubicacion: Arche/core/IA/clasificador_jerarquico.py
 
-Pieza 2 del Aula de Entrenamiento Progresivo: en vez de UNA red que
-intenta distinguir TODAS las intenciones a la vez (lo que hace hoy
-clasificador.py), dos niveles:
+En vez de UNA red que intenta distinguir TODAS las intenciones a la
+vez (lo que hace clasificador.py), entrena en niveles:
 
-  1. Red de dominio: dado un embedding, predice el dominio general
-     (sistema, codigo, conversacion, memoria -- ver dominios.py).
-  2. Red del dominio: una vez identificado el dominio, una red mas
-     chica y afinada -- entrenada SOLO con ejemplos de ese dominio --
-     decide la intencion exacta entre pocas clases parecidas.
+  1. Red de DOMINIO: dado un embedding, predice el dominio general
+     (sistema, codigo, conversacion, memoria, arche... -- ver
+     dominios.py / catalogo.py).
+  2. Si ese dominio se partió en SUBDOMINIOS (ej. 'arche' tiene 23
+     intenciones, repartidas en 6 sub-temas: ayuda, estudio,
+     autoconocimiento, examen, objetivos, entrenamiento -- ver
+     catalogo.SUBDOMINIOS_ASIGNADOS), una red del dominio predice el
+     SUBDOMINIO, y recien ahi una red MAS CHICA, entrenada solo con
+     las pocas intenciones de ESE subdominio, decide la intencion
+     exacta -- "miniredes de las miniredes": cada una pelea contra
+     muchas menos clases parecidas entre si que una sola red del
+     dominio entero.
+  3. Si el dominio NO tiene subdominios (la mayoria: notas, archivos,
+     calculadora, sistema, configuracion, conversacion, tiempo, web),
+     se salta el paso 2 y va directo del dominio a la intencion, como
+     siempre -- dos niveles, sin cambios de comportamiento.
 
-Por que aparte de clasificador.py, no adentro:
-  clasificador.py ya funciona y Arche depende de el en cada comando.
-  Esta version jerarquica se guarda en sus PROPIOS archivos .pkl,
-  separados de clasificador.pkl -- entrenar o predecir aca nunca toca
-  ni sobreescribe el modelo actual. Mientras este modulo no se conecte
-  a comprender()/cerebroIA.py (esa conexion es un paso aparte y
-  deliberado), Arche sigue exactamente igual que hoy.
+Por que aparte de clasificador.py, no adentro: clasificador.py ya
+funciona y Arche depende de el en cada comando. Esta version jerarquica
+se guarda en sus PROPIOS archivos .pkl, separados de clasificador.pkl
+-- entrenar o predecir aca nunca toca ni sobreescribe el modelo actual.
 
 Reutiliza la MISMA logica de validacion que clasificador.py (cross-
-validation, no sobreescribir con algo peor, umbral minimo de
-confianza) -- son las mismas constantes, importadas de ahi, no
-reinventadas.
+validation, no sobreescribir con algo peor salvo que haya MUCHOS mas
+datos, umbral minimo de confianza) -- las mismas constantes, importadas
+de ahi, no reinventadas.
 
 Requiere lo mismo que clasificador.py:
     pip install scikit-learn numpy imbalanced-learn
@@ -47,13 +54,24 @@ ARCHIVO_MODELO_DOMINIO = os.path.join(BASE, "clasificador_dominio.pkl")
 
 
 def _archivo_submodelo(dominio_nombre):
+    """Red de intención de un dominio SIN subdominios (dos niveles)."""
     return os.path.join(BASE, f"clasificador_dominio_{dominio_nombre}.pkl")
 
 
+def _archivo_subdominio(dominio_nombre):
+    """Red que, DENTRO de un dominio con subdominios, predice CUÁL
+    subdominio (paso intermedio del árbol de tres niveles)."""
+    return os.path.join(BASE, f"clasificador_dominio_{dominio_nombre}__subdominios.pkl")
+
+
+def _archivo_submodelo_sub(dominio_nombre, subdominio_nombre):
+    """Red de intención de UN subdominio puntual (tercer nivel)."""
+    return os.path.join(BASE, f"clasificador_dominio_{dominio_nombre}__{subdominio_nombre}.pkl")
+
+
 def _preparar_dataset_dominio(datos):
-    """Como _preparar_dataset de clasificador.py, pero la etiqueta `y`
-    es el DOMINIO de cada acción (no la acción en sí). Descarta
-    ejemplos cuya acción no tenga dominio mapeado (ver dominios.SIN_DOMINIO)."""
+    """y = DOMINIO de cada ejemplo. Descarta ejemplos cuya acción no
+    tenga dominio mapeado (ver dominios.SIN_DOMINIO)."""
     X, y = [], []
     for d in datos:
         if not d.get("embedding"):
@@ -67,13 +85,46 @@ def _preparar_dataset_dominio(datos):
 
 
 def _preparar_dataset_intencion(datos, dominio_nombre):
-    """Como _preparar_dataset de clasificador.py, pero SOLO con los
-    ejemplos cuya acción pertenece a `dominio_nombre`."""
+    """y = INTENCIÓN, solo ejemplos de `dominio_nombre` (dos niveles,
+    dominio sin subdominios)."""
     X, y = [], []
     for d in datos:
         if not d.get("embedding"):
             continue
         if dominios.dominio_de(d.get("accion")) != dominio_nombre:
+            continue
+        X.append(d["embedding"])
+        y.append(d["accion"])
+    return np.array(X), np.array(y)
+
+
+def _preparar_dataset_subdominio(datos, dominio_nombre):
+    """y = SUBDOMINIO, solo ejemplos de `dominio_nombre` cuya acción
+    tiene subdominio asignado (paso intermedio del árbol de tres
+    niveles)."""
+    X, y = [], []
+    for d in datos:
+        if not d.get("embedding"):
+            continue
+        accion = d.get("accion")
+        if dominios.dominio_de(accion) != dominio_nombre:
+            continue
+        sub = dominios.subdominio_de(accion)
+        if sub is None:
+            continue
+        X.append(d["embedding"])
+        y.append(sub)
+    return np.array(X), np.array(y)
+
+
+def _preparar_dataset_intencion_en_subdominio(datos, subdominio_nombre):
+    """y = INTENCIÓN, solo ejemplos cuya acción pertenece a
+    `subdominio_nombre` (tercer nivel, la minired de la minired)."""
+    X, y = [], []
+    for d in datos:
+        if not d.get("embedding"):
+            continue
+        if dominios.subdominio_de(d.get("accion")) != subdominio_nombre:
             continue
         X.append(d["embedding"])
         y.append(d["accion"])
@@ -92,12 +143,14 @@ def _metadata_anterior(archivo):
 
 def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
     """
-    Nucleo de entrenamiento compartido por la red de dominio y cada red
-    de intención: valida con cross-validation, balancea clases dentro
-    del pipeline (no antes, por la misma razón documentada en
-    clasificador.py: balancear antes de la validación infla el score
-    sin que el modelo generalice mejor de verdad), busca
-    hiperparámetros, y NUNCA sobreescribe un modelo mejor con uno peor.
+    Nucleo de entrenamiento compartido por CUALQUIER nivel del árbol
+    (dominio, subdominio, o intención): valida con cross-validation,
+    balancea clases dentro del pipeline, busca hiperparámetros, y NUNCA
+    sobreescribe un modelo mejor con uno peor -- salvo que haya MUCHOS
+    más datos que la última vez, en cuyo caso se tolera una caída de
+    precisión mayor (un score medido con pocos ejemplos es una
+    estimación poco confiable; con varias veces más datos, preferimos
+    el modelo nuevo aunque su CV score baje un poco).
 
     Devuelve True si guardó un modelo nuevo/actualizado, False si no.
     """
@@ -137,7 +190,15 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
 
     try:
         cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
-        busqueda = GridSearchCV(pipeline, grilla_pipeline, cv=cv, scoring="accuracy", n_jobs=-1)
+        # n_jobs=1 A PROPOSITO, no -1: el reentreno automático puede
+        # dispararse desde un hilo de fondo (examen automático,
+        # entrenamiento masivo, aprendizaje.aprender() al cruzar
+        # UMBRAL_REENTRENO) -- en Windows, lanzar procesos en paralelo
+        # desde un hilo que no es el principal puede colgarse en
+        # silencio, sin error ni aviso, para siempre. La grilla es
+        # chica (9 combinaciones), así que perder el paralelismo no
+        # se nota en el tiempo, y evita el cuelgue por completo.
+        busqueda = GridSearchCV(pipeline, grilla_pipeline, cv=cv, scoring="accuracy", n_jobs=1)
         busqueda.fit(X, y_cod)
     except Exception as e:
         if not silencioso:
@@ -155,23 +216,18 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
 
     meta_anterior = _metadata_anterior(archivo_destino)
     if meta_anterior:
-        # Margen de tolerancia: si hay bastantes MÁS ejemplos que la
-        # última vez, se acepta una caída de precisión algo mayor que
-        # el margen normal (0.01). Sin esto, un dominio con tácticas
-        # de examen difíciles (frase ambigua, distractor) puede quedar
-        # CONGELADO para siempre en un modelo viejo -- cada reentreno
-        # automático lo rechaza en silencio porque el score de
-        # validación se mueve un poco al sumar casos difíciles, aunque
-        # el modelo tenga muchos más datos reales para aprender.
         ejemplos_antes = meta_anterior.get("n_ejemplos", 0)
-        crecio_bastante = ejemplos_antes > 0 and len(X) >= ejemplos_antes * 1.3
-        margen = 0.05 if crecio_bastante else 0.01
-        if meta_anterior.get("score", 0) > score_nuevo + margen:
-            if not silencioso:
-                print(f"Arché: [{etiqueta}] el modelo nuevo ({score_nuevo:.0%}, {len(X)} ejemplos) "
-                      f"es peor que el actual ({meta_anterior['score']:.0%}, {ejemplos_antes} ejemplos). "
-                      f"Mantengo el actual.")
-            return False
+        crecimiento = (len(X) / ejemplos_antes) if ejemplos_antes else float("inf")
+        if crecimiento >= 3 and score_nuevo >= SCORE_MINIMO_UTILIZABLE and score_nuevo >= meta_anterior.get("score", 0) - 0.20:
+            pass  # bastantes más datos (3x+): se acepta aunque el score baje algo
+        else:
+            margen = 0.05 if crecimiento >= 1.3 else 0.01
+            if meta_anterior.get("score", 0) > score_nuevo + margen:
+                if not silencioso:
+                    print(f"Arché: [{etiqueta}] el modelo nuevo ({score_nuevo:.0%}, {len(X)} ejemplos) "
+                          f"es peor que el actual ({meta_anterior['score']:.0%}, {ejemplos_antes} ejemplos). "
+                          f"Mantengo el actual.")
+                return False
 
     hiperparametros_limpios = {
         clave.split("__", 1)[-1]: valor for clave, valor in busqueda.best_params_.items()
@@ -194,12 +250,18 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
 
 def entrenar_jerarquico(silencioso=False):
     """
-    Entrena la red de dominio y, para cada dominio con datos
-    suficientes, su red de intención. Un dominio sin datos suficientes
-    simplemente no se entrena todavía -- no hace fallar al resto.
+    Entrena TODO el árbol: la red de dominio y, para cada dominio,
 
-    Devuelve un dict {"dominio": bool, "sistema": bool, ...} con qué se
-    actualizó en esta corrida.
+      - si tiene subdominios (ver dominios.tiene_subdominios): la red
+        de subdominio, y luego una red de intención POR SUBDOMINIO
+        (tres niveles, "miniredes de las miniredes").
+      - si no: una única red de intención para el dominio entero
+        (dos niveles, como siempre).
+
+    Un dominio/subdominio sin datos suficientes simplemente no se
+    entrena todavía -- no hace fallar al resto.
+
+    Devuelve un dict {clave: bool} con qué se actualizó en esta corrida.
     """
     from core.IA.aprendizaje import cargar
     datos = cargar()
@@ -212,17 +274,32 @@ def entrenar_jerarquico(silencioso=False):
     )
 
     for nombre_dominio in dominios.nombres_de_dominios():
-        X_int, y_int = _preparar_dataset_intencion(datos, nombre_dominio)
-        resultado[nombre_dominio] = _entrenar_una_red(
-            X_int, y_int, _archivo_submodelo(nombre_dominio),
-            f"red de '{nombre_dominio}'", silencioso
-        )
+        if dominios.tiene_subdominios(nombre_dominio):
+            X_sub, y_sub = _preparar_dataset_subdominio(datos, nombre_dominio)
+            resultado[f"{nombre_dominio} (subdominios)"] = _entrenar_una_red(
+                X_sub, y_sub, _archivo_subdominio(nombre_dominio),
+                f"subdominios de '{nombre_dominio}'", silencioso
+            )
+            for subdominio, ids_subdominio in dominios.subdominios_de(nombre_dominio).items():
+                if len(ids_subdominio) < 2:
+                    continue  # subdominio trivial (una sola intención): no necesita red propia
+                X_int, y_int = _preparar_dataset_intencion_en_subdominio(datos, subdominio)
+                resultado[f"{nombre_dominio}.{subdominio}"] = _entrenar_una_red(
+                    X_int, y_int, _archivo_submodelo_sub(nombre_dominio, subdominio),
+                    f"red de '{nombre_dominio}.{subdominio}'", silencioso
+                )
+        else:
+            X_int, y_int = _preparar_dataset_intencion(datos, nombre_dominio)
+            resultado[nombre_dominio] = _entrenar_una_red(
+                X_int, y_int, _archivo_submodelo(nombre_dominio),
+                f"red de '{nombre_dominio}'", silencioso
+            )
 
     if not silencioso:
         huerfanas = dominios.validar({d.get("accion") for d in datos if d.get("accion")})
         if huerfanas:
             print(f"Arché: Ojo, estas intenciones no tienen dominio asignado en "
-                  f"dominios.py, así que no entrenan en el clasificador jerárquico: {huerfanas}")
+                  f"catalogo.py, así que no entrenan en el clasificador jerárquico: {huerfanas}")
 
     return resultado
 
@@ -238,49 +315,87 @@ def _cargar_pkl(archivo):
         return None, None, None
 
 
+def _predecir_con(archivo):
+    """Carga un modelo y predice sobre el embedding que le pases luego
+    -- envuelto en una función chica para no repetir el mismo bloque
+    try/except en cada nivel del árbol."""
+    modelo, metadata, codificador = _cargar_pkl(archivo)
+    if modelo is None:
+        return None
+
+    def _predecir(embedding):
+        if len(embedding) != metadata.get("dimension_embedding"):
+            return None
+        try:
+            probs = modelo.predict_proba([embedding])[0]
+            idx = int(probs.argmax())
+            etiqueta = codificador.inverse_transform([idx])[0]
+            return etiqueta, float(probs[idx])
+        except Exception:
+            return None
+
+    return _predecir
+
+
 def predecir_jerarquico(embedding_pregunta):
     """
-    Dos pasos: primero predice el DOMINIO, después -- con la red propia
-    de ese dominio -- predice la INTENCIÓN exacta. Devuelve
-    (accion, confianza, dominio) o (None, 0.0, None) si algo en la
-    cadena no está disponible o las dimensiones no calzan (mismo
-    criterio de seguridad que clasificador.predecir()).
+    Predice bajando por el árbol: dominio, y si ese dominio tiene
+    subdominios, subdominio, y recién ahí la intención -- con la red
+    más chica y específica disponible en cada paso. Si un subdominio
+    tiene una sola intención posible (ver entrenar_jerarquico), no hace
+    falta ninguna red ahí: se resuelve directo, sin margen de error en
+    ese paso.
+
+    Devuelve (accion, confianza, dominio) o (None, confianza_hasta_ahi,
+    dominio_o_None) si la cadena se corta en algún punto por falta de
+    modelo entrenado o dimensiones que no calzan.
     """
-    modelo_dom, meta_dom, cod_dom = _cargar_pkl(ARCHIVO_MODELO_DOMINIO)
-    if modelo_dom is None:
-        return None, 0.0, None
-    if len(embedding_pregunta) != meta_dom.get("dimension_embedding"):
+    predecir_dominio = _predecir_con(ARCHIVO_MODELO_DOMINIO)
+    if predecir_dominio is None:
         return None, 0.0, None
 
-    try:
-        probs_dom = modelo_dom.predict_proba([embedding_pregunta])[0]
-        idx_dom = int(probs_dom.argmax())
-        dominio_predicho = cod_dom.inverse_transform([idx_dom])[0]
-        confianza_dom = float(probs_dom[idx_dom])
-    except Exception:
+    resultado_dominio = predecir_dominio(embedding_pregunta)
+    if resultado_dominio is None:
         return None, 0.0, None
+    dominio_predicho, confianza_dominio = resultado_dominio
 
-    modelo_int, meta_int, cod_int = _cargar_pkl(_archivo_submodelo(dominio_predicho))
-    if modelo_int is None:
-        # Sabemos el dominio pero todavía no hay red entrenada para él
-        return None, confianza_dom, dominio_predicho
-    if len(embedding_pregunta) != meta_int.get("dimension_embedding"):
-        return None, confianza_dom, dominio_predicho
+    if not dominios.tiene_subdominios(dominio_predicho):
+        predecir_intencion = _predecir_con(_archivo_submodelo(dominio_predicho))
+        if predecir_intencion is None:
+            return None, confianza_dominio, dominio_predicho
+        resultado_intencion = predecir_intencion(embedding_pregunta)
+        if resultado_intencion is None:
+            return None, confianza_dominio, dominio_predicho
+        accion, confianza_intencion = resultado_intencion
+        return accion, confianza_intencion, dominio_predicho
 
-    try:
-        probs_int = modelo_int.predict_proba([embedding_pregunta])[0]
-        idx_int = int(probs_int.argmax())
-        accion = cod_int.inverse_transform([idx_int])[0]
-        confianza_int = float(probs_int[idx_int])
-    except Exception:
-        return None, confianza_dom, dominio_predicho
+    # --- dominio con subdominios: un paso más en el árbol ---
+    predecir_subdominio = _predecir_con(_archivo_subdominio(dominio_predicho))
+    if predecir_subdominio is None:
+        return None, confianza_dominio, dominio_predicho
+    resultado_subdominio = predecir_subdominio(embedding_pregunta)
+    if resultado_subdominio is None:
+        return None, confianza_dominio, dominio_predicho
+    subdominio_predicho, confianza_subdominio = resultado_subdominio
 
-    return accion, confianza_int, dominio_predicho
+    ids_del_subdominio = dominios.subdominios_de(dominio_predicho).get(subdominio_predicho, set())
+    if len(ids_del_subdominio) == 1:
+        # subdominio trivial: una sola intención posible, se resuelve directo
+        return next(iter(ids_del_subdominio)), confianza_subdominio, dominio_predicho
+
+    predecir_intencion = _predecir_con(_archivo_submodelo_sub(dominio_predicho, subdominio_predicho))
+    if predecir_intencion is None:
+        return None, confianza_subdominio, dominio_predicho
+    resultado_intencion = predecir_intencion(embedding_pregunta)
+    if resultado_intencion is None:
+        return None, confianza_subdominio, dominio_predicho
+    accion, confianza_intencion = resultado_intencion
+    return accion, confianza_intencion, dominio_predicho
 
 
 def info_jerarquico():
-    """Como clasificador.info_modelo(), pero para toda la jerarquía --
-    útil para un futuro comando 'estado red jerarquica'."""
+    """Como clasificador.info_modelo(), pero para todo el árbol --
+    incluye subdominios cuando el dominio los tiene."""
     info = {}
     _, meta_dom, _ = _cargar_pkl(ARCHIVO_MODELO_DOMINIO)
     info["dominio"] = {"activo": meta_dom is not None}
@@ -289,12 +404,35 @@ def info_jerarquico():
             "precision": meta_dom["score"], "n_ejemplos": meta_dom["n_ejemplos"],
             "clases": meta_dom["clases"],
         })
+
     for nombre_dominio in dominios.nombres_de_dominios():
-        _, meta, _ = _cargar_pkl(_archivo_submodelo(nombre_dominio))
-        info[nombre_dominio] = {"activo": meta is not None}
-        if meta:
-            info[nombre_dominio].update({
-                "precision": meta["score"], "n_ejemplos": meta["n_ejemplos"],
-                "clases": meta["clases"],
-            })
+        if dominios.tiene_subdominios(nombre_dominio):
+            _, meta_sub, _ = _cargar_pkl(_archivo_subdominio(nombre_dominio))
+            clave_sub = f"{nombre_dominio} (subdominios)"
+            info[clave_sub] = {"activo": meta_sub is not None}
+            if meta_sub:
+                info[clave_sub].update({
+                    "precision": meta_sub["score"], "n_ejemplos": meta_sub["n_ejemplos"],
+                    "clases": meta_sub["clases"],
+                })
+            for subdominio, ids_subdominio in dominios.subdominios_de(nombre_dominio).items():
+                clave = f"{nombre_dominio}.{subdominio}"
+                if len(ids_subdominio) == 1:
+                    info[clave] = {"activo": True, "trivial": True}
+                    continue
+                _, meta, _ = _cargar_pkl(_archivo_submodelo_sub(nombre_dominio, subdominio))
+                info[clave] = {"activo": meta is not None}
+                if meta:
+                    info[clave].update({
+                        "precision": meta["score"], "n_ejemplos": meta["n_ejemplos"],
+                        "clases": meta["clases"],
+                    })
+        else:
+            _, meta, _ = _cargar_pkl(_archivo_submodelo(nombre_dominio))
+            info[nombre_dominio] = {"activo": meta is not None}
+            if meta:
+                info[nombre_dominio].update({
+                    "precision": meta["score"], "n_ejemplos": meta["n_ejemplos"],
+                    "clases": meta["clases"],
+                })
     return info

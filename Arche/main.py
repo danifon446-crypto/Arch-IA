@@ -33,6 +33,9 @@ import importlib
 from core import comandos_extra
 from core.IA import conectar_funciones
 from core.IA import gran_sabio
+from core.IA import catalogo
+from core.IA import entrenador_masivo
+from core.IA import enrutador_natural
 
 # NOTA: archivos que existen en el proyecto pero NO se usan en ningún
 # lado (no rompen nada si se quedan, es solo peso muerto):
@@ -326,6 +329,9 @@ _hilo_autorevision = None
 
 _evento_detener_examen = threading.Event()
 _hilo_examen = None
+
+_evento_detener_entrenamiento = threading.Event()
+_hilo_entrenamiento = None
 if obtener("autorevision_automatica"):
     from core.IA.autorevision import iniciar_autorevision_en_background
     _hilo_autorevision = iniciar_autorevision_en_background(
@@ -334,9 +340,18 @@ if obtener("autorevision_automatica"):
         avisar=hablar,
     )
 
+# El enrutador natural, cuando reconoce una frase libre como un comando
+# que Arché ya sabe manejar, no lo ejecuta el mismo -- lo pone aca y el
+# bucle lo procesa en la SIGUIENTE vuelta exactamente como si lo
+# hubieras tipeado tal cual. Cero funciones duplicadas.
+_cola_comandos_naturales = []
+
 while True:
 
-    comando_original = input("\nTú: ").strip()
+    if _cola_comandos_naturales:
+        comando_original = _cola_comandos_naturales.pop(0)
+    else:
+        comando_original = input("\nTú: ").strip()
     comando = comando_original.lower()
 
     if not comando:
@@ -659,11 +674,6 @@ while True:
             print("Arché: El estudio automático no está corriendo.")
         continue
 
-    if comando in ["estado estudio", "estado del estudio"]:
-        from core.IA.estudio import estado_estudio
-        print(estado_estudio())
-        continue
-
     # AUTOREVISIÓN AUTOMÁTICA
 
     if comando in ["iniciar autorevision automatica", "iniciar autorevisión automática",
@@ -768,6 +778,71 @@ while True:
         gran_sabio.completar_objetivo(comando_original.split(" ", 1)[1])
         continue
 
+    if comando in ["sembrar catalogo", "sembrar el catalogo"]:
+        entrenador_masivo.sembrar_catalogo()
+        continue
+
+    if comando in ["estado banco", "estado del banco"]:
+        print(entrenador_masivo.estado_banco())
+        continue
+
+    if comando in ["entrenar a fondo", "entrenamiento a fondo"]:
+        confirmar = input(
+            "Arché: Esto genera y juzga ejemplos nuevos para cada intención del catálogo "
+            "-- tarda un rato (llama a Ollama dos veces por cada frase candidata: una para "
+            "generarla, otra para juzgarla). ¿Lo corro en segundo plano mientras seguís "
+            "usándome? [s/n]\nTú: "
+        ).strip().lower()
+        if confirmar in ("s", "si", "sí"):
+            if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
+                print("Arché: Ya estoy entrenando a fondo.")
+            else:
+                _evento_detener_entrenamiento.clear()
+                _hilo_entrenamiento = threading.Thread(
+                    target=entrenador_masivo.entrenar_a_fondo,
+                    kwargs={"detener_evento": _evento_detener_entrenamiento},
+                    daemon=True,
+                )
+                _hilo_entrenamiento.start()
+                print("Arché: Empecé a entrenar a fondo en segundo plano. Decime 'detener entrenamiento' si querés cortarlo antes.")
+        else:
+            print("Arché: Dale, cancelado.")
+        continue
+
+    if comando in ["entrenar rapido", "entrenar rápido", "entrenamiento rapido"]:
+        if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
+            print("Arché: Ya estoy entrenando.")
+        else:
+            _evento_detener_entrenamiento.clear()
+            _hilo_entrenamiento = threading.Thread(
+                target=entrenador_masivo.entrenar_rapido,
+                kwargs={"detener_evento": _evento_detener_entrenamiento},
+                daemon=True,
+            )
+            _hilo_entrenamiento.start()
+            print("Arché: Empecé a entrenar rápido (sin juez) en segundo plano.")
+        continue
+
+    if comando in ["detener entrenamiento"]:
+        if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
+            _evento_detener_entrenamiento.set()
+            print("Arché: Voy a parar el entrenamiento a fondo después de esta intención.")
+        else:
+            print("Arché: No estoy entrenando a fondo ahora mismo.")
+        continue
+
+    if comando in ["modo natural on", "activar modo natural", "activar enrutador natural"]:
+        enrutador_natural.activar(True)
+        print("Arché: Listo, ahora también entiendo frases libres para TODO lo que sé hacer "
+              "(antes de esto, Ollama solo reconocía mis comandos de charla; ahora reconoce "
+              "el catálogo completo -- notas, archivos, calculadora, sistema, y el resto).")
+        continue
+
+    if comando in ["modo natural off", "desactivar modo natural", "desactivar enrutador natural"]:
+        enrutador_natural.activar(False)
+        print("Arché: Dale, vuelvo a necesitar los comandos tal cual (o lo que reconozca comprender()).")
+        continue
+
     # AULA DE ENTRENAMIENTO PROGRESIVO: clasificador jerárquico + examen.
     # No reemplaza al clasificador actual (clasificador.py) -- corre
     # aparte, en sus propios archivos, hasta que decidas activarlo.
@@ -781,12 +856,10 @@ while True:
         from core.IA.clasificador_jerarquico import info_jerarquico
         info = info_jerarquico()
         for nombre, datos_info in info.items():
-            if not datos_info["activo"]:
-                print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
-            elif "intencion_unica" in datos_info:
-                print(f"  • {nombre}: activo (única intención posible: {datos_info['intencion_unica']}, no necesita red propia)")
-            else:
+            if datos_info["activo"]:
                 print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
+            else:
+                print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
         continue
 
     if comando in ["examen", "rendir examen"]:
@@ -840,14 +913,48 @@ while True:
         print(f"Arché: {respuesta_auto}")
         continue
 
-    # Nada determinístico coincidió -> AHORA sí vale la pena clasificar
-    # con la IA (resolver() por plantillas primero, Ollama como último
-    # recurso dentro de analizar()). La telemetría del resultado ya se
-    # registra DENTRO de analizar() (en cerebroIA.py), con información
-    # más precisa de qué capa resolvió el comando -- por eso acá no se
-    # vuelve a registrar.
+    # Nada determinístico coincidió -> antes de caer al clasificador viejo
+    # (que solo conoce ~17 intenciones), probamos el enrutador natural,
+    # que conoce las ~60 del catálogo completo. Es opt-in ("modo natural
+    # on") para no cambiarle el comportamiento a nadie que no lo pida.
+    resultado = None
+    if enrutador_natural.activo():
+        ruteo = enrutador_natural.enrutar(comando_original)
+        if ruteo:
+            id_intencion, argumento, confianza = ruteo
+            entrada = catalogo.POR_ID.get(id_intencion)
+            if entrada and entrada["comando"]:
+                # Tiene un comando fijo equivalente (ej. "crea una nota {X}")
+                # -> se reinyecta y lo procesa el MISMO chequeo determinístico
+                # de siempre, sin duplicar ninguna función acá.
+                comando_canonico = catalogo.armar_comando(entrada, argumento)
+                if entrada.get("confirmar"):
+                    print(f"Arché: Entendí que pedís: {entrada['descripcion']}"
+                          f"{f' ({argumento})' if argumento else ''}. Es delicado, "
+                          f"¿lo confirmo? [s/n]")
+                    ok = input("Tú: ").strip().lower()
+                    if ok not in ("s", "si", "sí"):
+                        print("Arché: Dale, cancelado.")
+                        continue
+                else:
+                    print(f"Arché: (Entendí: {entrada['descripcion']})")
+                _cola_comandos_naturales.append(comando_canonico)
+                continue
+            elif entrada:
+                # Sin comando fijo (saludo, conversar, buscar, abrir, memoria,
+                # modificar_codigo...) -> se arma el MISMO formato que ya
+                # devuelve analizar(), y sigue por el switch de siempre, unas
+                # líneas más abajo, sin tocarlo.
+                resultado = {"intencion": id_intencion, "contenido": argumento}
 
-    resultado = analizar(comando)
+    # Nada determinístico ni el enrutador natural coincidió -> AHORA sí
+    # vale la pena clasificar con la IA (resolver() por plantillas primero,
+    # Ollama como último recurso dentro de analizar()). La telemetría del
+    # resultado ya se registra DENTRO de analizar() (en cerebroIA.py), con
+    # información más precisa de qué capa resolvió el comando -- por eso
+    # acá no se vuelve a registrar.
+    if resultado is None:
+        resultado = analizar(comando)
     intencion = resultado["intencion"]
     contenido = resultado["contenido"]
 
