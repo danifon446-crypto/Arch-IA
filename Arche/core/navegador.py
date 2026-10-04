@@ -33,7 +33,9 @@ def abrir_navegador(sitio):
     if sitio in sitios:
         print(f"Arché: Abriendo {sitio}...")
         time.sleep(1.5)
-        webbrowser.open(sitios[sitio])
+        # abrir_url pregunta en cuál navegador si hay más de uno
+        from core.control_pc import abrir_url
+        abrir_url(sitios[sitio])
     else:
         print("Arché: No tengo acceso a esa página.")
 

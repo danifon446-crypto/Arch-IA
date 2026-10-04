@@ -47,6 +47,17 @@ RELLENOS = {
     "recordatorio": ["llamar al medico", "entregar el trabajo", "pagar el internet", "estudiar para el examen"],
     "dato": ["mi color favorito es el azul", "mi cumpleanos es en mayo", "vivo en bogota", "trabajo con arduino"],
     "texto": ["comprar leche", "revisar el correo", "llamar a mama"],
+    # lo que se busca + el sitio al final (lo extrae la red / Ollama junto)
+    "busqueda_sitio": ["gatos graciosos en youtube", "recetas de pasta en claude", "arduino en wikipedia",
+                       "musica relajante en spotify", "tutorial de python en youtube", "restaurantes cerca en maps",
+                       "robots en github", "zapatos en mercadolibre"],
+    "sitio_web": ["mercadolibre", "amazon", "pinterest", "twitch", "netflix"],
+    "navegador": ["chrome", "edge", "firefox", "brave", "opera"],
+    "ventana": ["chrome", "spotify", "bloc de notas", "word", "discord", "el explorador"],
+    "ventana_lado": ["chrome a la izquierda", "spotify a la derecha", "bloc de notas a la derecha"],
+    "porcentaje": ["20", "30", "50", "70", "100"],
+    "tecla": ["enter", "ctrl+c", "ctrl+t", "alt+tab", "f5", "esc"],
+    "carpeta": ["descargas", "escritorio", "documentos", "imagenes", "musica", "videos"],
 }
 
 ENTRADAS = []
@@ -86,6 +97,111 @@ _e("buscar", "web", None, "buscar informacion en internet sobre un tema",
 _e("abrir", "web", None, "abrir una pagina web o un programa",
    ["abre {X}", "entra a {X}", "abreme {X}", "ve a {X}", "inicia {X}", "ejecuta {X}"],
    argumento="sitio")
+_e("buscar_en_sitio", "web", None,
+   "buscar algo directamente dentro de un sitio o pagina concreta (youtube, claude, wikipedia, mercadolibre...); el contenido es lo que se busca seguido de 'en' y el sitio",
+   ["busca {X}", "buscame {X}", "ponme {X}", "quiero ver {X}", "encuentrame {X}", "abre la busqueda de {X}"],
+   argumento="busqueda_sitio")
+_e("aprender_sitio_busqueda", "web", "aprende buscar en {X}", "ensenarle al asistente como se busca dentro de un sitio web nuevo",
+   ["ensenate a buscar en {X}", "quiero que aprendas a buscar en {X}", "aprende a buscar dentro de {X}", "aprende como se busca en {X}"],
+   argumento="sitio_web")
+
+# ------------------------------------------------------------------ computador
+_e("que_tengo_abierto", "computador", "que tengo abierto", "ver que navegadores y programas estan instalados y abiertos en el computador",
+   ["que navegadores tengo abiertos", "que programas tengo abiertos", "que hay abierto en mi pc", "dime que tengo abierto", "tengo chrome abierto", "que ventanas tengo abiertas"])
+_e("fijar_navegador", "computador", "usa siempre {X}", "dejar fijo un navegador para abrir todo sin preguntar en cual",
+   ["abre todo siempre en {X}", "quiero que uses {X} siempre", "siempre abre en {X}", "deja {X} como mi navegador", "usa {X} para todo"],
+   argumento="navegador")
+_e("preguntar_navegador", "computador", "preguntame el navegador", "volver a preguntar en cual navegador abrir cada cosa cuando hay varios",
+   ["pregunta siempre en que navegador abrir", "ya no uses siempre el mismo navegador", "vuelve a preguntarme el navegador", "quiero elegir el navegador cada vez"])
+
+# ventanas (core/acciones_pc.py)
+_e("enfocar_ventana", "computador", "pasa a {X}", "traer al frente una ventana o programa que ya esta abierto",
+   ["cambia a la ventana de {X}", "trae {X} al frente", "enfoca {X}", "muestrame la ventana de {X}", "pasa a {X}", "activa la ventana de {X}"],
+   argumento="ventana")
+_e("minimizar_ventana", "computador", "minimiza {X}", "minimizar una ventana o programa abierto",
+   ["esconde la ventana de {X}", "manda {X} a la barra de tareas", "oculta {X}", "minimiza la ventana de {X}", "quita {X} de la pantalla"],
+   argumento="ventana")
+_e("maximizar_ventana", "computador", "maximiza {X}", "maximizar una ventana o programa abierto para que ocupe toda la pantalla",
+   ["pon {X} en pantalla completa", "agranda la ventana de {X}", "expande {X}", "haz mas grande {X}", "maximiza la ventana de {X}"],
+   argumento="ventana")
+_e("cerrar_ventana", "computador", "cierra {X}", "cerrar una ventana o programa que esta abierto",
+   ["cierra la ventana de {X}", "cierra el programa {X}", "termina {X}", "quiero cerrar {X}", "ya no necesito {X}, cierralo"],
+   argumento="ventana")
+_e("mostrar_escritorio", "computador", "muestra el escritorio", "minimizar todas las ventanas para ver el escritorio",
+   ["minimiza todo", "oculta todas las ventanas", "quiero ver el escritorio", "ve al escritorio", "despeja la pantalla"])
+_e("acomodar_ventana", "computador", "acomoda {X}", "poner una ventana en la mitad izquierda o derecha de la pantalla",
+   ["pon {X}", "ubica {X}", "ancla {X}", "mueve {X}", "pega {X}"],
+   argumento="ventana_lado")
+
+# sonido y reproduccion
+_e("subir_volumen", "computador", "sube el volumen", "subir el volumen del computador",
+   ["mas volumen", "aumenta el volumen", "subele al sonido", "que suene mas fuerte", "no se escucha, sube el sonido", "sube un poco el volumen"])
+_e("bajar_volumen", "computador", "baja el volumen", "bajar el volumen del computador",
+   ["menos volumen", "reduce el volumen", "bajale al sonido", "que suene mas bajito", "esta muy duro, baja el volumen", "baja un poco el volumen"])
+_e("volumen_a", "computador", "pon el volumen al {X}", "dejar el volumen en un porcentaje exacto",
+   ["deja el volumen en {X}", "volumen al {X} por ciento", "ajusta el sonido al {X}", "pon el sonido en {X}", "sube el volumen al {X}"],
+   argumento="porcentaje")
+_e("silenciar", "computador", "silencia el sonido", "silenciar o reactivar el sonido del computador",
+   ["mutea el computador", "quita el sonido", "ponlo en silencio", "activa el sonido", "silencio"])
+_e("pausar_reproducir", "computador", "pausa la musica", "pausar o reanudar la musica o el video que esta sonando",
+   ["pon pausa", "reanuda la musica", "dale play", "pausa el video", "continua la reproduccion"])
+_e("siguiente_cancion", "computador", "siguiente cancion", "pasar a la siguiente cancion o pista",
+   ["pasa a la siguiente cancion", "salta esta cancion", "next", "pon la proxima cancion", "cambia de cancion"])
+_e("cancion_anterior", "computador", "cancion anterior", "volver a la cancion o pista anterior",
+   ["pon la cancion anterior", "regresa la cancion", "vuelve a la cancion anterior", "previous", "pon el tema anterior"])
+
+# pantalla
+_e("subir_brillo", "computador", "sube el brillo", "subir el brillo de la pantalla",
+   ["mas brillo", "aumenta el brillo", "la pantalla esta muy oscura", "subele brillo a la pantalla", "sube un poco el brillo"])
+_e("bajar_brillo", "computador", "baja el brillo", "bajar el brillo de la pantalla",
+   ["menos brillo", "reduce el brillo", "la pantalla esta muy clara", "bajale el brillo", "baja un poco el brillo"])
+_e("brillo_a", "computador", "pon el brillo al {X}", "dejar el brillo de la pantalla en un porcentaje exacto",
+   ["deja el brillo en {X}", "brillo al {X} por ciento", "ajusta el brillo al {X}", "pon el brillo en {X}"],
+   argumento="porcentaje")
+_e("captura_pantalla", "computador", "toma una captura de pantalla", "tomar una captura de pantalla y guardarla como imagen",
+   ["captura la pantalla", "haz un screenshot", "sacale una foto a la pantalla", "pantallazo", "guarda lo que se ve en pantalla"])
+
+# teclado y mouse
+_e("teclear_texto", "computador", "teclea {X}", "escribir un texto por el usuario en otra ventana, como si lo tecleara",
+   ["escribe por mi {X}", "tipea {X}", "digita {X}", "teclea esto {X}"],
+   argumento="texto")
+_e("presionar_tecla", "computador", "presiona {X}", "presionar una tecla o un atajo de teclado en otra ventana",
+   ["pulsa {X}", "oprime {X}", "aprieta {X}", "manda el atajo {X}"],
+   argumento="tecla")
+_e("hacer_clic", "computador", "haz clic", "hacer clic con el mouse donde esta el puntero",
+   ["clic", "da un clic", "haz click aqui", "dame un clic"])
+_e("clic_derecho", "computador", "haz clic derecho", "hacer clic derecho con el mouse donde esta el puntero",
+   ["clic derecho", "boton derecho del mouse", "da clic derecho aqui", "haz click derecho"])
+_e("doble_clic", "computador", "haz doble clic", "hacer doble clic con el mouse donde esta el puntero",
+   ["doble clic", "da doble click", "clic doble", "haz doble click aqui"])
+_e("desplazar_abajo", "computador", "baja la pagina", "desplazar hacia abajo la pagina o ventana que se esta usando",
+   ["desplaza hacia abajo", "scroll abajo", "avanza la pagina", "pagina siguiente", "baja la pantalla"])
+_e("desplazar_arriba", "computador", "sube la pagina", "desplazar hacia arriba la pagina o ventana que se esta usando",
+   ["desplaza hacia arriba", "scroll arriba", "pagina anterior", "regresa arriba", "sube la pantalla"])
+
+# el equipo
+_e("bloquear_pc", "computador", "bloquea el pc", "bloquear el computador para que pida la clave",
+   ["bloquea la pantalla", "bloquea el computador", "voy a salir, bloquea el equipo", "pon la pantalla de bloqueo"])
+_e("apagar_pc", "computador", "apaga el pc", "apagar el computador",
+   ["apaga el computador", "apaga el equipo", "quiero apagar la compu", "apaga todo", "apaga el portatil"])
+_e("reiniciar_pc", "computador", "reinicia el pc", "reiniciar el computador",
+   ["reinicia el computador", "reinicia el equipo", "reinicia la compu", "reiniciar todo", "reinicia el portatil"])
+_e("cerrar_sesion", "computador", "cierra la sesion", "cerrar la sesion de usuario de Windows",
+   ["cierra sesion", "sal de mi cuenta de windows", "cerrar sesion de windows", "cierra mi sesion"])
+_e("suspender_pc", "computador", "suspende el pc", "poner el computador en suspension o hibernacion",
+   ["suspende el equipo", "pon el computador a dormir", "duerme la compu", "hiberna el pc"])
+_e("cancelar_apagado", "computador", "cancela el apagado", "cancelar un apagado o reinicio que ya se programo",
+   ["cancela el reinicio", "ya no apagues el pc", "detén el apagado", "no apagues"])
+_e("ver_bateria", "computador", "cuanta bateria tengo", "ver cuanta bateria queda y si esta cargando",
+   ["como esta la bateria", "cuanta bateria me queda", "nivel de bateria", "estoy conectado al cargador"])
+_e("ver_portapapeles", "computador", "que hay en el portapapeles", "ver el texto que esta copiado en el portapapeles",
+   ["muestra el portapapeles", "que copie", "lee lo que copie", "dime lo que tengo copiado"])
+_e("copiar_portapapeles", "computador", "copia al portapapeles {X}", "copiar un texto al portapapeles",
+   ["guarda en el portapapeles {X}", "copia este texto {X}", "pon {X} en el portapapeles"],
+   argumento="texto")
+_e("abrir_carpeta", "computador", "abre la carpeta {X}", "abrir una carpeta del usuario como descargas, escritorio o documentos",
+   ["abre mis {X}", "muestrame la carpeta de {X}", "quiero ver mis {X}", "abre el explorador en {X}"],
+   argumento="carpeta")
 
 # --------------------------------------------------------------------- memoria
 _e("recordar", "memoria", None, "pedirle al asistente que recuerde un dato personal",
@@ -368,6 +484,19 @@ SUBDOMINIOS_ASIGNADOS = {
     "examen": "examen", "estado_examen": "examen", "examen_on": "examen", "examen_off": "examen",
     "objetivos": "objetivos", "agregar_objetivo": "objetivos", "objetivo_logrado": "objetivos",
     "entrenar_fondo": "entrenamiento", "estado_banco": "entrenamiento",
+
+    # computador: navegador / ventanas / sonido / pantalla / entrada / equipo
+    "que_tengo_abierto": "navegador", "fijar_navegador": "navegador", "preguntar_navegador": "navegador",
+    "enfocar_ventana": "ventanas", "minimizar_ventana": "ventanas", "maximizar_ventana": "ventanas",
+    "cerrar_ventana": "ventanas", "mostrar_escritorio": "ventanas", "acomodar_ventana": "ventanas",
+    "subir_volumen": "sonido", "bajar_volumen": "sonido", "volumen_a": "sonido", "silenciar": "sonido",
+    "pausar_reproducir": "sonido", "siguiente_cancion": "sonido", "cancion_anterior": "sonido",
+    "subir_brillo": "pantalla", "bajar_brillo": "pantalla", "brillo_a": "pantalla", "captura_pantalla": "pantalla",
+    "teclear_texto": "entrada", "presionar_tecla": "entrada", "hacer_clic": "entrada", "clic_derecho": "entrada",
+    "doble_clic": "entrada", "desplazar_abajo": "entrada", "desplazar_arriba": "entrada",
+    "bloquear_pc": "equipo", "apagar_pc": "equipo", "reiniciar_pc": "equipo", "cerrar_sesion": "equipo",
+    "suspender_pc": "equipo", "cancelar_apagado": "equipo", "ver_bateria": "equipo",
+    "ver_portapapeles": "equipo", "copiar_portapapeles": "equipo", "abrir_carpeta": "equipo",
 }
 for _id, _subdominio in SUBDOMINIOS_ASIGNADOS.items():
     if _id in POR_ID:

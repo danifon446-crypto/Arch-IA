@@ -60,6 +60,12 @@ def reentrenar_ahora():
     tanto el reentreno automático (cada UMBRAL_REENTRENO ejemplos) como
     'importar ejemplos', que carga muchos de golpe y reentrena al final.
     """
+    import warnings
+    # Con pocos ejemplos, sklearn avisa "The least populated class in y has
+    # only 1 members" por cada red -- es normal al empezar (esas redes no se
+    # activan hasta tener datos) y el resumen de abajo ya lo cuenta.
+    warnings.filterwarnings("ignore", message="The least populated class", category=UserWarning)
+
     try:
         from core.IA.clasificador import entrenar
         entrenar(silencioso=True)

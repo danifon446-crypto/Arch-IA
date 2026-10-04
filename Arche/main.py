@@ -20,6 +20,8 @@ from core.ayuda import ayuda
 from core.archivos import *
 from core.configuracion import *
 from core.calculadora import *
+from core import control_pc
+from core import acciones_pc
 from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
@@ -268,6 +270,10 @@ if obtener("nombre_usuario") == "Usuario":
         cambiar("nombre_usuario", nombre)
 
 
+# Mantiene al dia el archivo de comandos (Herrmientas/Comandos de Arche.txt)
+from core.guia_comandos import exportar_guia_a_archivo
+exportar_guia_a_archivo()
+
 print()
 print("Analizando datos...")
 time.sleep(2)
@@ -347,6 +353,20 @@ while True:
     comando = comando_original.lower()
 
     if not comando:
+        continue
+
+    # VARIOS PASOS: "abre chrome y luego busca gatos en youtube" -> se parte en
+    # pasos y se encolan (con una pausa entre cada uno) para que el bucle los
+    # procese como si los hubieras escrito uno por uno.
+    _pasos = acciones_pc.dividir_pasos(comando_original)
+    if len(_pasos) > 1:
+        _encolar = []
+        for _i, _paso in enumerate(_pasos):
+            if _i:
+                _encolar.append("espera 2")
+            _encolar.append(_paso)
+        _cola_comandos_naturales[0:0] = _encolar
+        print(f"Arché: Entendido, son {len(_pasos)} pasos. Voy uno por uno.")
         continue
 
     # ------------------------------------------------------------------
@@ -470,6 +490,51 @@ while True:
         buscar_y_abrir(nombre)
         continue
 
+    # CONTROL DEL PC: búsqueda directa en un sitio ("busca gatos en youtube",
+    # "busca recetas en claude"), qué hay abierto, y qué navegador usar.
+    # Va ANTES del clasificador: son comparaciones directas, instantáneas.
+    # Solo reconoce la búsqueda si nombra un sitio conocido; si no
+    # ("busca inteligencia artificial"), sigue el flujo de siempre.
+
+    _busqueda_en_sitio = control_pc.interpretar_busqueda(comando_original)
+    if _busqueda_en_sitio:
+        control_pc.buscar_en_sitio(*_busqueda_en_sitio)
+        # refuerzo: esta frase queda como ejemplo para las redes (en segundo plano)
+        control_pc.aprender_de_uso(comando_original, f"{_busqueda_en_sitio[1]} en {_busqueda_en_sitio[0]}")
+        continue
+
+    if comando.startswith("aprende buscar en "):
+        control_pc.ensenar_sitio_busqueda(comando.replace("aprende buscar en ", "", 1))
+        continue
+
+    if comando in ["que tengo abierto", "qué tengo abierto", "que navegadores tengo", "qué navegadores tengo",
+                   "que hay abierto", "qué hay abierto", "estado del pc", "estado de mi pc",
+                   "que navegador tengo abierto", "qué navegador tengo abierto"]:
+        print("Arché: " + control_pc.resumen_del_pc())
+        acciones_pc.imprimir_ventanas()
+        continue
+
+    _preferencia_navegador = control_pc.interpretar_preferencia(comando_original)
+    if _preferencia_navegador:
+        _accion, _nav = _preferencia_navegador
+        if _accion == "preguntar":
+            control_pc.fijar_navegador_preferido(None)
+            print("Arché: Listo, cuando haya más de un navegador te voy a preguntar en cuál.")
+        else:
+            _ok, _mensaje = control_pc.fijar_navegador(_nav)
+            print(f"Arché: {_mensaje}")
+        continue
+
+    # CONTROL DEL PC (core/acciones_pc.py): ventanas, volumen, brillo, teclado
+    # y mouse, captura, bloqueo/apagado, portapapeles, carpetas. Si no es una
+    # acción del PC devuelve None y todo sigue como siempre.
+    _accion_pc = acciones_pc.manejar(comando_original)
+    if _accion_pc:
+        if _accion_pc[0] in catalogo.POR_ID:
+            # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
+            control_pc.aprender_de_uso(comando_original, _accion_pc[1], _accion_pc[0])
+        continue
+
     # CALCULADORA
 
     if comando.startswith("calcula"):
@@ -573,12 +638,14 @@ while True:
         # a un comando del chat (esa conexión también pide tu aprobación).
         conectar_funciones.ofrecer_tras_revision(ids_antes)
         importlib.reload(comandos_extra)  # para que un comando recién aprobado ya funcione
+        exportar_guia_a_archivo()  # el archivo de comandos incluye lo recién aprobado
         continue
 
     if comando.startswith("conecta ") or comando.startswith("conectar "):
         nombre_funcion = comando_original.split()[-1].strip(".,:;'\"")
         conectar_funciones.conectar_por_nombre(nombre_funcion)
         importlib.reload(comandos_extra)
+        exportar_guia_a_archivo()
         continue
 
     if comando.startswith("cambia esto") or comando.startswith("mejora esto") or comando.startswith("arreglá esto") or comando.startswith("arregla esto"):
@@ -1052,8 +1119,16 @@ while True:
 
     # BÚSQUEDAS EN GOOGLE
 
-    elif intencion == "buscar":
-        if contenido:
+    elif intencion in ("buscar", "buscar_en_sitio"):
+        # si el contenido nombra un sitio ("gatos en youtube"), busca ahí
+        _en_sitio = control_pc.interpretar_busqueda("busca " + contenido) if contenido else None
+        if _en_sitio:
+            control_pc.buscar_en_sitio(*_en_sitio)
+        elif intencion == "buscar_en_sitio" and contenido and control_pc.separar_sitio(contenido)[1]:
+            # la red entendió que hay un sitio, pero Arché todavía no lo conoce
+            _consulta, _sitio = control_pc.separar_sitio(contenido)
+            control_pc.buscar_en_sitio_desconocido(_sitio, _consulta)
+        elif contenido:
             buscar_google(contenido)
         else:
             respuesta = input("Arché: ¿Qué quieres buscar?\nTú: ").strip().lower()

@@ -30,6 +30,7 @@ DEPENDENCIAS = {
     "sentence_transformers": "sentence-transformers",  # embeddings semánticos
     "faster_whisper": "faster-whisper",               # transcripción de voz
     "sounddevice": "sounddevice",                     # captura de micrófono
+    "psutil": "psutil",                               # estado del sistema, procesos y ventanas (sistema.py, control_pc.py)
 }
 
 

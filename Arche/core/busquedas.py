@@ -17,4 +17,6 @@ def obtener_busqueda(comando):
 def buscar_google(busqueda):
     print (f"Arche esta buscando '{busqueda}' en Google")
     time.sleep(1.5)
-    webbrowser.open("https://www.google.com/search?q=" + quote_plus(busqueda))
+    # abrir_url pregunta en cuál navegador si hay más de uno
+    from core.control_pc import abrir_url
+    abrir_url("https://www.google.com/search?q=" + quote_plus(busqueda))

@@ -49,14 +49,27 @@ def sembrar_catalogo(silencioso=False):
     """
     from core.IA import aprendizaje
 
+    # aprender() reentrena todas las redes cada UMBRAL_REENTRENO ejemplos; al
+    # sembrar cientos de golpe eso eran decenas de reentrenos (y de avisos en
+    # pantalla). Igual que 'importar ejemplos': se desactiva durante la carga
+    # y se reentrena UNA sola vez al final.
+    umbral_original = aprendizaje.UMBRAL_REENTRENO
+    aprendizaje.UMBRAL_REENTRENO = float("inf")
     agregados = 0
-    for entrada in catalogo.ENTRADAS:
-        for frase, contenido in catalogo.expandir_semillas(entrada, max_por_semilla=2):
-            aprendizaje.aprender(frase, entrada["id"], contenido, fuente="catalogo")
-            agregados += 1
+    try:
+        for entrada in catalogo.ENTRADAS:
+            for frase, contenido in catalogo.expandir_semillas(entrada, max_por_semilla=2):
+                aprendizaje.aprender(frase, entrada["id"], contenido, fuente="catalogo")
+                agregados += 1
+    finally:
+        aprendizaje.UMBRAL_REENTRENO = umbral_original
 
     if not silencioso:
         print(f"Arché: Sembré {agregados} ejemplo(s) base para {len(catalogo.ENTRADAS)} intenciones del catálogo.")
+    if agregados:
+        if not silencioso:
+            print("Arché: Reentreno las redes una sola vez (puede tardar un poco)...")
+        aprendizaje.reentrenar_ahora()
     return agregados
 
 

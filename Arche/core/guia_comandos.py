@@ -89,6 +89,18 @@ DESCRIPCIONES_EXTRA = {
     "modo natural off": ("entrenamiento", "Vuelve a pedir los comandos tal cual."),
 }
 
+# Comandos del control del PC que main.py resuelve con funciones (no con un
+# 'if comando == ...' literal), asi que la lectura de main.py no los ve.
+# Clave normalizada -> (comando a mostrar, descripcion).
+COMANDOS_CONTROL_PC = {
+    "espera": ("computador", "espera <N> segundos", "Pausa de N segundos (sirve entre pasos encadenados)."),
+    "varios pasos": ("computador", "<orden> y luego <orden> [y luego <orden>...]",
+                     "Encadena varias ordenes del PC o de la web, por ejemplo: abre chrome y luego busca gatos en youtube."),
+    "mis ventanas": ("computador", "mis ventanas", "Lista las ventanas que tienes abiertas."),
+    "busca en un sitio": ("web", "busca <algo> en youtube | claude | google | chatgpt | wikipedia | github | spotify | maps | <cualquier sitio que conozca o dominio>",
+                          "Abre la busqueda directo en ese sitio. Si hay mas de un navegador, pregunta en cual."),
+}
+
 ORDEN_EXTRAS = ["guia", "entrenamiento", "examen"]
 CATEGORIA_CONECTADOS = "conectados por arche"
 CATEGORIA_OTROS = "otros"
@@ -252,6 +264,9 @@ def construir_guia():
         comando = entrada["comando"].replace("{X}", f"<{entrada.get('argumento') or 'dato'}>")
         _sumar(entrada["dominio"], comando, [], entrada["descripcion"], clave)
 
+    for clave, (categoria, comando, descripcion) in COMANDOS_CONTROL_PC.items():
+        _sumar(categoria, comando, [], descripcion, clave)
+
     ya_listadas = {c["clave"] for items in guia.values() for c in items}
     for frase, definicion in _comandos_conectados().items():
         if _norm(frase) in ya_listadas:
@@ -298,6 +313,56 @@ def _buscar_categoria(guia, texto):
         if texto in _norm(nombre) or _norm(nombre) in texto:
             return nombre
     return None
+
+
+def texto_para_archivo():
+    """La guia completa como texto plano, para guardarla en un .txt.
+    Sin lineas decorativas: solo titulos en mayuscula y una linea por comando."""
+    guia = construir_guia()
+    lineas = ["COMANDOS DE ARCHÉ",
+              "Este archivo se actualiza solo cada vez que Arché arranca.",
+              "No lo edites a mano: tus cambios se pierden."]
+    for nombre, items in guia.items():
+        lineas.append("")
+        lineas.append(nombre.upper())
+        for item in items:
+            linea = f"  {item['comando']}"
+            if item["descripcion"]:
+                linea += f"  -  {item['descripcion']}"
+            lineas.append(linea)
+            if item["alias"]:
+                lineas.append(f"      También: {', '.join(item['alias'])}")
+    return "\n".join(lineas) + "\n"
+
+
+# Nombre del archivo que se mantiene al dia. Vive en Herrmientas/ (la carpeta
+# de utilidades del proyecto, hermana de Arche/), al lado de Comandos.txt,
+# que son tus notas personales y NO se toca.
+ARCHIVO_GUIA_TXT = os.path.join(os.path.dirname(RAIZ), "Herrmientas", "Comandos de Arche.txt")
+
+
+def exportar_guia_a_archivo(ruta=None):
+    """Escribe la guia en 'Herrmientas/Comandos de Arche.txt'. Solo
+    reescribe si el contenido cambio. Nunca rompe a Arche: si no se
+    puede escribir (carpeta no existe, solo lectura, .exe empaquetado),
+    devuelve False sin hacer ruido."""
+    ruta = ruta or ARCHIVO_GUIA_TXT
+    try:
+        texto = texto_para_archivo()
+        try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                if f.read() == texto:
+                    return True
+        except OSError:
+            pass
+        carpeta = os.path.dirname(ruta)
+        if not os.path.isdir(carpeta):
+            return False
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write(texto)
+        return True
+    except Exception:
+        return False
 
 
 def mostrar_guia(categoria=None, actualizar_vistos=True):

@@ -499,7 +499,6 @@ borra los aprendizajes contaminados | limpiar_conocimiento
 depura tu conocimiento de datos malos | limpiar_conocimiento
 quita del conocimiento lo que este danado | limpiar_conocimiento
 
-```txt
 # ============================================================
 # COMPLETAR INTENCIONES HASTA 10 EJEMPLOS
 # ============================================================
@@ -966,4 +965,3 @@ muéstrame qué recordatorios tengo pendientes | mostrar_recordatorios
 # =========================
 
 qué puedo hacer con esta categoría | ayuda_categoria | 
-```
