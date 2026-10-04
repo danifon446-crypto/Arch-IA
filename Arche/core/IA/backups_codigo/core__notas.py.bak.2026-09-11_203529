@@ -44,9 +44,7 @@ def leer_nota(nombre):
         print("Arché: Esa nota no existe.")
         return
 
-    print("=" * 40)
     print(nombre.upper())
-    print("=" * 40)
 
     with open(ruta, "r", encoding="utf-8") as archivo:
         print(archivo.read())

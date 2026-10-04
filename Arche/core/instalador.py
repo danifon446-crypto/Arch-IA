@@ -64,12 +64,10 @@ def verificar_e_instalar(paquetes=None):
     if not faltantes:
         return
 
-    print("=" * 60)
     print("Arché: Me faltan algunas librerías para funcionar completo.")
     print(f"Arché: Voy a instalar {len(faltantes)}: "
           f"{', '.join(p for _, p in faltantes)}")
     print("Arché: Puede tardar varios minutos la primera vez, según tu conexión.")
-    print("=" * 60)
 
     fallidas = []
 
@@ -99,7 +97,6 @@ def verificar_e_instalar(paquetes=None):
         else:
             print(f"Arché: {paquete} listo.")
 
-    print("\n" + "=" * 60)
     if fallidas:
         print("Arché: Terminé, pero algunas fallaron. Instálalas a mano:")
         for paquete, error in fallidas:
@@ -109,7 +106,6 @@ def verificar_e_instalar(paquetes=None):
         print("Arché: Las funciones que dependen de esas librerías no van a estar disponibles hasta entonces.")
     else:
         print("Arché: Todas las dependencias quedaron instaladas.")
-    print("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

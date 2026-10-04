@@ -1,0 +1,969 @@
+# ejemplos_manuales.txt
+# Un ejemplo por linea, con este formato:
+#
+#     frase | intencion
+#     frase | intencion | dato_variable      (solo si la intencion lleva argumento)
+#
+# Las lineas vacias y las que empiezan con # se ignoran.
+# Para ver los nombres validos de intencion, en Arche escribe: intenciones
+# Despues de editar este archivo, en Arche escribe: importar ejemplos
+#
+# Ejemplos (borra el # para usarlos):
+#     que hora tienes ahorita | hora
+#     anotame lo del dentista | crear_nota | lo del dentista
+# =========================
+# NOTAS
+# =========================
+
+lee la nota del dentista | leer_nota | dentista
+muéstrame la nota del proyecto | leer_nota | proyecto
+abre la nota de la universidad | leer_nota | universidad
+quiero leer una nota que guardé | leer_nota | 
+enséñame la nota sobre Arduino | leer_nota | Arduino
+lee mi nota llamada compras | leer_nota | compras
+abre la nota que dice materiales | leer_nota | materiales
+
+abre la nota del proyecto | abrir_nota | proyecto
+quiero abrir la nota de Arduino | abrir_nota | Arduino
+abre mi nota de la universidad | abrir_nota | universidad
+entra a la nota de compras | abrir_nota | compras
+abre la nota llamada ideas | abrir_nota | ideas
+quiero ver la nota del robot | abrir_nota | robot
+
+agrega esto a la nota del proyecto | agregar_nota | proyecto
+añade esta información a la nota de Arduino | agregar_nota | Arduino
+escribe en la nota de la universidad que mañana hay examen | agregar_nota | universidad: mañana hay examen
+agrega a la nota del robot que necesito dos motores | agregar_nota | robot: necesito dos motores
+añade a la nota compras que necesito sensores | agregar_nota | compras: necesito sensores
+pon en la nota proyecto que ya terminé el circuito | agregar_nota | proyecto: ya terminé el circuito
+
+borra la nota del proyecto | eliminar_nota | proyecto
+elimina la nota de Arduino | eliminar_nota | Arduino
+quiero borrar la nota de compras | eliminar_nota | compras
+elimina la nota llamada ideas | eliminar_nota | ideas
+borra mi nota del robot | eliminar_nota | robot
+quita la nota de la universidad | eliminar_nota | universidad
+
+# =========================
+# CALCULADORA
+# =========================
+
+calcula 25 por 8 | calcular | 25 * 8
+cuánto es 150 dividido entre 6 | calcular | 150 / 6
+resuelve 35 más 47 | calcular | 35 + 47
+cuánto da 18 al cuadrado | calcular | 18 ** 2
+calcula 250 menos 87 | calcular | 250 - 87
+cuánto es el 15 por ciento de 300 | calcular | 15% de 300
+resuelve 12 por 5 más 20 | calcular | 12 * 5 + 20
+haz esta operación 45 / 9 | calcular | 45 / 9
+cuánto es 2 elevado a 10 | calcular | 2 ** 10
+calcula 1000 dividido entre 25 | calcular | 1000 / 25
+
+muéstrame mis últimos cálculos | historial_calculos
+quiero ver el historial de cálculos | historial_calculos
+enséñame las operaciones que he hecho | historial_calculos
+cuáles fueron mis cálculos anteriores | historial_calculos
+muéstrame el último cálculo | ultimo_calculo
+cuál fue la última operación | ultimo_calculo
+dime qué fue lo último que calculé | ultimo_calculo
+cuál fue mi cálculo más reciente | ultimo_calculo
+
+# =========================
+# ARCHIVOS
+# =========================
+
+busca el archivo del proyecto | buscar_archivo | proyecto
+encuentra el archivo de Arduino | buscar_archivo | Arduino
+busca un archivo llamado informe | buscar_archivo | informe
+encuentra mi archivo de matemáticas | buscar_archivo | matemáticas
+dónde está el archivo del robot | buscar_archivo | robot
+busca archivos que tengan la palabra examen | buscar_archivo | examen
+encuentra la carpeta del proyecto | buscar_archivo | proyecto
+
+abre el archivo del proyecto | abrir_archivo | proyecto
+abre el informe de Arduino | abrir_archivo | Arduino
+quiero abrir el archivo llamado informe | abrir_archivo | informe
+abre el documento de matemáticas | abrir_archivo | matemáticas
+abre el archivo del robot | abrir_archivo | robot
+abre el archivo que se llama tarea | abrir_archivo | tarea
+
+actualiza los archivos de Arché | actualizar_archivos
+revisa si hay archivos nuevos | actualizar_archivos
+actualiza la información de los archivos | actualizar_archivos
+sincroniza los archivos de Arché | actualizar_archivos
+actualiza mi biblioteca de archivos | actualizar_archivos
+
+# =========================
+# SISTEMA
+# =========================
+
+cómo está el sistema | estado_sistema
+dime el estado actual del computador | estado_sistema
+muéstrame el estado del sistema | estado_sistema
+revisa cómo está funcionando el computador | estado_sistema
+quiero saber el estado del equipo | estado_sistema
+cómo está funcionando mi PC | estado_sistema
+
+qué procesos están consumiendo recursos | procesos_consumen
+qué programas están consumiendo más | procesos_consumen
+muéstrame los procesos que más consumen | procesos_consumen
+qué está usando más memoria | procesos_consumen
+qué procesos están usando más CPU | procesos_consumen
+qué aplicaciones están consumiendo recursos | procesos_consumen
+qué está consumiendo la RAM | procesos_consumen
+
+cuánto espacio tengo en el disco | espacio_disco
+cuánto espacio libre queda | espacio_disco
+revisa el espacio del disco | espacio_disco
+dime cuánto almacenamiento tengo disponible | espacio_disco
+cuánto almacenamiento me queda | espacio_disco
+cuánto espacio libre hay en mi PC | espacio_disco
+
+# =========================
+# RED
+# =========================
+
+tengo conexión a internet | estado_red
+hay internet | estado_red
+revisa mi conexión | estado_red
+comprueba la conexión de red | estado_red
+está funcionando el internet | estado_red
+tengo conexión de red | estado_red
+revisa si estoy conectado | estado_red
+comprueba el estado de la red | estado_red
+
+# =========================
+# CONFIGURACIÓN
+# =========================
+
+muéstrame mi configuración | mostrar_config
+qué configuración tengo | mostrar_config
+enséñame la configuración de Arché | mostrar_config
+quiero ver la configuración actual | mostrar_config
+dime cómo está configurado Arché | mostrar_config
+
+quiero cambiar mi nombre | cambiar_nombre_usuario | Daniel
+cambia mi nombre a Daniel | cambiar_nombre_usuario | Daniel
+llámame Daniel | cambiar_nombre_usuario | Daniel
+quiero que me llames Dani | cambiar_nombre_usuario | Dani
+cambia el nombre del usuario | cambiar_nombre_usuario | Daniel
+
+cambia tu nombre | cambiar_nombre_asistente | Arché
+quiero cambiar tu nombre | cambiar_nombre_asistente | Arché
+ahora te vas a llamar Arché | cambiar_nombre_asistente | Arché
+ponte otro nombre | cambiar_nombre_asistente | Arché
+quiero modificar tu nombre | cambiar_nombre_asistente | Arché
+
+restablece la configuración | restablecer_config
+restaura la configuración original | restablecer_config
+vuelve a la configuración predeterminada | restablecer_config
+reinicia la configuración de Arché | restablecer_config
+deja la configuración como estaba al principio | restablecer_config
+
+# =========================
+# MEMORIA
+# =========================
+
+recuerda que mi proyecto usa ESP32 | recordar | mi proyecto usa ESP32
+guarda que estoy estudiando mecatrónica | recordar | estoy estudiando mecatrónica
+recuerda que mi robot usa dos motores | recordar | mi robot usa dos motores
+guarda esta información | recordar | 
+quiero que recuerdes esto | recordar | 
+memoriza que necesito comprar sensores | recordar | necesito comprar sensores
+guarda en tu memoria que uso Windows | recordar | uso Windows
+
+qué recuerdas de mi proyecto | mostrar_memoria
+muéstrame lo que recuerdas | mostrar_memoria
+qué tienes guardado en memoria | mostrar_memoria
+enséñame mi memoria | mostrar_memoria
+dime qué información tienes guardada | mostrar_memoria
+qué información recuerdas de mí | mostrar_memoria
+
+cambia lo que recuerdas sobre mi proyecto | editar_memoria | proyecto
+modifica un recuerdo | editar_memoria | 
+quiero cambiar una información guardada | editar_memoria | 
+actualiza lo que tienes guardado | editar_memoria | 
+corrige un dato de tu memoria | editar_memoria | 
+modifica un recuerdo sobre Arduino | editar_memoria | Arduino
+
+# =========================
+# RECORDATORIOS
+# =========================
+
+recuérdame estudiar mañana | crear_recordatorio | estudiar mañana
+pon un recordatorio para las 5 de la tarde | crear_recordatorio | estudiar a las 5 de la tarde
+recuérdame comprar sensores | crear_recordatorio | comprar sensores
+crea un recordatorio para revisar el proyecto | crear_recordatorio | revisar el proyecto
+avísame mañana sobre el examen | crear_recordatorio | examen mañana
+ponme un recordatorio para hacer la tarea | crear_recordatorio | hacer la tarea
+recuérdame llamar a mi profesor | crear_recordatorio | llamar al profesor
+crea un recordatorio para el proyecto | crear_recordatorio | proyecto
+añade un recordatorio para estudiar matemáticas | crear_recordatorio | estudiar matemáticas
+
+qué recordatorios tengo | mostrar_recordatorios
+muéstrame mis recordatorios | mostrar_recordatorios
+qué tengo pendiente | mostrar_recordatorios
+enséñame los recordatorios | mostrar_recordatorios
+dime mis recordatorios pendientes | mostrar_recordatorios
+qué recordatorios están activos | mostrar_recordatorios
+quiero ver mis recordatorios | mostrar_recordatorios
+
+elimina el recordatorio de estudiar | eliminar_recordatorio | estudiar
+borra el recordatorio del proyecto | eliminar_recordatorio | proyecto
+quita el recordatorio de mañana | eliminar_recordatorio | mañana
+elimina mi recordatorio de comprar sensores | eliminar_recordatorio | comprar sensores
+borra ese recordatorio | eliminar_recordatorio | 
+quita el recordatorio del examen | eliminar_recordatorio | examen
+
+ya hice lo que me recordaste | completar_recordatorio | 
+completa el recordatorio de estudiar | completar_recordatorio | estudiar
+marca como terminado el recordatorio del proyecto | completar_recordatorio | proyecto
+ya terminé esa tarea | completar_recordatorio | 
+marca ese recordatorio como completado | completar_recordatorio | 
+ya hice el recordatorio | completar_recordatorio | 
+
+# =========================
+# ARCHÉ — TEMAS Y OBJETIVOS
+# =========================
+
+agrega Arduino como tema de estudio | agregar_tema | Arduino
+añade sensores como tema de estudio | agregar_tema | sensores
+quiero estudiar electrónica | agregar_tema | electrónica
+agrega programación C++ a mis temas | agregar_tema | C++
+añade robótica a los temas | agregar_tema | robótica
+agrega inteligencia artificial | agregar_tema | inteligencia artificial
+quiero agregar matemáticas a mis temas | agregar_tema | matemáticas
+
+agrega como objetivo terminar Arché | agregar_objetivo | terminar Arché
+añade el objetivo de construir el robot | agregar_objetivo | construir el robot
+mi objetivo es terminar el proyecto | agregar_objetivo | terminar el proyecto
+crea el objetivo aprender Python | agregar_objetivo | aprender Python
+agrega como objetivo mejorar Arché | agregar_objetivo | mejorar Arché
+guarda este objetivo | agregar_objetivo | 
+
+ya terminé el objetivo de aprender Python | objetivo_logrado | aprender Python
+marca como logrado terminar Arché | objetivo_logrado | terminar Arché
+completé el objetivo del robot | objetivo_logrado | robot
+ya cumplí ese objetivo | objetivo_logrado | 
+marca ese objetivo como terminado | objetivo_logrado | 
+
+cuáles son mis objetivos | objetivos
+muéstrame mis objetivos | objetivos
+qué objetivos tengo pendientes | objetivos
+enséñame los objetivos de Arché | objetivos
+qué metas tengo | objetivos
+
+cuáles son mis temas de estudio | temas_estudio
+qué temas tengo para estudiar | temas_estudio
+muéstrame mis temas | temas_estudio
+enséñame los temas de estudio | temas_estudio
+qué tengo para estudiar | temas_estudio
+
+# =========================
+# ESTUDIO
+# =========================
+
+quiero estudiar | estudiar
+empieza a estudiar | estudiar
+comienza mi sesión de estudio | estudiar
+pon a Arché a estudiar | estudiar
+inicia el estudio | iniciar_estudio
+comienza el aprendizaje | iniciar_estudio
+empieza a aprender | iniciar_estudio
+inicia el aprendizaje de Arché | iniciar_estudio
+
+detén el estudio | detener_estudio
+para el estudio | detener_estudio
+detén el aprendizaje | detener_estudio
+deja de estudiar | detener_estudio
+cancela el proceso de estudio | detener_estudio
+
+# =========================
+# EXAMEN
+# =========================
+
+inicia un examen | examen_on
+activa el modo examen | examen_on
+quiero hacer un examen | examen_on
+pon el examen | examen_on
+activa los exámenes | examen_on
+empieza una prueba | examen_on
+
+detén el examen | examen_off
+desactiva el modo examen | examen_off
+termina el examen | examen_off
+sal del modo examen | examen_off
+cancela la prueba | examen_off
+
+quiero hacer un examen | examen
+hazme una prueba | examen
+ponme una prueba sobre el tema | examen
+quiero evaluar lo aprendido | examen
+inicia una evaluación | examen
+
+cómo está el examen | estado_examen
+cuál es el estado del examen | estado_examen
+dime si el examen está activo | estado_examen
+está activo el modo examen | estado_examen
+
+# =========================
+# CÓDIGO
+# =========================
+
+revisa este código | autorevisar
+analiza el código | autorevisar
+haz una revisión del código | autorevisar
+revisa si hay errores en el código | autorevisar
+comprueba el código | autorevisar
+
+revisa y arregla el código | autorevisar_y_arreglar
+corrige los errores del código | autorevisar_y_arreglar
+analiza y corrige el código | autorevisar_y_arreglar
+arregla los problemas del código | autorevisar_y_arreglar
+revisa el código y soluciona los errores | autorevisar_y_arreglar
+
+analiza esta función | analizar_funcion
+revisa una función específica | analizar_funcion
+quiero analizar una función | analizar_funcion
+estudia esta función del código | analizar_funcion
+dime qué hace esta función | analizar_funcion
+
+qué impacto tiene esta función | impacto_funcion
+qué cambia esta función en el programa | impacto_funcion
+qué partes afecta esta función | impacto_funcion
+qué consecuencias tiene modificar esta función | impacto_funcion
+qué depende de esta función | impacto_funcion
+
+quiero modificar el código | modificar_codigo
+modifica este código | modificar_codigo
+cambia una parte del código | modificar_codigo
+quiero hacer cambios en el código | modificar_codigo
+edita el código | modificar_codigo
+
+revisa los cambios | revisar_cambios
+muéstrame los cambios realizados | revisar_cambios
+qué cambios se hicieron | revisar_cambios
+enséñame los cambios | revisar_cambios
+
+qué cambios están pendientes | cambios_pendientes
+hay cambios pendientes | cambios_pendientes
+muéstrame los cambios que faltan | cambios_pendientes
+qué falta por modificar | cambios_pendientes
+
+hay algún riesgo con esta propuesta | riesgo_propuesta
+qué riesgos tiene esta propuesta | riesgo_propuesta
+analiza los posibles riesgos | riesgo_propuesta
+qué problemas podría causar este cambio | riesgo_propuesta
+hay algún riesgo al hacer esto | riesgo_propuesta
+
+# =========================
+# AUTOREVISIÓN
+# =========================
+
+activa la autorevisión | autorevision_on
+enciende la autorevisión | autorevision_on
+activa el modo de autorevisión | autorevision_on
+quiero activar la autorevisión | autorevision_on
+habilita la autorevisión | autorevision_on
+
+desactiva la autorevisión | autorevision_off
+apaga la autorevisión | autorevision_off
+desactiva el modo de autorevisión | autorevision_off
+quiero apagar la autorevisión | autorevision_off
+quita la autorevisión | autorevision_off
+
+# =========================
+# ARCHÉ — ESTADO
+# =========================
+
+cuál es el estado de Arché | estadisticas
+muéstrame las estadísticas de Arché | estadisticas
+dime las estadísticas | estadisticas
+cómo va Arché | estadisticas
+muéstrame el estado general de Arché | estadisticas
+
+cómo está el entrenamiento jerárquico | estado_jerarquico
+cuál es el estado jerárquico | estado_jerarquico
+muéstrame el estado del entrenamiento | estado_jerarquico
+cómo va el entrenamiento jerárquico | estado_jerarquico
+qué estado tiene el sistema jerárquico | estado_jerarquico
+
+entrena el sistema jerárquico | entrenar_jerarquico
+inicia el entrenamiento jerárquico | entrenar_jerarquico
+entrena el modelo jerárquico | entrenar_jerarquico
+quiero entrenar el sistema jerárquico | entrenar_jerarquico
+comienza el entrenamiento jerárquico | entrenar_jerarquico
+
+entrena Arché en segundo plano | entrenar_fondo
+inicia el entrenamiento en segundo plano | entrenar_fondo
+entrena mientras hago otras cosas | entrenar_fondo
+pon el entrenamiento en segundo plano | entrenar_fondo
+ejecuta el entrenamiento de fondo | entrenar_fondo
+
+cuál es el estado del banco | estado_banco
+muéstrame el estado del banco de conocimiento | estado_banco
+cómo está el banco de conocimiento | estado_banco
+cuántos ejemplos tiene el banco | estado_banco
+revisa el banco de conocimiento | estado_banco
+
+# =========================
+# CONVERSACIÓN
+# =========================
+
+hola Arché | saludo
+buenos días Arché | saludo
+buenas tardes | saludo
+buenas noches Arché | saludo
+qué tal Arché | saludo
+cómo estás | saludo
+hola | saludo
+hey Arché | saludo
+
+quién eres | presentacion
+qué eres | presentacion
+preséntate | presentacion
+dime quién eres | presentacion
+qué puedes hacer | presentacion
+cuál es tu función | presentacion
+
+hablemos un rato | conversar
+quiero conversar | conversar
+podemos hablar | conversar
+quiero hablar contigo | conversar
+conversemos | conversar
+tengo ganas de hablar | conversar
+
+# =========================
+# TIEMPO
+# =========================
+
+qué hora es | hora
+dime la hora | hora
+qué hora tienes | hora
+qué hora es ahora | hora
+dime la hora actual | hora
+qué hora tenemos | hora
+me dices la hora | hora
+qué hora es ahorita | hora
+
+qué fecha es | fecha
+dime la fecha | fecha
+qué día es hoy | fecha
+qué fecha tenemos | fecha
+dime la fecha de hoy | fecha
+qué día estamos | fecha
+cuál es la fecha actual | fecha
+
+# =========================
+# AYUDA
+# =========================
+
+qué puedes hacer | ayuda
+qué comandos tienes | ayuda
+muéstrame los comandos | ayuda
+cómo puedo usar Arché | ayuda
+necesito ayuda | ayuda
+qué funciones tienes | ayuda
+enséñame a usar Arché | ayuda
+
+qué puedo hacer con las notas | ayuda_categoria | notas
+qué comandos tienes para notas | ayuda_categoria | notas
+cómo manejo mis notas | ayuda_categoria | notas
+qué puedo hacer con la memoria | ayuda_categoria | memoria
+qué comandos tienes para memoria | ayuda_categoria | memoria
+qué puedo hacer con los recordatorios | ayuda_categoria | recordatorios
+qué comandos tienes para estudiar | ayuda_categoria | estudio
+qué funciones tienes para código | ayuda_categoria | código
+qué comandos tienes para archivos | ayuda_categoria | archivos
+
+busca recetas de arepas | buscar | recetas de arepas
+investiga como funciona un motor electrico | buscar | como funciona un motor electrico
+averiguame el precio del dolar hoy | buscar | el precio del dolar hoy
+googlea tutoriales de arduino para principiantes | buscar | tutoriales de arduino para principiantes
+encuentrame informacion sobre el sistema solar | buscar | el sistema solar
+abre youtube | abrir | youtube
+entra a gmail | abrir | gmail
+abreme spotify | abrir | spotify
+inicia el bloc de notas | abrir | el bloc de notas
+ve a mercadolibre | abrir | mercadolibre
+crea una nota llamada ideas de tesis | crear_nota | ideas de tesis
+quiero una nota nueva que se llame gastos del mes | crear_nota | gastos del mes
+apunta una nota sobre la reunion del viernes | crear_nota | la reunion del viernes
+nueva nota proyecto final | crear_nota | proyecto final
+cuales notas tengo guardadas | listar_notas
+ensename el listado de mis notas | listar_notas
+lista mis notas por favor | listar_notas
+que notas he creado | listar_notas
+limpia lo que aprendiste mal | limpiar_conocimiento
+borra los aprendizajes contaminados | limpiar_conocimiento
+depura tu conocimiento de datos malos | limpiar_conocimiento
+quita del conocimiento lo que este danado | limpiar_conocimiento
+
+```txt
+# ============================================================
+# COMPLETAR INTENCIONES HASTA 10 EJEMPLOS
+# ============================================================
+
+# =========================
+# NOTAS — 4 → 10
+# =========================
+
+crea una nota nueva | crear_nota | 
+anota esto para después | crear_nota | 
+quiero guardar una nota | crear_nota | 
+guarda esta información en una nota | crear_nota | 
+hazme una nota nueva | crear_nota | 
+crea una nota sobre el proyecto | crear_nota | proyecto
+
+muéstrame todas mis notas | listar_notas
+qué notas tengo guardadas | listar_notas
+lista mis notas | listar_notas
+quiero ver todas las notas | listar_notas
+qué notas he creado | listar_notas
+enséñame las notas que tengo | listar_notas
+
+# =========================
+# CALCULADORA — 4 → 10
+# =========================
+
+muéstrame mi historial de operaciones | historial_calculos
+enséñame las cuentas anteriores | historial_calculos
+quiero revisar mis cálculos anteriores | historial_calculos
+qué operaciones he realizado | historial_calculos
+dime qué cálculos hice antes | historial_calculos
+muéstrame todas las operaciones | historial_calculos
+
+dime cuál fue mi último cálculo | ultimo_calculo
+enséñame la última operación que hice | ultimo_calculo
+qué operación hice de última | ultimo_calculo
+recuerda cuál fue mi cálculo anterior | ultimo_calculo
+muéstrame el cálculo más reciente | ultimo_calculo
+cuál fue la última cuenta que hice | ultimo_calculo
+
+# =========================
+# CÓDIGO — 4 → 10
+# =========================
+
+revisa los cambios que hice en el código | revisar_cambios
+comprueba qué cambios tiene el código | revisar_cambios
+quiero revisar las modificaciones | revisar_cambios
+analiza las modificaciones realizadas | revisar_cambios
+enséñame las modificaciones del código | revisar_cambios
+verifica los cambios realizados | revisar_cambios
+
+qué modificaciones me faltan | cambios_pendientes
+qué cambios todavía no he terminado | cambios_pendientes
+dime qué modificaciones faltan | cambios_pendientes
+revisa si quedan cambios pendientes | cambios_pendientes
+qué partes todavía necesitan cambios | cambios_pendientes
+qué queda pendiente en el código | cambios_pendientes
+
+# =========================
+# ESTUDIO — 4 → 10
+# =========================
+
+ponte a estudiar | estudiar
+quiero que estudies | estudiar
+continúa estudiando | estudiar
+sigue con el estudio | estudiar
+haz que Arché estudie | estudiar
+continúa con el aprendizaje | estudiar
+
+inicia una sesión de aprendizaje | iniciar_estudio
+empieza la sesión de estudio | iniciar_estudio
+pon en marcha el estudio | iniciar_estudio
+comienza una sesión de aprendizaje | iniciar_estudio
+activa el proceso de estudio | iniciar_estudio
+comienza a estudiar ahora | iniciar_estudio
+
+# =========================
+# LIMPIAR CONOCIMIENTO — 4 → 10
+# =========================
+
+limpia el conocimiento | limpiar_conocimiento
+borra el conocimiento guardado | limpiar_conocimiento
+quiero limpiar la base de conocimiento | limpiar_conocimiento
+elimina el conocimiento almacenado | limpiar_conocimiento
+limpia la información aprendida | limpiar_conocimiento
+borra la información del banco de conocimiento | limpiar_conocimiento
+
+# =========================
+# EXAMEN — 4 → 10
+# =========================
+
+dime cómo está el modo examen | estado_examen
+revisa el estado de la evaluación | estado_examen
+quiero saber si hay un examen activo | estado_examen
+comprueba el estado de la prueba | estado_examen
+el examen está funcionando | estado_examen
+dime si estoy en modo examen | estado_examen
+
+# =========================
+# PRESENTACIÓN — 5 → 10
+# =========================
+
+cómo te llamas | presentacion
+dime tu nombre | presentacion
+háblame sobre ti | presentacion
+qué eres exactamente | presentacion
+para qué fuiste creado | presentacion
+
+# =========================
+# WEB — 5 → 10
+# =========================
+
+busca información sobre Arduino | buscar | Arduino
+investiga sobre inteligencia artificial | buscar | inteligencia artificial
+búscame información sobre ESP32 | buscar | ESP32
+quiero buscar algo en internet | buscar | 
+haz una búsqueda en internet | buscar | 
+
+abre Google | abrir | Google
+abre YouTube | abrir | YouTube
+abre el navegador | abrir | navegador
+quiero entrar a internet | abrir | navegador
+abre la página de Arduino | abrir | Arduino
+
+# =========================
+# ARCHIVOS — 5 → 10
+# =========================
+
+actualiza la lista de archivos | actualizar_archivos
+vuelve a revisar los archivos | actualizar_archivos
+comprueba si hay nuevos archivos | actualizar_archivos
+recarga los archivos disponibles | actualizar_archivos
+revisa nuevamente mis archivos | actualizar_archivos
+
+# =========================
+# CONFIGURACIÓN — 5 → 10
+# =========================
+
+enséñame cómo está configurado todo | mostrar_config
+quiero revisar mi configuración | mostrar_config
+dime mis ajustes actuales | mostrar_config
+muéstrame los ajustes de Arché | mostrar_config
+revisa la configuración actual | mostrar_config
+
+pon mi nombre como Daniel | cambiar_nombre_usuario | Daniel
+quiero que mi nombre sea Daniel | cambiar_nombre_usuario | Daniel
+establece mi nombre como Daniel | cambiar_nombre_usuario | Daniel
+cambia el nombre que tienes guardado | cambiar_nombre_usuario | Daniel
+actualiza mi nombre | cambiar_nombre_usuario | Daniel
+
+cambia el nombre de Arché | cambiar_nombre_asistente | Arché
+quiero ponerle otro nombre al asistente | cambiar_nombre_asistente | 
+modifica el nombre del asistente | cambiar_nombre_asistente | 
+establece un nuevo nombre para ti | cambiar_nombre_asistente | 
+actualiza tu nombre | cambiar_nombre_asistente | 
+
+vuelve a los ajustes iniciales | restablecer_config
+restaura todos los ajustes | restablecer_config
+devuelve la configuración a su estado original | restablecer_config
+quiero reiniciar los ajustes | restablecer_config
+restaura los valores predeterminados | restablecer_config
+
+# =========================
+# CÓDIGO — 5 → 10
+# =========================
+
+quiero cambiar una parte del programa | modificar_codigo
+haz una modificación en el código | modificar_codigo
+necesito editar el programa | modificar_codigo
+cambia el código del proyecto | modificar_codigo
+quiero editar una parte del programa | modificar_codigo
+
+haz una revisión completa del código | autorevisar
+busca errores en mi programa | autorevisar
+comprueba que el código esté bien | autorevisar
+analiza el programa en busca de errores | autorevisar
+haz una revisión automática | autorevisar
+
+corrige automáticamente los errores | autorevisar_y_arreglar
+revisa y soluciona los errores | autorevisar_y_arreglar
+arregla automáticamente el programa | autorevisar_y_arreglar
+detecta y corrige los problemas | autorevisar_y_arreglar
+soluciona los errores que encuentres | autorevisar_y_arreglar
+
+qué hace esta función | analizar_funcion
+explícame esta función | analizar_funcion
+analiza el funcionamiento de esta función | analizar_funcion
+quiero saber cómo funciona esta función | analizar_funcion
+estudia el funcionamiento de esta función | analizar_funcion
+
+qué funciones dependen de esta | impacto_funcion
+qué puede afectar esta función | impacto_funcion
+qué partes del programa modifica esta función | impacto_funcion
+qué efecto tiene esta función | impacto_funcion
+qué pasa si cambio esta función | impacto_funcion
+
+qué peligro hay en hacer este cambio | riesgo_propuesta
+qué problemas puede generar esta propuesta | riesgo_propuesta
+evalúa los riesgos de esta modificación | riesgo_propuesta
+qué podría salir mal con esta propuesta | riesgo_propuesta
+analiza si esta propuesta es segura | riesgo_propuesta
+
+# =========================
+# ARCHÉ / ESTUDIO — 5 → 10
+# =========================
+
+termina el estudio | detener_estudio
+detén la sesión de estudio | detener_estudio
+quiero detener el aprendizaje | detener_estudio
+interrumpe el estudio | detener_estudio
+para la sesión de aprendizaje | detener_estudio
+
+qué temas debo estudiar | temas_estudio
+qué temas tiene Arché para estudiar | temas_estudio
+muéstrame la lista de temas | temas_estudio
+qué temas están registrados | temas_estudio
+dime qué temas tiene guardados | temas_estudio
+
+dame las estadísticas actuales | estadisticas
+qué estadísticas tiene Arché | estadisticas
+muéstrame el progreso de Arché | estadisticas
+quiero ver las estadísticas del sistema | estadisticas
+cuál es el progreso actual | estadisticas
+
+enciende la revisión automática | autorevision_on
+habilita la revisión automática | autorevision_on
+activa el sistema de autorevisión | autorevision_on
+pon la autorevisión en funcionamiento | autorevision_on
+quiero que la autorevisión quede activa | autorevision_on
+
+apaga la revisión automática | autorevision_off
+deshabilita la revisión automática | autorevision_off
+detén la autorevisión | autorevision_off
+quita el modo de revisión automática | autorevision_off
+deja desactivada la autorevisión | autorevision_off
+
+comienza el entrenamiento jerárquico | entrenar_jerarquico
+pon a entrenar el sistema jerárquico | entrenar_jerarquico
+ejecuta el entrenamiento jerárquico | entrenar_jerarquico
+quiero iniciar el entrenamiento jerárquico | entrenar_jerarquico
+activa el entrenamiento jerárquico | entrenar_jerarquico
+
+dime cómo va el entrenamiento | estado_jerarquico
+revisa el entrenamiento jerárquico | estado_jerarquico
+muéstrame el progreso jerárquico | estado_jerarquico
+qué está pasando con el entrenamiento | estado_jerarquico
+quiero revisar el progreso del entrenamiento | estado_jerarquico
+
+hazme una prueba | examen
+quiero realizar una evaluación | examen
+ponme una evaluación | examen
+quiero comprobar mis conocimientos | examen
+inicia una evaluación de conocimientos | examen
+
+activa el examen ahora | examen_on
+enciende el modo de evaluación | examen_on
+pon Arché en modo examen | examen_on
+habilita el modo de examen | examen_on
+comienza el modo evaluación | examen_on
+
+apaga el examen | examen_off
+desactiva la evaluación | examen_off
+quita el modo examen | examen_off
+sal del modo de evaluación | examen_off
+termina el modo examen | examen_off
+
+qué objetivos tengo registrados | objetivos
+muéstrame las metas actuales | objetivos
+dime cuáles son mis metas | objetivos
+qué objetivos están guardados | objetivos
+revisa mis objetivos | objetivos
+
+marca como cumplido este objetivo | objetivo_logrado | 
+ya cumplí esta meta | objetivo_logrado | 
+terminé ese objetivo | objetivo_logrado | 
+completa el objetivo | objetivo_logrado | 
+marca la meta como lograda | objetivo_logrado | 
+
+entrena en segundo plano | entrenar_fondo
+ejecuta el aprendizaje en segundo plano | entrenar_fondo
+continúa el entrenamiento mientras trabajo | entrenar_fondo
+inicia el entrenamiento de fondo | entrenar_fondo
+haz el entrenamiento sin interrumpirme | entrenar_fondo
+
+# =========================
+# ESTADO DEL BANCO — 5 → 10
+# =========================
+
+cuántos ejemplos hay en el banco | estado_banco
+cuántas intenciones están entrenadas | estado_banco
+revisa cuántos datos tiene Arché | estado_banco
+cuántos ejemplos tiene cada intención | estado_banco
+muéstrame las estadísticas del banco | estado_banco
+
+# =========================
+# CONVERSACIÓN — 6 → 10
+# =========================
+
+quiero hablar un momento | conversar
+hablemos | conversar
+puedes conversar conmigo | conversar
+quiero tener una conversación | conversar
+
+# =========================
+# MEMORIA — 6 → 10
+# =========================
+
+qué información tienes sobre mí | mostrar_memoria
+dime qué datos recuerdas | mostrar_memoria
+quiero revisar lo que recuerdas | mostrar_memoria
+muéstrame todo lo que recuerdas | mostrar_memoria
+
+cambia un dato que recuerdas | editar_memoria
+quiero editar algo de tu memoria | editar_memoria
+actualiza un recuerdo | editar_memoria
+corrige la información que recuerdas | editar_memoria
+
+ya terminé esa tarea pendiente | completar_recordatorio | 
+marca como realizado el recordatorio | completar_recordatorio | 
+he terminado el recordatorio | completar_recordatorio | 
+completa esa tarea pendiente | completar_recordatorio | 
+
+elimina ese recordatorio pendiente | eliminar_recordatorio | 
+quiero quitar un recordatorio | eliminar_recordatorio | 
+borra una tarea pendiente | eliminar_recordatorio | 
+quita ese aviso | eliminar_recordatorio | 
+
+abre la nota que guardé | abrir_nota | 
+quiero entrar a una nota | abrir_nota | 
+abre una de mis notas | abrir_nota | 
+accede a la nota | abrir_nota | 
+
+añade información a una nota | agregar_nota | 
+escribe algo en mi nota | agregar_nota | 
+agrega contenido a la nota | agregar_nota | 
+quiero añadir algo a una nota | agregar_nota | 
+
+quita una nota | eliminar_nota | 
+quiero eliminar una nota guardada | eliminar_nota | 
+borra una de mis notas | eliminar_nota | 
+elimina una nota que ya no necesito | eliminar_nota | 
+
+# =========================
+# ARCHIVOS / SISTEMA — 6 → 10
+# =========================
+
+abre mi archivo | abrir_archivo | 
+quiero abrir un documento | abrir_archivo | 
+abre el documento que necesito | abrir_archivo | 
+quiero acceder a un archivo | abrir_archivo | 
+
+revisa el estado del computador | estado_sistema
+cómo se encuentra el equipo | estado_sistema
+comprueba el funcionamiento del PC | estado_sistema
+dime cómo está mi computador | estado_sistema
+
+revisa cuánto espacio queda | espacio_disco
+muéstrame el almacenamiento disponible | espacio_disco
+cuánto almacenamiento libre tengo | espacio_disco
+comprueba el espacio disponible | espacio_disco
+
+# =========================
+# ARCHÉ — 6 → 10
+# =========================
+
+añade otro objetivo | agregar_objetivo | 
+quiero registrar una nueva meta | agregar_objetivo | 
+crea una nueva meta | agregar_objetivo | 
+guarda un nuevo objetivo | agregar_objetivo | 
+
+# =========================
+# TIEMPO — 7 → 10
+# =========================
+
+dime qué fecha es hoy | fecha
+qué fecha tenemos hoy | fecha
+cuál es el día de hoy | fecha
+
+# =========================
+# MEMORIA — 7 → 10
+# =========================
+
+guarda este dato en tu memoria | recordar | 
+quiero que guardes esto | recordar | 
+memoriza esta información | recordar | 
+
+# =========================
+# RECORDATORIOS — 7 → 10
+# =========================
+
+muéstrame las tareas que tengo pendientes | mostrar_recordatorios
+qué cosas tengo pendientes | mostrar_recordatorios
+qué avisos tengo pendientes | mostrar_recordatorios
+
+# =========================
+# NOTAS — 7 → 10
+# =========================
+
+lee mi nota | leer_nota | 
+quiero consultar una nota | leer_nota | 
+muéstrame el contenido de una nota | leer_nota | 
+
+# =========================
+# ARCHIVOS — 7 → 10
+# =========================
+
+encuentra mi archivo | buscar_archivo | 
+quiero localizar un archivo | buscar_archivo | 
+localiza el documento que necesito | buscar_archivo | 
+
+# =========================
+# SISTEMA — 7 → 10
+# =========================
+
+qué programa está usando más recursos | procesos_consumen
+qué está consumiendo el procesador | procesos_consumen
+muéstrame los programas que más recursos usan | procesos_consumen
+
+# =========================
+# AYUDA — 7 → 10
+# =========================
+
+cómo se usa Arché | ayuda
+enséñame a utilizar Arché | ayuda
+necesito saber cómo funciona Arché | ayuda
+
+# =========================
+# TEMAS — 7 → 10
+# =========================
+
+añade un nuevo tema de estudio | agregar_tema | 
+registra un tema para estudiar | agregar_tema | 
+quiero guardar un tema nuevo | agregar_tema | 
+
+# =========================
+# SALUDO — 8 → 10
+# =========================
+
+qué más Arché | saludo
+buenas Arché | saludo
+
+# =========================
+# HORA — 8 → 10
+# =========================
+
+qué hora marca el sistema | hora
+puedes decirme la hora actual | hora
+
+# =========================
+# RED — 8 → 10
+# =========================
+
+comprueba si tengo internet | estado_red
+revisa el estado de mi conexión | estado_red
+
+# =========================
+# RECORDATORIOS — 9 → 10
+# =========================
+
+muéstrame qué recordatorios tengo pendientes | mostrar_recordatorios
+
+# =========================
+# AYUDA CATEGORÍA — 9 → 10
+# =========================
+
+qué puedo hacer con esta categoría | ayuda_categoria | 
+```

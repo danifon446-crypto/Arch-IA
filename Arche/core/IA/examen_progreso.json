@@ -16,8 +16,36 @@
     "memoria": {
       "racha": 4,
       "listo": true
+    },
+    "tiempo": {
+      "racha": 0,
+      "listo": false
+    },
+    "web": {
+      "racha": 0,
+      "listo": false
+    },
+    "notas": {
+      "racha": 0,
+      "listo": false
+    },
+    "archivos": {
+      "racha": 0,
+      "listo": false
+    },
+    "calculadora": {
+      "racha": 0,
+      "listo": false
+    },
+    "configuracion": {
+      "racha": 0,
+      "listo": false
+    },
+    "arche": {
+      "racha": 0,
+      "listo": false
     }
   },
-  "automatico_corriendo": true,
-  "automatico_actualizado_ts": 1790300514.1706576
+  "automatico_corriendo": false,
+  "automatico_actualizado_ts": 1791065864.1182814
 }

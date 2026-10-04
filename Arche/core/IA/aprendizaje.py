@@ -42,35 +42,47 @@ def _reentrenar_si_corresponde():
     meta["pendientes"] = meta.get("pendientes", 0) + 1
 
     if meta["pendientes"] >= UMBRAL_REENTRENO:
-        try:
-            from core.IA.clasificador import entrenar
-            entrenado = entrenar(silencioso=True)
-            if entrenado:
-                meta["pendientes"] = 0
-            # Si no había datos suficientes, no reseteamos el contador:
-            # así lo vuelve a intentar en el próximo comando aprendido
-            # (más barato que definir un segundo umbral independiente).
-        except Exception as e:
-            print(f"Arché: No se pudo reentrenar el clasificador ({e}).")
-
-        try:
-            from core.IA.clasificador_jerarquico import entrenar_jerarquico
-            # silencioso=False a propósito: antes esto corría siempre en
-            # silencio y un dominio podía quedar rechazando el modelo
-            # nuevo ronda tras ronda sin que se notara -- ahora, si algo
-            # se actualiza (o se rechaza por seguir siendo peor), lo dice.
-            entrenar_jerarquico(silencioso=False)
-        except ImportError:
-            pass  # el clasificador jerárquico es opcional, todavía puede no estar instalado
-        except Exception as e:
-            print(f"Arché: No se pudo reentrenar el clasificador jerárquico ({e}).")
-    else:
-        with open(ARCHIVO_META, "w", encoding="utf-8") as f:
-            json.dump(meta, f)
-        return
+        reentrenar_ahora()
+        # Se reinicia SIEMPRE tras intentar. Antes solo se reiniciaba si el
+        # clasificador clásico devolvía True: cuando conservaba el modelo
+        # actual (o le faltaban datos) el contador quedaba pegado y CADA
+        # ejemplo nuevo disparaba un reentreno completo de todas las redes.
+        meta["pendientes"] = 0
 
     with open(ARCHIVO_META, "w", encoding="utf-8") as f:
         json.dump(meta, f)
+
+
+def reentrenar_ahora():
+    """
+    Reentrena YA, una sola vez, el clasificador de siempre y el jerárquico,
+    e imprime UNA línea de resumen (en vez de una por cada red). Lo usan
+    tanto el reentreno automático (cada UMBRAL_REENTRENO ejemplos) como
+    'importar ejemplos', que carga muchos de golpe y reentrena al final.
+    """
+    try:
+        from core.IA.clasificador import entrenar
+        entrenar(silencioso=True)
+    except Exception as e:
+        print(f"Arché: No se pudo reentrenar el clasificador ({e}).")
+
+    try:
+        from core.IA.clasificador_jerarquico import entrenar_jerarquico
+        resultado = entrenar_jerarquico(silencioso=True)
+        actualizadas = sum(1 for ok in resultado.values() if ok)
+        sin_cambios = len(resultado) - actualizadas
+        print(f"Arché: Reentrené las redes: {actualizadas} actualizada(s), {sin_cambios} sin cambios "
+              f"(se conserva el modelo actual o todavía faltan ejemplos; 'próximos pasos' te dice cuáles).")
+    except ImportError:
+        pass  # el clasificador jerárquico es opcional, todavía puede no estar instalado
+    except Exception as e:
+        print(f"Arché: No se pudo reentrenar el clasificador jerárquico ({e}).")
+
+    try:
+        with open(ARCHIVO_META, "w", encoding="utf-8") as f:
+            json.dump({"pendientes": 0}, f)
+    except OSError:
+        pass
 
 
 # ----------------------------------------------------------------------
@@ -263,6 +275,18 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
     """
     pregunta_norm = _normalizar(pregunta)
     datos = cargar()
+
+    # --- Paso 0: frase EXACTA ya aprendida ---
+    # Lo que el usuario enseñó tal cual (o que ya se vio idéntico) gana
+    # siempre a cualquier plantilla con "{X}". Sin esto, el paso 1 devuelve
+    # la PRIMERA plantilla del archivo que encaje, y una plantilla amplia
+    # (ej. "dime {X}") le ganaba a la frase exacta enseñada a mano.
+    for dato in datos:
+        if dato.get("pregunta") == pregunta_norm and dato.get("accion"):
+            regex = dato.get("regex")
+            match = re.match(regex, pregunta_norm) if regex else None
+            contenido = match.group(1).strip() if match and match.groups() else dato.get("contenido", "")
+            return {"accion": dato["accion"], "contenido": contenido}
 
     # --- Paso 1: match exacto por regex ---
     for dato in datos:

@@ -582,9 +582,7 @@ def test_reasoning_sandwich_verifica_riesgo_medio_y_alto_no_bajo():
 # ==================== RUNNER ====================
 
 def main():
-    print("=" * 60)
     print("Arché -- autotest")
-    print("=" * 60)
 
     ok, fallo = 0, 0
     for fn in _TESTS:
@@ -603,13 +601,11 @@ def main():
             print(f"  MAL  {nombre}  (error inesperado, no un assert)")
             print("       " + "\n       ".join(traceback.format_exc().splitlines()[-3:]))
 
-    print("=" * 60)
     total = ok + fallo
     if fallo == 0:
         print(f"Arché: Me probé entera -- {ok}/{total} pruebas pasaron. Todo en orden.")
     else:
         print(f"Arché: Me probé entera -- {ok}/{total} pasaron, {fallo} fallaron (ver arriba).")
-    print("=" * 60)
     return 0 if fallo == 0 else 1
 
 

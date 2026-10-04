@@ -47,10 +47,8 @@ def main():
     conocimiento = cargar(ARCHIVO_CONOCIMIENTO)
     respuestas = cargar(ARCHIVO_RESPUESTAS)
 
-    print("=" * 60)
     print(f"conocimiento.json: {len(conocimiento)} entradas")
     print(f"respuestas.json:   {len(respuestas)} entradas")
-    print("=" * 60)
 
     if conocimiento:
         print("\n--- conocimiento.json por acción ---")
@@ -101,7 +99,6 @@ def main():
     if not encontrado:
         print("  (ninguna encontrada -> buena señal)")
 
-    print("\n" + "=" * 60)
     print("Corré 'py limpiar.py' para revisar y borrar entradas una por una.")
 
 

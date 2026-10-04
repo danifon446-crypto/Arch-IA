@@ -31,7 +31,6 @@ nombres_disponibles = None
 intento_anterior = None
 
 for intento in range(1, 4):
-    print("\n" + "#" * 70)
     print(f"# INTENTO {intento}")
     print("#" * 70)
 

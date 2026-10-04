@@ -198,14 +198,11 @@ def historial():
         print("Arché: No hay cálculos guardados.")
         return
     print()
-    print("=" * 45)
     print("HISTORIAL")
-    print("=" * 45)
     for i, dato in enumerate(datos, start=1):
         print(
             f"{i}. {dato['expresion']} = {dato['resultado']}"
         )
-    print("=" * 45)
 
 def contar_historial():
     """Cantidad de cálculos guardados en el historial."""

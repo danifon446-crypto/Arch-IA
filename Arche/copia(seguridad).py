@@ -13,9 +13,8 @@ from core.archivos import *
 from core.configuracion import *
 from core.calculadora import *
 
-print("=" * 60)
+
 print("        Arche v2.0.1")
-print("=" * 60)
 
 if obtener("nombre_usuario") == "Usuario":
     nombre = input("¿Cómo te llamas?\nTú: ").strip()

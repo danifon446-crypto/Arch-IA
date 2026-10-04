@@ -101,9 +101,6 @@ def restaurar():
 
 def mostrar():
     print()
-    print("=" * 45)
     print("CONFIGURACIÓN DE ARCHÉ")
-    print("=" * 45)
     for clave, valor in config.items():
         print(f"{clave}: {valor}")
-    print("=" * 45)

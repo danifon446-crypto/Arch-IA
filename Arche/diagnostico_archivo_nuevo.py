@@ -19,12 +19,12 @@ INSTRUCCION = "crear un archivo con una funcion saludar(nombre) que imprima un s
 
 prompt = _armar_prompt_archivo_nuevo(ARCHIVO, INSTRUCCION)
 
-print("=" * 60)
+
 print("RESPUESTA CRUDA DEL MODELO:")
-print("=" * 60)
+
 respuesta = conversar(prompt, num_predict=800, temperature=0.2)
 print(respuesta)
-print("=" * 60)
+
 
 contenido = _extraer_contenido_nuevo(respuesta)
 print(f"\n¿Se extrajo contenido con los marcadores CONTENIDO/FIN?: {'sí' if contenido else 'NO'}")

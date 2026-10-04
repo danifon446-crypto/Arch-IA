@@ -65,9 +65,7 @@ def mostrar_recordatorios():
     if not recordatorios:
         print("Arché: No tienes recordatorios.")
         return
-    print("=" * 50)
     print("        RECORDATORIOS")
-    print("=" * 50)
     for i, r in enumerate(recordatorios, start=1):
         print(f"\n{i}. {r['titulo']}")
         print(f"   Fecha      : {r['fecha']}")
@@ -134,11 +132,8 @@ def revisar_recordatorios():
         except:
             pass
     if pendientes:
-        print("=" * 50)
         print("        RECORDATORIOS PENDIENTES")
-        print("=" * 50)
         for r in pendientes:
             print(f"\n• {r['titulo']}")
             print(f"  Prioridad: {r['prioridad']}")
             print(f"  Fecha: {r['fecha']} {r['hora']}")
-        print("=" * 50)

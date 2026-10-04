@@ -113,11 +113,9 @@ def indexar_archivos():
     guardar_indice(indice)
     segundos = round(time.time() - inicio, 2)
     print()
-    print("=" * 40)
     print("Arché: Indexación finalizada.")
     print(f"Arché: {total} elementos indexados.")
     print(f"Arché: Tiempo: {segundos} segundos.")
-    print("=" * 40)
 
 
 # INDEXAR EN SEGUNDO PLANO

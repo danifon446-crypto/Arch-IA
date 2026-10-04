@@ -77,6 +77,8 @@ def _resumen_completo():
             print(f"    - {comando}")
     print("Decí 'qué hace <categoría>' para más detalle de una sola "
         "(ej: 'qué hace notas').")
+    print("Decí 'comandos' para la guía completa (siempre al día) y "
+        "'próximos pasos' para saber qué correr ahora.")
 
 
 def _detalle_categoria(categoria):

@@ -649,9 +649,7 @@ def imprimir_reporte(reporte, sin_ia=False):
     de autorevisar() para que main.py (u otro llamador) pueda pedir
     el reporte y mostrarlo sin depender de que se ejecute como script.
     """
-    print("\n" + "=" * 60)
     print("REPORTE DE AUTOREVISIÓN")
-    print("=" * 60)
 
     if reporte["duplicados"]:
         print(f"\nFunciones posiblemente duplicadas ({len(reporte['duplicados'])}):")

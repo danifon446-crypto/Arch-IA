@@ -62,9 +62,7 @@ def _barra_progreso(valor, ancho=20):
 def _mostrar_estado_red():
     info = info_modelo()
 
-    print("\n" + "═" * 46)
-    print("   🧠  ESTADO DE LA RED NEURONAL DE ARCHÉ")
-    print("═" * 46)
+    print("    ESTADO DE LA RED NEURONAL DE ARCHÉ")
 
     if info is None or not info.get("activo"):
         print("  Estado:      ⚪ Inactiva")
@@ -74,7 +72,6 @@ def _mostrar_estado_red():
         print("  Qué hacer:   Seguí usando Arché o dejá correr el")
         print("               modo estudio — se activa sola cuando")
         print("               haya datos suficientes.")
-        print("═" * 46 + "\n")
         return
 
     precision = info.get("precision", 0.0)
@@ -102,19 +99,15 @@ def _mostrar_estado_red():
     if clases:
         print("               " + ", ".join(clases))
 
-    print("═" * 46 + "\n")
 
 
 def _mostrar_estadisticas():
     r = resumen_telemetria()
 
-    print("\n" + "═" * 46)
     print("   📊  ESTADÍSTICAS DE USO")
-    print("═" * 46)
 
     if r is None:
         print("  Todavía no tengo datos de uso registrados.")
-        print("═" * 46 + "\n")
         return
 
     print(f"  Comandos procesados: {r['total_comandos']}")
@@ -133,7 +126,6 @@ def _mostrar_estadisticas():
         for modulo, seg in r["duracion_promedio_por_modulo"].items():
             print(f"    • {modulo}: {seg}s")
 
-    print("═" * 46 + "\n")
 
 
 def _decir(resultado):
@@ -891,6 +883,46 @@ while True:
             print("Arché: Voy a parar de examinarme después de esta ronda.")
         else:
             print("Arché: El examen automático no está corriendo.")
+        continue
+
+    # GUÍA DE COMANDOS (se arma sola desde main.py + catálogo, ver
+    # core/guia_comandos.py) y CARGA MANUAL DE EJEMPLOS (core/IA/ensenar.py).
+
+    if comando in ["comandos", "guia", "guía", "guia de comandos", "guía de comandos",
+                   "lista de comandos", "que comandos hay", "qué comandos hay"]:
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia()
+        continue
+
+    if comando.startswith("comandos de ") or comando.startswith("comandos "):
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia(comando.split(" ", 1)[1].replace("de ", "", 1) if comando.startswith("comandos de ") else comando.split(" ", 1)[1])
+        continue
+
+    if comando in ["proximos pasos", "próximos pasos", "que hago ahora", "qué hago ahora",
+                   "que me falta", "qué me falta", "siguiente paso"]:
+        from core.guia_comandos import mostrar_proximos_pasos
+        mostrar_proximos_pasos()
+        continue
+
+    if comando.startswith("enseñar ") or comando.startswith("ensenar "):
+        from core.IA.ensenar import comando_ensenar
+        comando_ensenar(comando_original)
+        continue
+
+    if comando.startswith("importar ejemplos"):
+        from core.IA.ensenar import importar_ejemplos
+        importar_ejemplos()
+        continue
+
+    if comando in ["intenciones", "lista de intenciones", "mis intenciones"]:
+        from core.IA.ensenar import listar_intenciones
+        print(listar_intenciones())
+        continue
+
+    if comando.startswith("intenciones de "):
+        from core.IA.ensenar import listar_intenciones
+        print(listar_intenciones(comando.split(" ", 2)[2]))
         continue
 
     # COMANDOS CONECTADOS POR ARCHÉ (registro en core/comandos_extra.py):

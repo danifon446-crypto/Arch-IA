@@ -37,18 +37,13 @@ print()
 
 prompt = _armar_prompt_funcion_nueva_aislada(INSTRUCCION_ORIGINAL)
 
-print("=" * 60)
 print("PROMPT ENVIADO (función nueva aislada):")
-print("=" * 60)
 print(prompt)
 print()
 
-print("=" * 60)
 print("RESPUESTA CRUDA DEL MODELO:")
-print("=" * 60)
 respuesta = conversar(prompt, num_predict=400, temperature=0.2)
 print(respuesta)
-print("=" * 60)
 
 codigo_nuevo = _extraer_contenido_nuevo(respuesta)
 print(f"\n¿Se extrajo código?: {'sí' if codigo_nuevo else 'NO'}")

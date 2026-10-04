@@ -144,9 +144,7 @@ def main():
         return
 
     for propuesta in pendientes:
-        print("\n" + "=" * 60)
         print(f"Propuesta {propuesta['id']}")
-        print("=" * 60)
         print(f"QUÉ:     {propuesta['que']}")
         print(f"POR QUÉ: {propuesta['por_que']}")
         print(f"CÓMO:    {propuesta['como']}")

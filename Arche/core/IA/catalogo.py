@@ -252,10 +252,14 @@ EXTRA_FIJOS_EXACTOS = {
     "modo natural off", "modo gran sabio on", "modo gran sabio off", "entrenar clasificador jerarquico",
     "estado clasificador jerarquico", "activar examen automatico", "activar estudio automatico",
     "activar autorevision automatica", "ayuda",
+    "comandos", "guia", "guia de comandos", "lista de comandos", "que comandos hay",
+    "proximos pasos", "que hago ahora", "que me falta", "siguiente paso",
+    "importar ejemplos", "intenciones", "lista de intenciones", "mis intenciones",
 }
 EXTRA_FIJOS_PREFIJOS = (
     "escribe en ", "cambia esto", "mejora esto", "arregla esto", "cuanto es ", "conecta ", "conectar ",
     "autorevisate cada", "entrenar a fondo", "que hace ", "modo gran sabio",
+    "comandos ", "ensenar ", "importar ejemplos", "intenciones de ",
 )
 
 
