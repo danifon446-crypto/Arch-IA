@@ -138,6 +138,15 @@ def _extraer_comando(texto_normalizado):
     return None
 
 
+def _arche_esta_hablando():
+    """True si core/voz.py (la voz de Arché) esta diciendo algo ahora."""
+    try:
+        from core import voz as voz_de_arche
+        return voz_de_arche.hablando()
+    except Exception:
+        return False
+
+
 def escuchar_continuo(al_detectar_comando, detener_evento=None, umbral_energia=UMBRAL_ENERGIA):
     """
     Bucle pensado para correr en un hilo aparte. Escucha el micrófono,
@@ -179,6 +188,15 @@ def escuchar_continuo(al_detectar_comando, detener_evento=None, umbral_energia=U
             try:
                 frame_bytes = cola_audio.get(timeout=1)
             except queue.Empty:
+                continue
+
+            if _arche_esta_hablando():
+                # Arché esta hablando por los parlantes: lo que capta el
+                # microfono es su propia voz. Se descarta lo que habia a medias.
+                buffer_utterance.clear()
+                preroll.clear()
+                en_utterance = False
+                frames_silencio_seguidos = 0
                 continue
 
             es_voz = _es_voz(frame_bytes, umbral_energia)

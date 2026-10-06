@@ -22,6 +22,11 @@ from core.configuracion import *
 from core.calculadora import *
 from core import control_pc
 from core import acciones_pc
+from core import voz as voz_arche            # Arché habla (voz natural online o la de Windows)
+from core import alarmas as alarmas_arche    # alarmas, avisos y temporizadores que suenan
+from core import rutinas as rutinas_arche    # rutinas / modos propios (estudio, cine...)
+from core import pc_avanzado                 # diagnóstico, limpieza, duplicados, buscar archivos
+from core.IA import cerebro as cerebro_nube  # internet (clima, noticias, investigar) y nube + Ollama
 from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
@@ -274,6 +279,10 @@ if obtener("nombre_usuario") == "Usuario":
 from core.guia_comandos import exportar_guia_a_archivo
 exportar_guia_a_archivo()
 
+# Desde aquí todo lo que Arché imprime con "Arché:" se lee en voz alta si la voz
+# está activa ("activa la voz"). Si está apagada no hace nada.
+voz_arche.instalar_en_consola()
+
 print()
 print("Analizando datos...")
 time.sleep(2)
@@ -305,6 +314,10 @@ if obtener("saludo_inicial"):
 
 if obtener("mostrar_recordatorios"):
     revisar_recordatorios()
+
+# Alarmas: avisa las que se pasaron con Arché cerrado y deja el vigilante corriendo.
+alarmas_arche.avisar_perdidas()
+alarmas_arche.iniciar_vigilante()
 
 # ------------------------------------------------------------------
 # MODO ESTUDIO: ya NO arranca solo al iniciar Arché. Vos decidís
@@ -358,7 +371,9 @@ while True:
     # VARIOS PASOS: "abre chrome y luego busca gatos en youtube" -> se parte en
     # pasos y se encolan (con una pausa entre cada uno) para que el bucle los
     # procese como si los hubieras escrito uno por uno.
-    _pasos = acciones_pc.dividir_pasos(comando_original)
+    # (una rutina se define con varias órdenes adentro: no se parte al crearla)
+    _pasos = [] if re.match(r"^(crea|agrega|guarda|arma)\b.*\brutina\b", comando) \
+        else acciones_pc.dividir_pasos(comando_original)
     if len(_pasos) > 1:
         _encolar = []
         for _i, _paso in enumerate(_pasos):
@@ -523,6 +538,24 @@ while True:
         else:
             _ok, _mensaje = control_pc.fijar_navegador(_nav)
             print(f"Arché: {_mensaje}")
+        continue
+
+    # VOZ, ALARMAS, RUTINAS, MANTENIMIENTO DEL PC e INTERNET/NUBE. Cada módulo
+    # devuelve None si la frase no es suya, así que todo sigue como siempre.
+    _resultado_modulo = None
+    for _modulo in (voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, cerebro_nube):
+        _resultado_modulo = _modulo.manejar(comando_original)
+        if _resultado_modulo:
+            break
+    if _resultado_modulo:
+        _intencion_m, _contenido_m = _resultado_modulo
+        if _intencion_m == "ejecutar_rutina" and isinstance(_contenido_m, dict) and _contenido_m.get("pasos"):
+            # los pasos entran a la misma cola que "abre chrome y luego ...",
+            # así cada uno pasa por sus confirmaciones de siempre
+            _cola_comandos_naturales[0:0] = rutinas_arche.pasos_con_pausas(_contenido_m["pasos"])
+        elif _intencion_m in catalogo.POR_ID:
+            # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
+            control_pc.aprender_de_uso(comando_original, _contenido_m if isinstance(_contenido_m, str) else "", _intencion_m)
         continue
 
     # CONTROL DEL PC (core/acciones_pc.py): ventanas, volumen, brillo, teclado
@@ -1174,11 +1207,18 @@ while True:
                 print(f"Arché: {respuesta_propia}")
                 registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
             else:
-                # Capa 2: última instancia, llamada nueva a Ollama.
-                respuesta = conversar(contenido)
-                print(f"Arché: {respuesta}")
-                guardar_respuesta(contenido, respuesta)
-                registrar_comando(contenido, "conversar", resuelto_por="ollama_conversar")
+                # Capa 2: última instancia. Piensa con la nube si hay clave e
+                # internet (y busca en la web si la pregunta pide algo actual);
+                # si no, o si la nube falla, responde Ollama como siempre.
+                _r = cerebro_nube.responder(contenido)
+                if _r["aviso"]:
+                    print(f"Arché: ({_r['aviso']})")
+                print(f"Arché: {_r['texto']}")
+                if _r["cacheable"]:
+                    # solo lo que contesta Ollama sin internet se guarda en el caché
+                    guardar_respuesta(contenido, _r["texto"])
+                registrar_comando(contenido, "conversar",
+                                  resuelto_por="nube" if _r["fuente"] == "nube" else "ollama_conversar")
 
     # COMANDO DESCONOCIDO
 

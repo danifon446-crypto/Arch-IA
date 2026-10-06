@@ -31,6 +31,7 @@ DEPENDENCIAS = {
     "faster_whisper": "faster-whisper",               # transcripción de voz
     "sounddevice": "sounddevice",                     # captura de micrófono
     "psutil": "psutil",                               # estado del sistema, procesos y ventanas (sistema.py, control_pc.py)
+    "edge_tts": "edge-tts",                           # voz natural de Arché (core/voz.py)
 }
 
 

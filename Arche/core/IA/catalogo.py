@@ -58,6 +58,16 @@ RELLENOS = {
     "porcentaje": ["20", "30", "50", "70", "100"],
     "tecla": ["enter", "ctrl+c", "ctrl+t", "alt+tab", "f5", "esc"],
     "carpeta": ["descargas", "escritorio", "documentos", "imagenes", "musica", "videos"],
+    "duracion": ["10 minutos", "25 minutos", "1 hora", "5 minutos", "45 minutos"],
+    "hora_alarma": ["7 de la mañana", "6:30", "5 de la tarde", "10 de la noche"],
+    "aviso_tiempo": ["20 minutos que saque la ropa", "1 hora que llame a mama", "10 minutos que apague el horno"],
+    "rutina": ["estudio", "trabajo", "cine", "descanso"],
+    "rutina_def": ["estudio: abre chrome, sube el brillo", "cine: pon el brillo al 30, silencia el sonido",
+                   "trabajo: abre chrome, abre word"],
+    "ciudad": ["bogota", "medellin", "cali", "madrid", "ciudad de mexico"],
+    "voz_motor": ["natural", "del sistema"],
+    "voz_nombre": ["gonzalo", "salome", "dalia", "jorge"],
+    "tema_archivos": ["la tesis", "la universidad", "mi hoja de vida", "el proyecto de arduino"],
 }
 
 ENTRADAS = []
@@ -168,16 +178,6 @@ _e("teclear_texto", "computador", "teclea {X}", "escribir un texto por el usuari
 _e("presionar_tecla", "computador", "presiona {X}", "presionar una tecla o un atajo de teclado en otra ventana",
    ["pulsa {X}", "oprime {X}", "aprieta {X}", "manda el atajo {X}"],
    argumento="tecla")
-_e("hacer_clic", "computador", "haz clic", "hacer clic con el mouse donde esta el puntero",
-   ["clic", "da un clic", "haz click aqui", "dame un clic"])
-_e("clic_derecho", "computador", "haz clic derecho", "hacer clic derecho con el mouse donde esta el puntero",
-   ["clic derecho", "boton derecho del mouse", "da clic derecho aqui", "haz click derecho"])
-_e("doble_clic", "computador", "haz doble clic", "hacer doble clic con el mouse donde esta el puntero",
-   ["doble clic", "da doble click", "clic doble", "haz doble click aqui"])
-_e("desplazar_abajo", "computador", "baja la pagina", "desplazar hacia abajo la pagina o ventana que se esta usando",
-   ["desplaza hacia abajo", "scroll abajo", "avanza la pagina", "pagina siguiente", "baja la pantalla"])
-_e("desplazar_arriba", "computador", "sube la pagina", "desplazar hacia arriba la pagina o ventana que se esta usando",
-   ["desplaza hacia arriba", "scroll arriba", "pagina anterior", "regresa arriba", "sube la pantalla"])
 
 # el equipo
 _e("bloquear_pc", "computador", "bloquea el pc", "bloquear el computador para que pida la clave",
@@ -202,6 +202,98 @@ _e("copiar_portapapeles", "computador", "copia al portapapeles {X}", "copiar un 
 _e("abrir_carpeta", "computador", "abre la carpeta {X}", "abrir una carpeta del usuario como descargas, escritorio o documentos",
    ["abre mis {X}", "muestrame la carpeta de {X}", "quiero ver mis {X}", "abre el explorador en {X}"],
    argumento="carpeta")
+
+# --------------------------------------------- la voz de Arché (core/voz.py)
+_e("activar_voz", "computador", "activa la voz", "hacer que Arche hable en voz alta con sus respuestas",
+   ["quiero que hables", "habla conmigo", "ya puedes hablar", "prende tu voz", "hablame en voz alta"])
+_e("desactivar_voz", "computador", "desactiva la voz", "dejar de hablar en voz alta y responder solo en texto",
+   ["no hables mas", "apaga tu voz", "modo silencioso", "quiero que respondas solo en texto"])
+_e("callar", "computador", "calla", "dejar de hablar ahora mismo (la voz sigue activada)",
+   ["callate", "silencio", "basta ya", "deja de hablar", "para de hablar"])
+_e("repetir", "computador", "repite eso", "volver a decir en voz alta lo ultimo que Arche dijo",
+   ["que dijiste", "repiteme lo ultimo", "lee eso en voz alta", "dilo otra vez"])
+_e("probar_voz", "computador", "prueba la voz", "probar como suena la voz de Arche",
+   ["como suena tu voz", "di hola", "testea la voz", "hazme una prueba de voz"])
+_e("motor_voz", "computador", "usa la voz {X}", "cambiar el tipo de voz: natural (online, mas humana) o la del sistema (sin internet)",
+   ["cambia a la voz {X}", "quiero la voz {X}", "pon la voz {X}"], argumento="voz_motor")
+_e("elegir_voz", "computador", "usa la voz de {X}", "elegir una voz concreta de las naturales (gonzalo, salome, dalia...)",
+   ["pon la voz de {X}", "quiero que hables como {X}", "cambia la voz a {X}"], argumento="voz_nombre")
+_e("estado_voz", "computador", "estado de la voz", "ver si la voz esta activada, que motor usa y a que velocidad",
+   ["estas hablando", "tienes voz", "como esta tu voz configurada"])
+_e("velocidad_voz", "computador", "habla mas rapido", "hablar mas rapido o mas lento",
+   ["habla mas lento", "habla mas despacio", "mas rapido por favor", "habla mas deprisa"])
+
+# ----------------------------------------- alarmas y temporizadores (core/alarmas.py)
+_e("crear_aviso", "computador", "avisame en {X}", "avisar al usuario dentro de un rato o a una hora, con un sonido y un mensaje",
+   ["recuerdame en {X}", "dime en {X}", "avisame dentro de {X}"], argumento="aviso_tiempo")
+_e("poner_alarma", "computador", "pon una alarma a las {X}", "poner una alarma que suene a una hora",
+   ["despiertame a las {X}", "ponme una alarma para las {X}", "programa una alarma a las {X}"], argumento="hora_alarma")
+_e("poner_temporizador", "computador", "pon un temporizador de {X}", "poner un temporizador o cronometro regresivo",
+   ["temporizador de {X}", "ponme un timer de {X}", "cuenta {X} y avisame"], argumento="duracion")
+_e("ver_alarmas", "computador", "mis alarmas", "ver las alarmas, avisos y temporizadores pendientes",
+   ["que alarmas tengo", "muestrame mis temporizadores", "cuales son mis avisos pendientes"])
+_e("cancelar_alarma", "computador", "cancela la alarma", "cancelar la proxima alarma o temporizador",
+   ["borra la alarma", "quita el temporizador", "ya no quiero esa alarma"], confirmar=False)
+_e("cancelar_todas_alarmas", "computador", "cancela todas las alarmas", "cancelar todas las alarmas, avisos y temporizadores",
+   ["borra todas mis alarmas", "quita todos los temporizadores", "elimina todos los avisos"], confirmar=True)
+
+# ------------------------------------------- rutinas y modos (core/rutinas.py)
+_e("crear_rutina", "computador", "crea la rutina {X}", "crear una rutina: un nombre y una serie de ordenes que se lanzan juntas",
+   ["guarda la rutina {X}", "arma la rutina {X}", "quiero una rutina {X}"], argumento="rutina_def")
+_e("ejecutar_rutina", "computador", "ejecuta la rutina {X}", "lanzar una rutina o modo guardado (estudio, trabajo, cine...)",
+   ["activa el modo {X}", "inicia la rutina {X}", "pon el modo {X}", "empieza la rutina {X}"], argumento="rutina")
+_e("ver_rutinas", "computador", "mis rutinas", "ver las rutinas o modos que el usuario tiene guardados",
+   ["que rutinas tengo", "muestrame mis modos", "lista mis rutinas"])
+_e("ver_rutina", "computador", "que hace la rutina {X}", "ver los pasos de una rutina",
+   ["que tiene el modo {X}", "muestrame la rutina {X}", "que pasos tiene la rutina {X}"], argumento="rutina")
+_e("borrar_rutina", "computador", "borra la rutina {X}", "borrar una rutina guardada",
+   ["elimina la rutina {X}", "quita el modo {X}"], argumento="rutina", confirmar=True)
+
+# --------------------------- mantenimiento del PC (core/pc_avanzado.py)
+_e("diagnostico_pc", "computador", "dame un diagnostico de mi pc", "resumen del estado del PC: CPU, memoria, disco, bateria y que gasta mas",
+   ["como esta mi computador", "revisa mi pc", "esta lento mi pc", "chequeo del equipo", "estado completo del pc"])
+_e("programas_cpu", "computador", "que consume mas cpu", "ver que programas gastan mas procesador",
+   ["que esta gastando el procesador", "que programa pone lento el pc", "quien usa mas cpu"])
+_e("programas_memoria", "computador", "que consume mas memoria", "ver que programas gastan mas memoria RAM",
+   ["que usa mas ram", "quien se come la memoria", "que programa gasta mas ram"])
+_e("liberar_memoria", "computador", "libera memoria", "mostrar lo mas pesado y cerrar lo que el usuario elija para liberar RAM",
+   ["libera ram", "cierra lo que mas consume", "quiero liberar memoria"], confirmar=True)
+_e("espacio_discos", "computador", "espacio de mis discos", "ver cuanto espacio libre queda en cada disco",
+   ["cuanto espacio me queda en los discos", "capacidad de mis discos", "cuanto disco tengo libre"])
+_e("archivos_grandes", "computador", "que ocupa mas espacio", "encontrar los archivos mas grandes del PC",
+   ["cuales son mis archivos mas pesados", "que archivos gastan mas disco", "que pesa mas en mi pc"])
+_e("buscar_duplicados", "computador", "busca archivos duplicados", "encontrar archivos repetidos para liberar espacio",
+   ["hay archivos repetidos", "detecta duplicados", "revisa si tengo archivos repetidos"])
+_e("mover_duplicados", "computador", "mueve los duplicados a la papelera", "mover los archivos duplicados a la papelera de Arche (se pueden restaurar)",
+   ["limpia los archivos duplicados", "manda los repetidos a la papelera"], confirmar=True)
+_e("descargas_viejas", "computador", "revisa mis descargas", "ver que hay de viejo en la carpeta de descargas",
+   ["que hay en mis descargas", "analiza mis descargas", "descargas viejas"])
+_e("limpiar_descargas", "computador", "limpia las descargas viejas", "mover las descargas viejas a la papelera de Arche",
+   ["ordena mis descargas", "borra lo viejo de descargas"], confirmar=True)
+_e("analizar_limpieza", "computador", "que puedo limpiar", "ver cuanta basura (temporales, cache) se puede limpiar sin riesgo",
+   ["cuanta basura tengo", "que puedo borrar sin problema", "analiza la limpieza"])
+_e("limpiar_pc", "computador", "limpia todo", "limpiar archivos temporales, cache y pycache",
+   ["limpia los temporales", "limpia el cache", "borra los archivos temporales"], confirmar=True)
+_e("buscar_archivos_tema", "computador", "busca mis archivos sobre {X}", "buscar archivos del usuario por nombre y por contenido sobre un tema",
+   ["encuentrame mis archivos de {X}", "dame los archivos sobre {X}", "donde estan mis archivos de {X}"], argumento="tema_archivos")
+_e("restaurar_papelera", "computador", "restaura la papelera de arche", "devolver a su sitio lo que Arche movio a su papelera",
+   ["deshaz la limpieza", "recupera lo que moviste", "devuelve lo que limpiaste"])
+
+# ------------------------------ internet y cerebro online (core/IA/cerebro.py)
+_e("clima", "web", "como esta el clima en {X}", "decir el clima actual y el pronostico de una ciudad (usa internet)",
+   ["que clima hace en {X}", "va a llover en {X}", "temperatura en {X}", "como esta el tiempo en {X}"], argumento="ciudad")
+_e("noticias", "web", "dame las noticias de {X}", "traer titulares de noticias de un tema (usa internet)",
+   ["que hay de nuevo en {X}", "noticias de {X}", "cuentame las noticias de {X}"], argumento="tema")
+_e("investigar", "web", "investiga {X}", "investigar un tema en internet y resumirlo con fuentes",
+   ["averigua sobre {X}", "busca informacion y resumeme {X}", "hazme un resumen de {X}"], argumento="tema")
+_e("conectar_nube", "configuracion", "conecta la nube", "poner la clave del modelo en la nube para que Arche piense con el, dejando a Ollama de respaldo",
+   ["usa un cerebro en internet", "conectate a internet para pensar", "pon la clave de la nube"])
+_e("estado_nube", "configuracion", "estado de la nube", "ver si el modelo en la nube esta conectado y en que modo esta",
+   ["estas conectado a la nube", "con que cerebro piensas", "que modelo usas ahora"])
+_e("usar_nube", "configuracion", "usa la nube", "pensar con la nube cuando haya internet y con Ollama si no",
+   ["piensa con la nube", "usa el modelo grande", "modo automatico de cerebro"])
+_e("usar_ollama", "configuracion", "usa ollama", "pensar solo con Ollama local, sin usar la nube",
+   ["no uses la nube", "piensa solo con ollama", "usa el modelo local"])
 
 # --------------------------------------------------------------------- memoria
 _e("recordar", "memoria", None, "pedirle al asistente que recuerde un dato personal",
@@ -492,11 +584,18 @@ SUBDOMINIOS_ASIGNADOS = {
     "subir_volumen": "sonido", "bajar_volumen": "sonido", "volumen_a": "sonido", "silenciar": "sonido",
     "pausar_reproducir": "sonido", "siguiente_cancion": "sonido", "cancion_anterior": "sonido",
     "subir_brillo": "pantalla", "bajar_brillo": "pantalla", "brillo_a": "pantalla", "captura_pantalla": "pantalla",
-    "teclear_texto": "entrada", "presionar_tecla": "entrada", "hacer_clic": "entrada", "clic_derecho": "entrada",
-    "doble_clic": "entrada", "desplazar_abajo": "entrada", "desplazar_arriba": "entrada",
+    "teclear_texto": "entrada", "presionar_tecla": "entrada",
     "bloquear_pc": "equipo", "apagar_pc": "equipo", "reiniciar_pc": "equipo", "cerrar_sesion": "equipo",
     "suspender_pc": "equipo", "cancelar_apagado": "equipo", "ver_bateria": "equipo",
     "ver_portapapeles": "equipo", "copiar_portapapeles": "equipo", "abrir_carpeta": "equipo",
+    # computador / voz
+    "activar_voz": "voz", "desactivar_voz": "voz", "callar": "voz", "repetir": "voz", "probar_voz": "voz", "motor_voz": "voz", "elegir_voz": "voz", "estado_voz": "voz", "velocidad_voz": "voz",
+    # computador / alarmas
+    "crear_aviso": "alarmas", "poner_alarma": "alarmas", "poner_temporizador": "alarmas", "ver_alarmas": "alarmas", "cancelar_alarma": "alarmas", "cancelar_todas_alarmas": "alarmas",
+    # computador / rutinas
+    "crear_rutina": "rutinas", "ejecutar_rutina": "rutinas", "ver_rutinas": "rutinas", "ver_rutina": "rutinas", "borrar_rutina": "rutinas",
+    # computador / mantenimiento
+    "diagnostico_pc": "mantenimiento", "programas_cpu": "mantenimiento", "programas_memoria": "mantenimiento", "liberar_memoria": "mantenimiento", "espacio_discos": "mantenimiento", "archivos_grandes": "mantenimiento", "buscar_duplicados": "mantenimiento", "mover_duplicados": "mantenimiento", "descargas_viejas": "mantenimiento", "limpiar_descargas": "mantenimiento", "analizar_limpieza": "mantenimiento", "limpiar_pc": "mantenimiento", "buscar_archivos_tema": "mantenimiento", "restaurar_papelera": "mantenimiento",
 }
 for _id, _subdominio in SUBDOMINIOS_ASIGNADOS.items():
     if _id in POR_ID:

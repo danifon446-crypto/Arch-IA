@@ -12,7 +12,7 @@ manejar(comando), que main.py llama antes de caer al clasificador:
              "pausa la musica", "siguiente cancion", "cancion anterior"
   PANTALLA   "sube el brillo", "pon el brillo al 60", "toma una captura de pantalla"
   TECLADO    "teclea hola en bloc de notas", "presiona ctrl+t en chrome",
-  Y MOUSE    "haz clic", "doble clic", "clic derecho", "baja la pagina"
+  Y TECLADO  "teclea hola", "presiona ctrl+c"
   EQUIPO     "bloquea el pc", "apaga el pc", "reinicia el pc", "suspende el pc",
              "cancela el apagado", "cuanta bateria tengo"
   OTROS      "que hay en el portapapeles", "copia al portapapeles X",
@@ -232,16 +232,6 @@ def _escribir_texto(texto):
                 e.ki.dwFlags = bandera
         u.SendInput(len(entradas), entradas, ctypes.sizeof(_INPUT))
         time.sleep(0.005)
-
-
-def _clic(boton="izquierdo", veces=1):
-    """Clic en donde esté el puntero del mouse ahora."""
-    u = _u32()
-    abajo, arriba = (0x2, 0x4) if boton == "izquierdo" else (0x8, 0x10)
-    for _ in range(veces):
-        u.mouse_event(abajo, 0, 0, 0, 0)
-        u.mouse_event(arriba, 0, 0, 0, 0)
-        time.sleep(0.05)
 
 
 def _pids_propios():
@@ -816,41 +806,6 @@ def _a_presionar(d):
     return True
 
 
-def _a_clic(d):
-    _clic("izquierdo", 1)
-    _msg("Clic (donde está el puntero del mouse).")
-    return True
-
-
-def _a_clic_derecho(d):
-    _clic("derecho", 1)
-    _msg("Clic derecho (donde está el puntero del mouse).")
-    return True
-
-
-def _a_doble_clic(d):
-    _clic("izquierdo", 2)
-    _msg("Doble clic (donde está el puntero del mouse).")
-    return True
-
-
-def _desplazar(tecla, texto):
-    v = _preparar_destino(None)
-    if v is None:
-        return True
-    _tecla([tecla])
-    _msg(f"{texto} en {_describir(v)}.")
-    return True
-
-
-def _a_desplazar_abajo(d):
-    return _desplazar("pagedown", "Bajé una página")
-
-
-def _a_desplazar_arriba(d):
-    return _desplazar("pageup", "Subí una página")
-
-
 # ------------------------------------------------------------------
 # Acciones: el equipo
 # ------------------------------------------------------------------
@@ -1041,13 +996,6 @@ _REGLAS = [
     # teclado y mouse
     ("teclear_texto", r"^(?:teclea|tipea|digita|escribe\s+por\s+mi)\s+(?P<x>.+)$", True),
     ("presionar_tecla", r"^(?:presiona|pulsa|oprime|aprieta|manda)\s+(?:(?:la|las|el)\s+(?:tecla|teclas|atajo)\s+)?(?P<x>.+)$", False),
-    ("doble_clic", r"^(?:(?:haz|da|hazme|dame)\s+)?(?:un\s+)?doble\s+cl(?:ic|ick)(?:\s+aqui)?$|^cl(?:ic|ick)\s+doble$", False),
-    ("clic_derecho", r"^(?:(?:haz|da|hazme|dame)\s+)?(?:un\s+)?cl(?:ic|ick)\s+derecho(?:\s+aqui)?$|^boton\s+derecho(?:\s+del\s+mouse)?$", False),
-    ("hacer_clic", r"^(?:(?:haz|da|hazme|dame)\s+)?(?:un\s+)?cl(?:ic|ick)(?:\s+izquierdo)?(?:\s+aqui)?$", False),
-    ("desplazar_abajo", r"^(?:baja|bajar|desplaza|desplazar|avanza|avanzar)\s+(?:la\s+)?(?:pagina|pantalla)(?:\s+hacia\s+abajo)?$"
-                        r"|^(?:desplaza\s+hacia\s+abajo|scroll\s+abajo|pagina\s+siguiente)$", False),
-    ("desplazar_arriba", r"^(?:sube|subir|retrocede)\s+(?:la\s+)?(?:pagina|pantalla)(?:\s+hacia\s+arriba)?$"
-                         r"|^(?:desplaza\s+hacia\s+arriba|scroll\s+arriba|pagina\s+anterior)$", False),
 
     # ventanas (con nombre)
     ("acomodar_ventana", r"^(?:acomoda|ubica|ancla|pon|ponme|pega|mueve)\s+(?P<x>.+?)\s+a\s+la\s+(?P<lado>izquierda|derecha)$", False),
@@ -1071,8 +1019,6 @@ ACCIONES = {
     "enfocar_ventana": _a_enfocar, "minimizar_ventana": _a_minimizar, "maximizar_ventana": _a_maximizar,
     "cerrar_ventana": _a_cerrar, "acomodar_ventana": _a_acomodar,
     "teclear_texto": _a_teclear, "presionar_tecla": _a_presionar,
-    "hacer_clic": _a_clic, "clic_derecho": _a_clic_derecho, "doble_clic": _a_doble_clic,
-    "desplazar_abajo": _a_desplazar_abajo, "desplazar_arriba": _a_desplazar_arriba,
     "bloquear_pc": _a_bloquear, "apagar_pc": _a_apagar, "reiniciar_pc": _a_reiniciar,
     "cerrar_sesion": _a_cerrar_sesion, "suspender_pc": _a_suspender, "cancelar_apagado": _a_cancelar_apagado,
     "ver_bateria": _a_bateria, "ver_portapapeles": _a_ver_portapapeles, "copiar_portapapeles": _a_copiar_portapapeles,
@@ -1140,6 +1086,10 @@ VERBOS_DE_PASO = {
     "cierra", "teclea", "presiona", "pulsa", "captura", "toma", "haz", "silencia", "pausa", "reproduce",
     "bloquea", "espera", "pasa", "cambia", "enfoca", "trae", "ve", "copia", "acomoda", "muestra",
     "apaga", "reinicia", "suspende", "aprende", "usa", "salta", "siguiente", "play", "next", "mutea",
+    # ordenes de los modulos nuevos (voz, internet, alarmas, rutinas, limpieza)
+    "investiga", "avisame", "recuerdame", "despiertame", "activa", "desactiva", "habla", "calla", "repite",
+    "limpia", "analiza", "ejecuta", "inicia", "cancela", "posponer", "pospon", "dime", "lee", "crea", "borra",
+    "conecta", "dame", "empieza", "deten", "libera", "encuentra",
 }
 
 

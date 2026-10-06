@@ -51,8 +51,7 @@ CASOS = {
     "minimiza chrome": "minimizar_ventana", "maximiza word": "maximizar_ventana", "pon chrome en pantalla completa": "maximizar_ventana",
     "cierra discord": "cerrar_ventana", "cierra la sesion": "cerrar_sesion", "pasa a spotify": "enfocar_ventana",
     "pon chrome a la izquierda": "acomodar_ventana", "teclea hola en bloc de notas": "teclear_texto",
-    "presiona ctrl+t en chrome": "presionar_tecla", "haz clic": "hacer_clic", "doble clic": "doble_clic", "clic derecho": "clic_derecho",
-    "baja la pagina": "desplazar_abajo", "sube la pagina": "desplazar_arriba", "bloquea el pc": "bloquear_pc",
+    "presiona ctrl+t en chrome": "presionar_tecla", "bloquea el pc": "bloquear_pc",
     "apaga el pc": "apagar_pc", "reinicia el equipo": "reiniciar_pc", "suspende el pc": "suspender_pc",
     "cancela el apagado": "cancelar_apagado", "cuanta bateria tengo": "ver_bateria",
     "que hay en el portapapeles": "ver_portapapeles", "copia al portapapeles hola": "copiar_portapapeles",
@@ -87,7 +86,9 @@ chequear("una sola orden queda igual", ap.dividir_pasos("abre chrome"), ["abre c
 chequear("tamano de INPUT correcto", ctypes.sizeof(ap._INPUT), 40 if ctypes.sizeof(ctypes.c_void_p) == 8 else 28)
 
 # ---------------------------------------------------------- catalogo <-> acciones
-computador = [e for e in catalogo.ENTRADAS if e["dominio"] == "computador"]
+todo_computador = [e for e in catalogo.ENTRADAS if e["dominio"] == "computador"]
+# voz, alarmas, rutinas y mantenimiento los manejan sus propios modulos (prueba_modulos_nuevos.py)
+computador = [e for e in todo_computador if e["subdominio"] not in ("voz", "alarmas", "rutinas", "mantenimiento")]
 propias_de_control_pc = {"que_tengo_abierto", "fijar_navegador", "preguntar_navegador"}
 for e in computador:
     if e["id"] in propias_de_control_pc:
@@ -99,7 +100,7 @@ ids_catalogo = {e["id"] for e in computador} - propias_de_control_pc
 chequear("toda accion con catalogo existe en ACCIONES", ids_catalogo <= set(ap.ACCIONES), True)
 chequear("toda accion (menos las internas) esta en el catalogo",
          set(ap.ACCIONES) - {"esperar", "listar_ventanas"} <= ids_catalogo, True)
-chequear("todos los comandos del dominio estan en un subdominio", all(e.get("subdominio") for e in computador), True)
+chequear("todos los comandos del dominio estan en un subdominio", all(e.get("subdominio") for e in todo_computador), True)
 chequear("el dominio computador se entrena en 3 niveles", catalogo.tiene_subdominios("computador"), True)
 
 # ---------------------------------------------------------- acciones (todo simulado)
@@ -120,7 +121,7 @@ class Mundo:
 
     def __init__(self, respuestas=(), windows=True, ventanas=None):
         self.teclas, self.textos, self.enfocadas, self.mostradas = [], [], [], []
-        self.cerradas, self.comandos, self.clics, self.shells, self.ps = [], [], [], [], []
+        self.cerradas, self.comandos, self.shells, self.ps = [], [], [], []
         self.bloqueos = 0
         self.respuestas = list(respuestas)
         self.preguntas = 0
@@ -145,7 +146,6 @@ class Mundo:
         e(mock.patch.object(ap, "_enfocar", lambda h: self.enfocadas.append(h) or True))
         e(mock.patch.object(ap, "_mostrar_ventana", lambda h, m: self.mostradas.append((h, m))))
         e(mock.patch.object(ap, "_cerrar_ventana_hwnd", lambda h: self.cerradas.append(h)))
-        e(mock.patch.object(ap, "_clic", lambda b, v: self.clics.append((b, v))))
         e(mock.patch.object(ap, "_abrir_shell", lambda d: self.shells.append(d)))
         e(mock.patch.object(ap, "_bloquear_estacion", lambda: setattr(self, "bloqueos", self.bloqueos + 1)))
         e(mock.patch.object(ap, "_ejecutar", lambda a: self.comandos.append(list(a)) or self.codigo_shutdown))
@@ -258,14 +258,6 @@ chequear("si solo existe la terminal: no teclea en ella", (m.textos, m.dice("No 
 with Mundo() as m:
     ap.manejar("teclea " + "x" * 600)
 chequear("texto demasiado largo: no lo teclea", m.textos, [])
-
-with Mundo() as m:
-    ap.manejar("haz clic"), ap.manejar("clic derecho"), ap.manejar("doble clic")
-chequear("clics", m.clics, [("izquierdo", 1), ("derecho", 1), ("izquierdo", 2)])
-
-with Mundo() as m:
-    ap.manejar("baja la pagina"), ap.manejar("sube la pagina")
-chequear("desplazar: Re Pag / Av Pag en la ventana de antes", (m.enfocadas, m.teclas), ([101, 101], [["pagedown"], ["pageup"]]))
 
 # sonido -------------------------------------------------------------
 with Mundo() as m:
