@@ -12,8 +12,8 @@ Decide COMO piensa Arché cuando le hablas de verdad (charla, preguntas):
      nube (con historial de la charla y lo que Arché sabe de ti).
   3. Si no, o si la nube falla, sigue como siempre: Ollama (conversar()).
 
-El modo estudio y el entrenamiento NO pasan por aqui (siguen usando Ollama
-directo), asi que la nube no gasta nada en eso.
+El modo estudio y la autocodificacion no pasan por aqui: tienen su propio
+interruptor en nube_tareas.py (estudio viene encendido, codigo apagado).
 
 Tambien trae los comandos de internet: investiga, clima, noticias, estado
 de la nube, conectar la nube.
@@ -87,15 +87,23 @@ def _sistema_para_nube():
         "Respondes en español, de forma natural y cercana. Tus respuestas se leen en voz alta, "
         "así que sé breve (1 a 4 frases salvo que pidan más), sin listas largas ni markdown. "
         "Si no sabes algo, dilo con honestidad. "
+        "Sobre ti misma: Arché corre en el computador de la persona y SÍ puede, cuando se lo piden como orden directa, "
+        "abrir programas y páginas, buscar y reproducir en sitios (YouTube, Spotify...), manejar ventanas, volumen, "
+        "brillo y capturas, poner alarmas y temporizadores, ejecutar rutinas, revisar y limpiar el PC, hablar en voz alta, "
+        "guardar notas y recordar lo que la persona le cuenta, y aprender de lo que le enseñan. "
+        "Si en esta respuesta te piden algo del computador, no digas que no puedes controlarlo: dile la orden exacta, "
+        "por ejemplo 'sube el brillo al 40' o 'pon X en spotify', y que con 'comandos' ve la lista. "
+        "No inventes cómo funciona Arché por dentro; si no lo sabes, dilo. "
         f"Hoy es {_fecha_en_español()}."
     ]
-    try:
-        from core.memoria import resumen_para_contexto
-        contexto = resumen_para_contexto()
-        if contexto:
-            partes.append("Cosas que ya sabes de la persona (úsalas solo si vienen al caso): " + contexto)
-    except Exception:
-        pass
+    if nube.envia_memoria():
+        try:
+            from core.memoria import resumen_para_contexto
+            contexto = resumen_para_contexto()
+            if contexto:
+                partes.append("Cosas que ya sabes de la persona (úsalas solo si vienen al caso): " + contexto)
+        except Exception:
+            pass
     return " ".join(partes)
 
 
@@ -119,7 +127,7 @@ def _con_contexto_web(pregunta, contexto_web):
 
 def _ollama(prompt, num_predict=350):
     from core.IA.ollamaIA import conversar
-    return conversar(prompt, num_predict=num_predict)
+    return conversar(prompt, num_predict=num_predict, permitir_nube=False)
 
 
 def pensar(pregunta, contexto_web=None, max_tokens=500):
@@ -258,7 +266,13 @@ _R_NUBE_AUTO = re.compile(r"^usa\s+(?:la\s+)?nube$|^modo\s+(?:nube\s+)?auto(?:ma
 _R_NUBE_SOLO = re.compile(r"^(?:usa\s+)?solo\s+(?:la\s+)?nube$|^modo\s+solo\s+nube$")
 _R_OLLAMA = re.compile(r"^usa\s+(?:solo\s+)?ollama$|^(?:usa\s+)?solo\s+ollama$|^modo\s+(?:local|ollama)$|"
                        r"^piensa\s+(?:solo\s+)?(?:con\s+ollama|en\s+local)$")
-_R_MODELO = re.compile(r"^usa\s+el\s+modelo\s+(\S+)$")
+_R_MODELO = re.compile(r"^usa\s+el\s+modelo\s+(\S+)$", re.I)   # se prueba sin limpiar: los ids llevan puntos
+_R_PROVEEDOR = re.compile(r"^(?:usa|pon|cambia\s+a|quiero)\s+(?:la\s+nube\s+de\s+|la\s+nube\s+con\s+|el\s+proveedor\s+)?"
+                          r"(groq|gemini|google|anthropic|claude)(?:\s+en\s+la\s+nube)?$")
+_R_MODELOS = re.compile(r"^(?:que|cuales)\s+modelos\s+(?:hay|tiene|puedo\s+usar)(?:\s+en\s+la\s+nube)?$|"
+                        r"^modelos\s+de\s+la\s+nube$|^lista(?:r)?\s+(?:los\s+)?modelos(?:\s+de\s+la\s+nube)?$")
+_R_MEMORIA_SI = re.compile(r"^comparte(?:le)?\s+(?:mi\s+)?memoria\s+con\s+la\s+nube$|^la\s+nube\s+puede\s+usar\s+mi\s+memoria$")
+_R_MEMORIA_NO = re.compile(r"^no\s+(?:compartas|le\s+cuentes)\s+(?:mi\s+)?memoria(?:\s+con\s+la\s+nube)?$")
 _R_ESTADO = re.compile(r"^(?:estado\s+de\s+(?:la\s+)?(?:nube|internet)|estas\s+conectado(?:\s+a\s+internet)?|"
                        r"tienes\s+internet|hay\s+internet|con\s+que\s+(?:piensas|modelo\s+piensas)|que\s+modelo\s+usas)$")
 _R_INVESTIGAR = re.compile(r"^(?:investiga|averigua|indaga)\s+(?:sobre\s+|acerca\s+de\s+|que\s+es\s+|quien\s+es\s+)?(.+)$|"
@@ -270,6 +284,17 @@ _R_CLIMA = re.compile(r"^(?:el\s+)?clima(?:\s+(?:en|de|para)\s+(.+?))?(?:\s+hoy)
 _R_NOTICIAS = re.compile(r"^(?:dame\s+)?(?:las\s+)?noticias(?:\s+(?:de|del|sobre|acerca\s+de)\s+(.+))?$|"
                          r"^que\s+hay\s+de\s+nuevo(?:\s+(?:en|sobre|de)\s+(.+))?$|"
                          r"^que\s+esta\s+pasando(?:\s+(?:en|con)\s+(.+))?$")
+_R_PROBAR = re.compile(r"^(?:prueba|probar|testea|test|revisa|diagnostica)\s+(?:la\s+)?(?:nube|conexion\s+(?:a\s+)?(?:la\s+)?nube)$|"
+                       r"^(?:la\s+)?nube\s+(?:funciona|sirve)$|^funciona\s+la\s+nube$")
+_R_TAREA = re.compile(r"^(no\s+)?(?:uses?|usa)\s+(?:la\s+)?nube\s+para\s+(?:el\s+|la\s+|los\s+|las\s+)?"
+                      r"(programar|codigo|autocodificar(?:te|se)?|autocodificacion|estudiar|estudio|tareas)$")
+_R_TAREA_ESTADO = re.compile(r"^(?:para\s+que|en\s+que)\s+(?:cosas\s+)?(?:usas|uso)\s+(?:la\s+)?nube$|"
+                             r"^que\s+(?:hace|hago)\s+(?:con\s+)?la\s+nube$|^estado\s+de\s+las\s+tareas\s+de\s+la\s+nube$")
+_R_RESPALDO = re.compile(r"^(no\s+)?(?:uses?|usa|activa|desactiva)\s+(?:la\s+|una\s+)?(?:otra\s+)?nube\s+(?:de\s+)?(?:respaldo|reserva)$|"
+                         r"^(?:usa|activa)\s+dos\s+nubes$|^(desactiva)\s+(?:las\s+)?dos\s+nubes$")
+_R_CONECTAR_RESPALDO = re.compile(
+    r"^(?:conecta(?:r)?|agrega(?:r)?|pon(?:er)?|configura(?:r)?)\s+(?:la\s+|una\s+)?(?:otra|segunda)\s+nube$|"
+    r"^(?:conecta(?:r)?|agrega(?:r)?|pon(?:er)?|configura(?:r)?)\s+(?:la\s+)?nube\s+de\s+(?:respaldo|reserva)$")
 _R_CIUDAD = re.compile(r"^(?:mi\s+ciudad\s+es|vivo\s+en)\s+(.+)$")
 
 
@@ -282,6 +307,20 @@ def interpretar(comando):
     t = _limpio(comando)
     if not t:
         return None
+    if _R_PROBAR.match(t):
+        return ("probar_nube", None)
+    if _R_CONECTAR_RESPALDO.match(t):
+        return ("conectar_respaldo", None)
+    m = _R_RESPALDO.match(t)
+    if m:
+        apagar = bool(m.group(1) or m.group(2)) or t.startswith("desactiva")
+        return ("nube_respaldo", not apagar)
+    m = _R_TAREA.match(t)
+    if m:
+        tarea = "codigo" if m.group(2).startswith(("program", "codigo", "autocod")) else "estudio"
+        return ("nube_tarea", (tarea, not m.group(1)))
+    if _R_TAREA_ESTADO.match(t):
+        return ("nube_tareas_estado", None)
     if _R_BORRAR_CLAVE.match(t):
         return ("borrar_clave_nube", None)
     if _R_CONECTAR.match(t):
@@ -292,9 +331,18 @@ def interpretar(comando):
         return ("usar_nube", None)
     if _R_OLLAMA.match(t):
         return ("usar_ollama", None)
-    m = _R_MODELO.match(t)
+    m = _R_MODELO.match(str(comando).strip())
     if m:
         return ("modelo_nube", m.group(1))
+    m = _R_PROVEEDOR.match(t)
+    if m:
+        return ("proveedor_nube", {"google": "gemini", "claude": "anthropic"}.get(m.group(1), m.group(1)))
+    if _R_MODELOS.match(t):
+        return ("modelos_nube", None)
+    if _R_MEMORIA_SI.match(t):
+        return ("compartir_memoria", True)
+    if _R_MEMORIA_NO.match(t):
+        return ("no_compartir_memoria", False)
     if _R_ESTADO.match(t):
         return ("estado_nube", None)
     m = _R_INVESTIGAR.match(t)
@@ -312,8 +360,123 @@ def interpretar(comando):
     return None
 
 
+def _elegir_proveedor(leer=input):
+    """Pregunta con que nube conectarse. Devuelve el id del proveedor elegido o None."""
+    nombres = [n for n, c in nube.PROVEEDORES.items() if not c.get("respaldo_de")]
+    _msg("¿Con qué nube quieres conectarme?")
+    for i, n in enumerate(nombres, start=1):
+        marca = "  <- la actual" if n == nube.proveedor() else ""
+        print(f"  {i}. {n}: {nube.PROVEEDORES[n]['nombre']}{marca}")
+    try:
+        r = _limpio(leer("Tú (número o nombre, Enter = la actual): "))
+    except (EOFError, KeyboardInterrupt):
+        return None
+    if not r:
+        return nube.proveedor()
+    if r.isdigit() and 1 <= int(r) <= len(nombres):
+        return nombres[int(r) - 1]
+    alias = {"google": "gemini", "claude": "anthropic"}
+    r = alias.get(r, r)
+    return r if r in nube.PROVEEDORES else None
+
+
 def _pedir_clave():
     return getpass.getpass("Arché: Pega tu clave de la API (no se verá al escribir) y da Enter: ").strip()
+
+
+def _cronometrar(funcion):
+    import time
+    t0 = time.time()
+    try:
+        return funcion(), time.time() - t0, None
+    except nube.ErrorNube as e:
+        return None, time.time() - t0, e
+
+
+def probar_nube_completa():
+    """Autodiagnostico para correr con Arché andando. Devuelve True si todo salio bien."""
+    from core.IA import aprender_de_nube, nube_tareas
+    _msg("Voy a probar la nube de punta a punta (son 4 llamadas pequeñas):")
+    if not nube.configurada():
+        _msg("1/4 Clave: no hay. Dime 'conecta la nube' y vuelve a probar.")
+        return False
+    _msg(f"1/4 Clave: guardada ({nube.info()['nombre']}, modelo {nube.modelo()}).")
+    if not web.hay_internet():
+        _msg("2/4 Internet: no hay conexión ahora mismo, así que no puedo seguir.")
+        return False
+    ok, detalle = nube.probar()
+    if not ok:
+        _msg(f"2/4 Conexión: falló. {detalle}")
+        return False
+    _msg("2/4 Conexión: la nube respondió.")
+    texto, seg, error = _cronometrar(lambda: nube.responder(
+        [{"role": "user", "content": "Explica en una sola frase qué es una red neuronal."}], max_tokens=120))
+    if error:
+        _msg(f"3/4 Charla: falló ({error}).")
+        return False
+    _msg(f"3/4 Charla: respondió en {seg:.1f} s: {texto[:160]}")
+    uso = nube.ultimo_uso()
+    if uso.get("aviso"):
+        _msg(f"   (Ojo: contestó la nube de respaldo, {uso['proveedor']}. {uso['aviso']})")
+    crudo, seg, _ = _cronometrar(lambda: aprender_de_nube._llamar(
+        aprender_de_nube._prompt_enrutar("sube el brillo al 70"), 400))
+    datos = aprender_de_nube._json_de(crudo) if crudo else {}
+    idi = datos.get("intencion") if isinstance(datos, dict) else None
+    if idi:
+        _msg(f"4/4 Entender órdenes: entendió 'sube el brillo al 70' como «{idi}» "
+             f"(dato: {datos.get('contenido') or '-'}) en {seg:.1f} s.")
+    else:
+        _msg("4/4 Entender órdenes: no pude leer su respuesta (la charla sí funciona; "
+             "si se repite, puede ser el límite gratis por minuto).")
+    for linea in nube_tareas.resumen_texto():
+        _msg("Hoy uso la nube así → " + linea)
+    _msg("Todo bien: la nube está lista." if idi else "La nube está conectada; falló solo la parte de órdenes.")
+    return bool(idi)
+
+
+def conectar_respaldo(leer=input, pedir=None):
+    """Guarda la clave de una SEGUNDA nube gratis sin cambiar la principal."""
+    pedir = pedir or _pedir_clave
+    candidatas = [p for p, c in nube.PROVEEDORES.items() if c["gratis"] and p != nube.proveedor() and not c.get("respaldo_de")]
+    if not candidatas:
+        _msg("No hay otra nube gratis que agregar.")
+        return None
+    if len(candidatas) == 1:
+        prov = candidatas[0]
+    else:
+        _msg("¿Cuál nube quieres como respaldo?")
+        for i, n in enumerate(candidatas, start=1):
+            print(f"  {i}. {n}: {nube.PROVEEDORES[n]['nombre']}")
+        try:
+            r = _limpio(leer("Tú (número o nombre): "))
+        except (EOFError, KeyboardInterrupt):
+            return None
+        prov = candidatas[int(r) - 1] if r.isdigit() and 1 <= int(r) <= len(candidatas) else \
+            {"google": "gemini"}.get(r, r)
+        if prov not in candidatas:
+            _msg("No cambié nada.")
+            return None
+    cfg = nube.info(prov)
+    _msg(f"Tu nube principal sigue siendo {nube.info()['nombre'].split(' (')[0]}. Para {cfg['nombre']} "
+         f"como respaldo necesito su clave (la creas gratis en {cfg['donde']}).")
+    try:
+        k = pedir()
+    except (EOFError, KeyboardInterrupt):
+        k = ""
+    if not k:
+        _msg("No guardé nada.")
+        return None
+    _msg(nube.describir_clave(k, prov))
+    nube.guardar_clave(k, prov)
+    _msg("Probando la clave...")
+    ok, detalle = nube.probar(prov)
+    if ok:
+        nube.fijar_respaldo(True)
+        _msg(f"¡Listo! Si {nube.info()['nombre'].split(' (')[0]} falla o se queda sin cupo, "
+             f"sigo solo con {cfg['nombre'].split(' (')[0]} antes de pasar a Ollama.")
+    else:
+        _msg(f"Guardé la clave pero la prueba falló: {detalle}")
+    return ok
 
 
 def manejar(comando):
@@ -324,9 +487,14 @@ def manejar(comando):
     intencion, arg = cual
 
     if intencion == "conectar_nube":
-        _msg("Para usar un modelo grande en la nube necesito una clave de API de Anthropic "
-             "(la creas en console.anthropic.com). Se guarda solo en tu PC, en Database/nube_clave.txt, "
-             "que no se sube a GitHub.")
+        prov = _elegir_proveedor()
+        if prov is None:
+            _msg("No cambié nada.")
+            return (intencion, arg)
+        nube.fijar_proveedor(prov)
+        cfg = nube.info(prov)
+        _msg(f"Para usar {cfg['nombre']} necesito una clave de API (la creas en {cfg['donde']}). "
+             f"Se guarda solo en tu PC, en Database/, que no se sube a GitHub.")
         try:
             k = _pedir_clave()
         except (EOFError, KeyboardInterrupt):
@@ -334,7 +502,8 @@ def manejar(comando):
         if not k:
             _msg("No guardé nada.")
             return (intencion, arg)
-        nube.guardar_clave(k)
+        _msg(nube.describir_clave(k, prov))
+        nube.guardar_clave(k, prov)
         _msg("Probando la clave...")
         ok, detalle = nube.probar()
         if ok:
@@ -342,6 +511,46 @@ def manejar(comando):
             _msg("¡Conectada! Desde ahora pienso con la nube y dejo a Ollama de respaldo.")
         else:
             _msg(f"Guardé la clave pero la prueba falló: {detalle}")
+    elif intencion == "probar_nube":
+        probar_nube_completa()
+    elif intencion == "conectar_respaldo":
+        conectar_respaldo()
+    elif intencion == "nube_respaldo":
+        nube.fijar_respaldo(arg)
+        if not arg:
+            _msg("Listo: si la nube principal falla, paso directo a Ollama.")
+        else:
+            otras = nube.proveedores_de_respaldo()
+            if otras:
+                _msg("Listo: si la nube principal falla, pruebo con " +
+                     ", ".join(nube.info(o)["nombre"].split(" (")[0] for o in otras) + " antes de pasar a Ollama.")
+            else:
+                _msg("Listo, queda activado, pero todavía no tengo una segunda nube. Dime 'conecta la nube', "
+                     "elige la otra (Groq o Gemini) y pega su clave; después dime 'usa la nube de <la primera>' "
+                     "para dejarla como principal.")
+    elif intencion == "nube_tarea":
+        from core.IA import nube_tareas
+        tarea, valor = arg
+        nube_tareas.fijar(tarea, valor)
+        if tarea == "codigo" and valor:
+            _msg("Listo: para escribir y revisar código también uso la nube. Ojo: eso manda fragmentos de tu "
+                 "código al proveedor y gasta bastante cupo gratis; si la nube falla o se acaba el cupo, "
+                 "sigo con Ollama. Las pruebas y confirmaciones de la autocodificación siguen igual. "
+                 "Dime 'no uses la nube para programar' para quitarlo.")
+        elif tarea == "codigo":
+            _msg("Listo: el código lo escribe solo Ollama (nada de tu código sale de tu PC).")
+        elif valor:
+            _msg("Listo: el modo estudio y las tareas de texto también usan la nube (con Ollama de respaldo).")
+        else:
+            _msg("Listo: el estudio y las tareas de texto las hace solo Ollama.")
+    elif intencion == "nube_tareas_estado":
+        from core.IA import nube_tareas
+        _msg("Así uso la nube:")
+        _msg("Charla y órdenes: con la nube cuando hay internet (Ollama de respaldo).")
+        for linea in nube_tareas.resumen_texto():
+            _msg(linea)
+        _msg("Mis redes neuronales (el clasificador) siguen entrenándose y corriendo en tu PC; "
+             "la nube solo les enseña ejemplos.")
     elif intencion == "borrar_clave_nube":
         _msg("Listo, borré la clave." if nube.borrar_clave() else "No había ninguna clave guardada.")
     elif intencion == "usar_nube":
@@ -362,6 +571,25 @@ def manejar(comando):
     elif intencion == "modelo_nube":
         nube.fijar_modelo(arg)
         _msg(f"Listo, la nube usará el modelo {arg}.")
+    elif intencion == "proveedor_nube":
+        nube.fijar_proveedor(arg)
+        cfg = nube.info(arg)
+        if nube.configurada(arg):
+            _msg(f"Listo, ahora uso {cfg['nombre']} (modelo {nube.modelo()}).")
+        else:
+            _msg(f"Listo, elegí {cfg['nombre']}, pero aún no tengo su clave: dime 'conecta la nube' para ponerla.")
+    elif intencion == "modelos_nube":
+        try:
+            ids = nube.modelos_disponibles()
+            _msg(f"Modelos de {nube.info()['nombre']} (uso {nube.modelo()}; cambia con 'usa el modelo <nombre>'):")
+            for i in ids[:25]:
+                print(f"  • {i}")
+        except nube.ErrorNube as e:
+            _msg(f"No pude ver los modelos: {e}")
+    elif intencion in ("compartir_memoria", "no_compartir_memoria"):
+        nube.fijar_envia_memoria(arg)
+        _msg("Listo: a la nube le cuento lo que sé de ti." if arg
+             else "Listo: a la nube no le cuento nada de lo que sé de ti.")
     elif intencion == "estado_nube":
         _msg(nube.estado_texto())
     elif intencion == "investigar":
@@ -374,4 +602,4 @@ def manejar(comando):
         ciudad = arg.strip().title()
         configuracion.cambiar("ciudad", ciudad)
         _msg(f"Anotado: tu ciudad es {ciudad}. Cuando pidas el clima sin decir ciudad uso esa.")
-    return (intencion, arg)x
+    return (intencion, arg)

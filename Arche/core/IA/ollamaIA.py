@@ -571,7 +571,8 @@ Ahora analiza:
         }
 
 
-def conversar(pregunta, num_predict=300, temperature=0.7, usar_historial=False, usar_memoria=False):
+def conversar(pregunta, num_predict=300, temperature=0.7, usar_historial=False, usar_memoria=False,
+              permitir_nube=True):
     """
     temperature=0.7 por defecto (charla normal, como siempre).
     Para tareas que necesitan copiar texto exacto (ej. proponer_cambio_codigo.py
@@ -606,6 +607,13 @@ Pregunta:
 
 {pregunta}
 """
+        if permitir_nube:
+            # tareas puntuales (estudio, changelog...): la nube ayuda si esta conectada;
+            # si no responde, sigue Ollama como siempre
+            from core.IA import nube_tareas
+            desde_nube = nube_tareas.intentar("estudio", prompt, max_tokens=num_predict, temperature=temperature)
+            if desde_nube:
+                return desde_nube
         with medir("ollama_conversar"):
             try:
                 respuesta = ollama.chat(
@@ -682,6 +690,11 @@ def generar_codigo(prompt, num_predict=400, temperature=0.2):
     devuelve "" -- proponer_cambio_codigo.generar_codigo() detecta la
     respuesta vacia y cae al modelo general.
     """
+    from core.IA import nube_tareas
+    desde_nube = nube_tareas.intentar("codigo", prompt, max_tokens=num_predict, temperature=temperature)
+    if desde_nube:
+        return desde_nube
+
     with medir("ollama_generar_codigo"):
         try:
             respuesta = ollama.chat(

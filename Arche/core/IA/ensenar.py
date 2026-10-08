@@ -128,6 +128,55 @@ def comando_ensenar(comando_original):
     return ok
 
 
+def _huella(ruta):
+    """Resumen del contenido util del archivo (sin comentarios ni lineas vacias)."""
+    import hashlib
+    try:
+        with open(ruta, "r", encoding="utf-8") as f:
+            lineas = [l.strip() for l in f if l.strip() and not l.lstrip().startswith("#")]
+    except OSError:
+        return None
+    return hashlib.sha1("\n".join(lineas).encode("utf-8")).hexdigest() if lineas else None
+
+
+def _archivo_registro():
+    from core.rutas import DATABASE
+    return os.path.join(DATABASE, "ejemplos_importados.json")
+
+
+def _leer_registro():
+    import json
+    try:
+        with open(_archivo_registro(), "r", encoding="utf-8") as f:
+            datos = json.load(f)
+        return datos if isinstance(datos, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def marcar_importado(ruta):
+    """Recuerda que el archivo, tal como esta ahora, ya entro al banco."""
+    import json
+    datos = _leer_registro()
+    datos[os.path.basename(ruta)] = _huella(ruta)
+    try:
+        os.makedirs(os.path.dirname(_archivo_registro()), exist_ok=True)
+        with open(_archivo_registro(), "w", encoding="utf-8") as f:
+            json.dump(datos, f, indent=2)
+    except OSError:
+        pass
+
+
+def lineas_pendientes(ruta=None):
+    """Lineas utiles del archivo que aun no se importaron (0 si no cambio desde la ultima importacion)."""
+    ruta = ruta or ARCHIVO_EJEMPLOS
+    huella = _huella(ruta)
+    if huella is None or _leer_registro().get(os.path.basename(ruta)) == huella:
+        return 0
+    with open(ruta, "r", encoding="utf-8") as f:
+        return sum(1 for l in f if l.strip() and not l.lstrip().startswith("#"))
+
+
 def importar_ejemplos(ruta=None, silencioso=False):
     """
     Lee un archivo de lineas 'frase | intencion [| dato]' y las carga
@@ -178,6 +227,9 @@ def importar_ejemplos(ruta=None, silencioso=False):
                 rechazados.append((numero, mensaje))
     finally:
         aprendizaje.UMBRAL_REENTRENO = umbral_original
+
+    if not rechazados:
+        marcar_importado(ruta)
 
     if agregados:
         if not silencioso:

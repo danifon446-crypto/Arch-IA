@@ -2,6 +2,7 @@ import json
 import os
 import re
 import threading
+import time
 import unicodedata
 from difflib import SequenceMatcher
 
@@ -105,30 +106,59 @@ def _normalizar(texto):
 # ----------------------------------------------------------------------
 # Persistencia (igual que antes, sin cambios de comportamiento)
 # ----------------------------------------------------------------------
-def cargar():
+def _con_reintentos(accion, intentos=6, pausa=0.5):
+    """OneDrive / el antivirus / otro proceso bloquean un archivo unos instantes
+    (PermissionError, WinError 32): se reintenta antes de rendirse."""
+    ultimo = None
+    for i in range(intentos):
+        try:
+            return accion()
+        except PermissionError as e:
+            ultimo = e
+            time.sleep(pausa * (i + 1))
+    raise ultimo
+
+
+def cargar(estricto=False):
 
     if not os.path.exists(ARCHIVO):
         return []
 
-    try:
-
+    def _leer():
         with open(ARCHIVO, "r", encoding="utf-8") as archivo:
             return json.load(archivo)
 
-    except:
+    try:
+        return _con_reintentos(_leer)
+    except PermissionError:
+        # Bloqueado de verdad. Para ESCRIBIR hay que fallar (devolver [] y guardar borraria lo aprendido);
+        # para solo consultar se sigue sin datos.
+        if estricto:
+            raise
+        return []
+    except Exception:
         return []
 
 
 def guardar(datos):
+    """Escribe en un temporal y lo cambia por el real (nunca deja el archivo a medias);
+    con reintentos si OneDrive/antivirus lo tienen bloqueado un momento."""
+    tmp = ARCHIVO + ".tmp"
 
-    with open(ARCHIVO, "w", encoding="utf-8") as archivo:
+    def _escribir():
+        with open(tmp, "w", encoding="utf-8") as archivo:
+            json.dump(datos, archivo, indent=4, ensure_ascii=False)
+        try:
+            os.replace(tmp, ARCHIVO)
+        except PermissionError:
+            with open(ARCHIVO, "w", encoding="utf-8") as archivo:
+                json.dump(datos, archivo, indent=4, ensure_ascii=False)
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
 
-        json.dump(
-            datos,
-            archivo,
-            indent=4,
-            ensure_ascii=False
-        )
+    _con_reintentos(_escribir)
 
 
 # ----------------------------------------------------------------------
@@ -226,7 +256,7 @@ def aprender(pregunta, accion, contenido, fuente="ollama"):
         print(f"Arché: No se pudo calcular el embedding ({e}). Sigo sin él.")
 
     with _lock:
-        datos = cargar()
+        datos = cargar(estricto=True)
 
         for dato in datos:
 

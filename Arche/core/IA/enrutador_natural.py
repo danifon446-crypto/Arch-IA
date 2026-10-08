@@ -161,7 +161,17 @@ def enrutar(texto):
     if resultado_cache and resultado_cache.get("accion") in catalogo.POR_ID:
         return resultado_cache["accion"], resultado_cache.get("contenido") or "", CONFIANZA_CACHE
 
-    resultado_ollama = _resolver_con_ollama(texto)
+    # Primero la nube (si esta conectada y con internet): entiende mucho mejor que
+    # un modelo chico y, de paso, le ensena a las redes otras formas de decirlo.
+    # Si no hay nube, no puede, o no reconoce nada, sigue Ollama como siempre.
+    resultado_ollama = None
+    try:
+        from core.IA import aprender_de_nube
+        resultado_ollama = aprender_de_nube.resolver(texto)
+    except Exception:
+        resultado_ollama = None
+    if resultado_ollama is None:
+        resultado_ollama = _resolver_con_ollama(texto)
     if resultado_ollama is None:
         return None
 

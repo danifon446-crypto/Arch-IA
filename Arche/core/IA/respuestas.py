@@ -28,7 +28,9 @@ solo y Arché sigue funcionando (todo va a Ollama, como antes).
 
 import json
 import os
+import re
 import threading
+import time
 import unicodedata
 
 BASE = os.path.dirname(__file__)
@@ -48,6 +50,19 @@ def _normalizar(texto):
     return "".join(c for c in texto if not unicodedata.combining(c))
 
 
+_RE_GENERICA = re.compile(r"(en qu[eé] (?:te )?(?:puedo|pueda) ayudar|algo en lo que (?:pueda|te pueda) ayudar|"
+                          r"c[oó]mo (?:te )?(?:puedo|pueda) ayudar|en qu[eé] puedo ayudarte|dime en qu[eé])", re.I)
+
+
+def respuesta_inutil(respuesta):
+    """Respuestas que no contestan nada (un 'en que te ayudo?' suelto, vacias, muy cortas):
+    no se guardan en el cache ni se reutilizan, aunque ya esten guardadas de antes."""
+    r = (respuesta or "").strip()
+    if len(r) < 25:
+        return True
+    return bool(_RE_GENERICA.search(r)) and len(r) < 140
+
+
 def cargar():
     if not os.path.exists(ARCHIVO):
         return []
@@ -59,8 +74,26 @@ def cargar():
 
 
 def guardar(datos):
-    with open(ARCHIVO, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=4, ensure_ascii=False)
+    ultimo = None
+    for i in range(6):          # OneDrive / antivirus bloquean el archivo unos instantes
+        try:
+            with open(ARCHIVO, "w", encoding="utf-8") as f:
+                json.dump(datos, f, indent=4, ensure_ascii=False)
+            return
+        except PermissionError as e:
+            ultimo = e
+            time.sleep(0.5 * (i + 1))
+    raise ultimo
+
+
+def purgar_inutiles():
+    """Quita del cache las respuestas que no contestan nada. Devuelve cuantas quito."""
+    with _lock:
+        datos = cargar()
+        buenos = [d for d in datos if not respuesta_inutil(d.get("respuesta"))]
+        if len(buenos) != len(datos):
+            guardar(buenos)
+        return len(datos) - len(buenos)
 
 
 def guardar_respuesta(pregunta, respuesta):
@@ -69,6 +102,8 @@ def guardar_respuesta(pregunta, respuesta):
     embedding, para poder reconocerla (o algo casi idéntico) después
     sin volver a consultar a Ollama.
     """
+    if respuesta_inutil(respuesta):
+        return
     pregunta_norm = _normalizar(pregunta)
 
     try:
@@ -129,7 +164,7 @@ def buscar_respuesta(pregunta, umbral=UMBRAL_RESPUESTA):
         mejor_dato = None
 
         for dato in datos:
-            if not dato.get("embedding"):
+            if not dato.get("embedding") or respuesta_inutil(dato.get("respuesta")):
                 continue
             score = similitud_coseno(vector_pregunta, dato["embedding"])
             if score > mejor_score:

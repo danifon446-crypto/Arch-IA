@@ -44,8 +44,12 @@
     "arche": {
       "racha": 0,
       "listo": false
+    },
+    "computador": {
+      "racha": 0,
+      "listo": false
     }
   },
-  "automatico_corriendo": false,
-  "automatico_actualizado_ts": 1791065864.1182814
+  "automatico_corriendo": true,
+  "automatico_actualizado_ts": 1791259074.7804987
 }

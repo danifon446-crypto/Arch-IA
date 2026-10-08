@@ -365,7 +365,7 @@ def exportar_guia_a_archivo(ruta=None):
         return False
 
 
-def mostrar_guia(categoria=None, actualizar_vistos=True):
+def mostrar_guia(categoria=None, actualizar_vistos=True, completo=False):
     """Imprime la guia. Sin argumento: resumen de todo. Con categoria:
     detalle con descripciones y alias. Devuelve el texto impreso."""
     guia = construir_guia()
@@ -377,8 +377,10 @@ def mostrar_guia(categoria=None, actualizar_vistos=True):
     if categoria:
         nombre = _buscar_categoria(guia, categoria)
         if nombre is None:
-            lineas.append(f"Arché: No tengo una categoría '{categoria.strip()}'. "
-                          f"Las que hay: {', '.join(guia)}.")
+            encontrados = buscar_en_guia(categoria)       # no es una categoria: lo busco como palabra
+            if encontrados:
+                return ""
+            lineas.append(f"Arché: Las categorías son: {', '.join(guia)}.")
         else:
             lineas.append("")
             lineas.append(f"   {nombre.upper()}")
@@ -389,9 +391,9 @@ def mostrar_guia(categoria=None, actualizar_vistos=True):
                 if item["alias"]:
                     lineas.append(f"  También: {', '.join(item['alias'])}")
             lineas.append("")
-    else:
+    elif completo:
         lineas.append("")
-        lineas.append("   GUÍA DE COMANDOS (se actualiza sola)")
+        lineas.append("   GUÍA COMPLETA DE COMANDOS (se actualiza sola)")
         for nombre, items in guia.items():
             lineas.append(f"\n• {nombre.upper()}")
             for item in items:
@@ -399,7 +401,18 @@ def mostrar_guia(categoria=None, actualizar_vistos=True):
                 lineas.append(f"    - {item['comando']}{marca}")
         if nuevas:
             lineas.append(f"\n🆕 = apareció desde la última vez que miraste la guía ({len(nuevas)}).")
-        lineas.append("'comandos <categoría>' para el detalle · 'próximos pasos' para saber qué correr ahora.")
+    else:
+        lineas.append("")
+        lineas.append("   GUÍA DE COMANDOS (resumen; se actualiza sola)")
+        for nombre, items in guia.items():
+            hay_nuevos = sum(1 for i in items if i["clave"] in nuevas)
+            ejemplos = ", ".join(i["comando"] for i in items[:3])
+            extra = f"  🆕{hay_nuevos}" if hay_nuevos else ""
+            lineas.append(f"\n• {nombre.upper()} ({len(items)}){extra}\n    {ejemplos}…")
+        if nuevas:
+            lineas.append(f"\n🆕 = comandos que aparecieron desde la última vez ({len(nuevas)}).")
+        lineas.append("\n'comandos <categoría>' = detalle de una · 'comandos buscar <palabra>' = encontrar uno "
+                      "· 'comandos todo' = la lista entera · 'próximos pasos' = qué correr ahora.")
 
     texto = "\n".join(lineas)
     print(texto)
@@ -408,15 +421,41 @@ def mostrar_guia(categoria=None, actualizar_vistos=True):
     return texto
 
 
+def buscar_en_guia(texto, maximo=12):
+    """Busca comandos por palabra (en el comando, la descripcion y los alias).
+    Imprime y devuelve la lista de coincidencias [(categoria, comando, descripcion)]."""
+    palabras = [w for w in _norm(texto).split() if len(w) > 1]
+    resultados = []
+    if palabras:
+        for categoria, items in construir_guia().items():
+            for item in items:
+                fajo = _norm(" ".join([item["comando"], item["descripcion"] or "", " ".join(item["alias"] or [])]))
+                if all(w in fajo for w in palabras):
+                    resultados.append((categoria, item["comando"], item["descripcion"] or ""))
+    if not palabras:
+        print("Arché: Dime qué buscas, por ejemplo 'comandos buscar volumen'.")
+    elif not resultados:
+        print(f"Arché: No encontré comandos con '{texto.strip()}'. Prueba con otra palabra o 'comandos todo'.")
+    else:
+        print(f"Arché: Encontré {len(resultados)} comando(s) con '{texto.strip()}':")
+        for categoria, comando, desc in resultados[:maximo]:
+            print(f"  • {comando}  ({categoria.lower()})" + (f" - {desc}" if desc else ""))
+        if len(resultados) > maximo:
+            print(f"  … y {len(resultados) - maximo} más; afina la búsqueda con otra palabra.")
+    return resultados
+
+
 # --------------------------------------------------------------------
 # Proximos pasos: recomendaciones segun el estado real
 # --------------------------------------------------------------------
 
 def _ejemplos_manuales_pendientes():
+    """Lineas de ejemplos_manuales.txt que todavia no entraron al banco
+    (0 si el archivo no cambio desde la ultima vez que se importo)."""
     try:
-        with open(ARCHIVO_EJEMPLOS_MANUALES, "r", encoding="utf-8") as f:
-            return sum(1 for l in f if l.strip() and not l.lstrip().startswith("#"))
-    except OSError:
+        from core.IA import ensenar
+        return ensenar.lineas_pendientes(ARCHIVO_EJEMPLOS_MANUALES)
+    except Exception:
         return 0
 
 

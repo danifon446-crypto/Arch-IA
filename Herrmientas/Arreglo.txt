@@ -1,0 +1,57 @@
+============================================================
+REPORTE DE AUTOREVISIÓN
+============================================================
+
+Funciones posiblemente duplicadas (2):
+  • core/IA/propuestas.py::guardar_propuestas  ≈  core/IA/revisar_propuestas.py::guardar_propuestas
+  • core/IA/propuestas.py::_log_inmutable  ≈  core/IA/revisar_propuestas.py::_log_inmutable
+
+Imports sin usar (6):
+  • diagnostico_reintentos.py: _extraer_funcion
+  • main.py: reporte_texto
+  • core/archivos1.py: time
+  • core/navegador.py: urllib
+  • core/prueba_autorevision.py: json
+  • core/IA/clasificador.py: json
+
+Funciones sin referencias reales, candidatas a eliminar (8):
+  • core/archivos1.py::guardar_cache  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/archivos1.py::buscar_archivo  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/notas.py::contar_txts  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/notas.py::contar_notas  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/recordatorio.py::contar_recordatorios  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/utilidades.py::extraer_contenido  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/IA/introspeccion.py::contar_archivos_txt  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+  • core/IA/ollamaIA.py::generar_codigo  -> propuesta de eliminación generada, revisá con 'python core/IA/revisar_cambios_codigo.py'
+
+Funciones que parecen sin uso pero son de despacho dinámico -- NO se proponen para borrar (4):
+  • core/IA/introspeccion.py::visit_Import (posible despacho dinamico (visit_*))
+  • core/IA/introspeccion.py::visit_ImportFrom (posible despacho dinamico (visit_*))
+  • core/IA/introspeccion.py::visit_FunctionDef (posible despacho dinamico (visit_*))
+  • core/IA/introspeccion.py::visit_Call (posible despacho dinamico (visit_*))
+
+'except:' desnudos (15):
+  • core/archivos.py:63
+  • core/archivos.py:173
+  • core/archivos.py:193
+  • core/archivos.py:92
+  • core/archivos.py:111
+  • core/archivos1.py:56
+  • core/calculadora.py:62
+  • core/calculadora.py:195
+  • core/configuracion.py:57
+  • core/programaV2.py:89
+  • core/recordatorio.py:32
+  • core/recordatorio.py:100
+  • core/recordatorio.py:121
+  • core/recordatorio.py:138
+  • core/IA/aprendizaje.py:81
+
+Revisión con Ollama: 206 función(es) nueva(s)/modificada(s) revisada(s), 10 salteada(s) por caché (ya revisadas, sin cambios).
+
+Posibles bugs encontrados (1):
+  • core/IA/aprendizaje.py::_reentrenar_si_corresponde: BUG REAL:
+- La variable "meta" se inicializa con un diccionario vacío ("{}") en lugar de un diccionario vacío ("{}"). Esto puede causar errores si se intenta acceder a una clave que no existe.
+
+En total se generaron 8 propuesta(s) (código muerto a eliminar + correcciones de bugs).
+Corré 'python core/IA/revisar_cambios_codigo.py' para revisarlas y aprobarlas.

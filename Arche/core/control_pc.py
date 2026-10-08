@@ -332,6 +332,26 @@ def interpretar_busqueda(comando):
     return None
 
 
+_VERBOS_REPRODUCIR = r"(?:pon|ponme|ponla|ponlo|reproduce|reproduceme|toca|tocame|escucha|quiero\s+escuchar|quiero\s+oir)"
+SITIOS_REPRODUCIBLES = ("spotify", "youtube")
+
+
+def interpretar_reproduccion(comando):
+    """'pon another love en spotify' -> ('spotify', 'another love'). Solo para sitios donde se puede
+    reproducir (Spotify, YouTube); si no, None y sigue siendo una busqueda normal."""
+    texto = _normalizar(comando)
+    texto = re.sub(r"[¿?¡!]", "", texto).strip()
+    if not re.match(rf"^{_VERBOS_REPRODUCIR}\s+", texto):
+        return None
+    nuevo = re.sub(rf"^{_VERBOS_REPRODUCIR}\s+", "pon ", texto)
+    encontrado = interpretar_busqueda(nuevo)
+    if not encontrado:
+        return None
+    sitio, consulta = encontrado
+    sitio_id = _ALIAS_SITIO.get(_normalizar(sitio), _normalizar(sitio))
+    return (sitio_id, consulta) if sitio_id in SITIOS_REPRODUCIBLES else None
+
+
 def separar_sitio(contenido):
     """'gatos graciosos en youtube' -> ('gatos graciosos', 'youtube').
     Sin ' en ' devuelve (contenido, None). Sirve para lo que clasifican
@@ -763,8 +783,12 @@ def buscar_en_sitio(sitio, consulta):
     url = url_de_busqueda(sitio, consulta)
     if url is None:
         return buscar_en_sitio_desconocido(sitio, consulta)
-    print(f"Arché: Buscando '{consulta}' en {nombre_para_mostrar(sitio)}...")
+    sitio_id = _ALIAS_SITIO.get(_normalizar(sitio), _normalizar(sitio))
+    print(f"Arché: Buscando '{consulta}'" + ("" if sitio_id in SITIOS_REPRODUCIBLES else f" en {nombre_para_mostrar(sitio)}") + "...")
     time.sleep(0.8)
+    if sitio_id in SITIOS_REPRODUCIBLES:
+        from core import medios
+        return medios.abrir_reutilizando(sitio_id, url)[0]     # si ya hay una pestaña de ese sitio, la usa
     return abrir_url(url)
 
 

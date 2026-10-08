@@ -61,11 +61,45 @@ def _norm(texto):
     return control_pc._normalizar(texto)
 
 
+_UNIDADES = {"cero": 0, "uno": 1, "un": 1, "una": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5, "seis": 6,
+             "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once": 11, "doce": 12, "trece": 13, "catorce": 14,
+             "quince": 15, "dieciseis": 16, "diecisiete": 17, "dieciocho": 18, "diecinueve": 19, "veinte": 20,
+             "veintiuno": 21, "veintiun": 21, "veintidos": 22, "veintitres": 23, "veinticuatro": 24,
+             "veinticinco": 25, "veintiseis": 26, "veintisiete": 27, "veintiocho": 28, "veintinueve": 29}
+_DECENAS = {"treinta": 30, "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70, "ochenta": 80,
+            "noventa": 90}
+
+
+def numeros_a_digitos(texto):
+    """'pon el brillo al cuarenta y cinco por ciento' -> 'pon el brillo al 45 por ciento' (0 a 100)."""
+    palabras = texto.split()
+    salida, i = [], 0
+    while i < len(palabras):
+        w = palabras[i]
+        if w in _DECENAS:
+            if i + 2 < len(palabras) and palabras[i + 1] == "y" and 1 <= _UNIDADES.get(palabras[i + 2], 0) <= 9 \
+                    and palabras[i + 2] not in ("un", "una") or \
+                    (i + 2 < len(palabras) and palabras[i + 1] == "y" and palabras[i + 2] in ("un", "uno")):
+                salida.append(str(_DECENAS[w] + _UNIDADES[palabras[i + 2]]))
+                i += 3
+                continue
+            salida.append(str(_DECENAS[w]))
+        elif w == "cien" or (w == "ciento" and not (salida and salida[-1] == "por")):   # "por ciento" no es 100
+            salida.append("100")
+        elif w in _UNIDADES and w not in ("un", "una", "uno"):
+            salida.append(str(_UNIDADES[w]))
+        else:
+            salida.append(w)
+        i += 1
+    return " ".join(salida)
+
+
 def _limpiar(comando):
-    """Minúsculas, sin tildes, sin signos de pregunta/puntuación (deja + y %)."""
+    """Minúsculas, sin tildes, sin signos de pregunta/puntuación (deja + y %); los números en
+    palabras pasan a cifras ('cuarenta por ciento' -> '40 por ciento')."""
     texto = _norm(comando)
     texto = re.sub(r"[¿?¡!,.;:]", " ", texto)
-    return " ".join(texto.split())
+    return numeros_a_digitos(" ".join(texto.split()))
 
 
 def _confirmar(pregunta):

@@ -24,9 +24,12 @@ from core import control_pc
 from core import acciones_pc
 from core import voz as voz_arche            # Arché habla (voz natural online o la de Windows)
 from core import alarmas as alarmas_arche    # alarmas, avisos y temporizadores que suenan
+from core import mejora_continua as mejora_arche  # piloto automatico: se mejora sola cuando no la usas
+from core import autonomia as autonomia_arche  # se adelanta: avisos del equipo, habitos, resumen del dia
 from core import rutinas as rutinas_arche    # rutinas / modos propios (estudio, cine...)
 from core import pc_avanzado                 # diagnóstico, limpieza, duplicados, buscar archivos
 from core.IA import cerebro as cerebro_nube  # internet (clima, noticias, investigar) y nube + Ollama
+from core.IA import aprender_de_nube         # aprende de la nube: intenciones y datos (en segundo plano)
 from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
@@ -318,6 +321,10 @@ if obtener("mostrar_recordatorios"):
 # Alarmas: avisa las que se pasaron con Arché cerrado y deja el vigilante corriendo.
 alarmas_arche.avisar_perdidas()
 alarmas_arche.iniciar_vigilante()
+autonomia_arche.iniciar_vigilante()
+autonomia_arche.resumen_del_dia()
+mejora_arche.iniciar()
+mejora_arche.resumen_pendiente()
 
 # ------------------------------------------------------------------
 # MODO ESTUDIO: ya NO arranca solo al iniciar Arché. Vos decidís
@@ -511,6 +518,14 @@ while True:
     # Solo reconoce la búsqueda si nombra un sitio conocido; si no
     # ("busca inteligencia artificial"), sigue el flujo de siempre.
 
+    # "pon another love en spotify" / "reproduce X en youtube": que SUENE (y reutiliza la pestaña abierta)
+    _reproduccion = control_pc.interpretar_reproduccion(comando_original)
+    if _reproduccion:
+        from core import medios
+        medios.reproducir(*_reproduccion)
+        control_pc.aprender_de_uso(comando_original, f"{_reproduccion[1]} en {_reproduccion[0]}")
+        continue
+
     _busqueda_en_sitio = control_pc.interpretar_busqueda(comando_original)
     if _busqueda_en_sitio:
         control_pc.buscar_en_sitio(*_busqueda_en_sitio)
@@ -543,7 +558,9 @@ while True:
     # VOZ, ALARMAS, RUTINAS, MANTENIMIENTO DEL PC e INTERNET/NUBE. Cada módulo
     # devuelve None si la frase no es suya, así que todo sigue como siempre.
     _resultado_modulo = None
-    for _modulo in (voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, cerebro_nube):
+    autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
+    mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
+    for _modulo in (mejora_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, cerebro_nube, aprender_de_nube):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break
@@ -994,6 +1011,17 @@ while True:
         mostrar_guia()
         continue
 
+    if comando in ["comandos todo", "comandos completos", "comandos completo", "lista completa de comandos",
+                   "todos los comandos", "guia completa"]:
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia(completo=True)
+        continue
+
+    if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando ", "buscar comandos ", "que comando sirve para ")):
+        from core.guia_comandos import buscar_en_guia
+        buscar_en_guia(comando.split(" ", 2)[2] if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando")) else comando.split(" para ", 1)[1])
+        continue
+
     if comando.startswith("comandos de ") or comando.startswith("comandos "):
         from core.guia_comandos import mostrar_guia
         mostrar_guia(comando.split(" ", 1)[1].replace("de ", "", 1) if comando.startswith("comandos de ") else comando.split(" ", 1)[1])
@@ -1089,6 +1117,13 @@ while True:
         resultado = analizar(comando)
     intencion = resultado["intencion"]
     contenido = resultado["contenido"]
+
+    # un saludo es corto y trae una palabra de saludo; una frase larga sin ella (p. ej. "explicame que es una
+    # red neuronal") no es un saludo aunque una red se haya equivocado: se trata como charla.
+    if intencion == "saludo" and not re.search(
+            r"\b(hola|holi|ola|buen[oa]s?|hey|saludos|que tal|que mas|como (?:estas|andas|vas|te va)|alo|buenas)\b",
+            comando.lower().replace("é", "e").replace("á", "a")):
+        intencion, contenido = "conversar", comando
 
     if intencion == "saludo":
         saludar(obtener("nombre_usuario"))
@@ -1219,6 +1254,9 @@ while True:
                     guardar_respuesta(contenido, _r["texto"])
                 registrar_comando(contenido, "conversar",
                                   resuelto_por="nube" if _r["fuente"] == "nube" else "ollama_conversar")
+                if _r["fuente"] == "nube":
+                    # en segundo plano: si fue conocimiento estable, queda guardado bajo varias formas de preguntarlo
+                    aprender_de_nube.aprender_de_charla(contenido, _r["texto"], volatil=_r["web"])
 
     # COMANDO DESCONOCIDO
 

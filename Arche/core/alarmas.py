@@ -571,7 +571,7 @@ def manejar(comando, ahora=None):
             proxima = lista[0]
             _marcar({proxima["id"]}, "cancelada")
             _msg(f"Cancelé la próxima: {_nombre_para_mostrar(proxima)} ({describir_cuando(_fecha(proxima))}).")
-        return ("cancelar_alarma", None)
+        return ("cancelar_todas_alarmas" if datos["todas"] and not datos["numero"] else "cancelar_alarma", None)
     if intencion == "posponer_alarma":
         base = _ultima_sonada or {}
         cuando = (ahora or datetime.now()) + timedelta(seconds=datos["segundos"])

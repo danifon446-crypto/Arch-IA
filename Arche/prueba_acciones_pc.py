@@ -88,7 +88,7 @@ chequear("tamano de INPUT correcto", ctypes.sizeof(ap._INPUT), 40 if ctypes.size
 # ---------------------------------------------------------- catalogo <-> acciones
 todo_computador = [e for e in catalogo.ENTRADAS if e["dominio"] == "computador"]
 # voz, alarmas, rutinas y mantenimiento los manejan sus propios modulos (prueba_modulos_nuevos.py)
-computador = [e for e in todo_computador if e["subdominio"] not in ("voz", "alarmas", "rutinas", "mantenimiento")]
+computador = [e for e in todo_computador if e["subdominio"] not in ("voz", "alarmas", "rutinas", "mantenimiento", "autonomia")]
 propias_de_control_pc = {"que_tengo_abierto", "fijar_navegador", "preguntar_navegador"}
 for e in computador:
     if e["id"] in propias_de_control_pc:

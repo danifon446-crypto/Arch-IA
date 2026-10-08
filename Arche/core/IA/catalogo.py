@@ -67,6 +67,12 @@ RELLENOS = {
     "ciudad": ["bogota", "medellin", "cali", "madrid", "ciudad de mexico"],
     "voz_motor": ["natural", "del sistema"],
     "voz_nombre": ["gonzalo", "salome", "dalia", "jorge"],
+    "velocidad": ["rapido", "lento", "despacio"],
+    "tono_voz": ["aguda", "grave"],
+    "nivel_autonomia": ["avisos", "proactiva", "apagada"],
+    "nivel_mejora": ["datos", "completa", "apagada"],
+    "lectura": ["corta", "completa"],
+    "proveedor": ["groq", "gemini", "anthropic"],
     "tema_archivos": ["la tesis", "la universidad", "mi hoja de vida", "el proyecto de arduino"],
 }
 
@@ -220,8 +226,42 @@ _e("elegir_voz", "computador", "usa la voz de {X}", "elegir una voz concreta de 
    ["pon la voz de {X}", "quiero que hables como {X}", "cambia la voz a {X}"], argumento="voz_nombre")
 _e("estado_voz", "computador", "estado de la voz", "ver si la voz esta activada, que motor usa y a que velocidad",
    ["estas hablando", "tienes voz", "como esta tu voz configurada"])
-_e("velocidad_voz", "computador", "habla mas rapido", "hablar mas rapido o mas lento",
-   ["habla mas lento", "habla mas despacio", "mas rapido por favor", "habla mas deprisa"])
+_e("velocidad_voz", "computador", "habla mas {X}", "hablar mas rapido o mas lento",
+   ["quiero que hables mas {X}", "habla un poco mas {X}", "mas {X} por favor"], argumento="velocidad")
+
+_e("tono_voz", "computador", "voz mas {X}", "cambiar el tono de la voz de Arche: mas aguda o mas grave",
+   ["quiero tu voz mas {X}", "ponte la voz mas {X}", "cambia tu voz a mas {X}"], argumento="tono_voz")
+_e("volumen_voz", "computador", "volumen de la voz a {X}", "subir o bajar el volumen de la voz de Arche sin tocar el del computador",
+   ["pon tu voz al {X}", "habla con el volumen en {X}", "ajusta el volumen de tu voz a {X}"], argumento="porcentaje")
+_e("sincronia_voz_on", "computador", "sincroniza la voz con el texto", "que el texto salga justo cuando empieza a sonar la voz",
+   ["habla junto con el texto", "que el texto y la voz salgan a la vez", "voz sincronizada"])
+_e("sincronia_voz_off", "computador", "no sincronices la voz", "que el texto salga de una vez y la voz llegue cuando este lista",
+   ["voz sin sincronizar", "habla despues del texto", "desincroniza la voz"])
+_e("lectura_voz", "computador", "lectura {X}", "elegir si Arche lee las respuestas completas o solo la primera frase",
+   ["quiero una lectura {X}", "pon la lectura {X}"], argumento="lectura")
+_e("restablecer_voz", "computador", "restablece la voz", "dejar la voz como venia: velocidad, tono, volumen y voz por defecto",
+   ["resetea la voz", "voz por defecto", "deja la voz como estaba"])
+_e("voces_online", "computador", "voces online", "ver todas las voces naturales en espanol que ofrece el servicio online",
+   ["todas las voces", "lista completa de voces", "que voces online hay"])
+
+# ----------------------------------------- autonomia (core/autonomia.py)
+_e("nivel_autonomia", "computador", "nivel de autonomia {X}", "elegir cuanto se adelanta Arche: apagada, solo avisos, o proactiva (hace sola los habitos seguros que apruebes)",
+   ["autonomia {X}", "pon la autonomia en {X}", "quiero la autonomia {X}"], argumento="nivel_autonomia")
+_e("autonomia_proactiva", "computador", "se mas autonomo", "que Arche se adelante y haga sola lo seguro que ya repites",
+   ["actua por tu cuenta", "adelantate", "hazlo solo"])
+_e("estado_autonomia", "computador", "que has notado", "ver que vigila Arche y que habitos ha notado en lo que pides",
+   ["mis habitos", "estado de la autonomia", "que vigilas"])
+# ---------------------------------- mejora continua (core/mejora_continua.py)
+_e("nivel_mejora", "computador", "nivel de mejora {X}", "elegir cuanto se mejora Arche sola cuando no la usas: apagada, datos (aprende y se limpia) o completa (ademas revisa su codigo)",
+   ["mejora automatica {X}", "mejora continua {X}"], argumento="nivel_mejora")
+_e("mejorarse_sola", "computador", "mejorate sola", "que Arche se centre en mejorar sola: aprender de sus fallos, importar ejemplos, limpiarse y probarse",
+   ["centrate en mejorar", "quiero que te mejores sola", "activa la mejora automatica"])
+_e("mejorar_ahora", "computador", "mejorate ahora", "que Arche haga ya su ciclo de mejora, sin esperar a que no la uses",
+   ["mejora ahora", "mejorate ya", "haz tu ciclo de mejora"])
+_e("estado_mejora", "computador", "que has mejorado", "ver que mejoro Arche por su cuenta mientras no la usaban",
+   ["estado de la mejora", "que mejoraste", "como vas mejorando"])
+_e("olvidar_habitos", "computador", "olvida mis habitos", "borrar los habitos que Arche anoto de lo que repites",
+   ["borra mis habitos", "olvida lo que notaste"])
 
 # ----------------------------------------- alarmas y temporizadores (core/alarmas.py)
 _e("crear_aviso", "computador", "avisame en {X}", "avisar al usuario dentro de un rato o a una hora, con un sonido y un mensaje",
@@ -294,6 +334,43 @@ _e("usar_nube", "configuracion", "usa la nube", "pensar con la nube cuando haya 
    ["piensa con la nube", "usa el modelo grande", "modo automatico de cerebro"])
 _e("usar_ollama", "configuracion", "usa ollama", "pensar solo con Ollama local, sin usar la nube",
    ["no uses la nube", "piensa solo con ollama", "usa el modelo local"])
+
+_e("probar_nube", "configuracion", "prueba la nube", "probar de punta a punta que la nube funciona: clave, conexion, charla y entender ordenes",
+   ["funciona la nube", "revisa la nube", "diagnostica la nube", "testea la nube"])
+_e("nube_codigo_on", "configuracion", "usa la nube para programar", "que la nube tambien escriba y revise codigo en la autocodificacion, con Ollama de respaldo",
+   ["usa la nube para el codigo", "usa la nube para autocodificarte", "que la nube te ayude a programar"])
+_e("nube_codigo_off", "configuracion", "no uses la nube para programar", "que el codigo lo escriba solo Ollama y no salga de tu PC",
+   ["no uses la nube para el codigo", "codigo solo con ollama", "no uses la nube para autocodificarte"])
+_e("nube_estudio_on", "configuracion", "usa la nube para estudiar", "que el modo estudio y las tareas de texto tambien usen la nube",
+   ["usa la nube para el estudio", "usa la nube para las tareas"])
+_e("nube_estudio_off", "configuracion", "no uses la nube para estudiar", "que el estudio y las tareas de texto las haga solo Ollama",
+   ["no uses la nube para el estudio", "no uses la nube para las tareas"])
+_e("conectar_respaldo", "configuracion", "conecta la nube de respaldo", "agregar la clave de una segunda nube gratis, sin cambiar la principal",
+   ["agrega otra nube", "conecta una segunda nube", "pon una nube de reserva"])
+_e("nube_respaldo_on", "configuracion", "usa la nube de respaldo", "si la nube principal falla, probar con la otra nube gratis antes de pasar a Ollama",
+   ["usa dos nubes", "activa la nube de respaldo"])
+_e("nube_respaldo_off", "configuracion", "no uses la nube de respaldo", "si la nube principal falla, pasar directo a Ollama",
+   ["desactiva la nube de respaldo", "desactiva las dos nubes"])
+_e("nube_tareas_estado", "configuracion", "para que usas la nube", "ver en que tareas ayuda la nube y en cuales solo Ollama",
+   ["en que usas la nube", "que haces con la nube", "estado de las tareas de la nube"])
+
+# ------------------- elegir y cuidar la nube / aprender de ella (nube.py, aprender_de_nube.py)
+_e("proveedor_nube", "configuracion", "usa la nube de {X}", "elegir con que empresa se conecta la nube: groq o gemini (gratis con limites) o anthropic (de pago)",
+   ["cambia la nube a {X}", "quiero usar {X} en la nube", "pon el proveedor {X}"], argumento="proveedor")
+_e("modelos_nube", "configuracion", "que modelos hay en la nube", "ver los modelos que ofrece la nube conectada",
+   ["modelos de la nube", "lista los modelos de la nube", "cuales modelos puedo usar"])
+_e("compartir_memoria", "configuracion", "comparte mi memoria con la nube", "permitir que la nube sepa lo que Arche recuerda del usuario",
+   ["la nube puede usar mi memoria", "cuentale a la nube lo que sabes de mi"])
+_e("no_compartir_memoria", "configuracion", "no compartas mi memoria con la nube", "impedir que la nube sepa lo que Arche recuerda del usuario",
+   ["no le cuentes a la nube lo que sabes de mi", "que la nube no use mi memoria"])
+_e("aprender_nube_on", "arche", "activa el aprendizaje de la nube", "que Arche aprenda de la nube: intenciones nuevas y datos que no cambian",
+   ["aprende de la nube", "prende el aprendizaje de la nube", "quiero que aprendas de lo que te ensena la nube"])
+_e("aprender_nube_off", "arche", "desactiva el aprendizaje de la nube", "que Arche deje de aprender de la nube",
+   ["no aprendas de la nube", "apaga el aprendizaje de la nube", "deten el aprendizaje de la nube"])
+_e("ver_aprendido_nube", "arche", "que has aprendido de la nube", "ver lo que Arche aprendio gracias a la nube",
+   ["lo que aprendiste de la nube", "mis lecciones de la nube", "cuanto has aprendido de la nube"])
+_e("olvidar_aprendido_nube", "arche", "olvida lo que aprendiste de la nube", "borrar solo lo que Arche aprendio de la nube",
+   ["borra lo aprendido de la nube", "olvida todo lo aprendido de la nube"], confirmar=True)
 
 # --------------------------------------------------------------------- memoria
 _e("recordar", "memoria", None, "pedirle al asistente que recuerde un dato personal",
@@ -589,7 +666,7 @@ SUBDOMINIOS_ASIGNADOS = {
     "suspender_pc": "equipo", "cancelar_apagado": "equipo", "ver_bateria": "equipo",
     "ver_portapapeles": "equipo", "copiar_portapapeles": "equipo", "abrir_carpeta": "equipo",
     # computador / voz
-    "activar_voz": "voz", "desactivar_voz": "voz", "callar": "voz", "repetir": "voz", "probar_voz": "voz", "motor_voz": "voz", "elegir_voz": "voz", "estado_voz": "voz", "velocidad_voz": "voz",
+    "activar_voz": "voz", "desactivar_voz": "voz", "callar": "voz", "repetir": "voz", "probar_voz": "voz", "motor_voz": "voz", "elegir_voz": "voz", "estado_voz": "voz", "velocidad_voz": "voz", "tono_voz": "voz", "volumen_voz": "voz", "sincronia_voz_on": "voz", "sincronia_voz_off": "voz", "lectura_voz": "voz", "restablecer_voz": "voz", "voces_online": "voz", "nivel_autonomia": "autonomia", "autonomia_proactiva": "autonomia", "estado_autonomia": "autonomia", "olvidar_habitos": "autonomia", "nivel_mejora": "autonomia", "mejorarse_sola": "autonomia", "mejorar_ahora": "autonomia", "estado_mejora": "autonomia",
     # computador / alarmas
     "crear_aviso": "alarmas", "poner_alarma": "alarmas", "poner_temporizador": "alarmas", "ver_alarmas": "alarmas", "cancelar_alarma": "alarmas", "cancelar_todas_alarmas": "alarmas",
     # computador / rutinas
