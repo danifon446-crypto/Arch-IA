@@ -75,7 +75,7 @@ chequear("teclear y presionar siguen", (acciones_pc.interpretar("teclea hola")[0
 MODULOS = (voz, alarmas, rutinas, pc_avanzado, cerebro, autonomia, mejora_continua)
 NUEVOS = [e for e in catalogo.ENTRADAS if e["subdominio"] in ("voz", "alarmas", "rutinas", "mantenimiento", "autonomia")
           or e["id"] in ("clima", "noticias", "investigar", "conectar_nube", "estado_nube", "usar_nube", "usar_ollama")]
-chequear("hay 56 intenciones nuevas en el catalogo", len(NUEVOS), 56)
+chequear("hay 57 intenciones nuevas en el catalogo", len(NUEVOS), 57)
 sin_manejador = []
 for e in NUEVOS:
     cmd = catalogo.armar_comando(e, catalogo.RELLENOS[e["argumento"]][0] if e["argumento"] else "")
@@ -636,7 +636,7 @@ _apr.ARCHIVO = _orig_arch
 mc = mejora_continua
 mc.ARCHIVO = os.path.join(CARPETA, "mejora_continua.json")
 chequear("mejora: nivel por defecto 'datos'", mc.nivel(), "datos")
-for frase, esperado in (("mejorate sola", ("nivel_mejora", "datos")), ("nivel de mejora completa", ("nivel_mejora", "completa")),
+for frase, esperado in (("mejorate sola", ("nivel_mejora", "total")), ("nivel de mejora datos", ("nivel_mejora", "datos")), ("deshaz tus cambios", ("deshacer_mejora", None)), ("nivel de mejora completa", ("nivel_mejora", "completa")),
                         ("no te mejores sola", ("nivel_mejora", "apagada")), ("mejorate ahora", ("mejorar_ahora", None)),
                         ("que has mejorado", ("estado_mejora", None)), ("mejora tu codigo", None), ("hola", None)):
     chequear(f"mejora: interpretar('{frase}')", mc.interpretar(frase), esperado)
@@ -680,13 +680,60 @@ with mock.patch.object(mc, "_ejemplos_pendientes", lambda: 3), \
     mc.fijar_nivel("datos")
 with mock.patch.object(mc, "_correr_autotest", lambda: (18, 2, "  MAL  test_x\n  MAL  test_y")):
     chequear("mejora: avisa si al probarse algo falla", "fallaron 2" in (mc.tarea_pruebas() or ""), True)
-with mock.patch.object(mc, "_ejemplos_pendientes", lambda: (_ for _ in ()).throw(RuntimeError("x"))):
+def _rota():
+    raise RuntimeError("x")
+with mock.patch.dict(mc.TAREAS, {"datos": _rota, "fallos": lambda: None, "limpieza": lambda: "limpié algo",
+                                "pruebas": lambda: None, "estudio": lambda: None}):
     mc._ultimo_latido = 0
-    chequear("mejora: una tarea rota no tumba el ciclo", isinstance(mc.ciclo(forzar=True), list), True)
+    mc.fijar_nivel("datos")
+    chequear("mejora: una tarea rota no tumba el ciclo", mc.ciclo(forzar=True), ["limpié algo"])
 dicho, _ = callado(mc.resumen_pendiente)
 chequear("mejora: cuenta lo hecho al volver", len(dicho) >= 2, True)
 chequear("mejora: y no lo repite", callado(mc.resumen_pendiente)[0], [])
 chequear("main.py conecta la mejora continua", all(x in fuente for x in ("mejora_arche.iniciar()", "mejora_arche.latido()", "mejora_arche.resumen_pendiente()")), True)
+
+
+# ---- mejora total: redes + arreglo del propio codigo (todo simulado: no se toca ningun archivo real)
+with mock.patch.dict(mc.TAREAS, {"datos": lambda: None, "fallos": lambda: None, "limpieza": lambda: None,
+                                "pruebas": lambda: None, "estudio": lambda: None, "codigo": lambda: None,
+                                "redes": lambda: "practiqué con mis redes", "propuestas": lambda: None,
+                                "autocodigo": lambda: "mejoré mi código: Quitar el import x"}):
+    mc._ultimo_latido = 0
+    mc.fijar_nivel("datos")
+    chequear("mejora datos: no entrena redes ni toca el codigo", mc.ciclo(forzar=True), [])
+    mc.fijar_nivel("total")
+    chequear("mejora total: entrena las redes y mejora su codigo", mc.ciclo(forzar=True),
+             ["practiqué con mis redes", "mejoré mi código: Quitar el import x"])
+    mc.fijar_nivel("datos")
+
+# aplicar_lote_seguro: con y sin falla nueva en las pruebas
+estado = {"antes": set(), "despues": set(), "n": 0}
+archivos_falsos = {"core/a.py": "import os\nx = 1\n"}
+escritas = []
+def _estado_falso():
+    estado["n"] += 1
+    return estado["antes"] if estado["n"] == 1 else estado["despues"]
+def _aplicar_falso(prop):
+    archivos_falsos[prop["archivo"]] = archivos_falsos[prop["archivo"]].replace(prop["buscar"], prop["reemplazar"], 1)
+    return True
+parche = {"id": "cod_1", "archivo": "core/a.py", "buscar": "import os\n", "reemplazar": "", "que": "Quitar el import os"}
+mc.ARCHIVO = os.path.join(CARPETA, "mejora_lote.json")
+with mock.patch.object(mc, "_estado_pruebas", _estado_falso), mock.patch.object(mc, "_protegidos", lambda: {"main.py"}), \
+        mock.patch.object(mc, "_leer_archivo", lambda rel: archivos_falsos[rel]), \
+        mock.patch.object(mc, "_escribir_archivo", lambda rel, t: archivos_falsos.__setitem__(rel, t)), \
+        mock.patch.object(mc, "_guardar_respaldo", lambda rel, t: "/tmp/bak"), \
+        mock.patch.object(mc, "_marcar_propuesta", lambda i, e: None), mock.patch.object(mc, "_aplicar", _aplicar_falso):
+    estado["despues"] = {"test_nueva"}
+    aplicadas, deshechas = mc.aplicar_lote_seguro([dict(parche)])
+    chequear("lote: si las pruebas empeoran, deshace todo", (aplicadas, archivos_falsos["core/a.py"]), ([], "import os\nx = 1\n"))
+    chequear("lote: y cuenta lo que deshizo", len(deshechas), 1)
+    estado["n"], estado["despues"] = 0, set()
+    aplicadas, deshechas = mc.aplicar_lote_seguro([dict(parche)])
+    chequear("lote: si todo sigue bien, queda aplicado", (aplicadas, archivos_falsos["core/a.py"]), (["Quitar el import os"], "x = 1\n"))
+    chequear("lote: guarda el lote para poder deshacerlo", len(mc._cargar().get("lotes", [])), 1)
+    chequear("lote: 'deshaz tus cambios' restaura el archivo", (mc.deshacer_ultimo_lote() == []), False)
+    estado["n"] = 0
+    chequear("lote: sin poder probarse no toca nada", (lambda: (setattr(mc, "_estado_pruebas", lambda: None), mc.aplicar_lote_seguro([dict(parche)]))[1])(), ([], []))
 
 print("TODO OK" if not fallos else f"{fallos} FALLO(S)")
 sys.exit(1 if fallos else 0)

@@ -28,6 +28,7 @@ from core import mejora_continua as mejora_arche  # piloto automatico: se mejora
 from core import autonomia as autonomia_arche  # se adelanta: avisos del equipo, habitos, resumen del dia
 from core import rutinas as rutinas_arche    # rutinas / modos propios (estudio, cine...)
 from core import pc_avanzado                 # diagnóstico, limpieza, duplicados, buscar archivos
+from core import interfaz as interfaz_arche  # la cara de Arché: paneles, ventana y modo TV
 from core.IA import cerebro as cerebro_nube  # internet (clima, noticias, investigar) y nube + Ollama
 from core.IA import aprender_de_nube         # aprende de la nube: intenciones y datos (en segundo plano)
 from cerebroIA import *
@@ -560,7 +561,7 @@ while True:
     _resultado_modulo = None
     autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
     mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-    for _modulo in (mejora_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, cerebro_nube, aprender_de_nube):
+    for _modulo in (mejora_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break

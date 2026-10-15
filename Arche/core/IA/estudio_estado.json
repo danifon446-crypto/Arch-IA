@@ -1,7 +1,7 @@
 {
-  "corriendo": false,
-  "paso": "detenido",
-  "aprendidos_ronda": 2,
+  "corriendo": true,
+  "paso": "generando variaciones de 'hola'",
+  "aprendidos_ronda": 41,
   "ultimo_error": null,
-  "actualizado_ts": 1790289727.6703598
+  "actualizado_ts": 1792082273.014366
 }

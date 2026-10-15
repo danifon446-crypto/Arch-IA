@@ -70,7 +70,7 @@ RELLENOS = {
     "velocidad": ["rapido", "lento", "despacio"],
     "tono_voz": ["aguda", "grave"],
     "nivel_autonomia": ["avisos", "proactiva", "apagada"],
-    "nivel_mejora": ["datos", "completa", "apagada"],
+    "nivel_mejora": ["datos", "completa", "total", "apagada"],
     "lectura": ["corta", "completa"],
     "proveedor": ["groq", "gemini", "anthropic"],
     "tema_archivos": ["la tesis", "la universidad", "mi hoja de vida", "el proyecto de arduino"],
@@ -252,14 +252,16 @@ _e("autonomia_proactiva", "computador", "se mas autonomo", "que Arche se adelant
 _e("estado_autonomia", "computador", "que has notado", "ver que vigila Arche y que habitos ha notado en lo que pides",
    ["mis habitos", "estado de la autonomia", "que vigilas"])
 # ---------------------------------- mejora continua (core/mejora_continua.py)
-_e("nivel_mejora", "computador", "nivel de mejora {X}", "elegir cuanto se mejora Arche sola cuando no la usas: apagada, datos (aprende y se limpia) o completa (ademas revisa su codigo)",
+_e("nivel_mejora", "computador", "nivel de mejora {X}", "elegir cuanto se mejora Arche sola cuando no la usas: apagada, datos (aprende y se limpia), completa (ademas informa de su codigo) o total (ademas practica sus redes y aplica sola cambios seguros de codigo)",
    ["mejora automatica {X}", "mejora continua {X}"], argumento="nivel_mejora")
-_e("mejorarse_sola", "computador", "mejorate sola", "que Arche se centre en mejorar sola: aprender de sus fallos, importar ejemplos, limpiarse y probarse",
-   ["centrate en mejorar", "quiero que te mejores sola", "activa la mejora automatica"])
+_e("mejorarse_sola", "computador", "mejorate sola", "que Arche se mejore sola en todo: aprender de sus fallos, entrenar sus redes y mejorar su codigo con cambios seguros y reversibles",
+   ["centrate en mejorar", "quiero que te mejores sola", "mejorate en todo", "activa la mejora automatica"])
+_e("deshacer_mejora", "computador", "deshaz el ultimo cambio", "revertir el ultimo cambio de codigo que Arche se hizo sola",
+   ["deshaz tu ultimo cambio", "deshaz lo que cambiaste"])
 _e("mejorar_ahora", "computador", "mejorate ahora", "que Arche haga ya su ciclo de mejora, sin esperar a que no la uses",
    ["mejora ahora", "mejorate ya", "haz tu ciclo de mejora"])
 _e("estado_mejora", "computador", "que has mejorado", "ver que mejoro Arche por su cuenta mientras no la usaban",
-   ["estado de la mejora", "que mejoraste", "como vas mejorando"])
+   ["estado de la mejora", "que mejoraste", "que cambiaste en tu codigo", "como vas mejorando"])
 _e("olvidar_habitos", "computador", "olvida mis habitos", "borrar los habitos que Arche anoto de lo que repites",
    ["borra mis habitos", "olvida lo que notaste"])
 
@@ -666,7 +668,7 @@ SUBDOMINIOS_ASIGNADOS = {
     "suspender_pc": "equipo", "cancelar_apagado": "equipo", "ver_bateria": "equipo",
     "ver_portapapeles": "equipo", "copiar_portapapeles": "equipo", "abrir_carpeta": "equipo",
     # computador / voz
-    "activar_voz": "voz", "desactivar_voz": "voz", "callar": "voz", "repetir": "voz", "probar_voz": "voz", "motor_voz": "voz", "elegir_voz": "voz", "estado_voz": "voz", "velocidad_voz": "voz", "tono_voz": "voz", "volumen_voz": "voz", "sincronia_voz_on": "voz", "sincronia_voz_off": "voz", "lectura_voz": "voz", "restablecer_voz": "voz", "voces_online": "voz", "nivel_autonomia": "autonomia", "autonomia_proactiva": "autonomia", "estado_autonomia": "autonomia", "olvidar_habitos": "autonomia", "nivel_mejora": "autonomia", "mejorarse_sola": "autonomia", "mejorar_ahora": "autonomia", "estado_mejora": "autonomia",
+    "activar_voz": "voz", "desactivar_voz": "voz", "callar": "voz", "repetir": "voz", "probar_voz": "voz", "motor_voz": "voz", "elegir_voz": "voz", "estado_voz": "voz", "velocidad_voz": "voz", "tono_voz": "voz", "volumen_voz": "voz", "sincronia_voz_on": "voz", "sincronia_voz_off": "voz", "lectura_voz": "voz", "restablecer_voz": "voz", "voces_online": "voz", "nivel_autonomia": "autonomia", "autonomia_proactiva": "autonomia", "estado_autonomia": "autonomia", "olvidar_habitos": "autonomia", "nivel_mejora": "autonomia", "mejorarse_sola": "autonomia", "mejorar_ahora": "autonomia", "estado_mejora": "autonomia", "deshacer_mejora": "autonomia", "deshacer_mejora": "autonomia",
     # computador / alarmas
     "crear_aviso": "alarmas", "poner_alarma": "alarmas", "poner_temporizador": "alarmas", "ver_alarmas": "alarmas", "cancelar_alarma": "alarmas", "cancelar_todas_alarmas": "alarmas",
     # computador / rutinas

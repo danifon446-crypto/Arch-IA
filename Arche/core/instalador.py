@@ -32,6 +32,8 @@ DEPENDENCIAS = {
     "sounddevice": "sounddevice",                     # captura de micrófono
     "psutil": "psutil",                               # estado del sistema, procesos y ventanas (sistema.py, control_pc.py)
     "edge_tts": "edge-tts",                           # voz natural de Arché (core/voz.py)
+    "PIL": "pillow",                                  # esfera, fondos y mascota de la ventana (core/interfaz)
+    "rich": "rich",                                   # paneles y colores de la consola (core/interfaz)
 }
 
 

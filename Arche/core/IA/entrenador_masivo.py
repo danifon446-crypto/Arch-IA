@@ -37,6 +37,11 @@ from core.IA import catalogo
 PAUSA_ENTRE_INTENCIONES_SEG = 2
 
 
+# El piloto automatico de mejora lo pone en True para que la nube genere los ejemplos (es mas rapida y mejor
+# que Ollama); en el entrenamiento manual sigue en False.
+PERMITIR_NUBE = False
+
+
 def _ahora():
     return datetime.now().strftime("%H:%M:%S")
 
@@ -94,7 +99,7 @@ def _generar_frases_libres(entrada, cantidad):
         f"alguna más elaborada, alguna informal). Una por línea, sin numerar, sin "
         f"comillas, sin explicación."
     )
-    respuesta = conversar(prompt, num_predict=350, temperature=0.9)
+    respuesta = conversar(prompt, num_predict=350, temperature=0.9, permitir_nube=PERMITIR_NUBE)
     return _limpiar_lineas(respuesta)[:cantidad]
 
 
@@ -112,7 +117,7 @@ def _generar_plantillas(entrada, cantidad):
         f"en el lugar que corresponda (nunca lo traduzcas ni lo cambies). Una por "
         f"línea, sin numerar, sin comillas, sin explicación."
     )
-    respuesta = conversar(prompt, num_predict=300, temperature=0.9)
+    respuesta = conversar(prompt, num_predict=300, temperature=0.9, permitir_nube=PERMITIR_NUBE)
     return [l for l in _limpiar_lineas(respuesta) if "{X}" in l][:cantidad]
 
 
@@ -159,7 +164,7 @@ def _juez_filtra(candidatas, entrada):
         f"otra cosa). Respondé ÚNICAMENTE los números separados por comas, sin texto "
         f"antes ni después. Si todas sirven, respondé todos los números."
     )
-    respuesta = conversar(prompt, num_predict=60, temperature=0.0)
+    respuesta = conversar(prompt, num_predict=60, temperature=0.0, permitir_nube=PERMITIR_NUBE)
 
     import re
     numeros = {int(n) for n in re.findall(r"\d+", respuesta or "")}

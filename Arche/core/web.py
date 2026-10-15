@@ -52,8 +52,7 @@ def hay_internet(forzar=False):
 def _get(url, timeout=TIMEOUT, datos=None):
     """GET (o POST si hay datos) y devuelve el texto. Unico punto de red."""
     cuerpo = urllib.parse.urlencode(datos).encode("utf-8") if datos else None
-    req = urllib.request.Request(url, data=cuerpo, headers={"User-Agent": USER_AGENT,
-                                                            "Accept-Language": "es-419,es;q=0.9"})
+    req = urllib.request.Request(url, data=cuerpo, headers={"User-Agent": USER_AGENT, "Accept-Language": "es-419,es;q=0.9"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         crudo = r.read(2_000_000)
         cod = r.headers.get_content_charset() or "utf-8"
@@ -89,7 +88,7 @@ def _resultados_duckduckgo(pagina):
             continue
         s = re.search(r'class="[^"]*result__snippet[^"]*"[^>]*>(.*?)</a>', b, flags=re.S)
         resultados.append({"titulo": _texto(m.group(2)), "url": enlace,
-                           "resumen": _texto(s.group(1)) if s else ""})
+                        "resumen": _texto(s.group(1)) if s else ""})
     return resultados
 
 

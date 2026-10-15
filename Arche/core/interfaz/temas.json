@@ -1,0 +1,27 @@
+{
+  "ext Rojo": {
+    "nombre": "ext Rojo",
+    "base": "arche",
+    "colores": {
+      "fondo": "#140508",
+      "panel": "#200a10",
+      "panel2": "#2e1018",
+      "borde": "#5c1f2b",
+      "texto": "#fbe9ec",
+      "tenue": "#c48a94",
+      "boton": "#3a1019",
+      "azul": "#ff4d5e",
+      "azul_claro": "#ff7a87",
+      "morado": "#d6203a",
+      "morado_claro": "#ff5468",
+      "rojo": "#ff2d46",
+      "rojo_claro": "#ff6b7d",
+      "ok": "#ff8a5c",
+      "atencion": "#ffb04d",
+      "alerta": "#ff1f3d",
+      "grafica_a": "#ff4d5e",
+      "grafica_b": "#ff9a5c",
+      "seleccion": "#ff2d46"
+    }
+  }
+}
