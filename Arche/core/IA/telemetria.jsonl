@@ -1307,3 +1307,4 @@
 {"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.028096}
 {"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0296474}
 {"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0296474}
+{"tipo": "comando", "comando": "datos", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792362571.640365}

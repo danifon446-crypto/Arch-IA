@@ -38,6 +38,7 @@ import os
 import re
 import threading
 import time
+import traceback
 import unicodedata
 from datetime import datetime
 
@@ -157,7 +158,8 @@ def toca(tarea, ahora=None):
 
 def _ejemplos_pendientes():
     from core.IA import ensenar
-    return len(ensenar.lineas_pendientes())
+    r = ensenar.lineas_pendientes()
+    return r if isinstance(r, int) else len(r)
 
 
 def _importar_ejemplos():
@@ -678,9 +680,10 @@ def ciclo(forzar=False, ahora=None):
             try:
                 texto = TAREAS[nombre]()
             except Exception as e:           # una tarea rota nunca tumba al resto
+                traceback.print_exc()
                 texto = None
                 _tocar(nombre, ahora)
-                _anotar("error", f"la tarea '{nombre}' falló ({type(e).__name__}); la dejo para después.", ahora)
+                _anotar("error", f"la tarea '{nombre}' falló ({type(e).__name__}: {e}); la dejo para después.", ahora)
                 continue
             if texto:
                 _anotar(nombre, texto, ahora)
