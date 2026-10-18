@@ -1285,3 +1285,25 @@
 {"tipo": "comando", "comando": "chao", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792252237.791183}
 {"tipo": "comando", "comando": "sabes programar en 3d", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792261007.5469778}
 {"tipo": "comando", "comando": "en en 5 minutos", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792261870.6849124}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792346562.8196685}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792346562.8206737}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792346562.8310187}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792346562.8320386}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 0.0, "error": null, "timestamp": 1792346680.682422}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792346680.683396}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 0.0, "error": null, "timestamp": 1792346888.3881402}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792346888.3881402}
+{"tipo": "comando", "comando": "nivel de mejora completa", "intencion": "nivel_mejora", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1792351144.9198935}
+{"tipo": "comando", "comando": "que has mejorado", "intencion": "estado_mejora", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1792351369.8275175}
+{"tipo": "comando", "comando": "nivel de mejora total", "intencion": "nivel_mejora", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1792351372.9241986}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362337.8235652}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362337.8245704}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362337.8275645}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792362337.8306468}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792362337.8316448}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0080976}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0250545}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0260494}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.028096}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0296474}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792362419.0296474}

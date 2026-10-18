@@ -480,6 +480,8 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     reporte = ejecutar_capa_1()
     reporte["revision_ia"] = {
         "nuevas_o_modificadas": 0,
+        "pendientes_para_despues": 0,
+        "pausada_por": "",
         "saltadas_por_cache": 0,
         "bugs_encontrados": [],
         "mejoras_encontradas": [],
@@ -495,8 +497,19 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
     if not usar_ollama:
         return reporte
 
+    from core.IA import nube_tareas
+
+    # Si la nube esta escribiendo/revisando codigo, el lote de hoy no puede pasar de lo que
+    # queda del cupo diario: lo que sobre queda PENDIENTE (sin marcar como revisado) para el
+    # dia siguiente, en vez de gastarse con Ollama. Sin nube (o en solo-Ollama) no hay tope.
+    tope_nube = nube_tareas.cupo_para_lote("codigo")
+    limite_efectivo = limite_nuevas or None
+    if tope_nube is not None:
+        limite_efectivo = tope_nube if limite_efectivo is None else min(limite_efectivo, tope_nube)
+
     cache = _cargar_cache()
     revisadas_esta_vez = 0
+    omitidas_por_limite = 0
     pendientes_de_revisar = []
 
     for archivo, rel in _archivos_del_proyecto():
@@ -512,18 +525,35 @@ def autorevisar(usar_ollama=True, limite_nuevas=None, proponer_borrado_codigo_mu
                 reporte["revision_ia"]["saltadas_por_cache"] += 1
                 continue  # ya la conocemos, sin cambios -> no gastamos Ollama de nuevo
 
-            if limite_nuevas and revisadas_esta_vez >= limite_nuevas:
-                continue  # hay mas nuevas/modificadas de las que este pase quiere cubrir
+            if limite_efectivo is not None and revisadas_esta_vez >= limite_efectivo:
+                omitidas_por_limite += 1
+                continue  # hay mas nuevas/modificadas de las que este pase puede cubrir hoy
 
             revisadas_esta_vez += 1
             pendientes_de_revisar.append((archivo, rel, fn, clave, hash_actual))
 
     reporte["revision_ia"]["nuevas_o_modificadas"] = len(pendientes_de_revisar)
+    reporte["revision_ia"]["pendientes_para_despues"] = omitidas_por_limite
+    if tope_nube is not None and tope_nube == 0 and omitidas_por_limite:
+        reporte["revision_ia"]["pausada_por"] = "cupo"
 
     if pendientes_de_revisar:
-        print(f"Arché: Reviso {len(pendientes_de_revisar)} función(es) nueva(s) o modificada(s) con Ollama...", flush=True)
+        quien = f"con la nube (cupo de hoy: {tope_nube})" if tope_nube is not None else "con Ollama"
+        print(f"Arché: Reviso {len(pendientes_de_revisar)} función(es) nueva(s) o modificada(s) {quien}...", flush=True)
+    if omitidas_por_limite:
+        print(f"Arché: Quedan {omitidas_por_limite} función(es) pendientes para después; las sigo en la próxima pasada.", flush=True)
 
     for indice_actual, (archivo, rel, fn, clave, hash_actual) in enumerate(pendientes_de_revisar, start=1):
+        # Si la nube chocó con su limite a mitad del lote, se para aqui: lo que falta no se
+        # marca como revisado y la proxima pasada lo retoma (en vez de seguir con Ollama).
+        motivo_pausa = nube_tareas.lote_en_pausa("codigo") if tope_nube is not None else ""
+        if motivo_pausa:
+            reporte["revision_ia"]["pausada_por"] = motivo_pausa
+            reporte["revision_ia"]["pendientes_para_despues"] += len(pendientes_de_revisar) - (indice_actual - 1)
+            reporte["revision_ia"]["nuevas_o_modificadas"] = indice_actual - 1
+            print("Arché: La nube llegó a su límite por ahora; dejo el resto pendiente y sigo más tarde.", flush=True)
+            break
+
         bug, mejora = revisar_funcion_con_ollama(rel, fn)
 
         if bug:
@@ -683,6 +713,11 @@ def imprimir_reporte(reporte, sin_ia=False):
         ia = reporte["revision_ia"]
         print(f"\nRevisión con Ollama: {ia['nuevas_o_modificadas']} función(es) nueva(s)/modificada(s) revisada(s), "
               f"{ia['saltadas_por_cache']} salteada(s) por caché (ya revisadas, sin cambios).")
+        if ia.get("pendientes_para_despues"):
+            motivo = {"cupo": "se acabó el cupo diario de la nube",
+                      "limite": "la nube llegó a su límite por ahora"}.get(ia.get("pausada_por"), "el lote de hoy tiene tope")
+            print(f"Quedan {ia['pendientes_para_despues']} función(es) pendientes ({motivo}); "
+                  f"la próxima pasada las retoma sin repetir lo ya revisado.")
         if ia["bugs_encontrados"]:
             print(f"\nPosibles bugs encontrados ({len(ia['bugs_encontrados'])}):")
             for h in ia["bugs_encontrados"]:

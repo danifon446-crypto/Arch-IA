@@ -111,3 +111,18 @@ def detectar_prioridad(texto):
             return "baja"
 
         return "normal"
+
+def resumen_para_contexto(limite=15):
+    """
+    Resumen de lo que Arché sabe de la persona, para inyectar en la charla.
+    Solo incluye datos personales (gustos, personas, info, fechas);
+    los recordatorios de tareas ('comprar pan mañana') se dejan afuera.
+    """
+    tipos_validos = ("gusto", "persona", "informacion_personal", "fecha")
+    recuerdos = [
+        r for r in _cargar_recuerdos()
+        if r.get("tipo") in tipos_validos and r.get("contenido")
+    ]
+    if not recuerdos:
+        return ""
+    return "; ".join(r["contenido"] for r in recuerdos[-limite:])

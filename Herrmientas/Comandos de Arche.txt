@@ -62,6 +62,11 @@ COMPUTADOR
   nivel de autonomia <nivel_autonomia>  -  elegir cuanto se adelanta Arche: apagada, solo avisos, o proactiva (hace sola los habitos seguros que apruebes)
   se mas autonomo  -  que Arche se adelante y haga sola lo seguro que ya repites
   que has notado  -  ver que vigila Arche y que habitos ha notado en lo que pides
+  nivel de mejora <nivel_mejora>  -  elegir cuanto se mejora Arche sola cuando no la usas: apagada, datos (aprende y se limpia), completa (ademas informa de su codigo) o total (ademas practica sus redes y aplica sola cambios seguros de codigo)
+  mejorate sola  -  que Arche se mejore sola en todo: aprender de sus fallos, entrenar sus redes y mejorar su codigo con cambios seguros y reversibles
+  deshaz el ultimo cambio  -  revertir el ultimo cambio de codigo que Arche se hizo sola
+  mejorate ahora  -  que Arche haga ya su ciclo de mejora, sin esperar a que no la uses
+  que has mejorado  -  ver que mejoro Arche por su cuenta mientras no la usaban
   olvida mis habitos  -  borrar los habitos que Arche anoto de lo que repites
   avisame en <aviso_tiempo>  -  avisar al usuario dentro de un rato o a una hora, con un sonido y un mensaje
   pon una alarma a las <hora_alarma>  -  poner una alarma que suene a una hora

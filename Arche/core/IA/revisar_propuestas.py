@@ -62,13 +62,22 @@ def hacer_backup():
 
 
 def leer_diccionario_actual():
-    """Lee PREGUNTAS_FRECUENTES ejecutando el archivo en un espacio de
-    nombres aislado (no via import normal, para no depender de que el
-    resto del paquete 'core' este en sys.path)."""
+    """Lee PREGUNTAS_FRECUENTES SIN ejecutar el archivo: lo analiza como
+    texto (ast) y evalua solo el literal del diccionario. Antes se hacia
+    exec() del archivo entero; como este archivo lo escribe el propio
+    sistema de propuestas, ejecutarlo era darle a cualquier texto mal
+    aprobado la posibilidad de correr codigo. Si el archivo no tiene el
+    formato esperado (por ejemplo una expresion que no es un literal),
+    esto LANZA el error en vez de devolver {}: devolver vacio haria que
+    la proxima propuesta aplicada sobrescriba y borre lo que ya habia."""
     codigo = ARCHIVO_EDITABLE.read_text(encoding="utf-8")
-    espacio = {}
-    exec(compile(codigo, str(ARCHIVO_EDITABLE), "exec"), espacio)
-    return espacio.get("PREGUNTAS_FRECUENTES", {})
+    arbol = ast.parse(codigo, filename=str(ARCHIVO_EDITABLE))
+    for nodo in arbol.body:
+        if isinstance(nodo, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "PREGUNTAS_FRECUENTES" for t in nodo.targets
+        ):
+            return ast.literal_eval(nodo.value)
+    return {}
 
 
 def generar_codigo_diccionario(diccionario):

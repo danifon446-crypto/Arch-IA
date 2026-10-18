@@ -334,7 +334,7 @@ def _con_ollama_simulado(respuestas_por_llamada):
 def test_ollamaIA_sin_historial_es_identico_a_siempre():
     ollamaIA, llamadas, original = _con_ollama_simulado(["respuesta cualquiera"])
     try:
-        ollamaIA.conversar("hola")
+        ollamaIA.conversar("hola", permitir_nube=False)
         assert len(llamadas[-1]) == 1 and llamadas[-1][0]["role"] == "user", \
             "el camino sin historial/memoria no debe cambiar -- lo usan estudio.py y generar_changelog.py"
     finally:

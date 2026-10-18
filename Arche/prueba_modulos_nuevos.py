@@ -32,6 +32,15 @@ except OSError:
 fallos = 0
 CARPETA = tempfile.mkdtemp(prefix="arche_prueba_")
 
+# mp3 de voz que YA estaban en la carpeta temporal antes de la prueba (por ejemplo de tu uso
+# real de Arché): no son de la prueba, asi que no cuentan como "sueltos".
+_MP3_PREVIOS = {f for f in os.listdir(tempfile.gettempdir()) if f.startswith("arche_voz_")}
+
+
+def mp3_sueltos():
+    return [f for f in os.listdir(tempfile.gettempdir())
+            if f.startswith("arche_voz_") and f not in _MP3_PREVIOS]
+
 
 def chequear(nombre, obtenido, esperado):
     global fallos
@@ -130,8 +139,7 @@ with mock.patch.object(voz, "configuracion", cfg), mock.patch.object(voz, "ES_WI
 
     with mock.patch.object(voz, "_sintetizar", sintetizar_falla):
         chequear("sin internet: _hablar_natural devuelve False", voz._hablar_natural("hola"), False)
-    chequear("no deja mp3 temporales sueltos",
-             [f for f in os.listdir(tempfile.gettempdir()) if f.startswith("arche_voz_")], [])
+    chequear("no deja mp3 temporales sueltos", mp3_sueltos(), [])
 
     # el hilo: natural si se puede, sistema si no
     sistema = []
@@ -366,7 +374,7 @@ with mock.patch.object(voz, "_sintetizar", lambda t, r: time.sleep(0.5)):
     chequear("audio que tarda demasiado: devuelve None sin esperar", voz._preparar_audio("hola", espera=0.05), None)
     chequear("...y no se queda esperando", time.time() - t0 < 0.4, True)
     time.sleep(0.8)
-chequear("sin mp3 sueltos tras la sincronia", [f for f in os.listdir(tempfile.gettempdir()) if f.startswith("arche_voz_")], [])
+chequear("sin mp3 sueltos tras la sincronia", mp3_sueltos(), [])
 
 # ------------------------------------------- la nube en el resto de tareas
 from core.IA import nube, nube_tareas
@@ -485,7 +493,10 @@ abiertas = []
 with mock.patch.object(medios, "abrir_reutilizando", lambda sitio, url: abiertas.append((sitio, url)) or (True, 7)), \
         mock.patch.object(medios, "_dar_play_en_segundo_plano", lambda h, c: abiertas.append(("play", h, c))), \
         mock.patch.object(medios, "primer_video", lambda c: "https://www.youtube.com/watch?v=aaaaaaaaaaa"), \
+        mock.patch.object(control_pc, "sitios_aprendidos", lambda: {}), \
         mock.patch.object(control_pc, "ES_WINDOWS", True):
+    # sitios_aprendidos simulado vacio: si TU Arché aprendió una forma de buscar en Spotify
+    # ("aprende buscar en ..."), esa manda en uso real, pero esta prueba mide la incluida.
     _, sal = callado(medios.reproducir, "spotify", "another love")
     _, sal2 = callado(medios.reproducir, "youtube", "gatos")
 chequear("spotify: abre la busqueda y luego le da play", abiertas[:2],
