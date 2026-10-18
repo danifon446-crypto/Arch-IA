@@ -1,0 +1,1287 @@
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.6862, "error": null, "timestamp": 1785788648.8569496}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.9746, "error": null, "timestamp": 1785788727.3835793}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.5644, "error": null, "timestamp": 1785788754.898581}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.9414, "error": null, "timestamp": 1785788780.6928768}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.3802, "error": null, "timestamp": 1785788812.6553373}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.9662, "error": null, "timestamp": 1785788844.9174948}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 30.2889, "error": null, "timestamp": 1785788879.8834004}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 28.7152, "error": null, "timestamp": 1785788914.1849682}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 15.3402, "error": null, "timestamp": 1785788930.460407}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 134.8438, "error": null, "timestamp": 1785789069.3052993}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 110.6998, "error": null, "timestamp": 1785789192.4648094}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 155.6495, "error": null, "timestamp": 1785789361.312851}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 128.0838, "error": null, "timestamp": 1785789499.3830614}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 138.1852, "error": null, "timestamp": 1785789655.0921938}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 165.1176, "error": null, "timestamp": 1785789831.8717666}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 170.2269, "error": null, "timestamp": 1785790025.057266}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 106.6209, "error": null, "timestamp": 1785790144.6058648}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 29.707, "error": null, "timestamp": 1785790179.257223}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.1402, "error": null, "timestamp": 1785790209.1768553}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.4699, "error": null, "timestamp": 1785790240.6338108}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.1878, "error": null, "timestamp": 1785790266.755139}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.0528, "error": null, "timestamp": 1785790291.8711784}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.4617, "error": null, "timestamp": 1785790316.4583898}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.6038, "error": null, "timestamp": 1785790342.2866786}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.4138, "error": null, "timestamp": 1785790366.879968}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 28.4339, "error": null, "timestamp": 1785790399.7916558}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.1817, "error": null, "timestamp": 1785790424.232165}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.4454, "error": null, "timestamp": 1785790448.5796473}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.4921, "error": null, "timestamp": 1785790476.294188}
+{"tipo": "comando", "comando": "hola que tal", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394050.4822075}
+{"tipo": "comando", "comando": "bien bien", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394204.6649268}
+{"tipo": "comando", "comando": "bien bien", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1786394212.826873}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787239961.407871}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787240112.5062814}
+{"tipo": "comando", "comando": "que sabes hacer", "intencion": "ayuda", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787240336.2475297}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 52.0149, "error": null, "timestamp": 1787240427.0028548}
+{"tipo": "comando", "comando": "busca c++ en google", "intencion": "buscar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1787240427.6147869}
+{"tipo": "comando", "comando": "abre minecraft launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350701.2882318}
+{"tipo": "comando", "comando": "abre tlauncher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350797.9768884}
+{"tipo": "comando", "comando": "abre tlauncher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350814.9663117}
+{"tipo": "comando", "comando": "abre visual studios code", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350857.749581}
+{"tipo": "comando", "comando": "abre visual studio code", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787350901.0328603}
+{"tipo": "comando", "comando": "abre epic games launcher", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1787709824.7734587}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.045, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1787709875.7899077}
+{"tipo": "comando", "comando": "que haces", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1787709875.7991848}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0311, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1787709889.2751658}
+{"tipo": "comando", "comando": "sabes hacer", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1787709889.2816973}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788711927.4349582}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0598, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1788727382.1123204}
+{"tipo": "comando", "comando": "c:\\users\\danif\\appdata\\local\\programs\\python\\python312\\python.exe c:/users/danif/onedrive/documents/arché/arche/main.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788727382.1192908}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0371, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1788727636.936374}
+{"tipo": "comando", "comando": "c:\\users\\danif\\appdata\\local\\programs\\python\\python312\\python.exe c:/users/danif/onedrive/documents/arché/arche/main.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788727636.952635}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0272, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1788727641.7816145}
+{"tipo": "comando", "comando": "c:\\users\\danif\\appdata\\local\\programs\\python\\python312\\python.exe c:/users/danif/onedrive/documents/arché/arche/main.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788727641.7848527}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 46.2669, "error": null, "timestamp": 1788730621.5543747}
+{"tipo": "comando", "comando": "python core\\ia\\generar_changelog.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788730621.5675323}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 40.1307, "error": null, "timestamp": 1788731108.104221}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.0763, "error": null, "timestamp": 1788731558.06055}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 4.3589, "error": null, "timestamp": 1788731591.4313183}
+{"tipo": "comando", "comando": "c:\\users\\danif\\appdata\\local\\programs\\python\\python312\\python.exe c:/users/danif/onedrive/documents/arché/arche/main.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788731591.4363317}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 6.4959, "error": null, "timestamp": 1788731598.5751715}
+{"tipo": "comando", "comando": "c:\\users\\danif\\appdata\\local\\programs\\python\\python312\\python.exe c:/users/danif/onedrive/documents/arché/arche/main.py", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788731598.57642}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 26.0224, "error": null, "timestamp": 1788745724.7533357}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 38.613, "error": null, "timestamp": 1788745815.0260327}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 59.8677, "error": null, "timestamp": 1788746827.8798354}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 29.0882, "error": null, "timestamp": 1788746856.9734635}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 48.0802, "error": null, "timestamp": 1788747096.583041}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 43.4448, "error": null, "timestamp": 1788747331.084255}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.0246, "error": null, "timestamp": 1788747468.9691978}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 48.6988, "error": null, "timestamp": 1788797858.089974}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 27.9297, "error": null, "timestamp": 1788797886.0270982}
+{"tipo": "comando", "comando": "abre excel", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788797996.8008113}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.6084, "error": null, "timestamp": 1788822190.1531959}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.822, "error": null, "timestamp": 1788822194.0027916}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.7013, "error": null, "timestamp": 1788822205.713853}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.2017, "error": null, "timestamp": 1788822213.9170532}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5078, "error": null, "timestamp": 1788822217.448267}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5697, "error": null, "timestamp": 1788822342.882744}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.0269, "error": null, "timestamp": 1788822352.9140403}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0902, "error": null, "timestamp": 1788822356.0061681}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4523, "error": null, "timestamp": 1788822359.4609756}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2258, "error": null, "timestamp": 1788822363.6889646}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 47.7968, "error": null, "timestamp": 1788877383.7126117}
+{"tipo": "comando", "comando": "que cambiaste?", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788877383.7180996}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0391, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1788887879.1735952}
+{"tipo": "comando", "comando": "como haces para abrir google?", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788887879.1770945}
+{"tipo": "comando", "comando": "abre google", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887888.494554}
+{"tipo": "comando", "comando": "abre word", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887904.9950206}
+{"tipo": "comando", "comando": "abre word", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887914.4099667}
+{"tipo": "comando", "comando": "abre word", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887938.8119133}
+{"tipo": "comando", "comando": "abre excel", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887950.9297795}
+{"tipo": "comando", "comando": "abre visual", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1788887970.745603}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.7185, "error": null, "timestamp": 1788898992.8664048}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4397, "error": null, "timestamp": 1788899103.079416}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.5729, "error": null, "timestamp": 1788899313.3277302}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2962, "error": null, "timestamp": 1788899397.7079365}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4008, "error": null, "timestamp": 1788899457.0444279}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.9097, "error": null, "timestamp": 1788919870.5845857}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.9758, "error": null, "timestamp": 1788920263.391194}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7785, "error": null, "timestamp": 1788920390.989671}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 23.2033, "error": null, "timestamp": 1788921336.353604}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.843, "error": null, "timestamp": 1788921348.1997137}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 33.6907, "error": null, "timestamp": 1788922633.9309356}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.8936, "error": null, "timestamp": 1788922648.8333528}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 40.9584, "error": null, "timestamp": 1788922779.4329357}
+{"tipo": "comando", "comando": "chao", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1788922779.4366071}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.7322, "error": null, "timestamp": 1788922845.2347481}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6167, "error": null, "timestamp": 1788922852.8630433}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.6672, "error": null, "timestamp": 1788922983.8549902}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 30.1333, "error": null, "timestamp": 1788988887.2555938}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.1978, "error": null, "timestamp": 1788989119.5521266}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.1215, "error": null, "timestamp": 1788989120.6777787}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.0291, "error": null, "timestamp": 1788989216.5543349}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 18.2943, "error": null, "timestamp": 1789097978.5323482}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 16.3967, "error": null, "timestamp": 1789098208.7918334}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.6482, "error": null, "timestamp": 1789098649.5618129}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.092, "error": null, "timestamp": 1789098651.6602166}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.2606, "error": null, "timestamp": 1789098906.662106}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.0995, "error": null, "timestamp": 1789098919.768829}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0437, "error": null, "timestamp": 1789098921.8182604}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.2764, "error": null, "timestamp": 1789099127.6595697}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.0198, "error": null, "timestamp": 1789099134.6877403}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.1825, "error": null, "timestamp": 1789099135.8739893}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.9318, "error": null, "timestamp": 1789099915.3451025}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.7009, "error": null, "timestamp": 1789099924.0563185}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.2198, "error": null, "timestamp": 1789099931.2858953}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.4885, "error": null, "timestamp": 1789156806.3450677}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.9296, "error": null, "timestamp": 1789156860.9559965}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 6.9634, "error": null, "timestamp": 1789156867.925438}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.9423, "error": null, "timestamp": 1789157475.6086469}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.3661, "error": null, "timestamp": 1789157484.980907}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 3.917, "error": null, "timestamp": 1789157488.902458}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.8227, "error": null, "timestamp": 1789157950.9811852}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 44.2233, "error": null, "timestamp": 1789158024.4620576}
+{"tipo": "comando", "comando": "revisar cambio de codigo", "intencion": "buscar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789158024.6129012}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 29.3137, "error": null, "timestamp": 1789176008.2629633}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.587, "error": null, "timestamp": 1789176024.8728878}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.3113, "error": null, "timestamp": 1789176038.1956766}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 28.0761, "error": null, "timestamp": 1789176274.0284941}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 23.945, "error": null, "timestamp": 1789176816.1458108}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.412, "error": null, "timestamp": 1789176830.5777361}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.1044, "error": null, "timestamp": 1789412030.5825589}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3887, "error": null, "timestamp": 1789412033.9735982}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4827, "error": null, "timestamp": 1789412036.4603448}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.7072, "error": null, "timestamp": 1789412039.1694124}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2923, "error": null, "timestamp": 1789412043.4631}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5704, "error": null, "timestamp": 1789412047.051916}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9631, "error": null, "timestamp": 1789412050.0164998}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2114, "error": null, "timestamp": 1789412054.2335336}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.8477, "error": null, "timestamp": 1789412060.0831277}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.5186, "error": null, "timestamp": 1789412068.6027586}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.7864, "error": null, "timestamp": 1789412073.3909254}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4326, "error": null, "timestamp": 1789412077.82454}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7975, "error": null, "timestamp": 1789412081.625298}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4589, "error": null, "timestamp": 1789412085.0857012}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6128, "error": null, "timestamp": 1789412087.717985}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1823, "error": null, "timestamp": 1789412091.9013495}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9018, "error": null, "timestamp": 1789412094.8042395}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2521, "error": null, "timestamp": 1789412097.0579042}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3668, "error": null, "timestamp": 1789412099.425866}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3229, "error": null, "timestamp": 1789412101.7502544}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0454, "error": null, "timestamp": 1789412104.7972162}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2015, "error": null, "timestamp": 1789412109.002002}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1842, "error": null, "timestamp": 1789412112.1876647}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7109, "error": null, "timestamp": 1789412115.9028008}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 15.0976, "error": null, "timestamp": 1789412131.0017495}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6669, "error": null, "timestamp": 1789412138.689213}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.6232, "error": null, "timestamp": 1789412145.314985}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2072, "error": null, "timestamp": 1789412149.529126}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3903, "error": null, "timestamp": 1789412154.921171}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6764, "error": null, "timestamp": 1789412158.6065702}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.462, "error": null, "timestamp": 1789412162.0702548}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0991, "error": null, "timestamp": 1789412166.1714742}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2835, "error": null, "timestamp": 1789412170.4574683}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.9822, "error": null, "timestamp": 1789412178.4466836}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3416, "error": null, "timestamp": 1789412183.7960224}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0884, "error": null, "timestamp": 1789412187.9026163}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7433, "error": null, "timestamp": 1789412193.6478417}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7502, "error": null, "timestamp": 1789412197.4002645}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7487, "error": null, "timestamp": 1789412201.150916}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6844, "error": null, "timestamp": 1789412204.837881}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.7796, "error": null, "timestamp": 1789412207.6193056}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3543, "error": null, "timestamp": 1789412209.9757764}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1586, "error": null, "timestamp": 1789412213.144744}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2895, "error": null, "timestamp": 1789412217.4370015}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5431, "error": null, "timestamp": 1789412222.9815357}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5692, "error": null, "timestamp": 1789412228.5524685}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5197, "error": null, "timestamp": 1789412232.090027}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4909, "error": null, "timestamp": 1789412236.5823367}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7434, "error": null, "timestamp": 1789412242.358603}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1485, "error": null, "timestamp": 1789412245.5085447}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.0446, "error": null, "timestamp": 1789412250.554395}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6706, "error": null, "timestamp": 1789412258.226761}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.1961, "error": null, "timestamp": 1789412265.428242}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2603, "error": null, "timestamp": 1789412268.6916838}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6346, "error": null, "timestamp": 1789412276.327373}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0226, "error": null, "timestamp": 1789412280.3522267}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.4327, "error": null, "timestamp": 1789412287.7865143}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7373, "error": null, "timestamp": 1789412291.5609362}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0408, "error": null, "timestamp": 1789412294.6098254}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.136, "error": null, "timestamp": 1789412298.7484653}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.7561, "error": null, "timestamp": 1789412306.5076952}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7559, "error": null, "timestamp": 1789412312.266427}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.4803, "error": null, "timestamp": 1789412317.7500436}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.0644, "error": null, "timestamp": 1789412322.8155313}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.2441, "error": null, "timestamp": 1789412329.061249}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1458, "error": null, "timestamp": 1789412332.2275546}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6449, "error": null, "timestamp": 1789412334.8736787}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5405, "error": null, "timestamp": 1789412337.4159591}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5825, "error": null, "timestamp": 1789412339.99985}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6942, "error": null, "timestamp": 1789412342.695819}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 16.9223, "error": null, "timestamp": 1789412359.620798}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5624, "error": null, "timestamp": 1789412363.1862347}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 15.3434, "error": null, "timestamp": 1789412378.6075509}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.8284, "error": null, "timestamp": 1789412382.4856787}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4724, "error": null, "timestamp": 1789412385.959171}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4599, "error": null, "timestamp": 1789412389.4224997}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5511, "error": null, "timestamp": 1789412393.9753697}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0244, "error": null, "timestamp": 1789412398.001106}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9254, "error": null, "timestamp": 1789412401.928947}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.0503, "error": null, "timestamp": 1789412409.980605}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.0627, "error": null, "timestamp": 1789412420.045524}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.9386, "error": null, "timestamp": 1789412434.9857874}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.693, "error": null, "timestamp": 1789412448.6811402}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5832, "error": null, "timestamp": 1789412452.2745397}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9624, "error": null, "timestamp": 1789412456.2379515}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 15.6164, "error": null, "timestamp": 1789412471.8559685}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1082, "error": null, "timestamp": 1789412475.9816525}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5241, "error": null, "timestamp": 1789412481.5063875}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3722, "error": null, "timestamp": 1789412486.881117}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0757, "error": null, "timestamp": 1789412490.958806}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3839, "error": null, "timestamp": 1789412493.344898}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9691, "error": null, "timestamp": 1789412498.3153443}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2282, "error": null, "timestamp": 1789412501.5747416}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0747, "error": null, "timestamp": 1789412504.6508815}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.5233, "error": null, "timestamp": 1789412511.1757057}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3553, "error": null, "timestamp": 1789412514.5328927}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.9543, "error": null, "timestamp": 1789412536.487893}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6785, "error": null, "timestamp": 1789412540.168259}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.7752, "error": null, "timestamp": 1789412546.944834}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3709, "error": null, "timestamp": 1789412552.3186831}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5346, "error": null, "timestamp": 1789412555.8664153}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.8931, "error": null, "timestamp": 1789412559.7608533}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0292, "error": null, "timestamp": 1789412562.7956786}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.2167, "error": null, "timestamp": 1789412569.014732}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.2634, "error": null, "timestamp": 1789412576.2797673}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4441, "error": null, "timestamp": 1789412580.7302647}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6481, "error": null, "timestamp": 1789412584.3797421}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4478, "error": null, "timestamp": 1789412587.829724}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.4436, "error": null, "timestamp": 1789412594.2926388}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.1521, "error": null, "timestamp": 1789412601.4464884}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0934, "error": null, "timestamp": 1789412604.5409555}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6852, "error": null, "timestamp": 1789412607.228572}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.7747, "error": null, "timestamp": 1789412617.004243}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3245, "error": null, "timestamp": 1789412622.330271}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5008, "error": null, "timestamp": 1789412627.8334506}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 18.8311, "error": null, "timestamp": 1789412646.6682527}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3201, "error": null, "timestamp": 1789412651.0184333}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0301, "error": null, "timestamp": 1789412655.0498827}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.8611, "error": null, "timestamp": 1789412662.9132771}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6237, "error": null, "timestamp": 1789412666.5393157}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3693, "error": null, "timestamp": 1789412669.910051}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6458, "error": null, "timestamp": 1789412674.5585053}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9446, "error": null, "timestamp": 1789412679.5045795}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.3529, "error": null, "timestamp": 1789412690.8588364}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8271, "error": null, "timestamp": 1789412695.6879652}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0203, "error": null, "timestamp": 1789412701.710076}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8655, "error": null, "timestamp": 1789412704.577481}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.6959, "error": null, "timestamp": 1789412710.27544}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0629, "error": null, "timestamp": 1789412716.340248}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.7986, "error": null, "timestamp": 1789412724.1407163}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.1025, "error": null, "timestamp": 1789412734.2455578}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5581, "error": null, "timestamp": 1789412739.8050203}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.571, "error": null, "timestamp": 1789412743.3877811}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.928, "error": null, "timestamp": 1789412755.3177335}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6564, "error": null, "timestamp": 1789412758.9956453}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1243, "error": null, "timestamp": 1789412762.1216652}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9712, "error": null, "timestamp": 1789412765.0944142}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.941, "error": null, "timestamp": 1789412771.0367115}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.5228, "error": null, "timestamp": 1789412776.5609148}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5943, "error": null, "timestamp": 1789412780.156354}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7666, "error": null, "timestamp": 1789412783.9250734}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.7065, "error": null, "timestamp": 1789412788.6337621}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.3303, "error": null, "timestamp": 1789412796.965729}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 12.7541, "error": null, "timestamp": 1789412809.7212608}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.082, "error": null, "timestamp": 1789412813.826821}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.881, "error": null, "timestamp": 1789412816.711656}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5665, "error": null, "timestamp": 1789412821.2792182}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.1582, "error": null, "timestamp": 1789412826.4394236}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7304, "error": null, "timestamp": 1789412832.17197}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.974, "error": null, "timestamp": 1789412835.148173}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.8058, "error": null, "timestamp": 1789412838.9549086}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2977, "error": null, "timestamp": 1789412842.2538285}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1407, "error": null, "timestamp": 1789412846.3974607}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4262, "error": null, "timestamp": 1789412849.8259072}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0259, "error": null, "timestamp": 1789412853.8537471}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4028, "error": null, "timestamp": 1789412857.2662601}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1641, "error": null, "timestamp": 1789412860.4328063}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0476, "error": null, "timestamp": 1789412863.481908}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.3104, "error": null, "timestamp": 1789412870.7934637}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.9063, "error": null, "timestamp": 1789412877.7013655}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0928, "error": null, "timestamp": 1789412881.8051}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9835, "error": null, "timestamp": 1789412885.7905414}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.1217, "error": null, "timestamp": 1789412899.9142947}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9339, "error": null, "timestamp": 1789412903.8546062}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2706, "error": null, "timestamp": 1789412907.1271799}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1548, "error": null, "timestamp": 1789412910.2844176}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 50.009, "error": null, "timestamp": 1789412960.334851}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6305, "error": null, "timestamp": 1789412967.967249}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.9186, "error": null, "timestamp": 1789412975.8871434}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5414, "error": null, "timestamp": 1789412979.4432144}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0132, "error": null, "timestamp": 1789412982.458432}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3233, "error": null, "timestamp": 1789412985.783213}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.2197, "error": null, "timestamp": 1789412997.004221}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4035, "error": null, "timestamp": 1789413000.4146907}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.26, "error": null, "timestamp": 1789413003.6760366}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9739, "error": null, "timestamp": 1789413006.6513023}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.1103, "error": null, "timestamp": 1789413013.762694}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.1429, "error": null, "timestamp": 1789413022.9080334}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5191, "error": null, "timestamp": 1789413027.4393523}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3204, "error": null, "timestamp": 1789413030.7758627}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0113, "error": null, "timestamp": 1789413033.7892122}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2393, "error": null, "timestamp": 1789413037.0295706}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7346, "error": null, "timestamp": 1789413040.7662125}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4772, "error": null, "timestamp": 1789413045.2449055}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9665, "error": null, "timestamp": 1789413050.212728}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2105, "error": null, "timestamp": 1789413053.4248476}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.3179, "error": null, "timestamp": 1789413062.744628}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.393, "error": null, "timestamp": 1789413071.139088}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8388, "error": null, "timestamp": 1789413075.9935832}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7052, "error": null, "timestamp": 1789413081.7000966}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.659, "error": null, "timestamp": 1789413086.3607936}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1856, "error": null, "timestamp": 1789413090.5477543}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.7636, "error": null, "timestamp": 1789413104.3125014}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4389, "error": null, "timestamp": 1789413108.7889915}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.8615, "error": null, "timestamp": 1789413112.6526115}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9919, "error": null, "timestamp": 1789413115.646256}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.0085, "error": null, "timestamp": 1789413122.6567461}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5279, "error": null, "timestamp": 1789413126.1864207}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.853, "error": null, "timestamp": 1789413130.0409532}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3651, "error": null, "timestamp": 1789413134.4081838}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 28.3235, "error": null, "timestamp": 1789413162.7341561}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6693, "error": null, "timestamp": 1789413165.4063113}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.516, "error": null, "timestamp": 1789413168.928016}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.3785, "error": null, "timestamp": 1789413178.309321}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.0242, "error": null, "timestamp": 1789413183.3356915}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0838, "error": null, "timestamp": 1789413186.424106}
+{"tipo": "comando", "comando": "abre notas", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789413281.7626321}
+{"tipo": "comando", "comando": "abre notas", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789413450.8445418}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 110.1294, "error": null, "timestamp": 1789527502.1846805}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 36.7516, "error": null, "timestamp": 1789527538.9405272}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 23.8892, "error": null, "timestamp": 1789527562.8395395}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.2817, "error": null, "timestamp": 1789527583.123036}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 29.1127, "error": null, "timestamp": 1789527612.2426224}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 37.315, "error": null, "timestamp": 1789527649.5593128}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 45.8093, "error": null, "timestamp": 1789527860.122964}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.658, "error": null, "timestamp": 1789527875.7831662}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 26.3246, "error": null, "timestamp": 1789527902.1163845}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 28.2047, "error": null, "timestamp": 1789527930.3227153}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 23.9937, "error": null, "timestamp": 1789527954.3249578}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789765363.650308}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789786429.7533617}
+{"tipo": "comando", "comando": "arreglate", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789786468.5497174}
+{"tipo": "comando", "comando": "revisate", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789786494.2225206}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 29.5221, "error": null, "timestamp": 1789786588.515267}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.392, "error": null, "timestamp": 1789786602.9372077}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.4384, "error": null, "timestamp": 1789786624.3804967}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.3436, "error": null, "timestamp": 1789786637.725594}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.3048, "error": null, "timestamp": 1789786662.0353916}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.074, "error": null, "timestamp": 1789786684.1114275}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.7106, "error": null, "timestamp": 1789786706.8645616}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 86.3875, "error": null, "timestamp": 1789786793.2583864}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 87.4396, "error": null, "timestamp": 1789786880.7003567}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 82.429, "error": null, "timestamp": 1789786963.1397367}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 76.6487, "error": null, "timestamp": 1789787039.7921522}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.2095, "error": null, "timestamp": 1789787058.007964}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 80.1617, "error": null, "timestamp": 1789787138.1815178}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 83.9341, "error": null, "timestamp": 1789787222.1189027}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 68.1782, "error": null, "timestamp": 1789787290.3078916}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 83671.3586, "error": null, "timestamp": 1789870961.667556}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 26.4402, "error": null, "timestamp": 1789870988.1231709}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 99.7818, "error": null, "timestamp": 1789871087.950969}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 89.7048, "error": null, "timestamp": 1789871177.7286427}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 89.7025, "error": null, "timestamp": 1789871267.433689}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.3948, "error": null, "timestamp": 1789871277.8351192}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.5121, "error": null, "timestamp": 1789871302.3799086}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.0316, "error": null, "timestamp": 1789871315.4138193}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.401, "error": null, "timestamp": 1789871339.8247564}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.6327, "error": null, "timestamp": 1789871358.4595428}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.3109, "error": null, "timestamp": 1789871372.7872393}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 35.083, "error": null, "timestamp": 1789871407.8775997}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 28.6499, "error": null, "timestamp": 1789871436.8309631}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 26.1336, "error": null, "timestamp": 1789871463.3105283}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 73.4908, "error": null, "timestamp": 1789871536.8356137}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 83.5882, "error": null, "timestamp": 1789871620.6956782}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.5507, "error": null, "timestamp": 1789871636.6658325}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 39.6158, "error": null, "timestamp": 1789871676.3337815}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 23.1807, "error": null, "timestamp": 1789871699.516639}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 26.9788, "error": null, "timestamp": 1789871726.5047963}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.7078, "error": null, "timestamp": 1789871747.2143826}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.6477, "error": null, "timestamp": 1789871766.9153097}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 96.9096, "error": null, "timestamp": 1789871863.842396}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 63.5022, "error": null, "timestamp": 1789871927.4300907}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.1713, "error": null, "timestamp": 1789871944.6312394}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 73.0655, "error": null, "timestamp": 1789872017.7108674}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 60.4652, "error": null, "timestamp": 1789872078.2255886}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.7424, "error": null, "timestamp": 1789872096.0174236}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789872270.4753108}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789873323.175765}
+{"tipo": "comando", "comando": "revisate", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789873439.4167764}
+{"tipo": "comando", "comando": "revisate", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789873451.0145578}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 58.3914, "error": null, "timestamp": 1789874293.718602}
+{"tipo": "comando", "comando": "revisate", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1789874293.7262528}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 3.0983, "error": null, "timestamp": 1789874373.3641124}
+{"tipo": "comando", "comando": "revisa tu codigo", "intencion": "modificar_codigo", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789874374.0052726}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 33.1204, "error": null, "timestamp": 1789874791.621548}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.3185, "error": null, "timestamp": 1789874802.9501603}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.6675, "error": null, "timestamp": 1789874821.6226928}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.4556, "error": null, "timestamp": 1789874834.0804064}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.8315, "error": null, "timestamp": 1789874849.9165719}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.9986, "error": null, "timestamp": 1789874862.9166353}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.5611, "error": null, "timestamp": 1789874885.500522}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 109.0239, "error": null, "timestamp": 1789874994.5313208}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 67.3764, "error": null, "timestamp": 1789875061.9103606}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 65.8819, "error": null, "timestamp": 1789875127.8047616}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 67.8249, "error": null, "timestamp": 1789875195.630026}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.1187, "error": null, "timestamp": 1789875214.7532754}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 73.4508, "error": null, "timestamp": 1789875288.2117302}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 77.7006, "error": null, "timestamp": 1789875365.9148786}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 33299.2669, "error": null, "timestamp": 1789908663.2699618}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 103.4193, "error": null, "timestamp": 1789908766.69466}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 32.3362, "error": null, "timestamp": 1789908799.1130745}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 112.0263, "error": null, "timestamp": 1789908911.4172335}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.0046, "error": null, "timestamp": 1789909037.3808832}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.0879, "error": null, "timestamp": 1789909045.4716556}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.8921, "error": null, "timestamp": 1789909061.3664045}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.3588, "error": null, "timestamp": 1789909071.7270133}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.0753, "error": null, "timestamp": 1789909082.8052692}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.622, "error": null, "timestamp": 1789909096.4295418}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.26, "error": null, "timestamp": 1789909111.6920195}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.9043, "error": null, "timestamp": 1789909133.5980334}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.7911, "error": null, "timestamp": 1789909153.397359}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.9584, "error": null, "timestamp": 1789909172.3597414}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.9837, "error": null, "timestamp": 1789909191.3463979}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.9998, "error": null, "timestamp": 1789909211.352041}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.245, "error": null, "timestamp": 1789909231.6005616}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.6681, "error": null, "timestamp": 1789909250.2752724}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.5116, "error": null, "timestamp": 1789909268.7921355}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.7747, "error": null, "timestamp": 1789909285.5699828}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 29.8735, "error": null, "timestamp": 1789909315.4477577}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 31.0649, "error": null, "timestamp": 1789909346.5193014}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.449, "error": null, "timestamp": 1789909365.9783332}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.8042, "error": null, "timestamp": 1789909374.789263}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.7857, "error": null, "timestamp": 1789909387.5775511}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.9827, "error": null, "timestamp": 1789909402.563329}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.7622, "error": null, "timestamp": 1789909417.3270783}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.5953, "error": null, "timestamp": 1789909433.9288595}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.4314, "error": null, "timestamp": 1789909442.3644419}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.7975, "error": null, "timestamp": 1789909465.1644769}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.1259, "error": null, "timestamp": 1789909480.295026}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.7308, "error": null, "timestamp": 1789909497.0273805}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.7352, "error": null, "timestamp": 1789909515.764731}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.2131, "error": null, "timestamp": 1789909535.9805386}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.8321, "error": null, "timestamp": 1789909557.8156195}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.885, "error": null, "timestamp": 1789909573.7040985}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.5641, "error": null, "timestamp": 1789909594.2714984}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.5584, "error": null, "timestamp": 1789909608.831242}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.0477, "error": null, "timestamp": 1789909620.8838093}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.9156, "error": null, "timestamp": 1789909640.8034103}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7461, "error": null, "timestamp": 1789909654.553334}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.6527, "error": null, "timestamp": 1789909669.2333014}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 34.328, "error": null, "timestamp": 1789909703.5662203}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 28.2499, "error": null, "timestamp": 1789909731.8292289}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.1973, "error": null, "timestamp": 1789909749.0863907}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 68.2998, "error": null, "timestamp": 1789909817.7308078}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.6492, "error": null, "timestamp": 1789909842.4014401}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 27.2544, "error": null, "timestamp": 1789909869.6668897}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.9385, "error": null, "timestamp": 1789909892.8173778}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 25.0237, "error": null, "timestamp": 1789909918.1594715}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 35.2944, "error": null, "timestamp": 1789909953.534265}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 38.3032, "error": null, "timestamp": 1789909992.0443914}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 26.5847, "error": null, "timestamp": 1789910018.643182}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.8671, "error": null, "timestamp": 1789910041.5170584}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.9759, "error": null, "timestamp": 1789910063.5563178}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 87.9197, "error": null, "timestamp": 1789910151.4857485}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.6477, "error": null, "timestamp": 1789911268.8377397}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.6505, "error": null, "timestamp": 1789911278.4982295}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.2469, "error": null, "timestamp": 1789911298.747741}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.5863, "error": null, "timestamp": 1789911311.3367486}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789911829.2057176}
+{"tipo": "comando", "comando": "buenas", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789911852.3437874}
+{"tipo": "comando", "comando": "qué hora es", "intencion": "hora", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789911870.0589454}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0332, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1789911878.983225}
+{"tipo": "comando", "comando": "qué día es hoy", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1789911878.983225}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 51.8657, "error": null, "timestamp": 1789912091.7023}
+{"tipo": "comando", "comando": "qué día es hoy", "intencion": "fecha", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789912091.8046098}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 1.8363, "error": null, "timestamp": 1789912108.1853487}
+{"tipo": "comando", "comando": "ayuda", "intencion": "ayuda", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789912108.2607262}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 3.9946, "error": null, "timestamp": 1789912247.492983}
+{"tipo": "comando", "comando": "qué hace notas", "intencion": "modificar_codigo", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789912247.5887115}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 42.5952, "error": null, "timestamp": 1789912290.332918}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789912626.044185}
+{"tipo": "comando", "comando": "buenas", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789912642.6684856}
+{"tipo": "comando", "comando": "qué hora es", "intencion": "hora", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789912671.2292395}
+{"tipo": "comando", "comando": "qué día es hoy", "intencion": "fecha", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789912678.5320907}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 5.0904, "error": null, "timestamp": 1789912861.6278038}
+{"tipo": "comando", "comando": "recuerda que mi color favorito es el azul", "intencion": "recordar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789912861.7128212}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0849, "error": null, "timestamp": 1789912930.91206}
+{"tipo": "comando", "comando": "qué recuerdas", "intencion": "mostrar_memoria", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789912931.0088475}
+{"tipo": "comando", "comando": "abre chrome", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789913590.6891432}
+{"tipo": "comando", "comando": "abre opera", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1789913621.9400916}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 3.6932, "error": null, "timestamp": 1789913650.4146273}
+{"tipo": "comando", "comando": "busca python", "intencion": "buscar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1789913650.5234554}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 12.4489, "error": null, "timestamp": 1789913692.6265612}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 17.6394, "error": null, "timestamp": 1789913710.592705}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 19.8521, "error": null, "timestamp": 1789913733.9694197}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 19.2699, "error": null, "timestamp": 1789913757.304498}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.1263, "error": null, "timestamp": 1789913781.6096125}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 20.0621, "error": null, "timestamp": 1789913806.0093477}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 14.0735, "error": null, "timestamp": 1789913824.815614}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 21.6028, "error": null, "timestamp": 1789913848.2888138}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 25.0964, "error": null, "timestamp": 1789913878.4329648}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 22.4731, "error": null, "timestamp": 1789913905.1737604}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 16.1119, "error": null, "timestamp": 1789913927.13033}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.6981, "error": null, "timestamp": 1789913934.0472133}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 24.9131, "error": null, "timestamp": 1789913964.1338072}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.3021, "error": null, "timestamp": 1789914035.1671581}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.1453, "error": null, "timestamp": 1789914051.5551171}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 19.8332, "error": null, "timestamp": 1789914075.679674}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.5435, "error": null, "timestamp": 1789914122.5333974}
+{"tipo": "comando", "comando": "que has aprendido", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1789914122.5344367}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 25.9454, "error": null, "timestamp": 1789914271.5600443}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.4766, "error": null, "timestamp": 1789914293.0385685}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.6661, "error": null, "timestamp": 1789914314.705879}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.5137, "error": null, "timestamp": 1789914325.2213364}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.609, "error": null, "timestamp": 1789914335.8318253}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.9366, "error": null, "timestamp": 1789914348.7697654}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.5405, "error": null, "timestamp": 1789914369.3116193}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.3197, "error": null, "timestamp": 1789914379.6331172}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.2252, "error": null, "timestamp": 1789914397.8618023}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.1134, "error": null, "timestamp": 1789914411.977283}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.5211, "error": null, "timestamp": 1789914431.4997501}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.3883, "error": null, "timestamp": 1789914442.890612}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.7031, "error": null, "timestamp": 1789914460.5947242}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.8126, "error": null, "timestamp": 1789914481.4117627}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.471, "error": null, "timestamp": 1789914495.8881996}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.0382, "error": null, "timestamp": 1789914512.9276457}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.5035, "error": null, "timestamp": 1789914522.4321728}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.4175, "error": null, "timestamp": 1789914535.8532712}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.0716, "error": null, "timestamp": 1789914544.93895}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.8716, "error": null, "timestamp": 1789914555.8131213}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.2092, "error": null, "timestamp": 1789914566.0194938}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.0196, "error": null, "timestamp": 1789914579.04605}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.2822, "error": null, "timestamp": 1789914591.3314245}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7124, "error": null, "timestamp": 1789914605.0453153}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.4048, "error": null, "timestamp": 1789914618.4522748}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.272, "error": null, "timestamp": 1789914632.7398045}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.6117, "error": null, "timestamp": 1789914644.353798}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.2251, "error": null, "timestamp": 1789914662.580985}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.8903, "error": null, "timestamp": 1789914679.4741151}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.4743, "error": null, "timestamp": 1789914694.9499395}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.6642, "error": null, "timestamp": 1789914705.618684}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.0339, "error": null, "timestamp": 1789914719.6543028}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.1781, "error": null, "timestamp": 1789914733.836341}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.0633, "error": null, "timestamp": 1789914750.9020839}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.6125, "error": null, "timestamp": 1789914764.5164664}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.2127, "error": null, "timestamp": 1789914772.730674}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.5725, "error": null, "timestamp": 1789914797.3100393}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.1511, "error": null, "timestamp": 1789914815.462627}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.9987, "error": null, "timestamp": 1789914834.4640439}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.2873, "error": null, "timestamp": 1789915249.7862706}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.9311, "error": null, "timestamp": 1789915346.9081466}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.4195, "error": null, "timestamp": 1789915354.544457}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.0736, "error": null, "timestamp": 1789915364.8838372}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 25.6081, "error": null, "timestamp": 1789941217.876007}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.9322, "error": null, "timestamp": 1789941238.8115973}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 29.5521, "error": null, "timestamp": 1789941268.3671954}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.1376, "error": null, "timestamp": 1789941279.5073254}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.3224, "error": null, "timestamp": 1789941287.8313217}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.1638, "error": null, "timestamp": 1789941297.997091}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7115, "error": null, "timestamp": 1789941311.7091637}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.4194, "error": null, "timestamp": 1789941321.1224697}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.9725, "error": null, "timestamp": 1789941330.1044264}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.8603, "error": null, "timestamp": 1789941346.9653327}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.6748, "error": null, "timestamp": 1789941357.642233}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.5023, "error": null, "timestamp": 1789941369.1462398}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.2458, "error": null, "timestamp": 1789941378.3934035}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.921, "error": null, "timestamp": 1789941393.3171594}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.4771, "error": null, "timestamp": 1789941403.7952938}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.7057, "error": null, "timestamp": 1789941416.5022957}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.5028, "error": null, "timestamp": 1789941437.0063195}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.3893, "error": null, "timestamp": 1789941453.397511}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.3207, "error": null, "timestamp": 1789941469.7196574}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.8473, "error": null, "timestamp": 1789941478.5683913}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.645, "error": null, "timestamp": 1789941486.2149987}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.6172, "error": null, "timestamp": 1789941498.8279583}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.4666, "error": null, "timestamp": 1789941506.301651}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7008, "error": null, "timestamp": 1789941520.0033567}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.739, "error": null, "timestamp": 1789941532.7449398}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.3708, "error": null, "timestamp": 1789941545.118416}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7288, "error": null, "timestamp": 1789941558.8486016}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.3133, "error": null, "timestamp": 1789941570.1630006}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.5669, "error": null, "timestamp": 1789941580.7344708}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.051, "error": null, "timestamp": 1789941591.7872064}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.0672, "error": null, "timestamp": 1789941605.8558826}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.5408, "error": null, "timestamp": 1789941623.3980794}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.2422, "error": null, "timestamp": 1789941635.6422403}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.3466, "error": null, "timestamp": 1789941644.9905026}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.6961, "error": null, "timestamp": 1789941654.688034}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.5081, "error": null, "timestamp": 1789941668.196975}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.4211, "error": null, "timestamp": 1789941681.6196432}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.2908, "error": null, "timestamp": 1789941690.911613}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 6.7461, "error": null, "timestamp": 1789941697.6592722}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.0593, "error": null, "timestamp": 1789941714.7199428}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.0981, "error": null, "timestamp": 1789941731.819061}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.7079, "error": null, "timestamp": 1789941746.529402}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.1673, "error": null, "timestamp": 1789941764.6982627}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.1226, "error": null, "timestamp": 1789941778.822629}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.3392, "error": null, "timestamp": 1789941798.158271}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.4346, "error": null, "timestamp": 1789941811.6002023}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 20.2395, "error": null, "timestamp": 1789941831.8424613}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.3054, "error": null, "timestamp": 1789941844.1493218}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.7655, "error": null, "timestamp": 1789941859.9165294}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.663, "error": null, "timestamp": 1789941873.5824547}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.3883, "error": null, "timestamp": 1789941881.972274}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.416, "error": null, "timestamp": 1789941895.3900642}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.5339, "error": null, "timestamp": 1789941902.9253914}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.1897, "error": null, "timestamp": 1789941918.1161485}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.3867, "error": null, "timestamp": 1789941930.5047762}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.1653, "error": null, "timestamp": 1789941938.6712449}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.417, "error": null, "timestamp": 1789941947.0902333}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.7931, "error": null, "timestamp": 1789941954.9014575}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.6686, "error": null, "timestamp": 1789941967.572135}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.0796, "error": null, "timestamp": 1789941979.659126}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.0617, "error": null, "timestamp": 1789941991.7176108}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.3648, "error": null, "timestamp": 1789942003.0895483}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.4049, "error": null, "timestamp": 1789942027.4959772}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.4352, "error": null, "timestamp": 1789942037.93367}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.809, "error": null, "timestamp": 1789942053.7450647}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.2141, "error": null, "timestamp": 1789942064.9602792}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.5825, "error": null, "timestamp": 1789942080.5449102}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.6533, "error": null, "timestamp": 1789942099.1995342}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.0967, "error": null, "timestamp": 1789942112.297341}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.9007, "error": null, "timestamp": 1789942127.1993413}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.9759, "error": null, "timestamp": 1789942141.1938984}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.6048, "error": null, "timestamp": 1789942155.8003988}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.917, "error": null, "timestamp": 1789942175.7185304}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.085, "error": null, "timestamp": 1789942190.80571}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.0369, "error": null, "timestamp": 1789942205.842218}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 19.3545, "error": null, "timestamp": 1789942225.1997757}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.2041, "error": null, "timestamp": 1789942246.4216805}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 18.0827, "error": null, "timestamp": 1789942264.5064254}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 24.943, "error": null, "timestamp": 1789942289.4511354}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.9718, "error": null, "timestamp": 1789942304.4239151}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.1943, "error": null, "timestamp": 1789942313.6194737}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.5718, "error": null, "timestamp": 1789942327.2096376}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.4667, "error": null, "timestamp": 1789942336.6775062}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 5.848, "error": null, "timestamp": 1789942342.526925}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 41.2229, "error": null, "timestamp": 1789942383.768742}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.6145, "error": null, "timestamp": 1789942398.381348}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.0651, "error": null, "timestamp": 1789942412.452126}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.5238, "error": null, "timestamp": 1789942424.9770267}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.7609, "error": null, "timestamp": 1789942438.7557635}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.8215, "error": null, "timestamp": 1789942453.59488}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 21.215, "error": null, "timestamp": 1789942474.8119493}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.039, "error": null, "timestamp": 1789942489.8687146}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 15.7838, "error": null, "timestamp": 1789942505.6540585}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.4162, "error": null, "timestamp": 1789942520.0722122}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 22.187, "error": null, "timestamp": 1789942542.2781875}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.9825, "error": null, "timestamp": 1789942555.2619915}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.5233, "error": null, "timestamp": 1789942568.7975616}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 12.2461, "error": null, "timestamp": 1789942581.0518248}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 13.1846, "error": null, "timestamp": 1789942594.2378573}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.1542, "error": null, "timestamp": 1789942605.3932905}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 10.5363, "error": null, "timestamp": 1789942615.9487062}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.3147, "error": null, "timestamp": 1789942625.2643871}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 34.4229, "error": null, "timestamp": 1789942659.6887877}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 11.4585, "error": null, "timestamp": 1789942671.1481502}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 68.265, "error": null, "timestamp": 1789942739.414988}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 28.6895, "error": null, "timestamp": 1789942768.1060808}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.4171, "error": null, "timestamp": 1789942784.5246966}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 7.7984, "error": null, "timestamp": 1789942792.3421445}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.5404, "error": null, "timestamp": 1789942806.8838737}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 27.798, "error": null, "timestamp": 1789942834.6830995}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.5266, "error": null, "timestamp": 1789942851.2108533}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 14.5836, "error": null, "timestamp": 1789942865.7957919}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.9202, "error": null, "timestamp": 1789942882.717009}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 25.2734, "error": null, "timestamp": 1789944728.441081}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 16.8798, "error": null, "timestamp": 1789945682.930638}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 8.3073, "error": null, "timestamp": 1789945691.3374202}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 2.0077, "error": null, "timestamp": 1789945693.426381}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 17.5256, "error": null, "timestamp": 1789946412.4869332}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 9.7274, "error": null, "timestamp": 1789946422.3445823}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 2.2072, "error": null, "timestamp": 1789946424.705508}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 471.9764, "error": null, "timestamp": 1789970768.1940913}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 314.5123, "error": null, "timestamp": 1789971846.7125475}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 81.7756, "error": null, "timestamp": 1789972243.528307}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 299.6669, "error": null, "timestamp": 1790019234.8328023}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 136.5882, "error": null, "timestamp": 1790019371.8911924}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 64.9014, "error": null, "timestamp": 1790019437.083779}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 273.5854, "error": null, "timestamp": 1790020124.7790518}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 163.8003, "error": null, "timestamp": 1790020525.7303524}
+{"tipo": "comando", "comando": "abre universidad de cundinamarca", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790114030.9344738}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 69.8044, "error": null, "timestamp": 1790128669.3304996}
+{"tipo": "comando", "comando": "adiso", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1790128669.3380156}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 258.4546, "error": null, "timestamp": 1790129111.677986}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 188.9815, "error": null, "timestamp": 1790129300.780837}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790129452.1887941}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 174.0019, "error": null, "timestamp": 1790129823.4172382}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 4.9828, "error": null, "timestamp": 1790130074.3819027}
+{"tipo": "comando", "comando": "en que has mejoradi", "intencion": "modificar_codigo", "resuelto_por": "ollama", "fallo": false, "timestamp": 1790130074.4629376}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 332.4283, "error": null, "timestamp": 1790130407.1336737}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 5.316, "error": null, "timestamp": 1790131216.9096122}
+{"tipo": "comando", "comando": "estado de red", "intencion": "buscar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1790131217.0797498}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.5355, "error": null, "timestamp": 1790210550.4947026}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2862, "error": null, "timestamp": 1790210562.0643554}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7944, "error": null, "timestamp": 1790210565.97129}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0152, "error": null, "timestamp": 1790210571.106862}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.542, "error": null, "timestamp": 1790210574.7479992}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5626, "error": null, "timestamp": 1790211413.4601362}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7759, "error": null, "timestamp": 1790211435.6698375}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.4882, "error": null, "timestamp": 1790211442.149754}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.3086, "error": null, "timestamp": 1790211453.9806447}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.808, "error": null, "timestamp": 1790211460.685629}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9683, "error": null, "timestamp": 1790211512.1597562}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5277, "error": null, "timestamp": 1790211524.339173}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5147, "error": null, "timestamp": 1790211534.8147976}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1212, "error": null, "timestamp": 1790211711.4826012}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790211728.787311}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9772, "error": null, "timestamp": 1790211740.4596255}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0841, "error": null, "timestamp": 1790211749.2050996}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2066, "error": null, "timestamp": 1790211758.7095864}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6568, "error": null, "timestamp": 1790211769.3702915}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2617, "error": null, "timestamp": 1790212678.6898704}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.1227, "error": null, "timestamp": 1790212701.4921932}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.481, "error": null, "timestamp": 1790212701.973944}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.8803, "error": null, "timestamp": 1790212714.9097874}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9862, "error": null, "timestamp": 1790212715.8980181}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9142, "error": null, "timestamp": 1790213053.389409}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6571, "error": null, "timestamp": 1790213081.8583364}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.78, "error": null, "timestamp": 1790213093.4684339}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5984, "error": null, "timestamp": 1790213105.482315}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5308, "error": null, "timestamp": 1790213117.9794984}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5276, "error": null, "timestamp": 1790214030.490672}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.072, "error": null, "timestamp": 1790214046.8855436}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5805, "error": null, "timestamp": 1790214056.529973}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5955, "error": null, "timestamp": 1790214069.443352}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7746, "error": null, "timestamp": 1790214074.2579803}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3778, "error": null, "timestamp": 1790214980.438384}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5985, "error": null, "timestamp": 1790215002.248569}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9369, "error": null, "timestamp": 1790215017.5033574}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.38, "error": null, "timestamp": 1790215033.1242514}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8561, "error": null, "timestamp": 1790215048.2793715}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8711, "error": null, "timestamp": 1790215964.9893513}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9453, "error": null, "timestamp": 1790215969.0303426}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.964, "error": null, "timestamp": 1790215973.054569}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5289, "error": null, "timestamp": 1790215976.6300647}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.7753, "error": null, "timestamp": 1790215984.4451349}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9709, "error": null, "timestamp": 1790216887.042203}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.92, "error": null, "timestamp": 1790216913.1151593}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.4572, "error": null, "timestamp": 1790216913.573839}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8928, "error": null, "timestamp": 1790216929.3130832}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1775, "error": null, "timestamp": 1790216945.837595}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0821, "error": null, "timestamp": 1790217862.1815884}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0782, "error": null, "timestamp": 1790217891.8485146}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8109, "error": null, "timestamp": 1790217893.66129}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9537, "error": null, "timestamp": 1790217912.6043124}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5748, "error": null, "timestamp": 1790217931.4073217}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0289, "error": null, "timestamp": 1790218851.8012738}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0407, "error": null, "timestamp": 1790218856.8901362}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8711, "error": null, "timestamp": 1790218861.8310795}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.595, "error": null, "timestamp": 1790218865.4767883}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8178, "error": null, "timestamp": 1790218892.760447}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2975, "error": null, "timestamp": 1790219811.7430964}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0191, "error": null, "timestamp": 1790219816.8292122}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7386, "error": null, "timestamp": 1790219821.6344204}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4491, "error": null, "timestamp": 1790219848.9292507}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3837, "error": null, "timestamp": 1790219867.638891}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4377, "error": null, "timestamp": 1790220773.8177764}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5891, "error": null, "timestamp": 1790220777.4960582}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.109, "error": null, "timestamp": 1790220781.663304}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.944, "error": null, "timestamp": 1790220785.686729}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5115, "error": null, "timestamp": 1790220789.244961}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2654, "error": null, "timestamp": 1790221695.1731658}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9137, "error": null, "timestamp": 1790221720.4938664}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9303, "error": null, "timestamp": 1790221740.9706147}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1269, "error": null, "timestamp": 1790221746.1553793}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1381, "error": null, "timestamp": 1790221766.3166828}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7945, "error": null, "timestamp": 1790222687.3729355}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.9302, "error": null, "timestamp": 1790222720.8439863}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8033, "error": null, "timestamp": 1790222722.6483433}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.5024, "error": null, "timestamp": 1790222732.203459}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7314, "error": null, "timestamp": 1790222733.9363549}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6911, "error": null, "timestamp": 1790223639.3784711}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6671, "error": null, "timestamp": 1790223644.0969243}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6134, "error": null, "timestamp": 1790223648.7780418}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.271, "error": null, "timestamp": 1790223677.4338114}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9893, "error": null, "timestamp": 1790223697.8458214}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3065, "error": null, "timestamp": 1790224619.270594}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9881, "error": null, "timestamp": 1790224623.3409815}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6296, "error": null, "timestamp": 1790224627.030436}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4294, "error": null, "timestamp": 1790224632.5339012}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.718, "error": null, "timestamp": 1790224636.2966826}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7807, "error": null, "timestamp": 1790225541.754097}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4299, "error": null, "timestamp": 1790225547.2688234}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.369, "error": null, "timestamp": 1790225552.7019043}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1997, "error": null, "timestamp": 1790225557.983747}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.787, "error": null, "timestamp": 1790225562.8276412}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0822, "error": null, "timestamp": 1790226469.6616132}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4085, "error": null, "timestamp": 1790226500.0044267}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.7367, "error": null, "timestamp": 1790226522.2941725}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9909, "error": null, "timestamp": 1790226543.650778}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9691, "error": null, "timestamp": 1790226548.6949668}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7265, "error": null, "timestamp": 1790227470.6020923}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.583, "error": null, "timestamp": 1790227501.0062776}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2937, "error": null, "timestamp": 1790227525.1333835}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8327, "error": null, "timestamp": 1790227546.5936546}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8209, "error": null, "timestamp": 1790227569.08937}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9149, "error": null, "timestamp": 1790228493.3115375}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3365, "error": null, "timestamp": 1790228525.1273084}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9052, "error": null, "timestamp": 1790228549.1829271}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0034, "error": null, "timestamp": 1790228571.736446}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1506, "error": null, "timestamp": 1790228594.8214383}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1394, "error": null, "timestamp": 1790229501.7349927}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3455, "error": null, "timestamp": 1790229535.010719}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5114, "error": null, "timestamp": 1790229562.337536}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.66, "error": null, "timestamp": 1790229587.2391877}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7641, "error": null, "timestamp": 1790229610.7413957}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9194, "error": null, "timestamp": 1790230535.662472}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8513, "error": null, "timestamp": 1790230569.2187054}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6662, "error": null, "timestamp": 1790230572.9783404}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1742, "error": null, "timestamp": 1790230578.2232664}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.0849, "error": null, "timestamp": 1790230601.753382}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8518, "error": null, "timestamp": 1790231527.97427}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0364, "error": null, "timestamp": 1790231566.2674658}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.7131, "error": null, "timestamp": 1790231597.4656925}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6913, "error": null, "timestamp": 1790231627.0079882}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.227, "error": null, "timestamp": 1790231658.9167905}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0585, "error": null, "timestamp": 1790232590.1339805}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.563, "error": null, "timestamp": 1790232628.7237885}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7305, "error": null, "timestamp": 1790232659.041965}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2507, "error": null, "timestamp": 1790232689.6874523}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2772, "error": null, "timestamp": 1790232695.038962}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.687, "error": null, "timestamp": 1790233626.4209552}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.007, "error": null, "timestamp": 1790233670.0820644}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4323, "error": null, "timestamp": 1790233672.5155432}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.9283, "error": null, "timestamp": 1790233703.68985}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0091, "error": null, "timestamp": 1790233734.8747878}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1625, "error": null, "timestamp": 1790234641.7620106}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7318, "error": null, "timestamp": 1790234647.4949567}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7354, "error": null, "timestamp": 1790234649.2324178}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0084, "error": null, "timestamp": 1790234654.2790442}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9451, "error": null, "timestamp": 1790234696.249297}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4559, "error": null, "timestamp": 1790235629.64622}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1657, "error": null, "timestamp": 1790235668.5468702}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8527, "error": null, "timestamp": 1790235699.681834}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8653, "error": null, "timestamp": 1790235731.4432948}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6084, "error": null, "timestamp": 1790235738.1303062}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8419, "error": null, "timestamp": 1790236670.702727}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1848, "error": null, "timestamp": 1790236675.9579725}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3668, "error": null, "timestamp": 1790236681.3877828}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6921, "error": null, "timestamp": 1790236720.0533485}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7284, "error": null, "timestamp": 1790236751.970475}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1384, "error": null, "timestamp": 1790237685.8142366}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4919, "error": null, "timestamp": 1790237726.60079}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8334, "error": null, "timestamp": 1790237760.1596684}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.3405, "error": null, "timestamp": 1790237769.5469103}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5281, "error": null, "timestamp": 1790237826.497304}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.0168, "error": null, "timestamp": 1790238791.0811625}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.38, "error": null, "timestamp": 1790238796.6109235}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0226, "error": null, "timestamp": 1790238868.1811702}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.63, "error": null, "timestamp": 1790238873.8934183}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0902, "error": null, "timestamp": 1790238880.0394273}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8653, "error": null, "timestamp": 1790239787.0067117}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6061, "error": null, "timestamp": 1790239859.7755773}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.011, "error": null, "timestamp": 1790239919.317551}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2002, "error": null, "timestamp": 1790239925.6229622}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1696, "error": null, "timestamp": 1790239985.8335795}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5968, "error": null, "timestamp": 1790240948.9772656}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6532, "error": null, "timestamp": 1790241027.7134094}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8671, "error": null, "timestamp": 1790241095.9039135}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7008, "error": null, "timestamp": 1790241162.42091}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1109, "error": null, "timestamp": 1790241231.5827117}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.463, "error": null, "timestamp": 1790242200.4823813}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5989, "error": null, "timestamp": 1790242281.2548864}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.768, "error": null, "timestamp": 1790242350.815566}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5899, "error": null, "timestamp": 1790242418.7490866}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5315, "error": null, "timestamp": 1790242487.7906146}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6431, "error": null, "timestamp": 1790243460.254443}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.652, "error": null, "timestamp": 1790243466.0468621}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9455, "error": null, "timestamp": 1790243549.5954552}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3929, "error": null, "timestamp": 1790243618.250128}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0323, "error": null, "timestamp": 1790243685.971753}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2948, "error": null, "timestamp": 1790244592.3730388}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3221, "error": null, "timestamp": 1790244597.7703035}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6666, "error": null, "timestamp": 1790244676.4755623}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7926, "error": null, "timestamp": 1790244744.5842724}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4791, "error": null, "timestamp": 1790244751.1763625}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.1454, "error": null, "timestamp": 1790245729.8027017}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9367, "error": null, "timestamp": 1790245819.2978663}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9746, "error": null, "timestamp": 1790245895.9115193}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6016, "error": null, "timestamp": 1790245983.9743154}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.863, "error": null, "timestamp": 1790245990.9617174}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.7671, "error": null, "timestamp": 1790246902.0574188}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.2971, "error": null, "timestamp": 1790247030.1340256}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.9422, "error": null, "timestamp": 1790247120.0921783}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2439, "error": null, "timestamp": 1790247123.3396916}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9417, "error": null, "timestamp": 1790247205.882391}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0521, "error": null, "timestamp": 1790248157.3131442}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.8295, "error": null, "timestamp": 1790248193.5945456}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5409, "error": null, "timestamp": 1790248198.192895}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.845, "error": null, "timestamp": 1790248202.0746415}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1753, "error": null, "timestamp": 1790248207.3068333}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.0734, "error": null, "timestamp": 1790249146.2987483}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4249, "error": null, "timestamp": 1790249187.6475823}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6676, "error": null, "timestamp": 1790249227.2447164}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.8205, "error": null, "timestamp": 1790249265.974205}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5353, "error": null, "timestamp": 1790249305.7979534}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7098, "error": null, "timestamp": 1790250245.7681391}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.2253, "error": null, "timestamp": 1790250254.0254047}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2598, "error": null, "timestamp": 1790250256.286127}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8973, "error": null, "timestamp": 1790250262.2605205}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5708, "error": null, "timestamp": 1790250266.922106}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9702, "error": null, "timestamp": 1790251174.585191}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4664, "error": null, "timestamp": 1790251217.4738758}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2962, "error": null, "timestamp": 1790251258.6091123}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4399, "error": null, "timestamp": 1790251299.006869}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3862, "error": null, "timestamp": 1790251305.4280996}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9461, "error": null, "timestamp": 1790252246.2620099}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4709, "error": null, "timestamp": 1790252333.189006}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5138, "error": null, "timestamp": 1790252460.7955258}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8838, "error": null, "timestamp": 1790252561.8616893}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4335, "error": null, "timestamp": 1790252567.357611}
+{"tipo": "comando", "comando": "abre visual", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790252852.1013205}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.8003, "error": null, "timestamp": 1790260214.7972302}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4867, "error": null, "timestamp": 1790260228.5802321}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.8956, "error": null, "timestamp": 1790260285.230847}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 2.0345, "error": "Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download", "timestamp": 1790260627.5880275}
+{"tipo": "comando", "comando": "cual es la factorial de 0", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1790260627.589791}
+{"tipo": "comando", "comando": "busca cual es la factorial de 0", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790260648.5990732}
+{"tipo": "comando", "comando": "abre edge", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790260688.6375222}
+{"tipo": "comando", "comando": "busca claude", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790260727.9266415}
+{"tipo": "comando", "comando": "busca programacion atm recursividad", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790260769.5540965}
+{"tipo": "comando", "comando": "busca en youtube programacion atm recursividad", "intencion": "buscar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790260826.0239766}
+{"tipo": "comando", "comando": "abre dev-c++", "intencion": "abrir", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790261510.8417425}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 13.6447, "error": null, "timestamp": 1790289686.851776}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.609, "error": null, "timestamp": 1790289700.255393}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 19.0045, "error": null, "timestamp": 1790289723.8479097}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6767, "error": null, "timestamp": 1790289739.5147283}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.1702, "error": null, "timestamp": 1790289828.1818135}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5086, "error": null, "timestamp": 1790289834.3716905}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.559, "error": null, "timestamp": 1790289914.1403291}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790289935.7139392}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6561, "error": null, "timestamp": 1790289981.6408274}
+{"tipo": "comando", "comando": "decime qué hora tenés", "intencion": "hora", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790290046.7630084}
+{"tipo": "comando", "comando": "necesito saber qué día es hoy", "intencion": "fecha", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1790290064.1039805}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 27.4225, "error": null, "timestamp": 1790290099.8932772}
+{"tipo": "comando", "comando": "abrime el navegado", "intencion": "abrir", "resuelto_por": "ollama", "fallo": false, "timestamp": 1790290145.0547135}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 3.7913, "error": null, "timestamp": 1790290252.5517044}
+{"tipo": "comando", "comando": "quién sos vos", "intencion": "desconocido", "resuelto_por": "ollama", "fallo": true, "timestamp": 1790290252.5547407}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.095, "error": null, "timestamp": 1790291063.2405357}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8606, "error": null, "timestamp": 1790291143.4061887}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9786, "error": null, "timestamp": 1790291213.9513228}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6603, "error": null, "timestamp": 1790291218.7605484}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6668, "error": null, "timestamp": 1790291224.5233867}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5816, "error": null, "timestamp": 1790292166.4143007}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.5988, "error": null, "timestamp": 1790292209.789163}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.321, "error": null, "timestamp": 1790292214.223907}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2514, "error": null, "timestamp": 1790292256.7849338}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.314, "error": null, "timestamp": 1790292299.332268}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0532, "error": null, "timestamp": 1790293243.0247025}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6756, "error": null, "timestamp": 1790293279.1851723}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.2816, "error": null, "timestamp": 1790293283.5435658}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6583, "error": null, "timestamp": 1790293325.4336448}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6493, "error": null, "timestamp": 1790293331.1821408}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.3687, "error": null, "timestamp": 1790294271.954514}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.3026, "error": null, "timestamp": 1790294312.795122}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0965, "error": null, "timestamp": 1790294317.9832957}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.7246, "error": null, "timestamp": 1790294362.8891265}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.727, "error": null, "timestamp": 1790294363.6890967}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.6834, "error": null, "timestamp": 1790295304.7524178}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2227, "error": null, "timestamp": 1790295346.679417}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.789, "error": null, "timestamp": 1790295391.7087603}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6876, "error": null, "timestamp": 1790295393.472629}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.8199, "error": null, "timestamp": 1790295397.372839}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.4314, "error": null, "timestamp": 1790296338.480751}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.2963, "error": null, "timestamp": 1790296346.8693852}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4575, "error": null, "timestamp": 1790296348.38229}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.7848, "error": null, "timestamp": 1790296398.5030656}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8449, "error": null, "timestamp": 1790296401.4226184}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.0593, "error": null, "timestamp": 1790297342.4730313}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.3785, "error": null, "timestamp": 1790297382.6409569}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6341, "error": null, "timestamp": 1790297387.3863974}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7603, "error": null, "timestamp": 1790297427.528929}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.9643, "error": null, "timestamp": 1790297468.954654}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7534, "error": null, "timestamp": 1790298410.0700169}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4726, "error": null, "timestamp": 1790298414.6408617}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.3385, "error": null, "timestamp": 1790298456.0961769}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.138, "error": null, "timestamp": 1790298500.47311}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.98, "error": null, "timestamp": 1790298502.5283072}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0523, "error": null, "timestamp": 1790299445.233078}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0909, "error": null, "timestamp": 1790299487.563367}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.1915, "error": null, "timestamp": 1790299532.6101322}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7203, "error": null, "timestamp": 1790299533.4099643}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.7332, "error": null, "timestamp": 1790299573.7303538}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.8143, "error": null, "timestamp": 1790300516.1595004}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.2567, "error": null, "timestamp": 1790300605.017144}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5374, "error": null, "timestamp": 1790300655.490924}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9793, "error": null, "timestamp": 1790300662.5916162}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.7204, "error": null, "timestamp": 1790300664.396737}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.4867, "error": null, "timestamp": 1790819512.5411487}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9959, "error": null, "timestamp": 1790819516.5395403}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.6081, "error": null, "timestamp": 1790819898.6806984}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.7149, "error": null, "timestamp": 1790819902.398981}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.8772, "error": null, "timestamp": 1790821126.0781093}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9612, "error": null, "timestamp": 1790821131.0436513}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.3019, "error": null, "timestamp": 1790821880.0194547}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2771, "error": null, "timestamp": 1790821884.299811}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0002, "error": null, "timestamp": 1790822230.0244894}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.015, "error": null, "timestamp": 1790822234.0412002}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5841, "error": null, "timestamp": 1790822810.487633}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.347, "error": null, "timestamp": 1790822814.840922}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8138, "error": null, "timestamp": 1790822819.6593478}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.4482, "error": null, "timestamp": 1790822829.1086497}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.671, "error": null, "timestamp": 1790822833.7827106}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.0121, "error": null, "timestamp": 1790823293.425622}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5543, "error": null, "timestamp": 1790823297.9820533}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3631, "error": null, "timestamp": 1790823649.1244636}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5553, "error": null, "timestamp": 1790823652.6808736}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.5408, "error": null, "timestamp": 1790823993.4729142}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.9522, "error": null, "timestamp": 1790823998.4258714}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8893, "error": null, "timestamp": 1790824662.6121292}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.761, "error": null, "timestamp": 1790824666.374172}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.1847, "error": null, "timestamp": 1790825072.0370615}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6694, "error": null, "timestamp": 1790825076.7082722}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.266, "error": null, "timestamp": 1790825648.602542}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3698, "error": null, "timestamp": 1790825652.9747272}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4587, "error": null, "timestamp": 1790825657.435605}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5265, "error": null, "timestamp": 1790825661.9639132}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4567, "error": null, "timestamp": 1790825666.4227653}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.503, "error": null, "timestamp": 1790825669.9270184}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0647, "error": null, "timestamp": 1790825957.5891662}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5741, "error": null, "timestamp": 1790825962.1646023}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.3524, "error": null, "timestamp": 1790826552.9411464}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.112, "error": null, "timestamp": 1790826557.0546088}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4324, "error": null, "timestamp": 1790826839.6069846}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.0308, "error": null, "timestamp": 1790826842.6391482}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1137, "error": null, "timestamp": 1790827150.6997235}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.9064, "error": null, "timestamp": 1790827153.6075509}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1676, "error": null, "timestamp": 1790827465.659869}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.1672, "error": null, "timestamp": 1790827476.828708}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5201, "error": null, "timestamp": 1790827481.3500988}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0713, "error": null, "timestamp": 1790827766.1381516}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2119, "error": null, "timestamp": 1790827770.3510003}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.9603, "error": null, "timestamp": 1790828091.1618383}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1321, "error": null, "timestamp": 1790828095.2954056}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.9391, "error": null, "timestamp": 1790828381.369726}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5157, "error": null, "timestamp": 1790828385.8866804}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.8542, "error": null, "timestamp": 1790828708.76064}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4089, "error": null, "timestamp": 1790828713.1708038}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.9562, "error": null, "timestamp": 1790829131.0622582}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1327, "error": null, "timestamp": 1790829135.1963663}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.737, "error": null, "timestamp": 1790829436.6821077}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6837, "error": null, "timestamp": 1790829441.3672252}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.395, "error": null, "timestamp": 1790829777.9411747}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.9634, "error": null, "timestamp": 1790829781.9057403}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.116, "error": null, "timestamp": 1790830125.3242762}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0901, "error": null, "timestamp": 1790830129.4157977}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1245, "error": null, "timestamp": 1790830463.8464458}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.9854, "error": null, "timestamp": 1790830474.833945}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.551, "error": null, "timestamp": 1790830480.3863032}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.4587, "error": null, "timestamp": 1790831162.6044073}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.9132, "error": null, "timestamp": 1790831168.519099}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.1557, "error": null, "timestamp": 1790831851.0343604}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4034, "error": null, "timestamp": 1790831855.4390025}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.5306, "error": null, "timestamp": 1790832211.5233338}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.0191, "error": null, "timestamp": 1790832216.5437427}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1836, "error": null, "timestamp": 1790832576.0280187}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8015, "error": null, "timestamp": 1790832580.83052}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.5142, "error": null, "timestamp": 1790832938.2548888}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4954, "error": null, "timestamp": 1790832941.7516751}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.4558, "error": null, "timestamp": 1790833324.9271965}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.6453, "error": null, "timestamp": 1790833333.5746522}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.404, "error": null, "timestamp": 1790833337.9797068}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.0237, "error": null, "timestamp": 1790833848.9212692}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0598, "error": null, "timestamp": 1790833856.9833925}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3836, "error": null, "timestamp": 1790833861.36823}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.4075, "error": null, "timestamp": 1790834503.05602}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2038, "error": null, "timestamp": 1790834507.260928}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0722, "error": null, "timestamp": 1790834904.2507367}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.5332, "error": null, "timestamp": 1790834908.7853587}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.3139, "error": null, "timestamp": 1790835702.9576027}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6621, "error": null, "timestamp": 1790835707.621089}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.4344, "error": null, "timestamp": 1790836507.5197225}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.217, "error": null, "timestamp": 1790836516.744438}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3527, "error": null, "timestamp": 1790836521.098472}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.2788, "error": null, "timestamp": 1790836798.7693322}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2156, "error": null, "timestamp": 1790836802.9861937}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 12.6597, "error": null, "timestamp": 1790837087.1665754}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.4562, "error": null, "timestamp": 1790837092.6242085}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.2236, "error": null, "timestamp": 1790837512.3763094}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.3172, "error": null, "timestamp": 1790837517.6948986}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.9927, "error": null, "timestamp": 1790838349.1362777}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.4351, "error": null, "timestamp": 1790838353.5725038}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.2459, "error": null, "timestamp": 1790838773.737215}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3635, "error": null, "timestamp": 1790838778.1019843}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.575, "error": null, "timestamp": 1790839071.2906117}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.4061, "error": null, "timestamp": 1790839076.698355}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.5764, "error": null, "timestamp": 1790839800.7337935}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.6474, "error": null, "timestamp": 1790839805.3829813}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.0778, "error": null, "timestamp": 1790840249.0077918}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.2683, "error": null, "timestamp": 1790840254.2774658}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.9192, "error": null, "timestamp": 1790840717.3036761}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.8988, "error": null, "timestamp": 1790840723.2040217}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.7647, "error": null, "timestamp": 1790841625.909398}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.8581, "error": null, "timestamp": 1790841630.768235}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 10.7105, "error": null, "timestamp": 1790842085.1125007}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.2085, "error": null, "timestamp": 1790842090.3218}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.7173, "error": null, "timestamp": 1790842687.4323444}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1273, "error": null, "timestamp": 1790842691.5620122}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.6303, "error": null, "timestamp": 1790842701.194063}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.3513, "error": null, "timestamp": 1790842705.54618}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 7.1596, "error": null, "timestamp": 1790843006.5574489}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.2994, "error": null, "timestamp": 1790843010.8591366}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 8.4728, "error": null, "timestamp": 1791065731.8951354}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.3872, "error": null, "timestamp": 1791065747.056629}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.6562, "error": null, "timestamp": 1791065752.521441}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.2617, "error": null, "timestamp": 1791065757.988996}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5838, "error": null, "timestamp": 1791065763.3552663}
+{"tipo": "comando", "comando": "sube el volumen", "intencion": "subir_volumen", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791145519.480899}
+{"tipo": "comando", "comando": "sube el volumen", "intencion": "subir_volumen", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791145524.5828757}
+{"tipo": "comando", "comando": "cuanta bateria tengo", "intencion": "ver_bateria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791145565.0770538}
+{"tipo": "comando", "comando": "cuanta bateria tengo", "intencion": "ver_bateria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791145569.5162034}
+{"tipo": "comando", "comando": "prueba la voz", "intencion": "probar_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791246636.6844442}
+{"tipo": "comando", "comando": "usa la voz natural", "intencion": "motor_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791246845.3725471}
+{"tipo": "comando", "comando": "usa la voz de salome", "intencion": "elegir_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791246878.0021672}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 46.9855, "error": null, "timestamp": 1791246986.9617934}
+{"tipo": "comando", "comando": "hola", "intencion": "saludo", "resuelto_por": "ollama", "fallo": false, "timestamp": 1791246987.009338}
+{"tipo": "comando", "comando": "dame un diagnostico de mi pc", "intencion": "diagnostico_pc", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247040.1806455}
+{"tipo": "comando", "comando": "libera memoria", "intencion": "liberar_memoria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247108.2074614}
+{"tipo": "comando", "comando": "estado de la voz", "intencion": "estado_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247207.615721}
+{"tipo": "comando", "comando": "que puedo limpiar", "intencion": "analizar_limpieza", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247224.8858664}
+{"tipo": "comando", "comando": "habla mas rapido", "intencion": "velocidad_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247288.8843052}
+{"tipo": "comando", "comando": "habla mas rapido", "intencion": "velocidad_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247308.073311}
+{"tipo": "comando", "comando": "habla mas rapido", "intencion": "velocidad_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791247324.2376857}
+{"tipo": "comando", "comando": "habla mas lento", "intencion": "velocidad_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791248082.8198981}
+{"tipo": "comando", "comando": "estado de la voz", "intencion": "estado_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791252794.9792328}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 11.8405, "error": null, "timestamp": 1791252904.399702}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.926, "error": null, "timestamp": 1791252913.8386552}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.8251, "error": null, "timestamp": 1791252920.3816879}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.3036, "error": null, "timestamp": 1791252928.9410312}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.0983, "error": null, "timestamp": 1791252936.6728475}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.6986, "error": null, "timestamp": 1791253847.316457}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.6812, "error": null, "timestamp": 1791255518.521972}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 2.1616, "error": null, "timestamp": 1791255526.5230227}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 6.0542, "error": null, "timestamp": 1791255538.2883847}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.3682, "error": null, "timestamp": 1791255540.1734612}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 4.1981, "error": null, "timestamp": 1791256450.7045786}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.4737, "error": null, "timestamp": 1791256458.0453043}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.2935, "error": null, "timestamp": 1791256464.8725555}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.5601, "error": null, "timestamp": 1791258161.0812674}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 1.5528, "error": null, "timestamp": 1791258167.9755316}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 9.6369, "error": null, "timestamp": 1791259090.2615607}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 5.9769, "error": null, "timestamp": 1791259116.4424171}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 3.1964, "error": null, "timestamp": 1791259129.2104552}
+{"tipo": "duracion", "modulo": "ollama_comprender", "duracion_seg": 59.8034, "error": null, "timestamp": 1791261046.2602003}
+{"tipo": "comando", "comando": "conecta la nube", "intencion": "conectar_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791261400.847691}
+{"tipo": "comando", "comando": "estado de la voz", "intencion": "estado_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791261401.857684}
+{"tipo": "comando", "comando": "estado de la nube", "intencion": "estado_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791261402.9130964}
+{"tipo": "comando", "comando": "explicame como funciona un transistor", "intencion": "conversar", "resuelto_por": "ollama", "fallo": false, "timestamp": 1791261403.978685}
+{"tipo": "comando", "comando": "explicame como funciona un transistor", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791261405.3638308}
+{"tipo": "comando", "comando": "que has aprendido de la nube", "intencion": "ver_aprendido_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791261442.5785732}
+{"tipo": "comando", "comando": "buenas", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298559.7221484}
+{"tipo": "comando", "comando": "hello", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298578.7960243}
+{"tipo": "comando", "comando": "hi", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298584.0442371}
+{"tipo": "comando", "comando": "apreder programacion", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298595.085941}
+{"tipo": "comando", "comando": "como te sientes hoy", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298646.4619887}
+{"tipo": "comando", "comando": "donde vives", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298731.8898275}
+{"tipo": "comando", "comando": "acomoda una cancion", "intencion": "conversar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1791298814.3311317}
+{"tipo": "comando", "comando": "acomoda una cancion", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298815.2166216}
+{"tipo": "comando", "comando": "ninfo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298828.4820147}
+{"tipo": "comando", "comando": "ninfo de la rose", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298847.804233}
+{"tipo": "comando", "comando": "acomoda una cancion", "intencion": "conversar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1791298873.691937}
+{"tipo": "comando", "comando": "acomoda una cancion", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298874.8632202}
+{"tipo": "comando", "comando": "dame pasos para apreder a programar en c++", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791298968.836139}
+{"tipo": "comando", "comando": "sume el brillo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791299473.819646}
+{"tipo": "comando", "comando": "sube el brillo del computador", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791299493.5994055}
+{"tipo": "comando", "comando": "sube ei brillo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791299517.2192674}
+{"tipo": "comando", "comando": "que sabes hacer", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791318385.2408307}
+{"tipo": "comando", "comando": "habla mas lento", "intencion": "velocidad_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791318664.1378136}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 89.8076, "error": null, "timestamp": 1791326969.0340676}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 79.7186, "error": null, "timestamp": 1791327048.7812054}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 46.6983, "error": null, "timestamp": 1791327095.4935756}
+{"tipo": "comando", "comando": "prueba la nube", "intencion": "probar_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791334199.513689}
+{"tipo": "comando", "comando": "qué has aprendido de la nube", "intencion": "ver_aprendido_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791334406.5087745}
+{"tipo": "comando", "comando": "", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791339619.7221835}
+{"tipo": "comando", "comando": "", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791339637.3024404}
+{"tipo": "comando", "comando": "", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791339647.1978595}
+{"tipo": "comando", "comando": "sube el brillo al cuarenta por ciento", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791339668.549983}
+{"tipo": "comando", "comando": "usa na voz de salome", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791339932.9233458}
+{"tipo": "comando", "comando": "para que usas la nube", "intencion": "nube_tareas_estado", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340709.0886927}
+{"tipo": "comando", "comando": "para que usas la nube", "intencion": "nube_tareas_estado", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340781.680938}
+{"tipo": "comando", "comando": "voz mas aguda", "intencion": "tono_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340782.7590597}
+{"tipo": "comando", "comando": "voz mas aguda", "intencion": "tono_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340783.7888072}
+{"tipo": "comando", "comando": "voz mas aguda", "intencion": "tono_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340784.7845833}
+{"tipo": "comando", "comando": "usa la voz mexicana", "intencion": "elegir_voz", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791340785.9159906}
+{"tipo": "comando", "comando": "limpiar cpu", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791340881.2691362}
+{"tipo": "comando", "comando": "libera cpu", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791340908.7363977}
+{"tipo": "comando", "comando": "que es cpu", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341043.6147742}
+{"tipo": "comando", "comando": "estado de red", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341155.4485407}
+{"tipo": "comando", "comando": "que sabes hacer", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341321.971366}
+{"tipo": "comando", "comando": "de donde salen esas respuestas", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341357.9856613}
+{"tipo": "comando", "comando": "como crees que puedes mejorar", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341404.8179927}
+{"tipo": "comando", "comando": "puedes recordar cosas", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341472.7719512}
+{"tipo": "comando", "comando": "estas aprendiendo eso que estas respondiendo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341536.4306805}
+{"tipo": "comando", "comando": "que nivel de autonomia tienes", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341567.1976802}
+{"tipo": "comando", "comando": "que hago para que puedas tomar ciertas decisiones por tu cuenta", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341628.619435}
+{"tipo": "comando", "comando": "puedes hacer condigo en devc++ que halle la fsctorial de un numero dado por el usuario", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341695.128807}
+{"tipo": "comando", "comando": "puedes aprender a programar en python", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341871.2016847}
+{"tipo": "comando", "comando": "comando buscar voz", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791341932.6403635}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 12.5591, "error": null, "timestamp": 1791342462.3156207}
+{"tipo": "comando", "comando": "podes hablar otro idoma", "intencion": "conversar", "resuelto_por": "ollama_conversar", "fallo": false, "timestamp": 1791342474.5961568}
+{"tipo": "comando", "comando": "m", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791416506.9870117}
+{"tipo": "comando", "comando": "estado de la nube", "intencion": "estado_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791416587.6704538}
+{"tipo": "comando", "comando": "estado de la nube", "intencion": "estado_nube", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791416654.2443578}
+{"tipo": "comando", "comando": "pon another love en spotify", "intencion": "buscar_en_sitio", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791416679.310652}
+{"tipo": "comando", "comando": "pon another love en spotify", "intencion": "buscar_en_sitio", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791416708.0972672}
+{"tipo": "comando", "comando": "", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791416905.85861}
+{"tipo": "comando", "comando": "limpiar memoria", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791417062.0843139}
+{"tipo": "comando", "comando": "estado del computador", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791417094.4205203}
+{"tipo": "comando", "comando": "mejora tu codigo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791417350.8254428}
+{"tipo": "duracion", "modulo": "ollama_generar_codigo", "duracion_seg": 146.2513, "error": null, "timestamp": 1791417537.634032}
+{"tipo": "comando", "comando": "haz un programa en dev-c++ que simule un cajero automatico usando funciones externas. el programa debe permitir consultar saldo.depositar dinero.retirar dinero.mostrar el total de dinero retirado.salir.", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791440688.1263647}
+{"tipo": "comando", "comando": "cuando cumpleanos anos daniell", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791440952.9914536}
+{"tipo": "comando", "comando": "estado del computador", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441020.1888232}
+{"tipo": "comando", "comando": "como se llama el presidente de colombia", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441069.4397535}
+{"tipo": "comando", "comando": "el presidente de colombia 2026-2030es abelardo de la aspriella", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441125.7143033}
+{"tipo": "comando", "comando": "como se llama el presidente de colombia", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441146.3276749}
+{"tipo": "comando", "comando": "como funcionas", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441185.6422858}
+{"tipo": "comando", "comando": "p contra np resuelva eso", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791441236.1861103}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0001, "error": null, "timestamp": 1791472366.952679}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791472366.952679}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791472366.952679}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1791472366.9602158}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1791472366.9685292}
+{"tipo": "comando", "comando": "autotest", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791472949.9779906}
+{"tipo": "comando", "comando": "que es un sapo", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791490797.2018847}
+{"tipo": "comando", "comando": "tipos de voz", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791490976.030044}
+{"tipo": "comando", "comando": "si", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791492651.3051066}
+{"tipo": "comando", "comando": "estado del computador", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791492726.16331}
+{"tipo": "comando", "comando": "mejorate sola", "intencion": "nivel_mejora", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493047.6598797}
+{"tipo": "comando", "comando": "libera memoria", "intencion": "liberar_memoria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493049.885157}
+{"tipo": "comando", "comando": "libera memoria", "intencion": "liberar_memoria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493050.969539}
+{"tipo": "comando", "comando": "libera memoria", "intencion": "liberar_memoria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493052.3979397}
+{"tipo": "comando", "comando": "libera memoria", "intencion": "liberar_memoria", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493671.1993933}
+{"tipo": "comando", "comando": "pon el brillo al 50%", "intencion": "brillo_a", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493672.345511}
+{"tipo": "comando", "comando": "pon el brillo al 100%", "intencion": "brillo_a", "resuelto_por": "determinístico", "fallo": false, "timestamp": 1791493674.714459}
+{"tipo": "comando", "comando": "busva whasapp en opera", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791579383.905092}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791580069.114044}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791580069.1221437}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1791580069.1566293}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1791580069.163116}
+{"tipo": "comando", "comando": "holaa", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791649823.7076929}
+{"tipo": "comando", "comando": "iniciar examen", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791650734.241857}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791970380.201659}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1791970380.201659}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1791970380.2141836}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1791970380.21837}
+{"tipo": "comando", "comando": "te gusta pam?", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1791982506.0643337}
+{"tipo": "comando", "comando": "podemos integrarte a un perro robotico", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792079018.503104}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792081913.0364754}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792081913.042028}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792081913.0524201}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792081913.0550332}
+{"tipo": "comando", "comando": "ver interfaz", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792100670.473742}
+{"tipo": "comando", "comando": "abrir_interfaz`", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792100701.3603482}
+{"tipo": "comando", "comando": "que puedes hacer??", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792102113.5005136}
+{"tipo": "comando", "comando": "otro pin", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792102744.0526972}
+{"tipo": "comando", "comando": "acomoda la cola.", "intencion": "conversar", "resuelto_por": "cache_propio", "fallo": false, "timestamp": 1792185345.966117}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792251750.7149427}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792251750.7149427}
+{"tipo": "duracion", "modulo": "ollama_conversar", "duracion_seg": 0.0, "error": null, "timestamp": 1792251750.7149427}
+{"tipo": "duracion", "modulo": "ollama_razonar_borrador", "duracion_seg": 0.0, "error": null, "timestamp": 1792251750.7352595}
+{"tipo": "duracion", "modulo": "ollama_razonar_final", "duracion_seg": 0.0, "error": null, "timestamp": 1792251750.7372684}
+{"tipo": "comando", "comando": "chao", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792252237.791183}
+{"tipo": "comando", "comando": "sabes programar en 3d", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792261007.5469778}
+{"tipo": "comando", "comando": "en en 5 minutos", "intencion": "conversar", "resuelto_por": "nube", "fallo": false, "timestamp": 1792261870.6849124}
