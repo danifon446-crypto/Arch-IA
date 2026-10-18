@@ -1,0 +1,173 @@
+COMANDOS DE ARCHÉ
+Este archivo se actualiza solo cada vez que Arché arranca.
+No lo edites a mano: tus cambios se pierden.
+
+WEB
+  aprende buscar en <sitio_web>  -  ensenarle al asistente como se busca dentro de un sitio web nuevo
+  busca <algo> en youtube | claude | google | chatgpt | wikipedia | github | spotify | maps | <cualquier sitio que conozca o dominio>  -  Abre la busqueda directo en ese sitio. Si hay mas de un navegador, pregunta en cual.
+
+COMPUTADOR
+  que tengo abierto  -  ver que navegadores y programas estan instalados y abiertos en el computador
+      También: que navegadores tengo, qué navegadores tengo, que hay abierto, qué hay abierto, estado del pc, estado de mi pc, que navegador tengo abierto, qué navegador tengo abierto
+  usa siempre <navegador>  -  dejar fijo un navegador para abrir todo sin preguntar en cual
+  preguntame el navegador  -  volver a preguntar en cual navegador abrir cada cosa cuando hay varios
+  pasa a <ventana>  -  traer al frente una ventana o programa que ya esta abierto
+  minimiza <ventana>  -  minimizar una ventana o programa abierto
+  maximiza <ventana>  -  maximizar una ventana o programa abierto para que ocupe toda la pantalla
+  cierra <ventana>  -  cerrar una ventana o programa que esta abierto
+  muestra el escritorio  -  minimizar todas las ventanas para ver el escritorio
+  acomoda <ventana_lado>  -  poner una ventana en la mitad izquierda o derecha de la pantalla
+  sube el volumen  -  subir el volumen del computador
+  baja el volumen  -  bajar el volumen del computador
+  pon el volumen al <porcentaje>  -  dejar el volumen en un porcentaje exacto
+  silencia el sonido  -  silenciar o reactivar el sonido del computador
+  pausa la musica  -  pausar o reanudar la musica o el video que esta sonando
+  siguiente cancion  -  pasar a la siguiente cancion o pista
+  cancion anterior  -  volver a la cancion o pista anterior
+  sube el brillo  -  subir el brillo de la pantalla
+  baja el brillo  -  bajar el brillo de la pantalla
+  pon el brillo al <porcentaje>  -  dejar el brillo de la pantalla en un porcentaje exacto
+  toma una captura de pantalla  -  tomar una captura de pantalla y guardarla como imagen
+  teclea <texto>  -  escribir un texto por el usuario en otra ventana, como si lo tecleara
+  presiona <tecla>  -  presionar una tecla o un atajo de teclado en otra ventana
+  haz clic  -  hacer clic con el mouse donde esta el puntero
+  haz clic derecho  -  hacer clic derecho con el mouse donde esta el puntero
+  haz doble clic  -  hacer doble clic con el mouse donde esta el puntero
+  baja la pagina  -  desplazar hacia abajo la pagina o ventana que se esta usando
+  sube la pagina  -  desplazar hacia arriba la pagina o ventana que se esta usando
+  bloquea el pc  -  bloquear el computador para que pida la clave
+  apaga el pc  -  apagar el computador
+  reinicia el pc  -  reiniciar el computador
+  cierra la sesion  -  cerrar la sesion de usuario de Windows
+  suspende el pc  -  poner el computador en suspension o hibernacion
+  cancela el apagado  -  cancelar un apagado o reinicio que ya se programo
+  cuanta bateria tengo  -  ver cuanta bateria queda y si esta cargando
+  que hay en el portapapeles  -  ver el texto que esta copiado en el portapapeles
+  copia al portapapeles <texto>  -  copiar un texto al portapapeles
+  abre la carpeta <carpeta>  -  abrir una carpeta del usuario como descargas, escritorio o documentos
+  espera <N> segundos  -  Pausa de N segundos (sirve entre pasos encadenados).
+  <orden> y luego <orden> [y luego <orden>...]  -  Encadena varias ordenes del PC o de la web, por ejemplo: abre chrome y luego busca gatos en youtube.
+  mis ventanas  -  Lista las ventanas que tienes abiertas.
+
+NOTAS
+  crea una nota <nota>  -  crear una nota nueva con un nombre
+  lee la nota <nota>  -  leer el contenido de una nota
+  abre la nota <nota>  -  abrir una nota para verla o editarla
+  agrega a <nota>  -  agregar texto a una nota que ya existe
+  elimina la nota <nota>  -  borrar una nota
+  mis notas  -  ver la lista de todas las notas guardadas
+      También: listar notas
+
+ARCHIVOS
+  actualizar archivos  -  actualizar el indice de archivos del computador
+  busca archivo <archivo>  -  buscar un archivo o documento por su nombre
+  abre archivo <archivo>  -  abrir un archivo o documento del computador
+
+CALCULADORA
+  calcula <operacion>  -  resolver una operacion matematica
+  cuanto es <...>  -  cuanto es <operacion>: lo mismo que 'calcula'.
+  historial calculos  -  ver el historial de calculos anteriores
+  ultimo calculo  -  ver el ultimo calculo que se hizo
+
+SISTEMA
+  adiós  -  Cierra a Arche.
+      También: salir
+  estado del sistema  -  ver el estado del computador: procesador, memoria y disco
+      También: estado sistema, como esta el sistema, cómo está el sistema, como esta mi pc, cómo está mi pc
+  procesos que mas consumen  -  ver que programas consumen mas recursos
+      También: que consume mas, qué consume más
+  espacio libre  -  ver cuanto espacio libre queda en el disco
+      También: espacio en disco, espacio disponible, cuanto espacio libre tengo, cuánto espacio libre tengo
+
+CONFIGURACION
+  configuracion  -  ver la configuracion actual del asistente
+      También: mostrar configuración, mostrar configuracion
+  cambiar mi nombre  -  cambiar el nombre con el que el asistente llama al usuario
+  cambiar tu nombre  -  cambiar el nombre del asistente
+  restablecer configuracion  -  volver la configuracion a los valores originales
+
+CODIGO
+  escribe en <...>  -  escribe en <archivo> : <instruccion>: pide un cambio de codigo indicando tu el archivo.
+  revisar cambios de codigo  -  revisar y aprobar los cambios de codigo propuestos
+  conecta <...>  -  conecta <funcion>: conecta a una frase una funcion que Arche escribio (pide tu aprobacion).
+      También: conectar 
+  cambia esto <...>  -  cambia esto: <instruccion>: Arche propone un cambio en su propio codigo (pasa por tu aprobacion).
+      También: mejora esto, arreglá esto, arregla esto
+  cambios de codigo pendientes  -  ver cuantas propuestas de cambio de codigo hay pendientes
+  revisate  -  que el asistente revise su propio codigo buscando problemas
+      También: autorevisate, autorevísate, revisate, revísate
+  revisa tu codigo sin ia  -  Autorevision solo con chequeos fijos: sin Ollama, instantanea.
+  revisate y arregla todo  -  revisarse y dejar armados los arreglos de cada problema
+      También: revisate y arregla, revísate y arregla
+  autorevisate cada <...>  -  autorevisate cada <horas>: cambia cada cuanto se autorevisa sola.
+  analiza <funcion>  -  analizar una funcion del proyecto: que hace, que devuelve, cuanto se usa
+  riesgo <id>  -  ver que tan riesgosa es una propuesta de cambio
+  impacto <funcion>  -  ver que partes del proyecto usan una funcion antes de cambiarla
+
+ARCHE
+  ayuda  -  preguntar que sabe hacer el asistente
+  que hace <categoria>  -  preguntar que hace o para que sirve una parte del asistente
+  estado red  -  ver el estado de la red neuronal clasica
+      También: estado de la red, estado del clasificador, estado clasificador
+  estadisticas  -  ver estadisticas de uso del asistente
+      También: telemetria, telemetría
+  limpiar automatico  -  limpiar del conocimiento los aprendizajes contaminados o malos
+      También: limpieza automatica, limpieza automática
+  estudiar  -  hacer una ronda de estudio
+  iniciar estudio automatico  -  activar el estudio en segundo plano
+      También: activar estudio automatico, activar estudio automático
+  detener estudio  -  parar el estudio
+  iniciar autorevision automatica  -  activar la autorevision automatica en segundo plano
+      También: activar autorevision automatica, activar autorevisión automática
+  detener autorevision automatica  -  desactivar la autorevision automatica
+  agregar tema <tema>  -  agregar un tema nuevo a los temas de estudio
+  temas de estudio  -  ver los temas que estudia el asistente
+      También: mis temas
+  modo gran sabio on  -  Activa el tono analitico del Gran Sabio al hablar.
+      También: activar modo gran sabio, activar gran sabio
+  modo gran sabio off  -  Desactiva el tono analitico del Gran Sabio.
+      También: desactivar modo gran sabio, desactivar gran sabio
+  objetivo: <objetivo>  -  agregar un objetivo nuevo al proyecto
+      También: objetivo :
+  objetivos  -  ver los objetivos pendientes del proyecto
+      También: mis objetivos
+  logre <objetivo>  -  marcar un objetivo como logrado
+  estado banco  -  ver cuantos ejemplos tiene cada intencion
+      También: estado del banco
+  entrenar a fondo  -  generar muchos ejemplos con Ollama y entrenar las redes a fondo
+      También: entrenamiento a fondo
+  entrenar jerarquico  -  entrenar las redes jerarquicas con lo aprendido
+      También: entrenar clasificador jerarquico
+  estado red jerarquica  -  ver el estado de las redes jerarquicas
+      También: estado clasificador jerarquico
+  examen  -  rendir una ronda de examen para evaluar el clasificador
+      También: rendir examen
+  estado examen  -  ver el progreso del examen y los niveles
+      También: estado del examen
+  iniciar examen automatico  -  activar el examen automatico en segundo plano
+      También: activar examen automatico
+  detener examen automatico  -  desactivar el examen automatico
+
+GUIA
+  comandos  -  Esta guia. Se arma sola desde main.py y el catalogo.
+      También: guia, guía, guia de comandos, guía de comandos, lista de comandos, que comandos hay, qué comandos hay
+  comandos de <...>  -  comandos <categoria>: el detalle de UNA categoria, con descripciones.
+      También: comandos 
+  proximos pasos  -  Te dice que comando correr ahora segun el estado del entrenamiento.
+      También: que hago ahora, qué hago ahora, que me falta, qué me falta, siguiente paso
+
+ENTRENAMIENTO
+  sembrar catalogo  -  Siembra instantanea de ejemplos base desde el catalogo (sin Ollama).
+      También: sembrar el catalogo
+  entrenar rapido  -  Genera ejemplos con Ollama, sin juez, en segundo plano.
+      También: entrenamiento rapido
+  detener entrenamiento  -  Corta el entrenamiento en segundo plano.
+  modo natural on  -  Entiende frases libres para todo el catalogo.
+      También: activar modo natural, activar enrutador natural
+  modo natural off  -  Vuelve a pedir los comandos tal cual.
+      También: desactivar modo natural, desactivar enrutador natural
+  enseñar <...>  -  ensenar <frase> => <intencion>: agrega UN ejemplo a mano.
+  importar ejemplos <...>  -  Carga varios ejemplos de golpe desde ejemplos_manuales.txt.
+  intenciones  -  Lista las intenciones validas (para saber como llamarlas al ensenar).
+      También: lista de intenciones, mis intenciones
+  intenciones de <...>  -  intenciones <dominio>: solo las intenciones de ese dominio.

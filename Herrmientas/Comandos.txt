@@ -1,0 +1,121 @@
+primero poner la ruta del archivo en el cmd
+cd "C:\Users\danif\OneDrive\Desktop\Arché\Arche"
+py -m PyInstaller --onefile prueba.py
+
+py -m PyInstaller --onefile --add-data "sitios.json;." prueba.py
+
+py -m PyInstaller --onefile main.py
+
+para cambiar el nombre 
+py -m PyInstaler --onefile --name "Arche v1.01" prueba.py
+para abrir solo 
+shell:startup
+
+Get-StartApps
+
+para limpiar
+rmdir /s /q build
+rmdir /s /q dist
+del main.spec
+
+
+cerebroIA
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.neural_network import MLPClassifier
+
+from core.cerebro.presentacion import datos as presentacion
+from core.cerebro.saludo import datos as saludo
+from core.cerebro.hora import datos as hora
+from core.cerebro.fecha import datos as fecha
+from core.cerebro.ayuda import datos as ayuda
+from core.cerebro.buscar import datos as buscar
+from core.cerebro.abrir import datos as abrir
+
+from core.cerebro.recordar import datos as recordar
+from core.cerebro.mostrar_memoria import datos as mostrar_memoria
+from core.cerebro.editar_memoria import datos as editar_memoria
+
+from core.cerebro.crear_recordatorio import datos as crear_recordatorio
+from core.cerebro.mostrar_recordatorios import datos as mostrar_recordatorios
+from core.cerebro.eliminar_recordatorio import datos as eliminar_recordatorio
+
+from core.compresion import comprender
+
+# Datos de entrenamiento
+frases = []
+intenciones = []
+
+def agregar(ejemplos, nombre_intencion):
+    for ejemplo in ejemplos:
+        frases.append(ejemplo)
+        intenciones.append(nombre_intencion)
+
+#Coversacion 
+agregar(presentacion, "presentacion")
+agregar(saludo, "saludo")
+agregar(hora, "hora")
+agregar(fecha, "fecha")
+agregar(ayuda, "ayuda")
+
+#Acciones
+agregar(buscar, "buscar")
+agregar(abrir, "abrir")
+
+#Memoria
+agregar(recordar, "recordar")
+agregar(mostrar_memoria, "mostrar_memoria")
+agregar(editar_memoria, "editar_memoria")
+
+#Recordatorios
+agregar(crear_recordatorio, "crear_recordatorio")
+agregar(mostrar_recordatorios, "mostrar_recordatorios")
+agregar(eliminar_recordatorio, "eliminar_recordatorio")
+print("Frases:", len(frases))
+print("Intenciones:", len(intenciones))
+
+if len(frases) != len(intenciones):
+    print("ERROR: Las listas no tienen el mismo tamaño.")
+    exit()
+
+# Convertir texto a números
+vectorizador = TfidfVectorizer()
+
+entrada = vectorizador.fit_transform(frases)
+
+
+# Crear red neuronal
+modelo = MLPClassifier(
+    hidden_layer_sizes=(20, 10),
+    max_iter=1000
+)
+
+
+# Entrenar
+modelo.fit(entrada, intenciones)
+
+
+# Función para pensar
+def pensar(texto):
+
+    texto_numero = vectorizador.transform([texto])
+
+    confianza = modelo.predict_proba(texto_numero).max()
+
+    if confianza < 0.40:
+        return "desconocido"
+
+    respuesta = modelo.predict(texto_numero)
+
+    return respuesta[0]
+
+from core.ia_local import comprender
+
+def analizar(comando):
+
+    respuesta = comprender(comando)
+
+    return {
+        "intencion": respuesta.get("accion", "desconocido"),
+        "contenido": respuesta.get("objeto", "")
+    }
+

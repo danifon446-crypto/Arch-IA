@@ -1,0 +1,23 @@
+Rápidas de implementar
+
+
+2. Contexto de conversación corto
+Ahora mismo cada comando es aislado — si decís "abre spotify" y después "ciérralo", Arché no sabe que "lo" se refiere a Spotify. Guardar los últimos 2-3 intercambios (en memoria, no en disco) y pasárselos a Ollama como contexto cuando cae en conversar() sería un salto de usabilidad grande.
+
+3. Confirmación antes de acciones "grandes"
+Por ejemplo, borrar un archivo o cerrar algo — que Arché pida confirmación en vez de ejecutar directo, para casos donde una mala clasificación de intención podría causar daño real.
+
+Nivel medio
+
+4. Planificador multi-paso (lo tenías en tu roadmap original)
+Que "busca el archivo del proyecto y ábrelo" se resuelva encadenando dos intenciones (buscar → abrir) en vez de que solo la primera se ejecute. Esto requiere que analizar() pueda devolver una lista de intenciones en vez de una sola.
+
+
+
+Más ambicioso, pero realista con tu setup
+
+7. Perfil de usuario / preferencias
+Que Arché recuerde cosas tuyas de forma explícita — tu ubicación, tus apps favoritas, cómo preferís que responda (corto vs. detallado) — y las use como contexto en cada llamada a Ollama.
+
+8. Integración con más fuentes
+Ya tenés archivos, notas, navegador. Podrías sumar: lectura de tu calendario, control de música más fino (pausar/siguiente, no solo abrir), o notificaciones/recordatorios que se disparen solos.
