@@ -23,5 +23,10 @@
       "grafica_b": "#ff9a5c",
       "seleccion": "#ff2d46"
     }
+  },
+  "Mi ámbar": {
+    "nombre": "Mi ámbar",
+    "base": "ambar",
+    "colores": {}
   }
 }

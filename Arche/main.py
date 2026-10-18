@@ -48,6 +48,11 @@ from core.IA import catalogo
 from core.IA import entrenador_masivo
 from core.IA import enrutador_natural
 
+#Perro
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Perro_robotico"))
+from acciones_robot import manejar as manejar_robot, detener_todo as detener_robot
+
 # NOTA: archivos que existen en el proyecto pero NO se usan en ningún
 # lado (no rompen nada si se quedan, es solo peso muerto):
 #   - core/cerebro/  (carpeta completa: abrir.py, ayuda.py, buscar.py,
@@ -401,6 +406,7 @@ while True:
 
     if comando in ["adiós", "adios", "salir"]:
         responder_conversacion("adios")
+        detener_robot()   # el perro se queda quieto y se apaga el modo perro
         break
 
     # CONFIGURACIÓN
@@ -554,6 +560,14 @@ while True:
         else:
             _ok, _mensaje = control_pc.fijar_navegador(_nav)
             print(f"Arché: {_mensaje}")
+        continue
+
+    # PERRO ROBOTICO (Perro_robotico/acciones_robot.py): "mueve la cola", "sientate",
+    # "activa el modo perro", "conecta el robot a <ip>", "parada de emergencia".
+    # Devuelve el texto de la respuesta, o None si la frase no es del perro.
+    _respuesta_robot = manejar_robot(comando_original)
+    if _respuesta_robot is not None:
+        print(f"Arché: {_respuesta_robot}")
         continue
 
     # VOZ, ALARMAS, RUTINAS, MANTENIMIENTO DEL PC e INTERNET/NUBE. Cada módulo
