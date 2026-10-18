@@ -17,3 +17,16 @@ dist/
 *.exe
 *.gguf
 Versiones de Arche/
+*.bak
+*.tmp
+Arche/Database/
+Arche/core/IA/conocimiento.json
+Arche/core/IA/conversaciones.json
+Arche/core/IA/respuestas.json
+Arche/core/IA/meta.json
+Arche/core/IA/telemetria.jsonl
+Arche/core/IA/dataset_entrenamiento.jsonl
+Arche/core/IA/indice_funciones_cache.json
+Arche/core/IA/revision_codigo_cache.json
+Arche/core/IA/cambios_codigo_pendientes.json
+Arche/core/IA/backups_codigo/
