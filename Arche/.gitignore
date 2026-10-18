@@ -1,0 +1,19 @@
+
+Database/
+core/IA/conocimiento.json
+core/IA/conocimiento.json.bak
+core/IA/conversaciones.json
+core/IA/respuestas.json
+core/IA/meta.json
+core/IA/telemetria.jsonl
+core/IA/dataset_entrenamiento.jsonl
+core/IA/clasificador.pkl
+*.pkl
+
+__pycache__/
+*.pyc
+build/
+dist/
+*.exe
+*.gguf
+Versiones de Arche/
