@@ -208,7 +208,7 @@ def forward(clave, emb):
 
 
 # ------------------------------------------------------------------ ejemplos (conocimiento.json) y snapshot
-_dc = {"clave": None, "con_emb": collections.Counter(), "conteo": collections.Counter(),
+_dc = {"auto_recientes": [], "clave": None, "con_emb": collections.Counter(), "conteo": collections.Counter(),
        "por_intencion": {}, "total": 0}
 _snap = {"ts": 0.0, "listo": False, "redes": [], "conteo": {}, "por_intencion": {}, "total": 0,
          "propuestas": 0, "error": ""}
@@ -230,10 +230,13 @@ def _leer_datos():
     if clave != _dc["clave"]:
         datos = m.ap.cargar() if clave else []
         conteo, con_emb, por = collections.Counter(), collections.Counter(), {}
+        auto_rec = []
         for d in datos:
             a = d.get("accion")
             if not a:
                 continue
+            if str(d.get("fuente") or "").startswith("auto"):
+                auto_rec.append({"pregunta": d.get("pregunta", ""), "accion": a})
             conteo[a] += 1
             if d.get("embedding"):
                 con_emb[a] += 1
@@ -241,7 +244,7 @@ def _leer_datos():
                                           "auto": str(d.get("fuente") or "").startswith("auto")})
         for a in por:
             por[a] = por[a][-MAX_EJEMPLOS_VISTA:][::-1]            # los mas recientes primero
-        _dc.update(clave=clave, conteo=conteo, con_emb=con_emb, por_intencion=por, total=len(datos))
+        _dc.update(clave=clave, conteo=conteo, con_emb=con_emb, por_intencion=por, total=len(datos), auto_recientes=auto_rec[-40:][::-1])
     return _dc
 
 
@@ -849,6 +852,34 @@ def _quitar(pregunta_norm, intencion, it):
     except Exception as e:
         if it is not None:
             it["mensaje"] = "No pude deshacerlo: " + _explicar(e)
+    invalidar()
+
+
+def recientes_auto(n=5):
+    """Los ultimos ejemplos que Arché clasifico sola y nadie ha revisado: [{pregunta, accion}]."""
+    snapshot()
+    return list(_dc.get("auto_recientes", []))[:n]
+
+
+def revisar_ejemplo(pregunta_norm, intencion, bueno):
+    """Revision rapida: bueno=True lo da por correcto (deja de marcarse «auto»); False lo borra de los ejemplos."""
+    if not bueno:
+        quitar_ejemplo(pregunta_norm, intencion)
+        return
+    _hilo("revisar", _marcar_revisado, pregunta_norm, intencion)
+
+
+def _marcar_revisado(pregunta_norm, intencion):
+    m = _ia()
+    try:
+        with m.ap._lock:
+            datos = m.ap.cargar(estricto=True)
+            for d in datos:
+                if d.get("pregunta") == pregunta_norm and d.get("accion") == intencion:
+                    d["fuente"] = "revisado"
+            m.ap.guardar(datos)
+    except Exception:
+        pass
     invalidar()
 
 

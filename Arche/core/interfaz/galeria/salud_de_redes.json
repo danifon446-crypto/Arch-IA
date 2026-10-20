@@ -1,0 +1,20 @@
+{
+  "arche_extension": 1,
+  "nombre": "Salud de redes",
+  "tipo": "widget",
+  "titulo": "Salud de redes",
+  "ancho": 6,
+  "alto": 5,
+  "descripcion": "Precisión de cada red, cuáles tienen ejemplos sin entrenar y botón para entrenar.",
+  "aparece_si": "redes_sin_entrenar",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "redes_salud",
+      "max": 6
+    }
+  ]
+}

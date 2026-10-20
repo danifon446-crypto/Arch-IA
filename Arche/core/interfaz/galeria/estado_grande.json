@@ -1,0 +1,17 @@
+{
+  "arche_extension": 1,
+  "nombre": "Estado grande",
+  "tipo": "widget",
+  "titulo": "Estado",
+  "ancho": 6,
+  "alto": 3,
+  "descripcion": "Un círculo grande con lo que hace Arché (reposo, escuchando, pensando, hablando); se ve desde lejos en la TV.",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "indicador"
+    }
+  ]
+}

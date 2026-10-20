@@ -1,0 +1,17 @@
+{
+  "arche_extension": 1,
+  "nombre": "Pomodoro",
+  "tipo": "widget",
+  "titulo": "Pomodoro",
+  "ancho": 6,
+  "alto": 4,
+  "descripcion": "25 minutos de trabajo y 5 de descanso, con aviso al terminar cada tramo.",
+  "bloques": [
+    {
+      "tipo": "temporizador",
+      "minutos": 25,
+      "descanso": 5,
+      "etiqueta": "Pomodoro"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ import time
 from . import ajustes, estado_visual as ev, extensiones, fondos, layout, lenguaje, perfiles, rendimiento, tema
 
 CATEGORIAS = (
-    ("apariencia", "Apariencia"), ("distribucion", "Distribución"), ("widgets", "Widgets"),
+    ("apariencia", "Apariencia"), ("distribucion", "Distribución"), ("orden", "Orden"), ("widgets", "Widgets"),
     ("ventanas", "Ventanas"), ("voz", "Voz"), ("mascota", "Mascota"),
     ("efectos", "Efectos"), ("fondos", "Fondos"), ("conversacion", "Conversación"),
     ("sistema", "Sistema"), ("redes", "Redes"), ("navegacion", "Navegación"), ("notificaciones", "Notificaciones"),
@@ -84,6 +84,31 @@ def items_de(cat):
                 N("_margen", "Margen de la ventana", 4, " px"), N("_separacion", "Separación entre paneles", 2, " px"),
                 ("laybool", "cabecera", "Cabecera (título, hora y estado)"), ("laybool", "pie", "Barra inferior (botones)"),
                 T("COMPONENTES"), F("componentes")]
+    if cat == "orden":
+        return [T("ORDEN DE LA PANTALLA"), B("orden_activo", "Usar el orden", "páginas, paneles que aparecen solos, plegado, cajón y tope (apagado = pantalla como antes)"),
+                A("Ordenar", ("Ordenar mi pantalla ahora", ("orden", "ordena mi pantalla")),
+                  detalle="Te muestra primero qué haría (páginas, tarjetas, cajón) y pide confirmación; se deshace con «deshacer»."),
+                T("PÁGINAS"), F("paginas"), O("orden_barra_paginas", "Barra de páginas", {"auto": "solo si hay varias", "siempre": "siempre", "nunca": "nunca"}),
+                A("Páginas", ("Nueva…", ("prefill", "crea una pagina llamada ")), ("Siguiente", ("ord", "pagina_sig")), ("Anterior", ("ord", "pagina_ant")),
+                  detalle="Alt+→ y Alt+← también cambian de página. Mover un panel: «pon el reloj en la página Mi día»."),
+                T("PANELES QUE APARECEN SOLOS"), B("orden_auto", "Aparecer solo si hay algo", "se aplica a los paneles marcados así (Widgets > Ajustes de un componente)"),
+                B("orden_compactar", "Cerrar los huecos", "los paneles de abajo suben cuando uno se va o se pliega"),
+                B("orden_rellenar", "Rellenar el espacio libre", "el panel de abajo crece para usarlo"), F("auto_lista"),
+                T("PLEGAR PANELES"), O("orden_plegar_boton", "Botón «–» para plegar", {"al_pasar": "al pasar el mouse", "siempre": "siempre", "nunca": "nunca"}),
+                N("orden_plegar_auto", "Volver a plegar tras", 5, " s", "0 = se queda abierto hasta que lo pliegues"),
+                A("Plegar", ("Plegar todo", ("orden", "pliega todo")), ("Desplegar todo", ("orden", "despliega todo"))),
+                T("CAJÓN"), B("orden_boton_cajon", "Botón «Cajón» abajo", "Ctrl+J también lo abre"),
+                N("orden_cajon_fijos", "Extensiones fijas", 1, "", "0 = sin límite"),
+                A("Cajón", ("Abrir el cajón", ("ord", "cajon")), ("Mandar mis extensiones al cajón", ("orden", "manda mis extensiones al cajon"))),
+                T("TARJETAS CON PESTAÑAS Y CARRUSEL"), N("orden_carrusel_seg", "Segundos por panel", 1, " s"),
+                A("Crear", ("Tarjeta con pestañas", ("ord", "contenedor_nuevo", "pestanas")), ("Carrusel", ("ord", "contenedor_nuevo", "carrusel")),
+                  ("Separar", ("orden", "separa la tarjeta")), detalle="O di: «agrupa el reloj y las notas en pestañas»."), F("contenedores"),
+                T("TOPE DE PANELES"), N("orden_tope", "Máximo por página", 1, "", "0 = sin tope"),
+                B("orden_proponer", "Proponer yo sola qué ocultar", "según los paneles que menos tocas; siempre te pregunto"),
+                A("Tope", ("Revisar ahora", ("orden", "revisa el tope"))), F("uso_paneles"),
+                T("MODOS POR HORA O POR FRASE"), B("orden_modos_auto", "Cambiar de perfil solo", "un perfil = un orden (trabajo, TV, noche…)"), F("modos"),
+                A("Nuevo modo", ("Por hora", ("prefill", "de 9:00 a 18:00 usa el modo ")), ("Por frase", ("prefill", "cuando diga  usa el modo ")),
+                  detalle="Ejemplo: «de 22:00 a 6:00 usa el modo ambiente».")]
     if cat == "widgets":
         return [T("AGREGAR COMPONENTE"), F("agregar_widget"), T("AJUSTES DE UN COMPONENTE"), F("opciones_widget")]
     if cat == "ventanas":
@@ -194,8 +219,10 @@ def items_de(cat):
                 A("Puntos", ("Crear punto", ("prefill", "crea un punto de restauracion ")), ("Ver", ("orden", "puntos de restauracion"))), F("puntos"),
                 T("SINCRONIZAR ENTRE EQUIPOS (opcional)"), F("sync")]
     if cat == "extensiones":
-        return [T("EXTENSIONES VISUALES"), F("extensiones"),
-                ("info", "Son archivos .json en Database/extensiones. Un tema no puede pedir permisos; un widget con botones debe declarar «comandos».")]
+        return [T("INSTALADAS"), F("extensiones"), T("GALERÍA (ya hechas, un clic para instalar)"), F("galeria_ext"),
+                T("CREAR Y AMPLIAR"), F("crear_ext"),
+                ("info", "Son archivos .json en Database/extensiones (LEEME.md ahí explica todo). Una extensión es solo datos: no ejecuta código. "
+                         "Para tipos o bloques nuevos: archivos .py en core/interfaz/complementos.")]
     return []
 
 
@@ -211,6 +238,8 @@ def _texto_item(it):
         return {"temas": "tema colores", "colores_tema": "colores del tema hex", "componentes": "componentes widgets mostrar ocultar",
                 "agregar_widget": "agregar widget componente", "perfiles": "perfiles", "puntos": "puntos restauracion",
                 "fondo": "fondo imagen video", "atajos": "atajos teclado", "pantallas": "pantalla monitor",
+                "paginas": "paginas pantalla orden", "auto_lista": "aparecer solo si hay algo paneles", "contenedores": "tarjeta pestanas carrusel",
+                "uso_paneles": "tope paneles clics uso", "modos": "modos horario frase perfil",
                 "extensiones": "extensiones", "sync": "sincronizar equipos", "sistema_ocultar": "ocultar cpu ram disco bateria"}.get(it[1], it[1])
     return ""
 
@@ -297,11 +326,12 @@ def _bloques_item(v, esc, it):
         def f(px, yy, bw):
             v._texto(px, yy + 8 * esc, etiqueta, 10, tema.TEXTO)
             if detalle:
-                v._texto(px, yy + 23 * esc, detalle[:int(bw / (8 * esc * 0.6)) - 8], 8, tema.TENUE)
+                v._texto(px, yy + 23 * esc, detalle, 8, tema.TENUE, ancho=int(bw - 56 * esc))
             accion = ("ajalt", clave)
             v._interruptor(px + bw, yy + 12 * esc, bool(A_(clave)), accion, esc)
             v.zonas.append((px, yy, px + bw, yy + 30 * esc, accion))
-        return [(38 * esc, f)]
+        extra = max(0, _lineas_de(detalle, _bw(v) - 56 * esc, 8, esc) - 1) * 12 if detalle else 0
+        return [((38 + extra) * esc, f)]
     if tipo == "opc":
         _, clave, etiqueta, nombres = it
         ops = ajustes.OPCIONES[clave]
@@ -360,7 +390,7 @@ def _bloques_item(v, esc, it):
             if detalle:
                 v._texto(px, yy + 22 * esc + (_n * 26 + 4) * esc, detalle, 8, tema.TENUE, ancho=int(bw))
         _, filas = _filas_chips(esc, _bw(v), textos)
-        return [((34 + 26 * filas + (14 if detalle else 0)) * esc, f)]
+        return [((34 + 26 * filas + (6 + 12 * _lineas_de(detalle, _bw(v), 8, esc) if detalle else 0)) * esc, f)]
     if tipo == "laybool":
         _, clave, etiqueta = it
 
@@ -557,6 +587,52 @@ def _f_opciones_widget(v, esc):
                 x = v._chip(x, yy + 22 * esc, n, ("lay", "estilo", w["id"], n), (w["opts"].get("estilo") or ajustes.obtener("sistema_estilo")) == n) + 4 * esc
         bloques.append((56 * esc, estilo_s))
 
+    if w["tipo"] not in layout.CONTENEDORES:
+        from . import orden
+        cond = orden.condicion_de(w)
+
+        def aparece(px, yy, bw):
+            v._texto(px, yy + 8 * esc, "Aparece", 10, tema.TEXTO)
+            sel = (w["opts"].get("aparece") or "siempre")
+            x = px
+            x = v._chip(x, yy + 22 * esc, "siempre", ("ord", "opt", w["id"], "aparece", "siempre"), sel == "siempre") + 6 * esc
+            x = v._chip(x, yy + 22 * esc, "solo si hay algo", ("ord", "opt", w["id"], "aparece", "si_hay"), sel == "si_hay") + 6 * esc
+            if sel == "si_hay":
+                v._texto(x, yy + 33 * esc, ("cuando " + orden.CONDICIONES[cond][1]) if cond else "elige una condición abajo", 8, tema.TENUE)
+        bloques.append((56 * esc, aparece))
+        if (w["opts"].get("aparece") == "si_hay") or cond is None:
+            nombres_c = list(orden.CONDICIONES)
+            textos_c = [orden.CONDICIONES[n][1] for n in nombres_c]
+
+            def condi(px, yy, bw):
+                v._texto(px, yy + 6 * esc, "Condición de «solo si hay algo»", 10, tema.TEXTO)
+                pos, _n = _filas_chips(esc, bw, textos_c)
+                for fila, x, i, ww in pos:
+                    v._chip(px + x, yy + 22 * esc + fila * 26 * esc, textos_c[i], ("ord", "opt", w["id"], "condicion", nombres_c[i]), cond == nombres_c[i], None, ww)
+            _, filas = _filas_chips(esc, _bw(v), textos_c)
+            bloques.append(((30 + 26 * filas) * esc, condi))
+
+        def plegado(px, yy, bw):
+            v._texto(px, yy + 8 * esc, "Plegable", 10, tema.TEXTO)
+            v._texto(px, yy + 23 * esc, "se encoge a una línea y se abre al tocarlo", 8, tema.TENUE)
+            on = bool(w["opts"].get("plegado"))
+            acc = ("ord", "opt", w["id"], "plegado", not on)
+            v._interruptor(px + bw, yy + 12 * esc, on, acc, esc)
+            v.zonas.append((px + bw - 40 * esc, yy, px + bw, yy + 28 * esc, acc))
+        bloques.append((40 * esc, plegado))
+        if not layout.en_contenedor(w):
+            ps = layout.paginas_de(lay) + ["*"]
+            tx = [("todas" if p == "*" else p) for p in ps]
+
+            def pagina(px, yy, bw):
+                v._texto(px, yy + 8 * esc, "Página", 10, tema.TEXTO)
+                actual = layout.pagina_de(w, lay) if w["opts"].get("pagina") != "*" else "*"
+                pos, _n = _filas_chips(esc, bw, tx)
+                for fila, x, i, ww in pos:
+                    v._chip(px + x, yy + 22 * esc + fila * 26 * esc, tx[i], ("ord", "opt", w["id"], "pagina", ps[i]), actual == ps[i], None, ww)
+            _, filas = _filas_chips(esc, _bw(v), tx)
+            bloques.append(((30 + 26 * filas) * esc, pagina))
+
     def acciones(px, yy, bw):
         x = px
         x = v._chip(x, yy, "al frente", ("lay", "frente", w["id"]), False) + 6 * esc
@@ -673,7 +749,8 @@ def _f_nav_orden(v, esc):
 
 
 def _f_atajos(v, esc):
-    nombres = {"buscador": "Buscador de comandos", "editor": "Editor de diseño", "tv": "Pantalla completa", "deshacer": "Deshacer", "rehacer": "Rehacer"}
+    nombres = {"buscador": "Buscador de comandos", "editor": "Editor de diseño", "tv": "Pantalla completa", "deshacer": "Deshacer", "rehacer": "Rehacer",
+               "cajon": "Abrir el cajón", "pagina_sig": "Página siguiente", "pagina_ant": "Página anterior"}
     at = ajustes.obtener("atajos")
     bloques = []
     for clave, etq in nombres.items():
@@ -754,24 +831,169 @@ def _f_sync(v, esc):
     return [(90 * esc, f)]
 
 
+def _lineas_de(texto, ancho, tam, esc):
+    """Cuantas lineas ocupara un texto que se parte a este ancho (estimado con el tamaño de letra real)."""
+    px = max(7, int(tam * esc * ajustes.obtener("texto_escala") / 100.0))
+    por_linea = max(8, int(ancho / (px * 0.7)))
+    return max(1, -(-len(str(texto)) // por_linea))
+
+
 def _f_extensiones(v, esc):
     lista = extensiones.listar()
     bloques = []
     if not lista:
-        bloques.append((30 * esc, lambda px, yy, bw: v._texto(px, yy + 8 * esc, "No hay extensiones instaladas.", 9, tema.TENUE)))
+        bloques.append((30 * esc, lambda px, yy, bw: v._texto(px, yy + 8 * esc, "No hay extensiones instaladas. Mira la galería aquí abajo.", 9, tema.TENUE, ancho=int(bw))))
+        bloques[-1] = (44 * esc, bloques[-1][1])
     for n, tp, perm in lista:
-        def f(px, yy, bw, n=n, tp=tp, perm=perm):
-            on = extensiones.activa(n)
-            v._texto(px, yy + 8 * esc, n, 10, tema.TEXTO)
-            v._texto(px, yy + 23 * esc, f"{tp} · " + ("permisos: " + ", ".join(perm) if perm else "sin permisos"), 8, tema.AZUL_CLARO if perm else tema.TENUE)
-            v._chip(px + bw - 62 * esc, yy - 2 * esc, "quitar", ("orden", f"quita la extension {n}"), False, None, 62 * esc)
-            etq, orden = ("Activada", f"desactiva la extension {n}") if on else ("Desactivada", f"activa la extension {n}")
-            v._chip(px + bw - 62 * esc - 94 * esc, yy - 2 * esc, etq, ("orden", orden), on, tema.OK if on else None, 88 * esc)
-        bloques.append((44 * esc, f))
+        inf = extensiones.info(n) or {}
+
+        sub = f"{inf.get('tipo', '')} · {inf.get('resumen', '')} · " + ("permisos: " + ", ".join(perm) if perm else "sin permisos")
+        desc = inf.get("descripcion") or ""
+        ls, ld = _lineas_de(sub, _bw(v), 8, esc), (_lineas_de(desc, _bw(v), 8, esc) if desc else 0)
+
+        def f(px, yy, bw, n=n, inf=inf, perm=perm, sub=sub, desc=desc, ls=ls):
+            on = inf.get("activa")
+            v._texto(px, yy + 8 * esc, n, 10, tema.TEXTO, negrita=True)
+            etq, acc = ("Activada", ("ext", "desactivar", n)) if on else ("Desactivada", ("ext", "activar", n))
+            v._chip(px, yy + 22 * esc, etq, acc, bool(on), tema.OK if on else None, 92 * esc)
+            v._chip(px + 98 * esc, yy + 22 * esc, "quitar", ("orden", f"quita la extension {n}"), False, None, 62 * esc)
+            v._texto(px, yy + 60 * esc, sub, 8, tema.AZUL_CLARO if perm else tema.TENUE, ancho=int(bw))
+            if desc:
+                v._texto(px, yy + (62 + 12 * ls) * esc, desc, 8, tema.TENUE, ancho=int(bw))
+        bloques.append(((60 + 12 * ls + (4 + 12 * ld if desc else 0) + 10) * esc, f))
     for e in extensiones.errores[:3]:
-        bloques.append((28 * esc, lambda px, yy, bw, e=e: v._texto(px, yy + 8 * esc, "Rechazada: " + e, 8, tema.ROJO_CLARO, ancho=int(bw))))
+        bloques.append((30 * esc, lambda px, yy, bw, e=e: v._texto(px, yy + 4 * esc, "Rechazada: " + e, 8, tema.ROJO_CLARO, ancho=int(bw))))
     bloques.append((34 * esc, lambda px, yy, bw: (v._chip(px, yy, "Volver a buscar", ("ext_scan",), False, None, 110 * esc),
                                                   v._chip(px + 118 * esc, yy, "Instalar…", ("prefill", "importa extension "), False, None, 80 * esc))))
+    return bloques
+
+
+def _f_galeria_ext(v, esc):
+    from . import bloques_ext
+    gal = bloques_ext._memo("galeria", 3.0, extensiones.galeria) or []
+    falta = [g for g in gal if not g[3]]
+    bloques = []
+    if not gal:
+        return [(30 * esc, lambda px, yy, bw: v._texto(px, yy + 8 * esc, "La galería está vacía (core/interfaz/galeria).", 9, tema.TENUE))]
+    if not falta:
+        bloques.append((30 * esc, lambda px, yy, bw: v._texto(px, yy + 8 * esc, "Ya instalaste todo lo de la galería. ✔", 9, tema.TENUE)))
+    for n, desc, tp, _ya in falta:
+        txt = f"{tp} · {desc}"
+        lg = _lineas_de(txt, _bw(v), 8, esc)
+
+        def f(px, yy, bw, n=n, txt=txt):
+            v._texto(px, yy + 8 * esc, n, 10, tema.TEXTO, negrita=True)
+            v._texto(px, yy + 30 * esc, txt, 8, tema.TENUE, ancho=int(bw))
+            v._chip(px + bw - 72 * esc, yy - 2 * esc, "Instalar", ("ext", "instalar", n), False, tema.MORADO_CLARO, 72 * esc)
+        bloques.append(((34 + 12 * lg + 10) * esc, f))
+    if len(falta) > 1:
+        bloques.append((34 * esc, lambda px, yy, bw: v._chip(px, yy, f"Instalar las {len(falta)}", ("ext", "instalar_todas"), False, None, 130 * esc)))
+    return bloques
+
+
+def _f_crear_ext(v, esc):
+    def f(px, yy, bw):
+        v._texto(px, yy + 8 * esc, "Crear una extensión (deja una plantilla lista para editar)", 9, tema.TEXTO)
+        x = px
+        for etq, orden in (("Widget", "crea una extension widget llamada "), ("Tema", "crea una extension tema llamada "),
+                           ("Paquete de ejemplos", "crea una extension ejemplos llamada ")):
+            a = (len(etq) * 6.6 + 20) * esc
+            if x > px and x + a > px + bw:
+                break
+            v._chip(x, yy + 22 * esc, etq, ("prefill", orden), False, None, a)
+            x += a + 6 * esc
+    return [(54 * esc, f)]
+
+
+def _f_paginas(v, esc):
+    from . import orden
+    lay = perfiles.layout_actual()
+    pag = orden.pagina_actual(lay)
+    bloques = []
+    for p in layout.paginas_de(lay):
+        def f(px, yy, bw, p=p):
+            n = sum(1 for w in lay["widgets"] if w["visible"] and not w.get("ventana") and not layout.en_contenedor(w) and layout.pagina_de(w, lay) == p)
+            v._texto(px, yy + 8 * esc, p + ("   (la que ves)" if p == pag else ""), 10, tema.TEXTO, negrita=p == pag)
+            v._texto(px, yy + 23 * esc, f"{n} panel(es)", 8, tema.TENUE)
+            x = px + bw
+            if len(layout.paginas_de(lay)) > 1:
+                x = v._chip(x - 56 * esc, yy + 1 * esc, "borrar", ("ord", "pagina_borrar", p), False, tema.ROJO_CLARO, 56 * esc) - 6 * esc
+            v._chip(x - 48 * esc, yy + 1 * esc, "ir", ("ord", "pagina", p), p == pag, None, 44 * esc)
+        bloques.append((38 * esc, f))
+    return bloques
+
+
+def _f_auto_lista(v, esc):
+    """Los paneles que ahora mismo aparecen solos, con el motivo."""
+    from . import orden
+    lay = perfiles.layout_actual()
+    ws = [w for w in lay["widgets"] if (w.get("opts") or {}).get("aparece") == "si_hay"]
+
+    def f(px, yy, bw):
+        if not ws:
+            v._texto(px, yy + 6 * esc, "Ninguno todavía. Marca uno en Widgets > Ajustes de un componente > Aparece.", 8, tema.TENUE, ancho=bw)
+            return
+        for k, w in enumerate(ws):
+            c = orden.condicion_de(w)
+            motivo = orden.CONDICIONES[c][1] if c else "sin condición (se ve siempre)"
+            v._texto(px, yy + k * 20 * esc + 4 * esc, layout.nombre_de(w["tipo"]) + "  →  cuando " + motivo, 9, tema.TEXTO if c else tema.TENUE)
+    return [(max(30, 20 * max(1, len(ws)) + 6) * esc, f)]
+
+
+def _f_contenedores(v, esc):
+    from . import orden
+    lay = perfiles.layout_actual()
+    bloques = []
+    for c in [w for w in lay["widgets"] if w["tipo"] in layout.CONTENEDORES]:
+        otros = [w for w in lay["widgets"] if w["tipo"] not in layout.CONTENEDORES and w["id"] != c["id"]]
+        miem = set(c["opts"].get("miembros", []))
+        textos = [layout.nombre_de(w["tipo"]) for w in otros]
+
+        def f(px, yy, bw, c=c, otros=otros, miem=miem, textos=textos):
+            v._texto(px, yy + 6 * esc, ("Tarjeta con pestañas" if c["tipo"] == "pestanas" else "Carrusel") + f" ({c['id']}): toca para meter o sacar",
+                     9, tema.TEXTO, negrita=True)
+            pos, _n = _filas_chips(esc, bw, textos)
+            for fila, x, i, w in pos:
+                v._chip(px + x, yy + 22 * esc + fila * 26 * esc, textos[i], ("ord", "miembro", c["id"], otros[i]["id"]), otros[i]["id"] in miem, None, w)
+        _, filas = _filas_chips(esc, _bw(v), textos)
+        bloques.append(((30 + 26 * filas) * esc, f))
+    if not bloques:
+        bloques.append((30 * esc, lambda px, yy, bw: v._texto(px, yy + 6 * esc, "No tienes ninguna. Crea una con los botones de arriba.", 8, tema.TENUE)))
+    return bloques
+
+
+def _f_uso_paneles(v, esc):
+    from . import orden
+    uso = ajustes.obtener("orden_uso") or {}
+    lay = perfiles.layout_actual()
+    tipos = sorted({w["tipo"] for w in lay["widgets"] if w["tipo"] not in orden.IMPRESCINDIBLES}, key=lambda t: orden.uso_de(t))
+
+    def f(px, yy, bw):
+        v._texto(px, yy + 4 * esc, "Clics reales (los menos usados se proponen primero):", 8, tema.TENUE)
+        txt = "   ".join(f"{layout.nombre_de(t)} {orden.uso_de(t)}" for t in tipos[:8]) or "aún sin datos"
+        v._texto(px, yy + 22 * esc, txt, 8, tema.TEXTO, ancho=bw)
+        v._chip(px, yy + 54 * esc, "borrar el conteo", ("orden", "olvida el conteo de clics"), False, None, 120 * esc)
+    return [(84 * esc, f)]
+
+
+def _f_modos(v, esc):
+    from . import orden
+    reglas = [r for r in ajustes.obtener("orden_horarios")]
+    frases = list((ajustes.obtener("orden_frases") or {}).items())
+    bloques = []
+    for k, txt in enumerate(reglas):
+        def f(px, yy, bw, k=k, txt=txt):
+            r = orden.parsear_regla(txt)
+            v._texto(px, yy + 8 * esc, (f"De {r[0] // 60:02d}:{r[0] % 60:02d} a {r[1] // 60:02d}:{r[1] % 60:02d}  →  perfil «{r[2]}»" if r else txt), 10, tema.TEXTO)
+            v._chip(px + bw - 56 * esc, yy + 1 * esc, "quitar", ("ord", "regla_borrar", k), False, tema.ROJO_CLARO, 56 * esc)
+        bloques.append((32 * esc, f))
+    for fr, perfil in frases:
+        def f2(px, yy, bw, fr=fr, perfil=perfil):
+            v._texto(px, yy + 8 * esc, f"Al decir «{fr}»  →  perfil «{perfil}»", 10, tema.TEXTO)
+            v._chip(px + bw - 56 * esc, yy + 1 * esc, "quitar", ("ord", "frase_borrar", fr), False, tema.ROJO_CLARO, 56 * esc)
+        bloques.append((32 * esc, f2))
+    if not bloques:
+        bloques.append((30 * esc, lambda px, yy, bw: v._texto(px, yy + 6 * esc, "Sin modos automáticos. Los perfiles ya existen (Perfiles); aquí eliges cuándo se activan.", 8, tema.TENUE, ancho=bw)))
     return bloques
 
 
@@ -780,7 +1002,9 @@ _FN = {"temas": _f_temas, "colores_tema": _f_colores_tema, "temas_horario": _f_t
        "pantallas": _f_pantallas, "celular": _f_celular, "estados_colores": _f_estados_colores, "fondo": _f_fondo,
        "sistema_ocultar": _f_sistema_ocultar, "nav_orden": _f_nav_orden, "atajos": _f_atajos,
        "rendimiento_info": _f_rendimiento_info, "perfiles": _f_perfiles, "archivos_export": _f_archivos_export,
-       "puntos": _f_puntos, "sync": _f_sync, "extensiones": _f_extensiones}
+       "paginas": _f_paginas, "auto_lista": _f_auto_lista, "contenedores": _f_contenedores, "uso_paneles": _f_uso_paneles,
+       "modos": _f_modos, "puntos": _f_puntos, "sync": _f_sync, "extensiones": _f_extensiones,
+       "galeria_ext": _f_galeria_ext, "crear_ext": _f_crear_ext}
 
 
 # ------------------------------------------------------------------ acciones

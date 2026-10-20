@@ -1,0 +1,2 @@
+# Una fecha por línea: «DD-MM Nombre». Ejemplo:
+# 14-10 Cumpleaños de Ana

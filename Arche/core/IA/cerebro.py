@@ -173,11 +173,33 @@ def _contexto_web(consulta, n=4, leer_primera=True):
     return "\n\n".join(trozos), resultados
 
 
+def _responder_primero_local(pregunta):
+    """Modo aprendiz (aprendiz.py): contesta Ollama y la nube revisa en segundo plano. None -> flujo normal."""
+    try:
+        from core.IA import aprendiz
+        if not aprendiz.debe_responder_local(pregunta):
+            return None
+        texto = _ollama(pregunta)
+        if not aprendiz.respuesta_local_usable(texto):
+            return None                      # Ollama fallo: contesta la nube como antes
+        _historial.append({"role": "user", "content": pregunta})
+        _historial.append({"role": "assistant", "content": texto})
+        _recortar()
+        aprendiz.revisar(pregunta, texto)
+        # cacheable=False: lo guarda la revision (su respuesta si coincide, la de la nube si no)
+        return {"texto": texto, "fuente": "ollama", "aviso": "", "web": False, "cacheable": False}
+    except Exception:
+        return None
+
+
 def responder(pregunta):
     """
     Respuesta a una charla normal. Devuelve dict:
       texto, fuente ('nube'|'ollama'), aviso, web (bool), cacheable (bool)
     """
+    local = _responder_primero_local(pregunta)
+    if local is not None:
+        return local
     contexto, resultados = None, []
     if necesita_internet(pregunta) and web.hay_internet():
         contexto, resultados = _contexto_web(pregunta)
@@ -287,7 +309,14 @@ _R_NOTICIAS = re.compile(r"^(?:dame\s+)?(?:las\s+)?noticias(?:\s+(?:de|del|sobre
 _R_PROBAR = re.compile(r"^(?:prueba|probar|testea|test|revisa|diagnostica)\s+(?:la\s+)?(?:nube|conexion\s+(?:a\s+)?(?:la\s+)?nube)$|"
                        r"^(?:la\s+)?nube\s+(?:funciona|sirve)$|^funciona\s+la\s+nube$")
 _R_TAREA = re.compile(r"^(no\s+)?(?:uses?|usa)\s+(?:la\s+)?nube\s+para\s+(?:el\s+|la\s+|los\s+|las\s+)?"
-                      r"(programar|codigo|autocodificar(?:te|se)?|autocodificacion|estudiar|estudio|tareas)$")
+                      r"(programar|codigo|autocodificar(?:te|se)?|autocodificacion|estudiar|estudio|tareas|examen|examenes)$")
+_R_APRENDIZ = re.compile(r"^(?:responde|contesta)\s+(?:tu\s+primero|tu\s+solo|tu\s+mismo|tu)$|"
+                         r"^modo\s+aprendiz\s+(?:on|activado)$|^activa\s+(?:el\s+)?modo\s+aprendiz$|"
+                         r"^aprende\s+respondiendo$|"
+                         r"^(?:responde|contesta)\s+(?:la\s+)?nube(?:\s+primero)?$|^que\s+responda\s+la\s+nube$|"
+                         r"^modo\s+aprendiz\s+(?:off|apagado)$|^desactiva\s+(?:el\s+)?modo\s+aprendiz$")
+_R_APRENDIZ_ON = re.compile(r"^(?:responde|contesta)\s+tu|^modo\s+aprendiz\s+(?:on|activado)|^activa|^aprende")
+_R_APRENDIZ_ESTADO = re.compile(r"^estado\s+(?:del\s+)?(?:modo\s+)?aprendiz$|^como\s+va\s+(?:el\s+)?modo\s+aprendiz$")
 _R_TAREA_ESTADO = re.compile(r"^(?:para\s+que|en\s+que)\s+(?:cosas\s+)?(?:usas|uso)\s+(?:la\s+)?nube$|"
                              r"^que\s+(?:hace|hago)\s+(?:con\s+)?la\s+nube$|^estado\s+de\s+las\s+tareas\s+de\s+la\s+nube$")
 _R_RESPALDO = re.compile(r"^(no\s+)?(?:uses?|usa|activa|desactiva)\s+(?:la\s+|una\s+)?(?:otra\s+)?nube\s+(?:de\s+)?(?:respaldo|reserva)$|"
@@ -317,8 +346,14 @@ def interpretar(comando):
         return ("nube_respaldo", not apagar)
     m = _R_TAREA.match(t)
     if m:
-        tarea = "codigo" if m.group(2).startswith(("program", "codigo", "autocod")) else "estudio"
+        g = m.group(2)
+        tarea = ("codigo" if g.startswith(("program", "codigo", "autocod"))
+                 else "examen" if g.startswith("examen") else "estudio")
         return ("nube_tarea", (tarea, not m.group(1)))
+    if _R_APRENDIZ_ESTADO.match(t):
+        return ("aprendiz_estado", None)
+    if _R_APRENDIZ.match(t):
+        return ("aprendiz", bool(_R_APRENDIZ_ON.match(t)))
     if _R_TAREA_ESTADO.match(t):
         return ("nube_tareas_estado", None)
     if _R_BORRAR_CLAVE.match(t):
@@ -539,14 +574,31 @@ def manejar(comando):
                  "Dime 'no uses la nube para programar' para quitarlo.")
         elif tarea == "codigo":
             _msg("Listo: el código lo escribe solo Ollama (nada de tu código sale de tu PC).")
+        elif tarea == "examen":
+            _msg("Listo: la nube ayuda en el examen (ejercicios más difíciles y confirmar fallos)." if valor
+                 else "Listo: el examen lo hago solo con Ollama.")
         elif valor:
             _msg("Listo: el modo estudio y las tareas de texto también usan la nube (con Ollama de respaldo).")
         else:
             _msg("Listo: el estudio y las tareas de texto las hace solo Ollama.")
+    elif intencion == "aprendiz":
+        from core.IA import aprendiz
+        aprendiz.fijar(arg)
+        if arg:
+            _msg("Listo: respondo yo primero con mi modelo local. La nube solo contesta directo si pides datos de "
+                 "hoy (noticias, clima, precios) o si yo fallo; en segundo plano revisa mis respuestas y aprendo "
+                 "de las diferencias. Dime 'estado aprendiz' para ver cómo voy.")
+        else:
+            _msg("Listo: vuelve a contestar la nube cuando hay internet (Ollama de respaldo).")
+    elif intencion == "aprendiz_estado":
+        from core.IA import aprendiz
+        _msg(aprendiz.resumen_texto())
     elif intencion == "nube_tareas_estado":
-        from core.IA import nube_tareas
+        from core.IA import nube_tareas, aprendiz
         _msg("Así uso la nube:")
-        _msg("Charla y órdenes: con la nube cuando hay internet (Ollama de respaldo).")
+        _msg("Charla: " + ("contesto yo primero con Ollama y la nube revisa después (modo aprendiz)."
+                           if aprendiz.activo() else "con la nube cuando hay internet (Ollama de respaldo)."))
+        _msg("Datos de hoy (noticias, clima, precios): siempre con la nube e internet.")
         for linea in nube_tareas.resumen_texto():
             _msg(linea)
         _msg("Mis redes neuronales (el clasificador) siguen entrenándose y corriendo en tu PC; "

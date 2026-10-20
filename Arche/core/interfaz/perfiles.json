@@ -100,6 +100,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -363,6 +366,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -636,6 +642,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -879,6 +888,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -1032,6 +1044,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -1185,6 +1200,9 @@
       "ventana": null,
       "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -1330,13 +1348,15 @@
       "y": 3,
       "w": 6,
       "h": 5,
-      "visible": true,
+      "visible": false,
       "opacidad": 100,
       "color": "",
       "titulo": "",
       "nivel": "normal",
       "ventana": null,
-      "opts": {}
+      "opts": {
+       "plegado": true
+      }
      },
      {
       "id": "notificaciones",
@@ -1345,7 +1365,7 @@
       "y": 8,
       "w": 6,
       "h": 8,
-      "visible": true,
+      "visible": false,
       "opacidad": 100,
       "color": "",
       "titulo": "",
@@ -1412,7 +1432,40 @@
       "nivel": "normal",
       "ventana": null,
       "opts": {}
+     },
+     {
+      "id": "redes",
+      "tipo": "redes",
+      "x": 0,
+      "y": 8,
+      "w": 6,
+      "h": 6,
+      "visible": true,
+      "opacidad": 100,
+      "color": "",
+      "titulo": "",
+      "nivel": "normal",
+      "ventana": null,
+      "opts": {}
+     },
+     {
+      "id": "procesos",
+      "tipo": "procesos",
+      "x": 0,
+      "y": 3,
+      "w": 6,
+      "h": 5,
+      "visible": true,
+      "opacidad": 100,
+      "color": "",
+      "titulo": "",
+      "nivel": "normal",
+      "ventana": null,
+      "opts": {}
      }
+    ],
+    "paginas": [
+     "Inicio"
     ]
    },
    "ajustes": {
@@ -1420,11 +1473,11 @@
     "intencion_en_vivo": true,
     "ambiente_auto": false,
     "ambiente_minutos": 5,
-    "tema": "holografico",
+    "tema": "azul",
     "tema_horario": false,
     "tema_dia": "neon",
     "tema_noche": "arche",
-    "fuente": "",
+    "fuente": "Arial",
     "fondo": "",
     "fondo_oscuridad": 55,
     "fondo_desenfoque": 0,
@@ -1449,7 +1502,7 @@
     "estado_indicador": "animacion",
     "estado_colores": {},
     "mascota": true,
-    "mascota_personaje": "gato",
+    "mascota_personaje": "robot",
     "mascota_tamano": 100,
     "mascota_opacidad": 100,
     "mascota_visibilidad": "siempre",
@@ -1489,6 +1542,17 @@
     "flotante_tam": 150,
     "bandeja": false,
     "minimizar_sin_foco": false,
+    "orden_activo": true,
+    "orden_auto": true,
+    "orden_compactar": true,
+    "orden_rellenar": true,
+    "orden_plegar_boton": "al_pasar",
+    "orden_plegar_auto": 20,
+    "orden_carrusel_seg": 8,
+    "orden_barra_paginas": "auto",
+    "orden_boton_cajon": true,
+    "orden_cajon_fijos": 3,
+    "orden_tope": 10,
     "redes_estilo": "diagrama",
     "redes_neuronas": 10,
     "redes_conexiones": 55,
@@ -1509,7 +1573,7 @@
     "redes_entrenar": "manual",
     "redes_deshacer_segundos": 12,
     "notif_segundos": 6,
-    "notif_posicion": "arriba",
+    "notif_posicion": "abajo",
     "notif_exito": true,
     "notif_error": true,
     "notif_info": true,

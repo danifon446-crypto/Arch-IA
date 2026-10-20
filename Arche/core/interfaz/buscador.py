@@ -29,6 +29,13 @@ ACCIONES = (
     ("Lista de comandos de Arché", "", ("orden", "comandos"), "ayuda comandos"),
     ("Ver redes neuronales (pantalla grande)", "diagrama con ejemplos reales", ("redes", "abrir"), "redes neuronales neuronas ejemplos agregar entrenar"),
     ("Entrenar las redes neuronales", "en segundo plano", ("redes", "entrenar", "todas"), "reentrenar clasificador"),
+    ("Abrir el cajón", "extensiones y paneles guardados · Ctrl+J", ("ord", "cajon"), "cajon extensiones paneles guardados"),
+    ("Página siguiente", "Alt+→", ("ord", "pagina_sig"), "pagina siguiente pantalla"),
+    ("Página anterior", "Alt+←", ("ord", "pagina_ant"), "pagina anterior pantalla"),
+    ("Ordenar mi pantalla", "páginas, tarjetas, cajón; pide confirmación", ("orden", "ordena mi pantalla"), "organizar ordenar limpiar pantalla"),
+    ("Plegar todos los paneles", "", ("orden", "pliega todo"), "colapsar encoger"),
+    ("Desplegar todos los paneles", "", ("orden", "despliega todo"), "expandir"),
+    ("Revisar el tope de paneles", "", ("orden", "revisa el tope"), "limite paneles"),
     ("Escribir una nota", "", ("prefill", "nota: "), "apuntar recordar"),
 )
 
@@ -54,6 +61,15 @@ def entradas(v=None):
     for t in layout.tipos():
         if t not in presentes and not any(w["tipo"] == t for w in lay["widgets"]):
             sal.append({"texto": f"Agregar {layout.nombre_de(t)}", "detalle": layout.info(t)[7][:50], "accion": ("lay", "add", t), "claves": "widget componente"})
+    try:
+        from . import orden
+        for p in layout.paginas_de(lay):
+            sal.append({"texto": f"Ir a la página: {p}", "detalle": "página", "accion": ("ord", "pagina", p), "claves": "pagina pantalla"})
+        for t, n, det, es_ext in orden.tipos_del_cajon()[:30]:
+            sal.append({"texto": f"Ver en el cajón: {n}", "detalle": ("extensión" if es_ext else "panel") + " temporal",
+                        "accion": ("ord", "cajon_ver", t), "claves": "cajon extension panel"})
+    except Exception:
+        pass
     for cat, nombre in centro.CATEGORIAS:
         for it in centro.items_de(cat):
             if it[0] == "bool":

@@ -1,0 +1,15 @@
+{
+  "arche_extension": 1,
+  "nombre": "Diccionario de apps",
+  "tipo": "alias",
+  "permisos": [
+    "comandos"
+  ],
+  "descripcion": "Qué significa «mi editor» o «mi música» en tu equipo. Cámbialas por tus programas.",
+  "alias": {
+    "abre mi editor": "abre visual studio code",
+    "abre mi musica": "abre spotify",
+    "abre mi navegador": "abre chrome",
+    "abre mi terminal": "abre cmd"
+  }
+}

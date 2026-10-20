@@ -1,0 +1,18 @@
+{
+  "arche_extension": 1,
+  "nombre": "Fechas importantes",
+  "tipo": "widget",
+  "titulo": "Fechas importantes",
+  "ancho": 6,
+  "alto": 4,
+  "descripcion": "Cumpleaños y fechas desde fechas.txt (líneas «14-10 Cumpleaños de Ana»); muestra las próximas.",
+  "permisos": [
+    "archivos_propios"
+  ],
+  "bloques": [
+    {
+      "tipo": "fechas",
+      "archivo": "fechas.txt"
+    }
+  ]
+}

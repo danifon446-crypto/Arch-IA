@@ -1,0 +1,19 @@
+{
+  "arche_extension": 1,
+  "nombre": "Explícame",
+  "tipo": "widget",
+  "titulo": "Cómo te entendí",
+  "ancho": 8,
+  "alto": 4,
+  "descripcion": "Muestra por qué Arché eligió una intención: capa que decidió y confianza de cada red.",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "explica",
+      "max": 4
+    }
+  ]
+}

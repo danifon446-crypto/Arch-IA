@@ -1,0 +1,19 @@
+{
+  "arche_extension": 1,
+  "nombre": "Equipo y temperatura",
+  "tipo": "widget",
+  "titulo": "Equipo",
+  "ancho": 6,
+  "alto": 3,
+  "descripcion": "Temperatura, CPU y RAM con aviso si se calienta (pensado para la Raspberry Pi).",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "temperatura",
+      "max": 5
+    }
+  ]
+}

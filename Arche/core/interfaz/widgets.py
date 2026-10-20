@@ -570,7 +570,14 @@ def w_redes(v, wd, x, y, w, h, esc):
     vista_redes.dibujar_widget(v, wd, x, y, w, h, esc)
 
 
+def w_contenedor(v, wd, x, y, w, h, esc):
+    """Tarjeta con pestañas o carrusel (ver orden.py)."""
+    from . import orden
+    orden.dibujar_contenedor(v, wd, x, y, w, h, esc)
+
+
 TABLA = {
+    "pestanas": w_contenedor, "carrusel": w_contenedor,
     "sistema": w_sistema, "graficas": w_graficas, "procesos": w_procesos, "modelo": w_modelo, "redes": w_redes,
     "estado_asistente": w_estado_asistente, "actividad": w_actividad, "historial": w_historial,
     "registro": w_registro, "mejora": w_mejora, "estadisticas": w_estadisticas, "reloj": w_reloj,

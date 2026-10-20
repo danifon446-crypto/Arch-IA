@@ -1,11 +1,11 @@
 {
-  "automatica": true,
+  "automatica": false,
   "estilo_voz": "geometrica",
-  "tema": "holografico",
+  "tema": "azul",
   "fondo_oscuridad": 55,
   "fondo": "",
   "mascota": true,
-  "mascota_personaje": "gato",
+  "mascota_personaje": "robot",
   "fluidez": "alta",
   "sonidos": false,
   "escucha": false,
@@ -33,13 +33,13 @@
   "navegacion": "pestanas",
   "nav_orden": [],
   "notif_segundos": 6,
-  "notif_posicion": "arriba",
+  "notif_posicion": "abajo",
   "ui_escala": 100,
   "texto_escala": 100,
   "alto_contraste": false,
   "perfil": "entretenimiento",
   "ext_tema_previo": "holografico",
-  "fuente": "",
+  "fuente": "Arial",
   "tema_noche": "arche",
   "tema_dia": "neon",
   "sistema_actualizacion": 1,
@@ -115,5 +115,12 @@
   "rend_sugerir": true,
   "ctx_progreso": false,
   "ctx_resultados": false,
-  "ctx_reposo": false
+  "ctx_reposo": false,
+  "orden_uso": {
+    "redes": 9,
+    "voz": 1,
+    "panel": 56,
+    "reloj": 2,
+    "actividad": 2
+  }
 }

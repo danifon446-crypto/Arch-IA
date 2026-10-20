@@ -1,0 +1,14 @@
+{
+  "arche_extension": 1,
+  "nombre": "Apodos y contactos",
+  "tipo": "alias",
+  "permisos": [
+    "comandos"
+  ],
+  "descripcion": "Tus apodos para Arché: «llama a mamá», «el jefe». Edita el archivo y pon los tuyos.",
+  "alias": {
+    "llama a mami": "llama a mamá",
+    "escribele a mama {x}": "manda mensaje a mamá {x}",
+    "escribele al jefe {x}": "manda mensaje al jefe {x}"
+  }
+}

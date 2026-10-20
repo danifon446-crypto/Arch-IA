@@ -1,0 +1,15 @@
+{
+  "arche_extension": 1,
+  "nombre": "Comandos propios",
+  "tipo": "alias",
+  "permisos": [
+    "comandos"
+  ],
+  "descripcion": "Frases cortas tuyas que lanzan órdenes largas o rutinas: «a trabajar», «buenas noches».",
+  "alias": {
+    "a trabajar": "modo trabajo",
+    "buenas noches": "modo noche",
+    "a estudiar": "modo estudio",
+    "pon {x} en mi musica": "reproduce {x}"
+  }
+}

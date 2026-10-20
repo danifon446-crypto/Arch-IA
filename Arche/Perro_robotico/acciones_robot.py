@@ -1,8 +1,8 @@
 """Modulo del perro robotico para Arche.
 
-Arche es el cerebro: este modulo traduce frases en ordenes HTTP para el ESP32
+Arche es el cerebro: este modulo traduce frases en ordenes para el ESP32
 y, en modo perro, DECIDE solo que hace el perro (estados de animo + energia).
-El ESP32 solo ejecuta las acciones (y mueve la cara en el celular).
+El ESP32 solo ejecuta las acciones.
 Sigue la misma regla que los demas modulos con reglas propias: si la frase no
 es del robot devuelve None y Arche pasa al siguiente modulo.
 
@@ -19,7 +19,7 @@ Para que la camara (u otro modulo de Arche) haga reaccionar al perro:
     from acciones_robot import reaccionar
     reaccionar("persona")        # "persona", "dueno" o "desconocido"
 
-El servo se mueve por MQTT (necesita: pip install paho-mqtt).
+El servo y las acciones se mueven por MQTT (necesita: pip install paho-mqtt).
 Todo lo demas usa solo la libreria estandar de Python.
 """
 
@@ -43,25 +43,31 @@ except ImportError:
 RUTA_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "robot_config.json")
 CONFIG_BASE = {"ip": "", "puerto": 80, "timeout": 3.0}
 
-# ---- MQTT (servo) -----------------------------------------------------------
-# Debe ser el mismo broker y topico que usa el ESP32.
-# broker.emqx.io es publico: usa un topico dificil de adivinar (ej. "arche/servo/daniel-x7k2").
+# ---- MQTT (servo y acciones) ------------------------------------------------
+# Debe ser el mismo broker y topicos que usa el ESP32.
+# broker.emqx.io es publico: usa topicos dificiles de adivinar (ej. "arche/accion/daniel-x7k2").
 MQTT_BROKER = "broker.emqx.io"
 MQTT_PORT = 1883
 MQTT_TOPIC = "arche/servo/control"
 MQTT_TOPIC_ACCION = "arche/accion/control"   # igual en el ESP32
 ACCIONES_POR_MQTT = True                      # False = las acciones vuelven a ir por HTTP
 
-LATIDO_SEGUNDOS = 5          # aviso al ESP32 mientras el modo perro esta activo
+LATIDO_SEGUNDOS = 5          # aviso al ESP32 mientras el modo perro esta activo (solo por HTTP)
 FALLOS_PARA_CORTAR = 3       # latidos seguidos sin respuesta antes de apagar el modo perro
 PAUSA_TRAS_ORDEN = 20        # segundos que el perro "espera" despues de una orden tuya antes de actuar solo
 
 # ---- cerebro del modo perro -------------------------------------------------
 # El perro camina por su cuenta (pon False si quieres que solo se mueva cuando se lo ordenes).
 PERMITIR_CAMINAR_AUTONOMO = True
-ACCIONES_DE_MOVIMIENTO = {"avanzar", "retroceder", "izquierda", "derecha"}
+ACCIONES_DE_MOVIMIENTO = {"avanzar", "retroceder", "izquierda", "derecha", "correr"}
 # cuanto camina cada vez (segundos, al azar entre los dos valores); luego Arche le manda "quieto"
-DURACION_MOVIMIENTO = {"avanzar": (2.0, 4.0), "retroceder": (1.0, 2.0), "izquierda": (1.0, 2.5), "derecha": (1.0, 2.5)}
+DURACION_MOVIMIENTO = {
+    "avanzar": (2.0, 4.0),
+    "retroceder": (1.0, 2.0),
+    "izquierda": (1.0, 2.5),
+    "derecha": (1.0, 2.5),
+    "correr": (1.5, 3.0),
+}
 
 # segundos entre un comportamiento y el siguiente, segun el estado de animo
 PAUSAS = {
@@ -75,13 +81,13 @@ COMPORTAMIENTOS = {
     "tranquilo": {"cola": 5, "sentarse": 2, "pararse": 2, "saludar": 1, "ladrar": 1,
                   "avanzar": 3, "izquierda": 1, "derecha": 1},
     "jugueton": {"feliz": 4, "cola": 3, "ladrar": 3, "saludar": 2, "pararse": 1,
-                 "avanzar": 5, "izquierda": 2, "derecha": 2, "retroceder": 1},
+                 "avanzar": 5, "izquierda": 2, "derecha": 2, "retroceder": 1, "correr": 3},
     "alerta": {"ladrar": 4, "enojado": 1, "pararse": 1, "avanzar": 1},
 }
 
 # cuanta energia gasta cada comportamiento (0-100)
 COSTO_ENERGIA = {"cola": 2, "feliz": 3, "ladrar": 4, "saludar": 5, "enojado": 3, "sentarse": 1, "pararse": 1,
-                 "avanzar": 6, "retroceder": 3, "izquierda": 4, "derecha": 4}
+                 "avanzar": 6, "retroceder": 3, "izquierda": 4, "derecha": 4, "correr": 10}
 ENERGIA_PARA_DORMIR = 20     # por debajo de esto se acuesta a dormir
 ENERGIA_PARA_DESPERTAR = 60  # al recuperar esto se levanta
 
@@ -91,6 +97,7 @@ ACCIONES = [
     ("pararse", ["parate", "levantate", "ponte de pie", "de pie"], "Me paro."),
     ("acostarse", ["acuestate", "echate", "tirate", "ponte en el suelo"], "Me acuesto."),
     ("avanzar", ["avanza", "camina", "ven", "anda", "adelante", "anda adelante"], "Voy."),
+    ("correr", ["corre", "correr", "corre rapido", "a correr", "trota"], "Voy corriendo."),
     ("retroceder", ["retrocede", "atras", "marcha atras", "da marcha atras"], "Voy hacia atras."),
     ("izquierda", ["gira a la izquierda", "gira izquierda", "voltea a la izquierda", "izquierda"], "Giro a la izquierda."),
     ("derecha", ["gira a la derecha", "gira derecha", "voltea a la derecha", "derecha"], "Giro a la derecha."),
@@ -379,12 +386,12 @@ def detener_todo():
 def _texto_ayuda():
     lineas = [
         "Esto puede hacer el perro:",
-        "- conecta el robot a 192.168.4.1 (guarda la IP del ESP32)",
+        "- conecta el robot a 192.168.4.1 (guarda la IP del ESP32, solo si usas HTTP)",
         "- estado del robot / prueba el robot",
         "- mueve el servo a 90 (por MQTT)",
-        "- sientate, parate, acuestate, ven, retrocede, gira a la izquierda, gira a la derecha",
+        "- sientate, parate, acuestate, ven, corre, retrocede, gira a la izquierda, gira a la derecha",
         "- quieto, ladra, mueve la cola, da la pata",
-        "- activa el modo perro / desactiva el modo perro (yo decido que hace: juega, se cansa, duerme)",
+        "- activa el modo perro / desactiva el modo perro (yo decido que hace: juega, camina, corre, se cansa, duerme)",
         "- parada de emergencia",
     ]
     return "\n".join(lineas)
@@ -439,7 +446,7 @@ def manejar(frase):
             if not ACCIONES_POR_MQTT:
                 _llamar("/estado")  # confirma que el robot esta ahi antes de arrancar
             if _modo_perro.iniciar():
-                return ("Modo perro activado: yo decido que hace. Camina, juega, ladra, saluda y se cansa "
+                return ("Modo perro activado: yo decido que hace. Camina, corre, juega, ladra, saluda y se cansa "
                         "hasta quedarse dormido. Di 'parada de emergencia' para frenarlo.")
             return "El modo perro ya estaba activo."
 

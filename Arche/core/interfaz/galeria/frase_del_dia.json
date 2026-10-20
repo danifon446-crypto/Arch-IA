@@ -1,0 +1,32 @@
+{
+  "arche_extension": 1,
+  "nombre": "Frase del día",
+  "tipo": "widget",
+  "titulo": "Frase del día",
+  "ancho": 6,
+  "alto": 2,
+  "descripcion": "Una frase distinta cada día. Cambia o agrega frases editando el .json.",
+  "bloques": [
+    {
+      "tipo": "frase_del_dia",
+      "frases": [
+        "Lo que hoy practicas, mañana lo haces sin pensar.",
+        "Un paso pequeño todos los días le gana a un salto de vez en cuando.",
+        "Hecho es mejor que perfecto.",
+        "Cuando no entiendas algo, divídelo en partes más pequeñas.",
+        "Los errores son datos: léelos con calma.",
+        "Descansar también es parte del trabajo.",
+        "Primero que funcione, luego que sea bonito, luego que sea rápido.",
+        "Pregunta sin miedo: así se aprende más rápido.",
+        "Lo difícil de hoy es lo fácil de la próxima semana.",
+        "Medir antes de adivinar.",
+        "Una buena pausa vale más que una hora forzada.",
+        "Si se repite tres veces, vale la pena automatizarlo.",
+        "Aprende un poco cada día y verás cuánto avanzaste en un mes.",
+        "Cuida tu equipo y tu equipo te cuidará.",
+        "Escribe lo que aprendes: así lo recuerdas.",
+        "No hace falta tenerlo todo claro para empezar."
+      ]
+    }
+  ]
+}

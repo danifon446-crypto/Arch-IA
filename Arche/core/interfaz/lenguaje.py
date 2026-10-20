@@ -656,6 +656,27 @@ def _h_perfiles_admin(m, t, o):
         if extensiones.errores:
             txt += " Rechazadas: " + " | ".join(extensiones.errores[:3])
         return txt
+    if re.fullmatch(r"(galeria de extensiones|extensiones disponibles|que extensiones (hay|tienes) (en la galeria|para instalar)|galeria)", t):
+        gal = extensiones.galeria()
+        if not gal:
+            return "La galería está vacía."
+        return ("Galería: " + "; ".join(f"{n} ({tp}{', instalada' if ya else ''})" for n, _d, tp, ya in gal) +
+                ". Di «instala la extensión <nombre>» o «instala todas las extensiones».")
+    if re.fullmatch(r"(instala|instalar|agrega|anade) (todas )?(las )?extensiones( de la galeria)?", t):
+        n, mal = extensiones.instalar_todas_de_galeria()
+        return f"Instalé {n} extensión(es) de la galería." + (" Falló: " + "; ".join(mal[:2]) + "." if mal else "")
+    if re.fullmatch(r"(busca|actualiza|recarga|vuelve a buscar) (las )?extensiones", t):
+        extensiones.escanear()
+        return f"{len(extensiones.listar())} extensión(es) cargadas." + (" Rechazadas: " + " | ".join(extensiones.errores[:3]) if extensiones.errores else "")
+    mm = re.match(r"^(?:crea|haz|crear|nueva)(?: una| la)? extension (\w+)(?: llamada| que se llame| con nombre)? (.+)$", t)
+    if mm:
+        mo = re.search(r"(?i)extensi[oó]n\s+\w+\s+(?:llamada\s+|que se llame\s+|con nombre\s+)?(.+)$", o.strip())
+        ok, res = extensiones.crear_plantilla(mm.group(1), (mo.group(1) if mo else mm.group(2)).strip())
+        return res[:1].upper() + res[1:] + "."
+    mm = re.match(r"^(?:instala|instalar|agrega|anade)(?: la)? extension (?!de |desde )(.+)$", t)
+    if mm and not re.search(r"[\\/]|\.json", mm.group(1)):
+        ok, res = extensiones.instalar_de_galeria(mm.group(1))
+        return res[:1].upper() + res[1:] + "."
     mm = re.match(r"^(activa|enciende|desactiva|apaga)(?: la)? extension (.+)$", t)
     if mm:
         extensiones.escanear()
@@ -846,7 +867,13 @@ def _h_estado(m, t, o):
     return None
 
 
-_MANEJADORES = (_h_confirmar, _h_deshacer, _h_perfil, _h_minimalista, _h_tema_propio, _h_tema, _h_tema_horario,
+def _h_orden(m, t, o):
+    """Orden de la pantalla: paginas, cajon, plegar, tarjetas, tope y modos (ver orden.py)."""
+    from . import orden
+    return orden.responder(t, o)
+
+
+_MANEJADORES = (_h_confirmar, _h_deshacer, _h_orden, _h_perfil, _h_minimalista, _h_tema_propio, _h_tema, _h_tema_horario,
                 _h_animaciones, _h_efectos, _h_accesibilidad, _h_chat, _h_redes, _h_rendimiento, _h_restaurar, _h_perfiles_admin,
                 _h_ventanas, _h_notas, _h_favoritos, _h_mascota, _h_pantalla, _h_contexto, _h_estado,
                 _h_widget_mover, _h_widget_visibilidad)

@@ -120,6 +120,23 @@ DEFAULTS = {
     "flotante_pos": "",
     "bandeja": False,            # icono en la bandeja del sistema (necesita pystray)
     "minimizar_sin_foco": False, # minimiza la ventana al usar otra app (solo si hay esfera flotante)
+    # --- orden de la pantalla (orden.py) ---
+    "orden_activo": True,        # interruptor general de las ocho ideas de orden
+    "orden_auto": True,          # paneles «solo si hay algo»: que aparezcan y se vayan solos
+    "orden_compactar": True,     # cerrar los huecos que dejan los paneles que se van o se pliegan
+    "orden_rellenar": True,      # que el panel de abajo use el espacio que quedo libre
+    "orden_plegar_boton": "al_pasar",   # al_pasar | siempre | nunca: boton «–» para plegar un panel
+    "orden_plegar_auto": 20,     # segundos que un panel plegado se queda abierto tras tocarlo (0 = hasta que lo pliegues)
+    "orden_carrusel_seg": 8,     # segundos por panel en un carrusel
+    "orden_barra_paginas": "auto",      # auto | siempre | nunca
+    "orden_boton_cajon": True,   # boton «Cajón» en la barra de abajo
+    "orden_cajon_fijos": 3,      # extensiones que puedes fijar en pantalla (0 = sin limite)
+    "orden_tope": 10,            # paneles por pagina antes de proponer ocultar (0 = sin tope)
+    "orden_proponer": True,      # que Arché proponga solo cuando pases del tope
+    "orden_modos_auto": True,    # cambiar de perfil por horario o por frase
+    "orden_uso": {},             # clics reales por tipo de panel (sirve para proponer que ocultar)
+    "orden_horarios": [],        # ["09:00-18:00=trabajo", ...]
+    "orden_frases": {},          # {"modo tele": "entretenimiento"}
     # --- redes neuronales (vista y ejemplos) ---
     "ext_tema_previo": "",       # tema que tenias antes de activar el de una extension
     "redes_estilo": "diagrama",  # diagrama | arbol | lista
@@ -154,7 +171,7 @@ DEFAULTS = {
     "alto_contraste": False,
     "teclado_nav": True,         # Tab / Enter para moverte sin mouse
     "atajos": {"buscador": "Ctrl+Espacio", "editor": "Ctrl+E", "tv": "F11", "deshacer": "Ctrl+Z",
-               "rehacer": "Ctrl+Y"},
+               "rehacer": "Ctrl+Y", "cajon": "Ctrl+J", "pagina_sig": "Alt+Derecha", "pagina_ant": "Alt+Izquierda"},
     # --- rendimiento ---
     "rendimiento": "normal",     # normal | ahorro | auto
     "fluidez": "alta",           # alta (30 cuadros/s) | normal (20) | ahorro (12)
@@ -213,6 +230,10 @@ ESQUEMA = {
     "redes_umbral_auto": _i(50, 99), "redes_entrenar": _o("manual", "automatico", "sistema"),
     "redes_deshacer_segundos": _i(4, 60),
     "perfil": (_TXT, 40), "sync_carpeta": (_TXT, 300),
+    "orden_plegar_boton": _o("al_pasar", "siempre", "nunca"), "orden_plegar_auto": _i(0, 600),
+    "orden_carrusel_seg": _i(3, 120), "orden_barra_paginas": _o("auto", "siempre", "nunca"),
+    "orden_cajon_fijos": _i(0, 20), "orden_tope": _i(0, 30),
+    "orden_uso": (_DICT,), "orden_frases": (_DICT,), "orden_horarios": (_LISTA,),
     "estado_colores": (_DICT,), "atajos": (_DICT,), "pantallas": (_DICT,),
     "sistema_ocultar": (_LISTA,), "nav_orden": (_LISTA,), "nav_ocultas": (_LISTA,), "favoritos": (_LISTA,),
     "atajos_rapidos": (_LISTA,), "sync_incluir": (_LISTA,), "notas": (_LISTA,),
@@ -227,7 +248,8 @@ OPCIONES = {k: v[1] for k, v in ESQUEMA.items() if v[0] == _OPC}
 # Lo que NO forma parte del aspecto: no va a perfiles, puntos de restauracion ni deshacer.
 NO_VISUALES = {"automatica", "entrada_ventana", "recorrido_hecho", "celular", "celular_pin", "celular_puerto",
                "escucha", "perfil", "ventana_geometria", "flotante_pos", "sync_carpeta", "sync_incluir",
-               "notas", "pantallas", "favoritos", "atajos_rapidos", "mascota_nombre", "atajos", "ext_tema_previo"}
+               "notas", "pantallas", "favoritos", "atajos_rapidos", "mascota_nombre", "atajos", "ext_tema_previo",
+               "orden_uso", "orden_horarios", "orden_frases", "orden_modos_auto", "orden_proponer"}
 
 _HEX_RE = re.compile(r"^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$")
 _datos = None

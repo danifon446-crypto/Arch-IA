@@ -1,0 +1,18 @@
+{
+  "arche_extension": 1,
+  "nombre": "Modo TV",
+  "tipo": "tema",
+  "descripcion": "Letra e interfaz grandes, alto contraste y menos movimiento para verlo desde lejos.",
+  "colores": {
+    "fondo": "#05070d",
+    "texto": "#ffffff",
+    "tenue": "#c9d1e6"
+  },
+  "ajustes": {
+    "ui_escala": 140,
+    "texto_escala": 130,
+    "alto_contraste": true,
+    "reducir_movimiento": true,
+    "escena": "ninguna"
+  }
+}

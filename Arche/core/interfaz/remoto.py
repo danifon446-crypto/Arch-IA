@@ -8,29 +8,16 @@ wifi. Abres la direccion en el navegador del celular, pones el PIN y puedes
 escribirle, ver la conversacion y prender o apagar sus funciones.
 
 Seguridad: apagado por defecto; pide un PIN de 6 numeros (se ve en AJUSTES);
-tras 5 PIN malos bloquea esa direccion un minuto, y si en total hay demasiados
-fallos (desde cualquier direccion) bloquea a todos un rato; solo escucha en la
-IP de tu red local (no en todas las interfaces); y desde el celular NO se
-aceptan las ordenes delicadas (apagar, teclear, borrar archivos, tocar el
-codigo o las claves...): esas solo se dan desde el PC.
-No uses esto en una wifi publica: la conexion es HTTP sin cifrar, asi que
-cualquiera que pueda espiar esa wifi podria ver el PIN. Para usarlo fuera de
-casa, entra por una VPN (por ejemplo Tailscale) en vez de abrir el puerto.
-
-Variables de entorno (opcionales):
-  ARCHE_CELULAR_HOST=0.0.0.0        escuchar en todas las interfaces (como antes)
-  ARCHE_CELULAR_PERMITE_TODO=1      aceptar tambien las ordenes delicadas desde el celular
+tras 5 PIN malos bloquea esa direccion un minuto; solo responde en tu red.
+No uses esto en una wifi publica.
 """
 
 import hmac
 import json
-import os
 import random
-import re
 import socket
 import threading
 import time
-import unicodedata
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from . import ajustes, datos, en_vivo, entrada
@@ -38,47 +25,6 @@ from . import ajustes, datos, en_vivo, entrada
 _servidor = None
 _hilo = None
 _fallos = {}      # ip -> [cuantos, hasta_cuando]
-_fallos_globales = []   # marcas de tiempo de PIN malos de cualquier direccion
-MAX_FALLOS_GLOBALES = 40          # en la ventana de abajo, se bloquea a todos
-VENTANA_FALLOS_GLOBALES = 600     # segundos
-BLOQUEO_GLOBAL = 300              # segundos
-
-# Ordenes que Arche NO acepta desde el celular (si desde el PC): quien tenga el PIN no debe
-# poder apagarte el equipo, teclear en tu lugar, borrar archivos, tocar el codigo ni las claves.
-_ORDENES_SOLO_PC = re.compile(
-    r"\b(apaga|apagar|reinicia|reiniciar|suspende|suspender|hiberna|cierra la sesion|"
-    r"teclea|presiona|formatea|instala|desinstala|ejecuta|"
-    r"cambia esto|autocodigo|aplica|aprueba|deshaz|revierte|restaura|revisate y arregla|"
-    r"nivel total|clave|comparte mi memoria)\b"
-    r"|\b(borra|borrar|elimina|eliminar)\b.*\b(archivo|archivos|carpeta|carpetas|documento|documentos|"
-    r"foto|fotos|descargas|disco|todo)\b"
-)
-
-
-def _normalizar(texto):
-    sin_tildes = unicodedata.normalize("NFD", str(texto).lower())
-    return "".join(c for c in sin_tildes if unicodedata.category(c) != "Mn").strip()
-
-
-def es_orden_solo_pc(texto):
-    """True si la orden es de las que el celular no puede dar."""
-    if os.environ.get("ARCHE_CELULAR_PERMITE_TODO") == "1":
-        return False
-    return bool(_ORDENES_SOLO_PC.search(_normalizar(texto)))
-
-
-def _bloqueo_global():
-    ahora = time.time()
-    _fallos_globales[:] = [t for t in _fallos_globales if ahora - t < VENTANA_FALLOS_GLOBALES]
-    return len(_fallos_globales) >= MAX_FALLOS_GLOBALES
-
-
-def _limpiar_fallos():
-    """Que el registro de direcciones no crezca sin limite."""
-    if len(_fallos) > 200:
-        ahora = time.time()
-        for ip in [i for i, f in _fallos.items() if f[1] < ahora]:
-            _fallos.pop(ip, None)
 
 PAGINA = """<!doctype html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -127,9 +73,7 @@ async function cargar(){
    if(x.tipo=='switch')return '<button class="'+(x.valor?'on':'')+'" onclick="cmd(\\''+(x.valor?x.off:x.on)+'\\')">'+(x.valor?'● ':'○ ')+x.nombre+'</button>';
    return x.niveles.map(n=>'<button class="'+(x.valor==n[0]?'on':'')+'" onclick="cmd(\\''+n[1]+'\\')">'+x.nombre+': '+n[0]+'</button>').join('')}).join('');
  }catch(e){document.getElementById('e').textContent='sin conexión'}}
-async function cmd(t){const r=await fetch('/api/enviar',{method:'POST',headers:H(),body:JSON.stringify({texto:t})});
- try{const d=await r.json();if(d&&d.mensaje)alert(d.mensaje)}catch(e){}
- setTimeout(cargar,400)}
+async function cmd(t){await fetch('/api/enviar',{method:'POST',headers:H(),body:JSON.stringify({texto:t})});setTimeout(cargar,400)}
 function enviar(){const i=document.getElementById('t');if(i.value.trim())cmd(i.value.trim());i.value='';return false}
 cargar();setInterval(cargar,1500);
 </script></body></html>"""
@@ -177,17 +121,11 @@ class _Manejador(BaseHTTPRequestHandler):
         self.send_header("Content-Type", tipo)
         self.send_header("Content-Length", str(len(datos_)))
         self.send_header("Cache-Control", "no-store")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("X-Frame-Options", "DENY")
-        self.send_header("Referrer-Policy", "no-referrer")
         self.end_headers()
         self.wfile.write(datos_)
 
     def _autorizado(self):
         ip = self.client_address[0]
-        if _bloqueo_global():
-            self._responder(429, "{}")
-            return False
         fallos = _fallos.get(ip)
         if fallos and fallos[0] >= 5 and time.time() < fallos[1]:
             self._responder(429, "{}")
@@ -196,16 +134,9 @@ class _Manejador(BaseHTTPRequestHandler):
         if hmac.compare_digest(enviado.encode(), _pin().encode()):
             _fallos.pop(ip, None)
             return True
-        _limpiar_fallos()
         f = _fallos.setdefault(ip, [0, 0])
         f[0] += 1
         f[1] = time.time() + 60
-        ahora = time.time()
-        _fallos_globales.append(ahora)
-        if _bloqueo_global():
-            # Al saltar el tope global, el bloqueo dura BLOQUEO_GLOBAL: se alarga la ventana
-            # de las marcas para que no se libere a los pocos segundos.
-            _fallos_globales[:] = [ahora + BLOQUEO_GLOBAL - VENTANA_FALLOS_GLOBALES] * MAX_FALLOS_GLOBALES
         self._responder(401, "{}")
         return False
 
@@ -239,12 +170,7 @@ class _Manejador(BaseHTTPRequestHandler):
             texto = json.loads(self.rfile.read(largo) or b"{}").get("texto", "")
         except Exception:
             texto = ""
-        texto = str(texto)[:500]
-        if es_orden_solo_pc(texto):
-            return self._responder(200, json.dumps(
-                {"ok": False, "mensaje": "Esa orden solo la acepto desde el PC, no desde el celular."},
-                ensure_ascii=False))
-        entrada.enviar(texto, "celular")
+        entrada.enviar(str(texto)[:500], "celular")
         self._responder(200, '{"ok":true}')
 
 
@@ -254,11 +180,8 @@ def iniciar():
     if _servidor is not None:
         return True, direccion()
     _pin()
-    # Solo en la IP de la red local (la que usa el celular para llegar), no en todas las
-    # interfaces. Sin red, ip_local() da 127.0.0.1 y queda solo accesible desde este PC.
-    host = os.environ.get("ARCHE_CELULAR_HOST") or ip_local()
     try:
-        _servidor = ThreadingHTTPServer((host, int(ajustes.obtener("celular_puerto"))), _Manejador)
+        _servidor = ThreadingHTTPServer(("0.0.0.0", int(ajustes.obtener("celular_puerto"))), _Manejador)
     except Exception as e:
         _servidor = None
         return False, f"No pude abrir el puerto ({e})."

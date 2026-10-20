@@ -1,0 +1,49 @@
+{
+  "arche_extension": 1,
+  "nombre": "Resumen de la mañana",
+  "tipo": "widget",
+  "titulo": "Tu día",
+  "ancho": 6,
+  "alto": 8,
+  "descripcion": "Hora en Bogotá, próximas fechas, pendientes y estado de Arché en un solo panel.",
+  "permisos": [
+    "archivos_propios",
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "reloj",
+      "zonas": [
+        {
+          "nombre": "Bogotá",
+          "tz": "America/Bogota"
+        }
+      ]
+    },
+    {
+      "tipo": "texto",
+      "texto": "Próximas fechas",
+      "tam": 8,
+      "color": "tenue"
+    },
+    {
+      "tipo": "fechas",
+      "archivo": "fechas.txt"
+    },
+    {
+      "tipo": "texto",
+      "texto": "Pendientes",
+      "tam": 8,
+      "color": "tenue"
+    },
+    {
+      "tipo": "lista",
+      "archivo": "pendientes.txt",
+      "marcable": true,
+      "max": 5
+    },
+    {
+      "tipo": "indicador"
+    }
+  ]
+}

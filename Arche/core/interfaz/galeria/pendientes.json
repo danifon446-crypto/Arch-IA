@@ -1,0 +1,20 @@
+{
+  "arche_extension": 1,
+  "nombre": "Pendientes",
+  "tipo": "widget",
+  "titulo": "Pendientes",
+  "ancho": 6,
+  "alto": 5,
+  "descripcion": "Lista de tareas desde pendientes.txt (una por línea). Toca una para marcarla hecha.",
+  "permisos": [
+    "archivos_propios"
+  ],
+  "bloques": [
+    {
+      "tipo": "lista",
+      "archivo": "pendientes.txt",
+      "marcable": true,
+      "max": 8
+    }
+  ]
+}

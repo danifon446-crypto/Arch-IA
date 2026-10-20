@@ -28,6 +28,7 @@ from core.IA import nube
 
 TAREAS = {
     "estudio": {"defecto": True, "nombre": "estudio y tareas de texto"},
+    "examen": {"defecto": True, "nombre": "examen de las redes (ejercicios y verificacion)"},
     "codigo": {"defecto": False, "nombre": "escribir y revisar codigo (autocodificacion)"},
 }
 PAUSA_POR_LIMITE = 120          # segundos de descanso tras un 429
@@ -36,7 +37,7 @@ PAUSA_POR_LIMITE = 120          # segundos de descanso tras un 429
 # El proveedor gratis da ~1.000 pedidos/dia por modelo y el chat y el estudio gastan del mismo
 # cupo, asi que el codigo se queda con una parte y deja margen. Se cambia con fijar_cupo()
 # o escribiendo "cupo_diario": {"codigo": N} en Database/nube.json.
-CUPO_DIARIO_DEFECTO = {"codigo": 600}
+CUPO_DIARIO_DEFECTO = {"codigo": 600, "examen": 250}
 _pausa_hasta = 0.0
 _ultimo_motivo = ""
 

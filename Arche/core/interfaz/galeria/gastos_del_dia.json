@@ -1,0 +1,19 @@
+{
+  "arche_extension": 1,
+  "nombre": "Gastos del día",
+  "tipo": "widget",
+  "titulo": "Gastos",
+  "ancho": 6,
+  "alto": 4,
+  "descripcion": "Suma lo que anotes en gastos.txt (líneas como «almuerzo: 12000» o «2026-10-14 taxi 8.500»).",
+  "permisos": [
+    "archivos_propios"
+  ],
+  "bloques": [
+    {
+      "tipo": "suma",
+      "archivo": "gastos.txt",
+      "moneda": "$"
+    }
+  ]
+}

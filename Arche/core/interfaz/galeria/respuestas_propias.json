@@ -1,0 +1,20 @@
+{
+  "arche_extension": 1,
+  "nombre": "Respuestas propias",
+  "tipo": "respuestas",
+  "descripcion": "Arché contesta con tu texto a ciertas frases (cambian su personalidad sin tocar código).",
+  "respuestas": {
+    "buenos dias": [
+      "Buenos días, jefe. ¿Arrancamos?",
+      "¡Arriba! Hoy sale bien."
+    ],
+    "gracias": [
+      "Para eso estoy.",
+      "Con gusto."
+    ],
+    "buenas noches": [
+      "Descansa, mañana seguimos.",
+      "Que duermas bien."
+    ]
+  }
+}

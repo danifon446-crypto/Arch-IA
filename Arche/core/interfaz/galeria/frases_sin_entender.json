@@ -1,0 +1,37 @@
+{
+  "arche_extension": 1,
+  "nombre": "Frases sin entender",
+  "tipo": "widget",
+  "titulo": "Frases sin entender",
+  "ancho": 8,
+  "alto": 6,
+  "descripcion": "Lo que Arché no entendió y lo que solo resolvió la IA externa; enséñaselo con un clic.",
+  "aparece_si": "hay_no_entendidas",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "texto",
+      "texto": "No entendió",
+      "tam": 8,
+      "color": "tenue"
+    },
+    {
+      "tipo": "dato",
+      "fuente": "no_entendidas",
+      "max": 4
+    },
+    {
+      "tipo": "texto",
+      "texto": "Dudosas de la semana (solo las resolvió la IA externa)",
+      "tam": 8,
+      "color": "tenue"
+    },
+    {
+      "tipo": "dato",
+      "fuente": "dudosas",
+      "max": 4
+    }
+  ]
+}

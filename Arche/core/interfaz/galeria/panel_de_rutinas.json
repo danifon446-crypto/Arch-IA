@@ -1,0 +1,40 @@
+{
+  "arche_extension": 1,
+  "nombre": "Panel de rutinas",
+  "tipo": "widget",
+  "titulo": "Rutinas y atajos",
+  "ancho": 8,
+  "alto": 3,
+  "descripcion": "Botones grandes con órdenes. Edita las órdenes en el .json (por ejemplo «ejecuta la rutina estudio»).",
+  "permisos": [
+    "comandos"
+  ],
+  "bloques": [
+    {
+      "tipo": "botones",
+      "grande": true,
+      "botones": [
+        {
+          "texto": "Mis rutinas",
+          "orden": "mis rutinas"
+        },
+        {
+          "texto": "Mis alarmas",
+          "orden": "mis alarmas"
+        },
+        {
+          "texto": "Mis notas",
+          "orden": "mis notas"
+        },
+        {
+          "texto": "Pendientes",
+          "orden": "que recordatorios tengo"
+        },
+        {
+          "texto": "Estadísticas",
+          "orden": "estadisticas"
+        }
+      ]
+    }
+  ]
+}

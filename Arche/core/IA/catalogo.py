@@ -356,6 +356,13 @@ _e("nube_respaldo_off", "configuracion", "no uses la nube de respaldo", "si la n
 _e("nube_tareas_estado", "configuracion", "para que usas la nube", "ver en que tareas ayuda la nube y en cuales solo Ollama",
    ["en que usas la nube", "que haces con la nube", "estado de las tareas de la nube"])
 
+_e("aprendiz_on", "configuracion", "responde tu primero", "contestar yo primero con Ollama y que la nube revise mis respuestas para aprender (modo aprendiz)",
+   ["contesta tu primero", "modo aprendiz on", "aprende respondiendo", "responde tu solo"])
+_e("aprendiz_off", "configuracion", "responde la nube primero", "que la nube conteste primero en vez de Ollama",
+   ["que responda la nube", "modo aprendiz off", "contesta la nube"])
+_e("aprendiz_estado", "configuracion", "estado aprendiz", "ver cuantas respuestas mias coincidieron con la nube y cuanto aprendi",
+   ["como va el modo aprendiz", "estado del modo aprendiz"])
+
 # ------------------- elegir y cuidar la nube / aprender de ella (nube.py, aprender_de_nube.py)
 _e("proveedor_nube", "configuracion", "usa la nube de {X}", "elegir con que empresa se conecta la nube: groq o gemini (gratis con limites) o anthropic (de pago)",
    ["cambia la nube a {X}", "quiero usar {X} en la nube", "pon el proveedor {X}"], argumento="proveedor")

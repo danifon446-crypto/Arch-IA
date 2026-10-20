@@ -2,8 +2,8 @@
   "nivel_grupal": 2,
   "dominios": {
     "sistema": {
-      "racha": 0,
-      "listo": false
+      "racha": 4,
+      "listo": true
     },
     "codigo": {
       "racha": 5,
@@ -26,16 +26,16 @@
       "listo": false
     },
     "notas": {
-      "racha": 1,
-      "listo": false
+      "racha": 6,
+      "listo": true
     },
     "archivos": {
-      "racha": 0,
-      "listo": false
+      "racha": 6,
+      "listo": true
     },
     "calculadora": {
-      "racha": 3,
-      "listo": false
+      "racha": 0,
+      "listo": true
     },
     "configuracion": {
       "racha": 0,
@@ -51,5 +51,5 @@
     }
   },
   "automatico_corriendo": true,
-  "automatico_actualizado_ts": 1791650614.132269
+  "automatico_actualizado_ts": 1792409401.45168
 }

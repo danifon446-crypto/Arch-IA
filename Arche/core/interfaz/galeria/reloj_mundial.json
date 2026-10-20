@@ -1,0 +1,32 @@
+{
+  "arche_extension": 1,
+  "nombre": "Reloj mundial",
+  "tipo": "widget",
+  "titulo": "Reloj mundial",
+  "ancho": 6,
+  "alto": 4,
+  "descripcion": "Hora en varias ciudades. Edita las zonas en el .json (nombres como America/Bogota o UTC+1).",
+  "bloques": [
+    {
+      "tipo": "reloj",
+      "zonas": [
+        {
+          "nombre": "Bogotá",
+          "tz": "America/Bogota"
+        },
+        {
+          "nombre": "Ciudad de México",
+          "tz": "America/Mexico_City"
+        },
+        {
+          "nombre": "Madrid",
+          "tz": "Europe/Madrid"
+        },
+        {
+          "nombre": "Nueva York",
+          "tz": "America/New_York"
+        }
+      ]
+    }
+  ]
+}

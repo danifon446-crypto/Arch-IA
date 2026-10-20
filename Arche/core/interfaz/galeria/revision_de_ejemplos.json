@@ -1,0 +1,20 @@
+{
+  "arche_extension": 1,
+  "nombre": "Revisión de ejemplos",
+  "tipo": "widget",
+  "titulo": "Revisión de ejemplos",
+  "ancho": 8,
+  "alto": 4,
+  "descripcion": "Los ejemplos que Arché agregó sola: ✔ si están bien, ✘ para borrarlos.",
+  "aparece_si": "hay_dudosas",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "revision",
+      "max": 5
+    }
+  ]
+}

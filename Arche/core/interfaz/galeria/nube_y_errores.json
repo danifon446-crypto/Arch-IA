@@ -1,0 +1,30 @@
+{
+  "arche_extension": 1,
+  "nombre": "Nube y errores",
+  "tipo": "widget",
+  "titulo": "Nube y errores",
+  "ancho": 6,
+  "alto": 6,
+  "descripcion": "Cuántas consultas hizo hoy a la IA externa y los últimos errores.",
+  "permisos": [
+    "datos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "nube",
+      "max": 5
+    },
+    {
+      "tipo": "texto",
+      "texto": "Errores recientes",
+      "tam": 8,
+      "color": "tenue"
+    },
+    {
+      "tipo": "dato",
+      "fuente": "errores",
+      "max": 3
+    }
+  ]
+}

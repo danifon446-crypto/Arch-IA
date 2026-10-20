@@ -1,0 +1,111 @@
+{
+  "arche_extension": 1,
+  "nombre": "Jerga colombiana",
+  "tipo": "ejemplos",
+  "permisos": [
+    "ejemplos"
+  ],
+  "descripcion": "25 frases coloquiales ya clasificadas (quiubo, ahorita, subile…). Al desactivarla se quitan.",
+  "ejemplos": [
+    {
+      "frase": "que hubo",
+      "intencion": "saludo"
+    },
+    {
+      "frase": "quiubo parce",
+      "intencion": "saludo"
+    },
+    {
+      "frase": "buenas buenas",
+      "intencion": "saludo"
+    },
+    {
+      "frase": "ahorita que horas son",
+      "intencion": "hora"
+    },
+    {
+      "frase": "dime la hora parce",
+      "intencion": "hora"
+    },
+    {
+      "frase": "a cuantos estamos hoy",
+      "intencion": "fecha"
+    },
+    {
+      "frase": "que dia es hoy parce",
+      "intencion": "fecha"
+    },
+    {
+      "frase": "subile al volumen",
+      "intencion": "subir_volumen"
+    },
+    {
+      "frase": "ponle mas volumen a eso",
+      "intencion": "subir_volumen"
+    },
+    {
+      "frase": "bajale al volumen",
+      "intencion": "bajar_volumen"
+    },
+    {
+      "frase": "bajale a eso un poquito",
+      "intencion": "bajar_volumen"
+    },
+    {
+      "frase": "muteame eso",
+      "intencion": "silenciar"
+    },
+    {
+      "frase": "callame el sonido",
+      "intencion": "silenciar"
+    },
+    {
+      "frase": "cuanta pila me queda",
+      "intencion": "ver_bateria"
+    },
+    {
+      "frase": "pilas con la bateria",
+      "intencion": "ver_bateria"
+    },
+    {
+      "frase": "como va el compu",
+      "intencion": "estado_sistema"
+    },
+    {
+      "frase": "como esta el compu",
+      "intencion": "estado_sistema"
+    },
+    {
+      "frase": "hazme una captura",
+      "intencion": "captura_pantalla"
+    },
+    {
+      "frase": "tomale una foto a la pantalla",
+      "intencion": "captura_pantalla"
+    },
+    {
+      "frase": "bloqueame el compu",
+      "intencion": "bloquear_pc"
+    },
+    {
+      "frase": "cuanto me queda de disco",
+      "intencion": "espacio_disco"
+    },
+    {
+      "frase": "que tareas tengo pendientes",
+      "intencion": "mostrar_recordatorios"
+    },
+    {
+      "frase": "que alarmas tengo puestas",
+      "intencion": "ver_alarmas"
+    },
+    {
+      "frase": "ensenanos que sabes hacer",
+      "intencion": "ayuda"
+    },
+    {
+      "frase": "que es lo que sabes hacer",
+      "intencion": "ayuda"
+    }
+  ]
+}

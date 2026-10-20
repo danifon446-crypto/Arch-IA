@@ -44,7 +44,14 @@ CATALOGO = {
     "notificaciones": ("Notificaciones", "Interacción", 6, 5, 3, 3, True, "Avisos recientes."),
     "progreso": ("Progreso de tareas", "Arché", 8, 3, 4, 2, True, "Panel de progreso de tareas largas."),
     "registro": ("Registro de eventos", "Arché", 8, 5, 4, 3, True, "Órdenes, avisos y tareas, para depurar."),
+    "pestanas": ("Tarjeta con pestañas", "Orden", 8, 6, 4, 3, False, "Varios paneles en una sola tarjeta: tocas la pestaña y ves otro."),
+    "carrusel": ("Carrusel", "Orden", 8, 6, 4, 3, False, "Varios paneles que rotan solos en el mismo espacio."),
 }
+
+# tipos que contienen a otros widgets (sus miembros se guardan en opts["miembros"])
+CONTENEDORES = ("pestanas", "carrusel")
+PAGINAS_DEFECTO = ("Inicio",)
+PAGINA_ACTUAL = ""         # la pagina que se esta viendo (la fija orden.py); "" = la primera
 
 # Para el buscador y el lenguaje natural: como llama la gente a cada widget
 SINONIMOS = {
@@ -72,6 +79,8 @@ SINONIMOS = {
     "notificaciones": ("notificaciones", "avisos"),
     "progreso": ("progreso", "barra de progreso"),
     "registro": ("registro", "log", "logs", "eventos"),
+    "pestanas": ("tarjeta con pestanas", "pestanas", "tarjeta de pestanas", "tabs"),
+    "carrusel": ("carrusel", "rotativo", "paneles que rotan"),
 }
 
 NIVELES = ("minimo", "normal", "detallado")
@@ -140,8 +149,43 @@ def solapa(a, b):
     return ax0 < bx1 and bx0 < ax1 and ay0 < by1 and by0 < ay1
 
 
+def paginas_de(lay):
+    ps = lay.get("paginas") if isinstance(lay, dict) else None
+    return [p for p in ps if isinstance(p, str) and p] if isinstance(ps, list) and ps else list(PAGINAS_DEFECTO)
+
+
+def pagina_de(w, lay):
+    """La pagina donde vive un widget ('*' = en todas). Si apunta a una que ya no existe, la primera."""
+    ps = paginas_de(lay)
+    p = (w.get("opts") or {}).get("pagina")
+    return p if p == "*" or p in ps else ps[0]
+
+
+def comparten_pagina(a, b, lay):
+    pa, pb = pagina_de(a, lay), pagina_de(b, lay)
+    return pa == "*" or pb == "*" or pa == pb
+
+
+def en_contenedor(w):
+    return bool((w.get("opts") or {}).get("en"))
+
+
 def _visibles(lay, ignorar=None):
-    return [w for w in lay["widgets"] if w.get("visible") and w["id"] != ignorar and not w.get("ventana")]
+    """Los widgets que ocupan sitio en la misma pagina que `ignorar` (o que la pagina que se ve)."""
+    ref = buscar(lay, ignorar) if ignorar else None
+    if ref is not None:
+        pref = pagina_de(ref, lay)
+    else:
+        ps = paginas_de(lay)
+        pref = PAGINA_ACTUAL if PAGINA_ACTUAL in ps else ps[0]
+    sal = []
+    for w in lay["widgets"]:
+        if not w.get("visible") or w["id"] == ignorar or w.get("ventana") or en_contenedor(w):
+            continue
+        pw = pagina_de(w, lay)
+        if pw == "*" or pref == "*" or pw == pref:
+            sal.append(w)
+    return sal
 
 
 def choques(lay, r, ignorar=None):
@@ -208,6 +252,11 @@ def validar(lay):
         return por_defecto()
     sal = {"v": 1, "margen": _num(lay.get("margen"), 22, 4, 60), "separacion": _num(lay.get("separacion"), 14, 0, 40),
            "cabecera": bool(lay.get("cabecera", True)), "pie": bool(lay.get("pie", True)), "widgets": []}
+    ps = []
+    for p in (lay.get("paginas") or []):
+        if isinstance(p, str) and p.strip() and p.strip()[:20] not in ps and p.strip() != "*":
+            ps.append(p.strip()[:20])
+    sal["paginas"] = ps[:8] or list(PAGINAS_DEFECTO)
     vistos = set()
     for w in lay["widgets"]:
         if not isinstance(w, dict):
@@ -239,6 +288,7 @@ def validar(lay):
         else:
             ven = None
         opts = w.get("opts") if isinstance(w.get("opts"), dict) else {}
+        opts = _opts_orden(opts)
         sal["widgets"].append({"id": wid, "tipo": tipo, "x": x, "y": y, "w": ancho, "h": alto,
                                "visible": bool(w.get("visible", True)), "opacidad": _num(w.get("opacidad"), 100, 0, 100),
                                "color": col, "titulo": str(w.get("titulo") or "")[:30], "nivel": nv,
@@ -253,13 +303,15 @@ def validar(lay):
             unicos.add(w["tipo"])
         limpio.append(w)
     sal["widgets"] = limpio
-    # superposiciones entre visibles: el que llega despues busca otro sitio (o se oculta)
+    _sanear_contenedores(sal)
+    # superposiciones entre visibles de la misma pagina: el que llega despues busca otro sitio (o se oculta)
     puestos = []
     for w in sal["widgets"]:
-        if not w["visible"] or w.get("ventana"):
+        if not w["visible"] or w.get("ventana") or en_contenedor(w):
             continue
-        if any(solapa(rect(w), rect(p)) for p in puestos):
-            hay = _hueco_en(puestos, w["w"], w["h"])
+        cerca = [p for p in puestos if comparten_pagina(p, w, sal)]
+        if any(solapa(rect(w), rect(p)) for p in cerca):
+            hay = _hueco_en(cerca, w["w"], w["h"])
             if hay:
                 w["x"], w["y"] = hay
             else:
@@ -269,6 +321,40 @@ def validar(lay):
     if not sal["widgets"]:
         return por_defecto()
     return sal
+
+
+def _opts_orden(opts):
+    """Las opciones de orden de un widget (pagina, aparece, plegado, en, miembros): lo raro se descarta."""
+    o = dict(opts)
+    if "pagina" in o and not (isinstance(o["pagina"], str) and 0 < len(o["pagina"]) <= 20):
+        o.pop("pagina")
+    if "aparece" in o and o["aparece"] not in ("siempre", "si_hay"):
+        o.pop("aparece")
+    if "plegado" in o and not isinstance(o["plegado"], bool):
+        o["plegado"] = bool(o["plegado"])
+    if "en" in o and not (isinstance(o["en"], str) and o["en"]):
+        o.pop("en")
+    if "miembros" in o:
+        m = o["miembros"]
+        o["miembros"] = [str(i)[:40] for i in m][:8] if isinstance(m, list) else []
+    return o
+
+
+def _sanear_contenedores(sal):
+    """Un miembro sin contenedor vuelve a la pantalla; un contenedor solo guarda miembros que existen."""
+    ids = {w["id"]: w for w in sal["widgets"]}
+    for w in sal["widgets"]:
+        if w["tipo"] in CONTENEDORES:
+            w["opts"]["miembros"] = [i for i in w["opts"].get("miembros", [])
+                                     if i in ids and i != w["id"] and ids[i]["tipo"] not in CONTENEDORES]
+            for i in w["opts"]["miembros"]:
+                ids[i]["opts"]["en"] = w["id"]
+        else:
+            w["opts"].pop("miembros", None)
+    for w in sal["widgets"]:
+        c = ids.get(w["opts"].get("en"))
+        if "en" in w["opts"] and (c is None or c["tipo"] not in CONTENEDORES or w["id"] not in c["opts"].get("miembros", [])):
+            w["opts"].pop("en", None)
 
 
 def _hueco_en(puestos, ancho, alto):
@@ -422,6 +508,9 @@ def anadir(lay, tipo):
         wid = f"{tipo}-{k}"
         k += 1
     w = nuevo_widget(tipo, id=wid, visible=False)
+    ps = paginas_de(lay)
+    if PAGINA_ACTUAL in ps and PAGINA_ACTUAL != ps[0]:
+        w["opts"]["pagina"] = PAGINA_ACTUAL
     lay["widgets"].append(w)
     ok, msg = mostrar(lay, wid)
     if not ok:
@@ -481,6 +570,28 @@ def opcion(lay, id, clave, valor):
         w["nivel"] = valor
     elif clave == "estilo":
         w["opts"]["estilo"] = valor
+    elif clave == "pagina":
+        if valor != "*" and valor not in paginas_de(lay):
+            return False, "esa página no existe"
+        if en_contenedor(w):
+            return False, "está dentro de una tarjeta: sácalo primero"
+        antes = w["opts"].get("pagina")
+        w["opts"]["pagina"] = valor
+        if w["visible"] and not w.get("ventana") and choques(lay, rect(w), w["id"]):
+            sitio = hueco(lay, w["w"], w["h"], w["id"])
+            if sitio is None:
+                if antes is None:
+                    w["opts"].pop("pagina", None)
+                else:
+                    w["opts"]["pagina"] = antes
+                return False, "no hay espacio en esa página: libera sitio primero"
+            w["x"], w["y"] = sitio
+    elif clave == "aparece":
+        if valor not in ("siempre", "si_hay"):
+            return False, "usa: siempre o si_hay"
+        w["opts"]["aparece"] = valor
+    elif clave == "plegado":
+        w["opts"]["plegado"] = bool(valor)
     else:
         return False, "opcion desconocida"
     return True, "listo"

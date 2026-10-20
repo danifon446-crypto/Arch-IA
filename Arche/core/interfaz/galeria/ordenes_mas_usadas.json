@@ -1,0 +1,20 @@
+{
+  "arche_extension": 1,
+  "nombre": "Órdenes más usadas",
+  "tipo": "widget",
+  "titulo": "Lo que más pides",
+  "ancho": 6,
+  "alto": 5,
+  "descripcion": "Tus órdenes más repetidas, con botón para repetirlas.",
+  "permisos": [
+    "datos",
+    "comandos"
+  ],
+  "bloques": [
+    {
+      "tipo": "dato",
+      "fuente": "mas_usadas",
+      "max": 6
+    }
+  ]
+}

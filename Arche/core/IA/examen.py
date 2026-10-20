@@ -62,7 +62,22 @@ ARCHIVO_PROGRESO = os.path.join(BASE, "examen_progreso.json")
 UMBRAL_RACHA = 4              # aciertos seguidos en el nivel actual para marcarse "listo"
 CANTIDAD_POR_RONDA = 5         # ejercicios por llamada a rendir_examen()
 PAUSA_ENTRE_EJERCICIOS_SEG = 3  # no saturar Ollama, mismo criterio que estudio.py
-INTERVALO_ENTRE_RONDAS_SEG = 900  # 15 min entre ronda y ronda en background
+INTERVALO_ENTRE_RONDAS_SEG = 300  # 5 min entre ronda y ronda en background (corre hasta que lo frenes)
+
+# RIGOR PROGRESIVO: cuanto mas alto el nivel, mas se le exige para pasar.
+#  - racha: aciertos seguidos que hacen falta (4 en el nivel 1, +1 por nivel, tope 10)
+#  - confianza: un acierto con poca seguridad NO cuenta como acierto "limpio" (45 % en el nivel 1,
+#    +5 puntos por nivel, tope 85 %): lo adivinado de suerte no la hace subir.
+RACHA_TOPE = 10
+CONFIANZA_BASE, CONFIANZA_PASO, CONFIANZA_TOPE = 0.45, 0.05, 0.85
+
+
+def racha_necesaria(nivel):
+    return min(UMBRAL_RACHA + max(0, int(nivel) - 1), RACHA_TOPE)
+
+
+def confianza_minima(nivel):
+    return min(CONFIANZA_BASE + CONFIANZA_PASO * max(0, int(nivel) - 1), CONFIANZA_TOPE)
 
 
 # --------------------------------------------------------------------
@@ -129,7 +144,7 @@ def registrar_resultado(progreso, dominio, acierto):
         info["racha"] += 1
     else:
         info["racha"] = 0
-    if info["racha"] >= UMBRAL_RACHA:
+    if info["racha"] >= racha_necesaria(progreso.get("nivel_grupal", 1)):
         info["listo"] = True
 
 
@@ -177,8 +192,18 @@ def estado_examen():
     lineas.append(f"Nivel grupal actual: {progreso['nivel_grupal']}")
     for nombre in dominios.nombres_de_dominios():
         info = progreso["dominios"][nombre]
-        marca = "✅ listo" if info["listo"] else f"racha {info['racha']}/{UMBRAL_RACHA}"
+        marca = "✅ listo" if info["listo"] else f"racha {info['racha']}/{racha_necesaria(progreso['nivel_grupal'])}"
         lineas.append(f"  • {nombre}: {marca}")
+    lineas.append(f"Exigencia actual: {racha_necesaria(progreso['nivel_grupal'])} aciertos seguidos por dominio, "
+                  f"con al menos {int(confianza_minima(progreso['nivel_grupal']) * 100)} % de seguridad. "
+                  "Sube con cada nivel.")
+    try:
+        from core.IA import nube_tareas
+        if nube_tareas.activa("examen"):
+            lineas.append(f"Nube en el examen: la uso para armar ejercicios mas dificiles y para confirmar los "
+                          f"fallos antes de aprenderlos (hoy {nube_tareas.usadas_hoy('examen')} pedidos).")
+    except Exception:
+        pass
     return "\n".join(lineas)
 
 
@@ -369,6 +394,33 @@ def _elegir_intencion_a_examinar(dominio):
     return random.choice(candidatas)
 
 
+def _pedir_a_la_nube(prompt, max_tokens=120):
+    """Texto de la nube (tarea 'examen', con su cupo diario) o None -> se usa Ollama. Nunca lanza."""
+    try:
+        from core.IA import nube_tareas
+        return nube_tareas.intentar("examen", prompt, max_tokens=max_tokens, temperature=0.9)
+    except Exception:
+        return None
+
+
+def confirmar_con_la_nube(frase, intencion):
+    """Antes de aprender de un fallo: la nube dice si la frase de verdad pide esa intencion.
+    True/False, o None si la nube no esta disponible (entonces se aprende como siempre)."""
+    tema = _PALABRA_POR_INTENCION.get(intencion, intencion.replace("_", " "))
+    prompt = (f"Un asistente de voz tiene una orden llamada '{intencion}' (tema: {tema}).\n"
+              f"Frase de un usuario: \"{frase}\"\n"
+              "¿Esa frase pide CLARAMENTE esa orden y no otra? Responde solo SI o NO.")
+    try:
+        from core.IA import nube_tareas
+        r = nube_tareas.intentar("examen", prompt, max_tokens=5, temperature=0)
+    except Exception:
+        return None
+    if not r:
+        return None
+    r = r.strip().lower().replace("í", "i")
+    return True if r.startswith("si") else False if r.startswith("no") else None
+
+
 def generar_ejercicio(dominio, nivel):
     """
     Arma UN ejercicio: elige la intención más floja dentro de `dominio`
@@ -388,7 +440,9 @@ def generar_ejercicio(dominio, nivel):
     nombre_tactica, _, armar_prompt = random.choice(tacticas_disponibles)
 
     prompt = armar_prompt(intencion, tema)
-    respuesta = conversar(prompt, num_predict=120, temperature=0.9)
+    respuesta = _pedir_a_la_nube(prompt)          # la nube arma ejercicios mas variados y realistas
+    if respuesta is None:
+        respuesta = conversar(prompt, num_predict=120, temperature=0.9)
     frase = _limpiar_frase(respuesta)
     if not frase:
         return None
@@ -461,7 +515,13 @@ def rendir_examen(dominio=None, cantidad=CANTIDAD_POR_RONDA, obtener_embedding=N
             break  # sin forma de embeber, no tiene sentido seguir intentando esta ronda
 
         accion_predicha, confianza, dominio_predicho = cj.predecir_jerarquico(embedding)
-        acierto = accion_predicha == ejercicio["intencion_correcta"]
+        acierto_crudo = accion_predicha == ejercicio["intencion_correcta"]
+        flojo = acierto_crudo and (confianza or 0) < confianza_minima(nivel)
+        acierto = acierto_crudo and not flojo
+
+        if not acierto_crudo and confirmar_con_la_nube(ejercicio["frase"], ejercicio["intencion_correcta"]) is False:
+            # la nube dice que la frase generada no pedia eso: ejercicio malo, no cuenta ni se aprende
+            continue
         registrar_resultado(progreso, dominio, acierto)
 
         if not acierto:
@@ -475,9 +535,10 @@ def rendir_examen(dominio=None, cantidad=CANTIDAD_POR_RONDA, obtener_embedding=N
                 if not silencioso:
                     print(f"Arché (examen): no pude reforzar el fallo automáticamente ({e}).")
 
-        detalle.append({**ejercicio, "predicho": accion_predicha, "acierto": acierto})
+        detalle.append({**ejercicio, "predicho": accion_predicha, "acierto": acierto, "flojo": flojo,
+                        "confianza": confianza})
         if not silencioso:
-            marca = "✅" if acierto else "❌"
+            marca = "✅" if acierto else ("🟡" if flojo else "❌")
             print(f"  {marca} [{ejercicio['tactica']}] «{ejercicio['frase']}» "
                   f"-- esperado: {ejercicio['intencion_correcta']}, predicho: {accion_predicha}")
 
@@ -488,10 +549,11 @@ def rendir_examen(dominio=None, cantidad=CANTIDAD_POR_RONDA, obtener_embedding=N
     aciertos = sum(1 for d in detalle if d["acierto"])
     if not silencioso:
         info_dom = progreso["dominios"][dominio]
-        estado = "✅ ¡listo para subir de nivel!" if info_dom["listo"] else f"racha {info_dom['racha']}/{UMBRAL_RACHA}"
+        estado = "✅ ¡listo para subir de nivel!" if info_dom["listo"] else f"racha {info_dom['racha']}/{racha_necesaria(nivel)}"
         print(f"Arché (examen): {aciertos}/{len(detalle)} en '{dominio}' -- {estado}.")
 
-    return {"dominio": dominio, "nivel": nivel, "aciertos": aciertos, "total": len(detalle), "detalle": detalle}
+    return {"dominio": dominio, "nivel": nivel, "aciertos": aciertos, "total": len(detalle), "detalle": detalle,
+            "listo": bool(progreso["dominios"][dominio]["listo"])}
 
 
 # --------------------------------------------------------------------
@@ -521,10 +583,9 @@ def iniciar_examen_en_background(
             _marcar_automatico(True)
             try:
                 resultado = rendir_examen(silencioso=True)
-                if avisar is not None and resultado["total"] > 0:
+                if avisar is not None and resultado["total"] > 0 and resultado.get("listo"):
                     avisar(
-                        f"Rendí examen de '{resultado['dominio']}': "
-                        f"{resultado['aciertos']}/{resultado['total']} aciertos. "
+                        f"'{resultado['dominio']}' quedó listo en el nivel {resultado['nivel']}. "
                         f"Decime 'estado examen' si querés el detalle."
                     )
             except Exception:
@@ -539,4 +600,5 @@ def iniciar_examen_en_background(
 
     hilo = threading.Thread(target=_tarea, daemon=True)
     hilo.start()
+    return hilo
     return hilo

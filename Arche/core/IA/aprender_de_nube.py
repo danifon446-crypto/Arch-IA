@@ -359,6 +359,11 @@ def resumen_texto(cuantas=6):
                 partes.append(f"  • respuesta guardada: «{l['frase']}» (+{max(0, len(l.get('preguntas', [])) - 1)} formas)")
     else:
         partes.append("Todavía no he aprendido nada de la nube.")
+    try:
+        from core.IA import aprendiz
+        partes.append(aprendiz.resumen_texto())
+    except Exception:
+        pass
     return "\n".join(partes)
 
 

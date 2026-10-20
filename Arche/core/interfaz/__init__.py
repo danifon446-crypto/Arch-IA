@@ -12,7 +12,7 @@ import re
 import threading
 import unicodedata
 
-from . import ajustes, consola, datos, en_vivo, entrada, fondos, lenguaje, micro, perfiles, remoto, tema, ventana
+from . import ajustes, consola, datos, en_vivo, entrada, extensiones, fondos, lenguaje, micro, perfiles, remoto, tema, ventana
 
 _ESPERA_ARRANQUE = 2.5     # segundos: deja que Arché termine de cargar sus modulos antes de abrir la ventana
 
@@ -179,6 +179,18 @@ def _buscar_fondo(consulta):
 
 def manejar(comando):
     """Devuelve (intencion, contenido) si la frase era de la interfaz, o None."""
+    # Frases de extensiones activas (apodos, apps, jerga, respuestas propias)
+    try:
+        propia = extensiones.responder_frase(comando)
+    except Exception:
+        propia = None
+    if propia:
+        if propia[0] == "orden":
+            entrada.enviar(propia[1], "extension")
+            _msg(f"Entendí «{comando}» como «{propia[1]}».")
+        else:
+            _msg(propia[1])
+        return ("extension_frase", None)
     # Personalizar con frases normales («haz la interfaz más minimalista», «mueve el chat a la izquierda»…)
     try:
         respuesta = lenguaje.responder(comando)

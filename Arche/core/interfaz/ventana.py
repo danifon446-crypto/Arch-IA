@@ -28,7 +28,7 @@ import threading
 import time
 
 from . import (ajustes, buscador, centro, datos, editor as editor_mod, en_vivo, entrada, escenas, estado_visual as ev,
-               extensiones, fondos, layout, lenguaje, mascota as mascota_mod, orbe, perfiles, rendimiento, sonido,
+               extensiones, fondos, layout, lenguaje, mascota as mascota_mod, orbe, orden as orden_mod, perfiles, rendimiento, sonido,
                tema, vista_redes, widgets)
 
 try:
@@ -212,6 +212,8 @@ class VentanaArche:
         self.bus_res = []
         self.bus_sel = 0
         self._vis = {}
+        self._orden_plegados = set()
+        orden_mod.instalar()
         self._fantasmas = {}
         self._visibles_antes = set()
         self._errores_w = set()
@@ -357,6 +359,12 @@ class VentanaArche:
         elif accion == "rehacer":
             ok, msg = ev.rehacer()
             self.avisar(msg.capitalize(), "exito" if ok else "info")
+        elif accion == "cajon":
+            orden_mod.abrir_cajon(not orden_mod.estado["cajon"])
+        elif accion == "pagina_sig":
+            orden_mod.pagina_vecina(1)
+        elif accion == "pagina_ant":
+            orden_mod.pagina_vecina(-1)
         return "break"
 
     def _tecla(self, evento):
@@ -366,6 +374,8 @@ class VentanaArche:
             return "break"
         if self.bus_activo:
             self.poner_buscador(False)
+        elif orden_mod.estado["cajon"]:
+            orden_mod.abrir_cajon(False)
         elif vista_redes.ui["grande"]:
             vista_redes.ui["grande"] = False
             self.entry.focus_set()
@@ -443,6 +453,11 @@ class VentanaArche:
         if self.editando:
             self.editor.pulsar(self, evento.x, evento.y)
             return
+        if not orden_mod.estado["cajon"]:
+            try:
+                orden_mod.registrar_uso(self, evento.x, evento.y)
+            except Exception as e:
+                self._una_vez("orden_uso", e)
         if self.menu_nav and not (isinstance(self._zona(evento.x, evento.y), tuple) and self._zona(evento.x, evento.y)[0] == "pestana"):
             self.menu_nav = False
         accion = self._zona(evento.x, evento.y)
@@ -520,6 +535,10 @@ class VentanaArche:
             self._bus_ejecutar()
         elif tipo == "redes":
             vista_redes.accion(self, accion)
+        elif tipo == "ext":
+            extensiones.accion(self, accion)
+        elif tipo == "ord":
+            orden_mod.accion(self, accion)
         else:
             centro.ejecutar(self, accion)
 
@@ -1114,6 +1133,7 @@ class VentanaArche:
             self._vincular_atajos()
         self._aplicar_ventana()
         self._guardar_geometria()
+        orden_mod.tick(self)
         if ahora - self._ultimo_vistazo > 3.0:
             self._ultimo_vistazo = ahora
             perfiles.volcar()
@@ -1323,11 +1343,15 @@ class VentanaArche:
         cw = (W - 2 * m) / layout.COLS
         ch = max(1.0, (bajo - top) / layout.FILAS)
         self.grid = (m, top, cw, ch, gap)
-        objetivos = {}
-        for wd in lay["widgets"]:
-            if wd["visible"] and not wd.get("ventana"):
-                objetivos[wd["id"]] = (m + wd["x"] * cw + gap / 2, top + wd["y"] * ch + gap / 2,
-                                       wd["w"] * cw - gap, wd["h"] * ch - gap)
+        if lay is perfiles.layout_actual():
+            objetivos = orden_mod.objetivos(self, lay, m, top, cw, ch, gap, bajo)
+        else:
+            self._orden_plegados = set()
+            objetivos = {}
+            for wd in lay["widgets"]:
+                if wd["visible"] and not wd.get("ventana"):
+                    objetivos[wd["id"]] = (m + wd["x"] * cw + gap / 2, top + wd["y"] * ch + gap / 2,
+                                           wd["w"] * cw - gap, wd["h"] * ch - gap)
         self.rects = objetivos
         self._pintar_layout(lay, objetivos)
         if self.editando:
@@ -1337,6 +1361,10 @@ class VentanaArche:
             if lay.get("pie", True):
                 self._pie(W, H, m, esc)
             self._overlay_progreso(W, H, esc, lay)
+        if lay.get("cabecera", True) and lay is perfiles.layout_actual():
+            orden_mod.dibujar_paginas(self, W, m, esc)
+        if orden_mod.estado["cajon"] and not self.editando:
+            orden_mod.dibujar_cajon(self, W, H, esc)
         self._toasts(W, m, esc)
         if self.menu_nav:
             pass
@@ -1387,6 +1415,9 @@ class VentanaArche:
         esc = self._esc()
         tipo = wd["tipo"]
         try:
+            if wd["id"] in self._orden_plegados:
+                orden_mod.dibujar_plegado(self, wd, x, y, w, h)
+                return
             if tipo == "voz":
                 self._w_voz(wd, x, y, w, h, esc)
             elif tipo == "mascota":
@@ -1412,6 +1443,13 @@ class VentanaArche:
             self._texto(x + 16 * esc, y + 50 * esc, "Este widget tuvo un error (los demás siguen).", 9, tema.TENUE)
         finally:
             self._wd = None
+        if wd["id"] in self.rects:
+            try:
+                orden_mod.boton_plegar(self, wd, x, y, w, h)
+            except tk.TclError:
+                raise
+            except Exception as e:
+                self._una_vez("orden_plegar", e)
 
     # ---------------- encabezado y pie ----------------
     def _encabezado(self, W, m, esc, estado):
@@ -1446,6 +1484,8 @@ class VentanaArche:
         sig = self._boton(sig, yb, "Ambiente", "ambiente", tema.AZUL_CLARO)
         sig = self._boton(sig, yb, "Diseño", "editor", tema.MORADO_CLARO)
         sig = self._boton(sig, yb, "Buscar", "buscador", tema.AZUL_CLARO)
+        if ajustes.obtener("orden_boton_cajon") and ajustes.obtener("orden_activo"):
+            sig = self._boton(sig, yb, "Cajón", ("ord", "cajon"), tema.AZUL_CLARO)
         if not self.tv:
             sig = self._boton(sig, yb, "Cerrar", "cerrar", tema.ROJO_CLARO)
         favs = [f for f in ajustes.obtener("favoritos") if isinstance(f, str)][:5]
