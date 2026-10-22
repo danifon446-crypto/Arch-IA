@@ -1,8 +1,6 @@
 import time
-import webbrowser
 import os
 import json
-import urllib.parse
 from ddgs import DDGS
 from core.rutas import DATABASE
 

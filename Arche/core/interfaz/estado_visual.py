@@ -15,7 +15,6 @@ Una "captura" es todo el aspecto: ajustes visuales, temas propios, perfiles y di
 """
 
 import collections
-import copy
 import json
 import os
 import re

@@ -31,7 +31,6 @@ siempre (comandos fijos + comprender() de toda la vida).
 
 import json
 import os
-import re
 import unicodedata
 
 from core.IA import catalogo

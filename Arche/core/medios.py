@@ -22,7 +22,6 @@ Spotify su pagina, asi que si cambia su diseño puede dejar de encontrarlo.
 Lo que toca el sistema esta en funciones "_" para poder probarlo sin Windows.
 """
 
-import os
 import re
 import threading
 import time

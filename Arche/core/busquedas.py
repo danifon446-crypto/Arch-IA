@@ -1,5 +1,4 @@
 import time
-import webbrowser
 from urllib.parse import quote_plus
 
 def obtener_busqueda(comando):

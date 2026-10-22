@@ -12,7 +12,6 @@ opencv-python); si no esta, se avisa y se sigue sin video.
 """
 
 import base64
-import io
 import os
 import time
 
