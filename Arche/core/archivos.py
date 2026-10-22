@@ -60,7 +60,7 @@ def cargar_indice():
             encoding="utf-8"
         ) as archivo:
             return json.load(archivo)
-    except:
+    except Exception:
         return []
 
 
@@ -108,7 +108,7 @@ def indexar_archivos():
                     }
                     indice.append(datos)
                     total += 1
-                except:
+                except Exception:
                     pass
     guardar_indice(indice)
     segundos = round(time.time() - inicio, 2)
@@ -201,5 +201,5 @@ def buscar_y_abrir(nombre):
     try:
         opcion = int(input("Número: "))
         abrir_resultado(resultados[opcion - 1])
-    except:
+    except Exception:
         print("Arché: Opción inválida.")

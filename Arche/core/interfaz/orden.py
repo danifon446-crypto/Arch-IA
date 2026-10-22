@@ -23,7 +23,6 @@ plegada). El resto sigue siendo layout.py, perfiles.py y ventana.py.
 Todo lo que toca la pantalla ocurre en el hilo de la ventana.
 """
 
-import math
 import re
 import time
 

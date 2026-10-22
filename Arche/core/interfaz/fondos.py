@@ -11,7 +11,6 @@ Imagenes y GIF usan Pillow. Los videos necesitan OpenCV (pip install
 opencv-python); si no esta, se avisa y se sigue sin video.
 """
 
-import base64
 import os
 import time
 

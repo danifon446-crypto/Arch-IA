@@ -59,7 +59,7 @@ def guardar_historial(expresion, resultado):
     try:
         with open(archivo, "r", encoding="utf-8") as f:
             datos = json.load(f)
-    except:
+    except Exception:
         datos = []
     datos.append({
         "expresion": expresion,
