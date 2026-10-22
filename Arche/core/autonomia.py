@@ -32,7 +32,6 @@ import json
 import os
 import re
 import threading
-import time
 import unicodedata
 from datetime import datetime, timedelta
 
