@@ -91,7 +91,7 @@ def eliminar_recordatorio():
         print(
             f"Arché: Eliminé '{eliminado['titulo']}'."
         )
-    except:
+    except Exception:
         print("Arché: Entrada inválida.")
 
 def completar_recordatorio():
@@ -112,7 +112,7 @@ def completar_recordatorio():
         recordatorios[numero - 1]["estado"] = "completado"
         guardar_recordatorios(recordatorios)
         print("Arché: Recordatorio completado.")
-    except:
+    except Exception:
         print("Arché: Entrada inválida.")
 
 def revisar_recordatorios():
@@ -129,7 +129,7 @@ def revisar_recordatorios():
             )
             if fecha_hora <= ahora:
                 pendientes.append(r)
-        except:
+        except Exception:
             pass
     if pendientes:
         print("        RECORDATORIOS PENDIENTES")
