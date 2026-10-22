@@ -47,11 +47,31 @@ from core.IA import gran_sabio
 from core.IA import catalogo
 from core.IA import entrenador_masivo
 from core.IA import enrutador_natural
+from core import canales as canales_arche            # mensajes por consola y por otros canales
+from core import whatsapp as whatsapp_arche          # Arché por WhatsApp
+from core import mapa_mental as mapa_mental_arche    # mapas mentales hechos por Arché
 
 #Perro
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Perro_robotico"))
-from acciones_robot import manejar as manejar_robot, detener_todo as detener_robot
+try:
+    from acciones_robot import manejar as manejar_robot, detener_todo as detener_robot
+except Exception as _e:
+    # Arché arranca igual aunque falte la carpeta, el archivo o paho-mqtt
+    print(f"Arché: (El módulo del perro no cargó: {_e})")
+
+    def manejar_robot(frase):
+        return None
+
+    def detener_robot():
+        pass
+
+# Banco de pruebas (celular = ojos): Perro_robotico/banco_de_prueba.py
+try:
+    import banco_de_prueba as banco_pruebas
+except Exception as _e:
+    print(f"Arché: (El banco de pruebas no cargó: {_e})")
+    banco_pruebas = None
 
 # NOTA: archivos que existen en el proyecto pero NO se usan en ningún
 # lado (no rompen nada si se quedan, es solo peso muerto):
@@ -370,6 +390,9 @@ if obtener("autorevision_automatica"):
 # hubieras tipeado tal cual. Cero funciones duplicadas.
 _cola_comandos_naturales = []
 
+canales_arche.instalar()                 # a partir de aquí input() recibe consola y WhatsApp
+whatsapp_arche.arrancar_si_corresponde()
+
 while True:
 
     if _cola_comandos_naturales:
@@ -404,9 +427,17 @@ while True:
     # "continue" -> nunca se llama a analizar()/Ollama para estos casos.
     # ------------------------------------------------------------------
 
+    # MAPA MENTAL y CANAL DE WHATSAPP: los hace Arché de verdad, no la nube.
+    if mapa_mental_arche.manejar(comando_original):
+        continue
+    if whatsapp_arche.manejar(comando_original):
+        continue
+
     if comando in ["adiós", "adios", "salir"]:
         responder_conversacion("adios")
         detener_robot()   # el perro se queda quieto y se apaga el modo perro
+        if banco_pruebas is not None and banco_pruebas._banco is not None:
+            banco_pruebas._banco.cerrar()   # banco en paro y vigilante apagado
         break
 
     # CONFIGURACIÓN
@@ -562,8 +593,19 @@ while True:
             print(f"Arché: {_mensaje}")
         continue
 
+    # BANCO DE PRUEBAS: "banco de pruebas", "estado del banco de pruebas", "para el banco de pruebas".
+    # Va antes del perro porque la parada de emergencia debe poner el banco en paro y seguir al robot.
+    if banco_pruebas is not None:
+        try:
+            _respuesta_banco = banco_pruebas.manejar(comando_original)
+        except Exception as _e:
+            _respuesta_banco = f"El banco de pruebas fallo: {_e}"
+        if _respuesta_banco is not None:
+            print(f"Arché: {_respuesta_banco}")
+            continue
+
     # PERRO ROBOTICO (Perro_robotico/acciones_robot.py): "mueve la cola", "sientate",
-    # "activa el modo perro", "conecta el robot a <ip>", "parada de emergencia".
+    # "activa el modo perro", "mueve el servo 2 a 90", "parada de emergencia".
     # Devuelve el texto de la respuesta, o None si la frase no es del perro.
     _respuesta_robot = manejar_robot(comando_original)
     if _respuesta_robot is not None:

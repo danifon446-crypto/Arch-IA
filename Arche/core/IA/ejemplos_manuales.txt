@@ -8,27 +8,75 @@
 # Para ver los nombres validos de intencion, en Arche escribe: intenciones
 # Despues de editar este archivo, en Arche escribe: importar ejemplos
 #
-# Ejemplos (borra el # para usarlos):
-#     que hora tienes ahorita | hora
-#     anotame lo del dentista | crear_nota | lo del dentista
-# =========================
+# NOTA: ninguna frase esta repetida en dos intenciones distintas (eso confunde al clasificador).
+
+# ============================================================
 # NOTAS
-# =========================
+# ============================================================
+
+crea una nota llamada lista del super | crear_nota | lista del super
+nueva nota sobre el circuito del robot | crear_nota | el circuito del robot
+apunta una nota que se llame pendientes | crear_nota | pendientes
+quiero crear una nota de recetas | crear_nota | recetas
+haz una nota titulada ideas de proyecto | crear_nota | ideas de proyecto
+crea la nota tareas de la semana | crear_nota | tareas de la semana
+anotame una nota llamada contraseñas wifi | crear_nota | contraseñas wifi
+genera una nota nueva llamada pruebas | crear_nota | pruebas
+crea una nota con el nombre fórmulas de física | crear_nota | fórmulas de física
+hazme una nota de la tesis | crear_nota | la tesis
+crea una nota sobre el proyecto | crear_nota | proyecto
+nueva nota proyecto final | crear_nota | proyecto final
+quiero una nota nueva que se llame gastos del mes | crear_nota | gastos del mes
+crea una nota nueva | crear_nota | 
+anota esto para después | crear_nota | 
+quiero guardar una nota | crear_nota | 
+guarda esta información en una nota | crear_nota | 
+hazme una nota nueva | crear_nota | 
+necesito una nota nueva | crear_nota | 
+quiero apuntar algo en una nota | crear_nota | 
+
+muéstrame todas mis notas | listar_notas
+qué notas tengo guardadas | listar_notas
+lista mis notas | listar_notas
+quiero ver todas las notas | listar_notas
+qué notas he creado | listar_notas
+enséñame las notas que tengo | listar_notas
+cuáles notas tengo guardadas | listar_notas
+dame el listado de mis notas | listar_notas
+cuántas notas tengo | listar_notas
+revisa qué notas tengo | listar_notas
+dime los nombres de mis notas | listar_notas
+qué notas hay | listar_notas
 
 lee la nota del dentista | leer_nota | dentista
 muéstrame la nota del proyecto | leer_nota | proyecto
-abre la nota de la universidad | leer_nota | universidad
-quiero leer una nota que guardé | leer_nota | 
 enséñame la nota sobre Arduino | leer_nota | Arduino
 lee mi nota llamada compras | leer_nota | compras
-abre la nota que dice materiales | leer_nota | materiales
+léeme la nota de pendientes | leer_nota | pendientes
+qué dice la nota de la tesis | leer_nota | tesis
+muéstrame lo que dice la nota del circuito | leer_nota | circuito
+lee la nota llamada contraseñas wifi | leer_nota | contraseñas wifi
+dime qué tiene la nota tareas | leer_nota | tareas
+cuéntame qué hay en la nota del super | leer_nota | super
+lee la nota que dice materiales | leer_nota | materiales
+lee mi nota | leer_nota | 
+quiero consultar una nota | leer_nota | 
+muéstrame el contenido de una nota | leer_nota | 
+quiero leer una nota que guardé | leer_nota | 
 
 abre la nota del proyecto | abrir_nota | proyecto
 quiero abrir la nota de Arduino | abrir_nota | Arduino
 abre mi nota de la universidad | abrir_nota | universidad
 entra a la nota de compras | abrir_nota | compras
 abre la nota llamada ideas | abrir_nota | ideas
-quiero ver la nota del robot | abrir_nota | robot
+ábreme la nota del super | abrir_nota | super
+ve a la nota de ideas | abrir_nota | ideas
+quiero abrir la nota de física | abrir_nota | física
+abre la nota llamada tesis | abrir_nota | tesis
+abre la nota que guardé | abrir_nota | 
+quiero entrar a una nota | abrir_nota | 
+abre una de mis notas | abrir_nota | 
+accede a la nota | abrir_nota | 
 
 agrega esto a la nota del proyecto | agregar_nota | proyecto
 añade esta información a la nota de Arduino | agregar_nota | Arduino
@@ -36,17 +84,31 @@ escribe en la nota de la universidad que mañana hay examen | agregar_nota | uni
 agrega a la nota del robot que necesito dos motores | agregar_nota | robot: necesito dos motores
 añade a la nota compras que necesito sensores | agregar_nota | compras: necesito sensores
 pon en la nota proyecto que ya terminé el circuito | agregar_nota | proyecto: ya terminé el circuito
+agrega a la nota del super que falta leche | agregar_nota | super: falta leche
+añade a la nota de pendientes que debo pagar la luz | agregar_nota | pendientes: debo pagar la luz
+escribe en la nota de la tesis que revisé el capítulo dos | agregar_nota | tesis: revisé el capítulo dos
+apunta en la nota de ideas que hacer un brazo robótico | agregar_nota | ideas: hacer un brazo robótico
+anota en la nota de física que la fuerza es masa por aceleración | agregar_nota | física: la fuerza es masa por aceleración
+añade información a una nota | agregar_nota | 
+escribe algo en mi nota | agregar_nota | 
+quiero añadir algo a una nota | agregar_nota | 
 
 borra la nota del proyecto | eliminar_nota | proyecto
 elimina la nota de Arduino | eliminar_nota | Arduino
 quiero borrar la nota de compras | eliminar_nota | compras
-elimina la nota llamada ideas | eliminar_nota | ideas
 borra mi nota del robot | eliminar_nota | robot
 quita la nota de la universidad | eliminar_nota | universidad
+elimina la nota del super | eliminar_nota | super
+quita la nota llamada pruebas | eliminar_nota | pruebas
+ya no quiero la nota de pendientes | eliminar_nota | pendientes
+deshazte de la nota de física | eliminar_nota | física
+quita una nota | eliminar_nota | 
+quiero eliminar una nota guardada | eliminar_nota | 
+borra una de mis notas | eliminar_nota | 
 
-# =========================
+# ============================================================
 # CALCULADORA
-# =========================
+# ============================================================
 
 calcula 25 por 8 | calcular | 25 * 8
 cuánto es 150 dividido entre 6 | calcular | 150 / 6
@@ -58,19 +120,65 @@ resuelve 12 por 5 más 20 | calcular | 12 * 5 + 20
 haz esta operación 45 / 9 | calcular | 45 / 9
 cuánto es 2 elevado a 10 | calcular | 2 ** 10
 calcula 1000 dividido entre 25 | calcular | 1000 / 25
+cuanto es 7 por 9 | calcular | 7 * 9
+calcula 100 entre 4 | calcular | 100 / 4
+dime cuanto es 56 mas 44 | calcular | 56 + 44
+cuanto es 1000 menos 355 | calcular | 1000 - 355
+calcula 9 al cubo | calcular | 9 ** 3
+cuanto es 20 por ciento de 150 | calcular | 20% de 150
+resuelve 3 por 4 por 5 | calcular | 3 * 4 * 5
+calcula 8 mas 2 por 3 | calcular | 8 + 2 * 3
+cuanto es 5 elevado a la 4 | calcular | 5 ** 4
+hazme la cuenta de 75 dividido entre 3 | calcular | 75 / 3
+cuanto es el 10% de 80 | calcular | 10% de 80
+suma 12 y 30 | calcular | 12 + 30
+multiplica 14 por 6 | calcular | 14 * 6
+divide 90 entre 5 | calcular | 90 / 5
+resta 40 a 100 | calcular | 100 - 40
+cuanto es 13 por 13 | calcular | 13 * 13
+calcula 2 elevado a la 8 | calcular | 2 ** 8
+cuanto es 450 entre 9 | calcular | 450 / 9
+cuanto es el 50% de 360 | calcular | 50% de 360
+calcula 6 por 7 menos 10 | calcular | 6 * 7 - 10
+resuelve 100 menos 20 por 2 | calcular | 100 - 20 * 2
+cuanto es 30 mas 25 mas 45 | calcular | 30 + 25 + 45
+cuanto es 12 al cuadrado | calcular | 12 ** 2
+calcula 1500 por 3 | calcular | 1500 * 3
+cuanto da 8000 entre 16 | calcular | 8000 / 16
+cuanto es 3.5 por 4 | calcular | 3.5 * 4
+necesito hacer una cuenta | calcular | 
+ayudame con una operacion | calcular | 
+quiero calcular algo | calcular | 
 
 muéstrame mis últimos cálculos | historial_calculos
 quiero ver el historial de cálculos | historial_calculos
 enséñame las operaciones que he hecho | historial_calculos
 cuáles fueron mis cálculos anteriores | historial_calculos
+muéstrame mi historial de operaciones | historial_calculos
+enséñame las cuentas anteriores | historial_calculos
+quiero revisar mis cálculos anteriores | historial_calculos
+qué operaciones he realizado | historial_calculos
+dime qué cálculos hice antes | historial_calculos
+muéstrame todas las operaciones | historial_calculos
+lista de cuentas que hice | historial_calculos
+historial de la calculadora | historial_calculos
+
 muéstrame el último cálculo | ultimo_calculo
 cuál fue la última operación | ultimo_calculo
 dime qué fue lo último que calculé | ultimo_calculo
 cuál fue mi cálculo más reciente | ultimo_calculo
+dime cuál fue mi último cálculo | ultimo_calculo
+enséñame la última operación que hice | ultimo_calculo
+qué operación hice de última | ultimo_calculo
+recuerda cuál fue mi cálculo anterior | ultimo_calculo
+muéstrame el cálculo más reciente | ultimo_calculo
+cuál fue la última cuenta que hice | ultimo_calculo
+cuánto me dio la cuenta de antes | ultimo_calculo
+repíteme el resultado anterior | ultimo_calculo
 
-# =========================
+# ============================================================
 # ARCHIVOS
-# =========================
+# ============================================================
 
 busca el archivo del proyecto | buscar_archivo | proyecto
 encuentra el archivo de Arduino | buscar_archivo | Arduino
@@ -79,6 +187,17 @@ encuentra mi archivo de matemáticas | buscar_archivo | matemáticas
 dónde está el archivo del robot | buscar_archivo | robot
 busca archivos que tengan la palabra examen | buscar_archivo | examen
 encuentra la carpeta del proyecto | buscar_archivo | proyecto
+busca el archivo de la tesis | buscar_archivo | tesis
+encuentra el pdf del manual | buscar_archivo | manual
+donde esta el archivo de cotizaciones | buscar_archivo | cotizaciones
+busca mi hoja de calculo de gastos | buscar_archivo | gastos
+dónde dejé el archivo del informe final | buscar_archivo | informe final
+busca la foto del circuito | buscar_archivo | circuito
+busca el sketch de Arduino del brazo | buscar_archivo | brazo
+encuentra mi archivo | buscar_archivo | 
+quiero localizar un archivo | buscar_archivo | 
+localiza el documento que necesito | buscar_archivo | 
+necesito encontrar un archivo | buscar_archivo | 
 
 abre el archivo del proyecto | abrir_archivo | proyecto
 abre el informe de Arduino | abrir_archivo | Arduino
@@ -86,16 +205,34 @@ quiero abrir el archivo llamado informe | abrir_archivo | informe
 abre el documento de matemáticas | abrir_archivo | matemáticas
 abre el archivo del robot | abrir_archivo | robot
 abre el archivo que se llama tarea | abrir_archivo | tarea
+abre el pdf del manual | abrir_archivo | manual
+abre mi archivo de gastos | abrir_archivo | gastos
+abre el documento de la tesis | abrir_archivo | tesis
+abre el excel de cotizaciones | abrir_archivo | cotizaciones
+abre la presentación de física | abrir_archivo | presentación de física
+abre el sketch del brazo | abrir_archivo | brazo
+muéstrame el documento del experimento | abrir_archivo | experimento
+abre mi archivo | abrir_archivo | 
+quiero abrir un documento | abrir_archivo | 
+abre el documento que necesito | abrir_archivo | 
+quiero acceder a un archivo | abrir_archivo | 
 
 actualiza los archivos de Arché | actualizar_archivos
 revisa si hay archivos nuevos | actualizar_archivos
 actualiza la información de los archivos | actualizar_archivos
 sincroniza los archivos de Arché | actualizar_archivos
 actualiza mi biblioteca de archivos | actualizar_archivos
+actualiza la lista de archivos | actualizar_archivos
+vuelve a revisar los archivos | actualizar_archivos
+comprueba si hay nuevos archivos | actualizar_archivos
+recarga los archivos disponibles | actualizar_archivos
+revisa nuevamente mis archivos | actualizar_archivos
+re-escanea mis carpetas | actualizar_archivos
+indexa de nuevo mis archivos | actualizar_archivos
 
-# =========================
+# ============================================================
 # SISTEMA
-# =========================
+# ============================================================
 
 cómo está el sistema | estado_sistema
 dime el estado actual del computador | estado_sistema
@@ -103,6 +240,13 @@ muéstrame el estado del sistema | estado_sistema
 revisa cómo está funcionando el computador | estado_sistema
 quiero saber el estado del equipo | estado_sistema
 cómo está funcionando mi PC | estado_sistema
+revisa el estado del computador | estado_sistema
+cómo se encuentra el equipo | estado_sistema
+comprueba el funcionamiento del PC | estado_sistema
+dime cómo está mi computador | estado_sistema
+cómo anda el computador | estado_sistema
+haz un diagnóstico del equipo | estado_sistema
+revisa la salud del sistema | estado_sistema
 
 qué procesos están consumiendo recursos | procesos_consumen
 qué programas están consumiendo más | procesos_consumen
@@ -111,6 +255,12 @@ qué está usando más memoria | procesos_consumen
 qué procesos están usando más CPU | procesos_consumen
 qué aplicaciones están consumiendo recursos | procesos_consumen
 qué está consumiendo la RAM | procesos_consumen
+qué programa está usando más recursos | procesos_consumen
+qué está consumiendo el procesador | procesos_consumen
+muéstrame los programas que más recursos usan | procesos_consumen
+qué está haciendo lento el pc | procesos_consumen
+quién está gastando más memoria | procesos_consumen
+dime los programas más pesados | procesos_consumen
 
 cuánto espacio tengo en el disco | espacio_disco
 cuánto espacio libre queda | espacio_disco
@@ -118,10 +268,17 @@ revisa el espacio del disco | espacio_disco
 dime cuánto almacenamiento tengo disponible | espacio_disco
 cuánto almacenamiento me queda | espacio_disco
 cuánto espacio libre hay en mi PC | espacio_disco
+revisa cuánto espacio queda | espacio_disco
+muéstrame el almacenamiento disponible | espacio_disco
+cuánto almacenamiento libre tengo | espacio_disco
+comprueba el espacio disponible | espacio_disco
+cuántos gigas libres tengo | espacio_disco
+revisa si el disco está lleno | espacio_disco
+estoy llegando al límite del disco | espacio_disco
 
-# =========================
+# ============================================================
 # RED
-# =========================
+# ============================================================
 
 tengo conexión a internet | estado_red
 hay internet | estado_red
@@ -131,46 +288,97 @@ está funcionando el internet | estado_red
 tengo conexión de red | estado_red
 revisa si estoy conectado | estado_red
 comprueba el estado de la red | estado_red
+comprueba si tengo internet | estado_red
+revisa el estado de mi conexión | estado_red
+tengo wifi | estado_red
+funciona el wifi | estado_red
+se cayó el internet | estado_red
+estoy sin internet | estado_red
+mira si estoy online | estado_red
 
-# =========================
+# ============================================================
 # CONFIGURACIÓN
-# =========================
+# ============================================================
 
 muéstrame mi configuración | mostrar_config
 qué configuración tengo | mostrar_config
 enséñame la configuración de Arché | mostrar_config
 quiero ver la configuración actual | mostrar_config
 dime cómo está configurado Arché | mostrar_config
+enséñame cómo está configurado todo | mostrar_config
+quiero revisar mi configuración | mostrar_config
+dime mis ajustes actuales | mostrar_config
+muéstrame los ajustes de Arché | mostrar_config
+revisa la configuración actual | mostrar_config
+qué ajustes tienes guardados | mostrar_config
 
-quiero cambiar mi nombre | cambiar_nombre_usuario | Daniel
+me llamo Carlos | cambiar_nombre_usuario | Carlos
+mi nombre es Laura guárdalo | cambiar_nombre_usuario | Laura
+dime Santi de ahora en adelante | cambiar_nombre_usuario | Santi
+a mí me puedes decir Andrés | cambiar_nombre_usuario | Andrés
+registra que me llamo Sofía | cambiar_nombre_usuario | Sofía
+mi nombre real es Mateo | cambiar_nombre_usuario | Mateo
+llámame Juli | cambiar_nombre_usuario | Juli
+quiero que me digas Nico | cambiar_nombre_usuario | Nico
 cambia mi nombre a Daniel | cambiar_nombre_usuario | Daniel
-llámame Daniel | cambiar_nombre_usuario | Daniel
 quiero que me llames Dani | cambiar_nombre_usuario | Dani
-cambia el nombre del usuario | cambiar_nombre_usuario | Daniel
+pon mi nombre como Daniel | cambiar_nombre_usuario | Daniel
+establece mi nombre como Daniel | cambiar_nombre_usuario | Daniel
+quiero cambiar mi nombre | cambiar_nombre_usuario | 
+actualiza mi nombre | cambiar_nombre_usuario | 
 
-cambia tu nombre | cambiar_nombre_asistente | Arché
-quiero cambiar tu nombre | cambiar_nombre_asistente | Arché
+te vas a llamar Atlas | cambiar_nombre_asistente | Atlas
+a partir de hoy tu nombre es Nova | cambiar_nombre_asistente | Nova
+quiero que te llames Jarvis | cambiar_nombre_asistente | Jarvis
+tu nuevo nombre es Luna | cambiar_nombre_asistente | Luna
+cámbiate el nombre a Rex | cambiar_nombre_asistente | Rex
+de ahora en adelante te digo Max | cambiar_nombre_asistente | Max
+te voy a poner de nombre Orion | cambiar_nombre_asistente | Orion
+vas a responder al nombre de Atenea | cambiar_nombre_asistente | Atenea
 ahora te vas a llamar Arché | cambiar_nombre_asistente | Arché
-ponte otro nombre | cambiar_nombre_asistente | Arché
-quiero modificar tu nombre | cambiar_nombre_asistente | Arché
+cambia tu nombre | cambiar_nombre_asistente | 
+quiero cambiar tu nombre | cambiar_nombre_asistente | 
+ponte otro nombre | cambiar_nombre_asistente | 
+modifica el nombre del asistente | cambiar_nombre_asistente | 
+establece un nuevo nombre para ti | cambiar_nombre_asistente | 
 
 restablece la configuración | restablecer_config
 restaura la configuración original | restablecer_config
 vuelve a la configuración predeterminada | restablecer_config
 reinicia la configuración de Arché | restablecer_config
 deja la configuración como estaba al principio | restablecer_config
+vuelve a los ajustes iniciales | restablecer_config
+restaura todos los ajustes | restablecer_config
+devuelve la configuración a su estado original | restablecer_config
+quiero reiniciar los ajustes | restablecer_config
+restaura los valores predeterminados | restablecer_config
+borra mis ajustes y empieza de cero | restablecer_config
+resetea la configuración | restablecer_config
 
-# =========================
+# ============================================================
 # MEMORIA
-# =========================
+# ============================================================
 
 recuerda que mi proyecto usa ESP32 | recordar | mi proyecto usa ESP32
 guarda que estoy estudiando mecatrónica | recordar | estoy estudiando mecatrónica
 recuerda que mi robot usa dos motores | recordar | mi robot usa dos motores
-guarda esta información | recordar | 
-quiero que recuerdes esto | recordar | 
 memoriza que necesito comprar sensores | recordar | necesito comprar sensores
 guarda en tu memoria que uso Windows | recordar | uso Windows
+recuerda que mi cumpleaños es en marzo | recordar | mi cumpleaños es en marzo
+guarda que prefiero programar en python | recordar | prefiero programar en python
+anota en tu memoria que vivo en Cajicá | recordar | vivo en Cajicá
+recuerda que mi robot se llama Rex | recordar | mi robot se llama Rex
+memoriza que mi profesor se llama Carlos | recordar | mi profesor se llama Carlos
+no olvides que uso el puerto COM3 | recordar | uso el puerto COM3
+ten presente que mi wifi se llama Casa | recordar | mi wifi se llama Casa
+apunta que mi servo es un MG996R | recordar | mi servo es un MG996R
+acuérdate de que mi examen es el jueves | recordar | mi examen es el jueves
+quiero que sepas que me gusta el café sin azúcar | recordar | me gusta el café sin azúcar
+guarda esta información | recordar | 
+quiero que recuerdes esto | recordar | 
+guarda este dato en tu memoria | recordar | 
+quiero que guardes esto | recordar | 
+memoriza esta información | recordar | 
 
 qué recuerdas de mi proyecto | mostrar_memoria
 muéstrame lo que recuerdas | mostrar_memoria
@@ -178,17 +386,32 @@ qué tienes guardado en memoria | mostrar_memoria
 enséñame mi memoria | mostrar_memoria
 dime qué información tienes guardada | mostrar_memoria
 qué información recuerdas de mí | mostrar_memoria
+qué información tienes sobre mí | mostrar_memoria
+dime qué datos recuerdas | mostrar_memoria
+muéstrame todo lo que recuerdas | mostrar_memoria
+qué sabes de mí | mostrar_memoria
+qué te he dicho que recuerdes | mostrar_memoria
+repasa tu memoria | mostrar_memoria
+cuéntame lo que sabes sobre mi robot | mostrar_memoria
 
 cambia lo que recuerdas sobre mi proyecto | editar_memoria | proyecto
+modifica un recuerdo sobre Arduino | editar_memoria | Arduino
+corrige lo que sabes de mi robot | editar_memoria | robot
+cambia el dato de mi wifi | editar_memoria | wifi
+actualiza lo que recuerdas de mi placa | editar_memoria | placa
+modifica lo que guardaste sobre mi profesor | editar_memoria | profesor
+cambia lo que recuerdas de mi cumpleaños | editar_memoria | cumpleaños
 modifica un recuerdo | editar_memoria | 
 quiero cambiar una información guardada | editar_memoria | 
 actualiza lo que tienes guardado | editar_memoria | 
 corrige un dato de tu memoria | editar_memoria | 
-modifica un recuerdo sobre Arduino | editar_memoria | Arduino
+cambia un dato que recuerdas | editar_memoria | 
+quiero editar algo de tu memoria | editar_memoria | 
+ese dato está mal corrígelo | editar_memoria | 
 
-# =========================
+# ============================================================
 # RECORDATORIOS
-# =========================
+# ============================================================
 
 recuérdame estudiar mañana | crear_recordatorio | estudiar mañana
 pon un recordatorio para las 5 de la tarde | crear_recordatorio | estudiar a las 5 de la tarde
@@ -197,8 +420,22 @@ crea un recordatorio para revisar el proyecto | crear_recordatorio | revisar el 
 avísame mañana sobre el examen | crear_recordatorio | examen mañana
 ponme un recordatorio para hacer la tarea | crear_recordatorio | hacer la tarea
 recuérdame llamar a mi profesor | crear_recordatorio | llamar al profesor
-crea un recordatorio para el proyecto | crear_recordatorio | proyecto
 añade un recordatorio para estudiar matemáticas | crear_recordatorio | estudiar matemáticas
+recuérdame llamar a mi mamá a las 6 | crear_recordatorio | llamar a mi mamá a las 6
+avísame que tengo reunión el viernes | crear_recordatorio | reunión el viernes
+ponme un recordatorio de tomar agua | crear_recordatorio | tomar agua
+recuérdame entregar el informe mañana | crear_recordatorio | entregar el informe mañana
+crea un recordatorio para pagar el internet | crear_recordatorio | pagar el internet
+recuérdame sacar la basura esta noche | crear_recordatorio | sacar la basura esta noche
+avísame a las 8 que debo estudiar | crear_recordatorio | estudiar a las 8
+agenda un recordatorio para el cumpleaños de Laura | crear_recordatorio | cumpleaños de Laura
+no me dejes olvidar la cita del médico | crear_recordatorio | la cita del médico
+recuérdame cargar el robot | crear_recordatorio | cargar el robot
+avísame el lunes que hay parcial | crear_recordatorio | parcial el lunes
+recuérdame hacer ejercicio a las 7 de la mañana | crear_recordatorio | hacer ejercicio a las 7 de la mañana
+crea un recordatorio | crear_recordatorio | 
+quiero que me recuerdes algo | crear_recordatorio | 
+anótame un pendiente | crear_recordatorio | 
 
 qué recordatorios tengo | mostrar_recordatorios
 muéstrame mis recordatorios | mostrar_recordatorios
@@ -207,208 +444,461 @@ enséñame los recordatorios | mostrar_recordatorios
 dime mis recordatorios pendientes | mostrar_recordatorios
 qué recordatorios están activos | mostrar_recordatorios
 quiero ver mis recordatorios | mostrar_recordatorios
+muéstrame las tareas que tengo pendientes | mostrar_recordatorios
+qué cosas tengo pendientes | mostrar_recordatorios
+qué avisos tengo pendientes | mostrar_recordatorios
+muéstrame qué recordatorios tengo pendientes | mostrar_recordatorios
+qué tengo para hoy | mostrar_recordatorios
+cuáles son mis pendientes | mostrar_recordatorios
+lista mis recordatorios | mostrar_recordatorios
+tengo avisos programados | mostrar_recordatorios
 
 elimina el recordatorio de estudiar | eliminar_recordatorio | estudiar
 borra el recordatorio del proyecto | eliminar_recordatorio | proyecto
 quita el recordatorio de mañana | eliminar_recordatorio | mañana
 elimina mi recordatorio de comprar sensores | eliminar_recordatorio | comprar sensores
-borra ese recordatorio | eliminar_recordatorio | 
 quita el recordatorio del examen | eliminar_recordatorio | examen
+quita el recordatorio de tomar agua | eliminar_recordatorio | tomar agua
+elimina el aviso de la reunión | eliminar_recordatorio | reunión
+borra el recordatorio de pagar el internet | eliminar_recordatorio | pagar el internet
+cancela el recordatorio del médico | eliminar_recordatorio | médico
+ya no necesito el recordatorio de cargar el robot | eliminar_recordatorio | cargar el robot
+borra el pendiente del parcial | eliminar_recordatorio | parcial
+borra ese recordatorio | eliminar_recordatorio | 
+elimina ese recordatorio pendiente | eliminar_recordatorio | 
+quiero quitar un recordatorio | eliminar_recordatorio | 
+borra una tarea pendiente | eliminar_recordatorio | 
+quita ese aviso | eliminar_recordatorio | 
 
-ya hice lo que me recordaste | completar_recordatorio | 
 completa el recordatorio de estudiar | completar_recordatorio | estudiar
 marca como terminado el recordatorio del proyecto | completar_recordatorio | proyecto
+ya pagué el internet | completar_recordatorio | internet
+terminé de cargar el robot | completar_recordatorio | robot
+marca como hecho el recordatorio de tomar agua | completar_recordatorio | tomar agua
+completa el recordatorio de la reunión | completar_recordatorio | reunión
+ya entregué el informe | completar_recordatorio | informe
+ya hice lo que me recordaste | completar_recordatorio | 
 ya terminé esa tarea | completar_recordatorio | 
 marca ese recordatorio como completado | completar_recordatorio | 
 ya hice el recordatorio | completar_recordatorio | 
+ya terminé esa tarea pendiente | completar_recordatorio | 
+marca como realizado el recordatorio | completar_recordatorio | 
+he terminado el recordatorio | completar_recordatorio | 
+completa esa tarea pendiente | completar_recordatorio | 
+listo ya lo hice | completar_recordatorio | 
 
-# =========================
+# ============================================================
 # ARCHÉ — TEMAS Y OBJETIVOS
-# =========================
+# ============================================================
 
 agrega Arduino como tema de estudio | agregar_tema | Arduino
 añade sensores como tema de estudio | agregar_tema | sensores
-quiero estudiar electrónica | agregar_tema | electrónica
 agrega programación C++ a mis temas | agregar_tema | C++
 añade robótica a los temas | agregar_tema | robótica
-agrega inteligencia artificial | agregar_tema | inteligencia artificial
+agrega inteligencia artificial a mis temas | agregar_tema | inteligencia artificial
 quiero agregar matemáticas a mis temas | agregar_tema | matemáticas
+agrega electrónica como tema | agregar_tema | electrónica
+agrega visión artificial como tema | agregar_tema | visión artificial
+añade control PID a mis temas de estudio | agregar_tema | control PID
+registra redes neuronales como tema | agregar_tema | redes neuronales
+agrega ROS a mis temas | agregar_tema | ROS
+añade sistemas embebidos como tema | agregar_tema | sistemas embebidos
+guarda machine learning como tema de estudio | agregar_tema | machine learning
+pon cálculo vectorial en mis temas | agregar_tema | cálculo vectorial
+añade un nuevo tema de estudio | agregar_tema | 
+registra un tema para estudiar | agregar_tema | 
+quiero guardar un tema nuevo | agregar_tema | 
 
 agrega como objetivo terminar Arché | agregar_objetivo | terminar Arché
 añade el objetivo de construir el robot | agregar_objetivo | construir el robot
 mi objetivo es terminar el proyecto | agregar_objetivo | terminar el proyecto
 crea el objetivo aprender Python | agregar_objetivo | aprender Python
 agrega como objetivo mejorar Arché | agregar_objetivo | mejorar Arché
+agrega como objetivo que el robot camine | agregar_objetivo | que el robot camine
+mi meta es aprender ROS | agregar_objetivo | aprender ROS
+añade como objetivo conectar el robot por wifi | agregar_objetivo | conectar el robot por wifi
+crea el objetivo terminar la tesis | agregar_objetivo | terminar la tesis
+quiero lograr que Arché reconozca mi voz | agregar_objetivo | que Arché reconozca mi voz
+mi objetivo es graduarme este año | agregar_objetivo | graduarme este año
+pon como meta construir un brazo robótico | agregar_objetivo | construir un brazo robótico
 guarda este objetivo | agregar_objetivo | 
+añade otro objetivo | agregar_objetivo | 
+quiero registrar una nueva meta | agregar_objetivo | 
+crea una nueva meta | agregar_objetivo | 
 
 ya terminé el objetivo de aprender Python | objetivo_logrado | aprender Python
 marca como logrado terminar Arché | objetivo_logrado | terminar Arché
 completé el objetivo del robot | objetivo_logrado | robot
+ya cumplí el objetivo de que el robot camine | objetivo_logrado | que el robot camine
+marca como logrado aprender ROS | objetivo_logrado | aprender ROS
+logré conectar el robot por wifi | objetivo_logrado | conectar el robot por wifi
+terminé la tesis marca ese objetivo | objetivo_logrado | terminar la tesis
+completé el objetivo del brazo robótico | objetivo_logrado | brazo robótico
 ya cumplí ese objetivo | objetivo_logrado | 
 marca ese objetivo como terminado | objetivo_logrado | 
+marca como cumplido este objetivo | objetivo_logrado | 
+ya cumplí esta meta | objetivo_logrado | 
+terminé ese objetivo | objetivo_logrado | 
+marca la meta como lograda | objetivo_logrado | 
 
 cuáles son mis objetivos | objetivos
 muéstrame mis objetivos | objetivos
 qué objetivos tengo pendientes | objetivos
 enséñame los objetivos de Arché | objetivos
 qué metas tengo | objetivos
+qué objetivos tengo registrados | objetivos
+muéstrame las metas actuales | objetivos
+dime cuáles son mis metas | objetivos
+qué objetivos están guardados | objetivos
+revisa mis objetivos | objetivos
+cuántos objetivos me faltan | objetivos
 
 cuáles son mis temas de estudio | temas_estudio
 qué temas tengo para estudiar | temas_estudio
 muéstrame mis temas | temas_estudio
 enséñame los temas de estudio | temas_estudio
 qué tengo para estudiar | temas_estudio
+qué temas debo estudiar | temas_estudio
+qué temas tiene Arché para estudiar | temas_estudio
+muéstrame la lista de temas | temas_estudio
+qué temas están registrados | temas_estudio
+dime qué temas tiene guardados | temas_estudio
 
-# =========================
+# ============================================================
 # ESTUDIO
-# =========================
+# (estudiar = que Arché estudie por su cuenta; iniciar_estudio = abrir una sesión formal)
+# ============================================================
 
 quiero estudiar | estudiar
 empieza a estudiar | estudiar
-comienza mi sesión de estudio | estudiar
 pon a Arché a estudiar | estudiar
+ponte a estudiar | estudiar
+quiero que estudies | estudiar
+continúa estudiando | estudiar
+sigue estudiando | estudiar
+haz que Arché estudie | estudiar
+estudia un rato | estudiar
+ponte a estudiar mis temas | estudiar
+estudia por tu cuenta | estudiar
+sigue con tu estudio | estudiar
+
 inicia el estudio | iniciar_estudio
-comienza el aprendizaje | iniciar_estudio
-empieza a aprender | iniciar_estudio
+comienza mi sesión de estudio | iniciar_estudio
 inicia el aprendizaje de Arché | iniciar_estudio
+inicia una sesión de aprendizaje | iniciar_estudio
+empieza la sesión de estudio | iniciar_estudio
+pon en marcha el estudio | iniciar_estudio
+comienza una sesión de aprendizaje | iniciar_estudio
+activa el proceso de estudio | iniciar_estudio
+abre una sesión de estudio | iniciar_estudio
+arranca la sesión de aprendizaje | iniciar_estudio
+inicia el ciclo de aprendizaje | iniciar_estudio
+lanza el proceso de aprendizaje | iniciar_estudio
 
 detén el estudio | detener_estudio
 para el estudio | detener_estudio
 detén el aprendizaje | detener_estudio
 deja de estudiar | detener_estudio
 cancela el proceso de estudio | detener_estudio
+termina el estudio | detener_estudio
+detén la sesión de estudio | detener_estudio
+quiero detener el aprendizaje | detener_estudio
+interrumpe el estudio | detener_estudio
+para la sesión de aprendizaje | detener_estudio
+ya no estudies más | detener_estudio
+finaliza la sesión de estudio | detener_estudio
 
-# =========================
+# ============================================================
 # EXAMEN
-# =========================
+# (examen_on/off = encender o apagar el MODO examen; examen = hacerme preguntas;
+#  estado_examen = consultar si está activo)
+# ============================================================
 
-inicia un examen | examen_on
 activa el modo examen | examen_on
-quiero hacer un examen | examen_on
-pon el examen | examen_on
 activa los exámenes | examen_on
-empieza una prueba | examen_on
+prende el modo examen | examen_on
+entra en modo examen | examen_on
+arranca el modo de examen | examen_on
+pasa a modo examen | examen_on
+modo examen on | examen_on
+habilita las pruebas | examen_on
+enciende el modo de evaluación | examen_on
+pon Arché en modo examen | examen_on
+habilita el modo de examen | examen_on
+comienza el modo evaluación | examen_on
+activa el examen ahora | examen_on
 
-detén el examen | examen_off
 desactiva el modo examen | examen_off
-termina el examen | examen_off
 sal del modo examen | examen_off
+sal del modo de evaluación | examen_off
+apaga el examen | examen_off
+desactiva la evaluación | examen_off
+quita el modo examen | examen_off
+termina el modo examen | examen_off
+ya no quiero el examen | examen_off
+cierra el modo examen | examen_off
+sal del examen | examen_off
+fin del examen | examen_off
+ya basta de examen | examen_off
+detén el examen | examen_off
 cancela la prueba | examen_off
 
 quiero hacer un examen | examen
+inicia un examen | examen
 hazme una prueba | examen
 ponme una prueba sobre el tema | examen
 quiero evaluar lo aprendido | examen
 inicia una evaluación | examen
+quiero realizar una evaluación | examen
+ponme una evaluación | examen
+quiero comprobar mis conocimientos | examen
+inicia una evaluación de conocimientos | examen
+hazme preguntas de lo que has aprendido | examen
+pregúntame sobre Arduino | examen
+evalúame | examen
+tómame una prueba | examen
+ponme preguntas del tema | examen
+quiero que me preguntes cosas | examen
+empieza una prueba | examen
 
 cómo está el examen | estado_examen
 cuál es el estado del examen | estado_examen
 dime si el examen está activo | estado_examen
 está activo el modo examen | estado_examen
+dime cómo está el modo examen | estado_examen
+revisa el estado de la evaluación | estado_examen
+quiero saber si hay un examen activo | estado_examen
+comprueba el estado de la prueba | estado_examen
+el examen está funcionando | estado_examen
+dime si estoy en modo examen | estado_examen
+estoy en un examen ahora | estado_examen
+hay una prueba en curso | estado_examen
+sigue activo el examen | estado_examen
+en qué va el examen | estado_examen
 
-# =========================
+# ============================================================
 # CÓDIGO
-# =========================
+# ============================================================
 
 revisa este código | autorevisar
 analiza el código | autorevisar
 haz una revisión del código | autorevisar
 revisa si hay errores en el código | autorevisar
 comprueba el código | autorevisar
+haz una revisión completa del código | autorevisar
+busca errores en mi programa | autorevisar
+comprueba que el código esté bien | autorevisar
+analiza el programa en busca de errores | autorevisar
+haz una revisión automática | autorevisar
+revísate | autorevisar
+dame el detalle de lo que encontraste para mejorar | autorevisar
 
 revisa y arregla el código | autorevisar_y_arreglar
 corrige los errores del código | autorevisar_y_arreglar
 analiza y corrige el código | autorevisar_y_arreglar
 arregla los problemas del código | autorevisar_y_arreglar
 revisa el código y soluciona los errores | autorevisar_y_arreglar
+corrige automáticamente los errores | autorevisar_y_arreglar
+revisa y soluciona los errores | autorevisar_y_arreglar
+arregla automáticamente el programa | autorevisar_y_arreglar
+detecta y corrige los problemas | autorevisar_y_arreglar
+soluciona los errores que encuentres | autorevisar_y_arreglar
+revísate y arréglate | autorevisar_y_arreglar
+arregla lo que encontraste mal en el código | autorevisar_y_arreglar
 
 analiza esta función | analizar_funcion
 revisa una función específica | analizar_funcion
 quiero analizar una función | analizar_funcion
 estudia esta función del código | analizar_funcion
 dime qué hace esta función | analizar_funcion
+qué hace esta función | analizar_funcion
+explícame esta función | analizar_funcion
+analiza el funcionamiento de esta función | analizar_funcion
+quiero saber cómo funciona esta función | analizar_funcion
+estudia el funcionamiento de esta función | analizar_funcion
+desglósame esta función | analizar_funcion
+cómo está hecha esta función | analizar_funcion
 
 qué impacto tiene esta función | impacto_funcion
 qué cambia esta función en el programa | impacto_funcion
 qué partes afecta esta función | impacto_funcion
 qué consecuencias tiene modificar esta función | impacto_funcion
 qué depende de esta función | impacto_funcion
+qué funciones dependen de esta | impacto_funcion
+qué puede afectar esta función | impacto_funcion
+qué partes del programa modifica esta función | impacto_funcion
+qué efecto tiene esta función | impacto_funcion
+qué pasa si cambio esta función | impacto_funcion
+quién usa esta función | impacto_funcion
+a qué le afecta tocar esta función | impacto_funcion
 
 quiero modificar el código | modificar_codigo
 modifica este código | modificar_codigo
 cambia una parte del código | modificar_codigo
 quiero hacer cambios en el código | modificar_codigo
 edita el código | modificar_codigo
+quiero cambiar una parte del programa | modificar_codigo
+haz una modificación en el código | modificar_codigo
+necesito editar el programa | modificar_codigo
+cambia el código del proyecto | modificar_codigo
+quiero editar una parte del programa | modificar_codigo
+reescribe una parte del código | modificar_codigo
+hazle un cambio al programa | modificar_codigo
 
 revisa los cambios | revisar_cambios
 muéstrame los cambios realizados | revisar_cambios
 qué cambios se hicieron | revisar_cambios
 enséñame los cambios | revisar_cambios
+revisa los cambios que hice en el código | revisar_cambios
+comprueba qué cambios tiene el código | revisar_cambios
+quiero revisar las modificaciones | revisar_cambios
+analiza las modificaciones realizadas | revisar_cambios
+enséñame las modificaciones del código | revisar_cambios
+verifica los cambios realizados | revisar_cambios
+qué se modificó en el código | revisar_cambios
+dame el resumen de los cambios hechos | revisar_cambios
 
 qué cambios están pendientes | cambios_pendientes
 hay cambios pendientes | cambios_pendientes
 muéstrame los cambios que faltan | cambios_pendientes
 qué falta por modificar | cambios_pendientes
+qué modificaciones me faltan | cambios_pendientes
+qué cambios todavía no he terminado | cambios_pendientes
+dime qué modificaciones faltan | cambios_pendientes
+revisa si quedan cambios pendientes | cambios_pendientes
+qué partes todavía necesitan cambios | cambios_pendientes
+qué queda pendiente en el código | cambios_pendientes
+qué propuestas de cambio están sin aplicar | cambios_pendientes
+cuántos cambios faltan por aplicar | cambios_pendientes
 
 hay algún riesgo con esta propuesta | riesgo_propuesta
 qué riesgos tiene esta propuesta | riesgo_propuesta
 analiza los posibles riesgos | riesgo_propuesta
 qué problemas podría causar este cambio | riesgo_propuesta
 hay algún riesgo al hacer esto | riesgo_propuesta
+qué peligro hay en hacer este cambio | riesgo_propuesta
+qué problemas puede generar esta propuesta | riesgo_propuesta
+evalúa los riesgos de esta modificación | riesgo_propuesta
+qué podría salir mal con esta propuesta | riesgo_propuesta
+analiza si esta propuesta es segura | riesgo_propuesta
+es seguro aplicar este cambio | riesgo_propuesta
+me puede romper algo esta propuesta | riesgo_propuesta
 
-# =========================
+# ============================================================
 # AUTOREVISIÓN
-# =========================
+# ============================================================
 
 activa la autorevisión | autorevision_on
 enciende la autorevisión | autorevision_on
 activa el modo de autorevisión | autorevision_on
 quiero activar la autorevisión | autorevision_on
 habilita la autorevisión | autorevision_on
+enciende la revisión automática | autorevision_on
+habilita la revisión automática | autorevision_on
+activa el sistema de autorevisión | autorevision_on
+pon la autorevisión en funcionamiento | autorevision_on
+quiero que la autorevisión quede activa | autorevision_on
+revísate sola cuando andes en segundo plano | autorevision_on
+vuelve a autorevisarte en segundo plano | autorevision_on
 
 desactiva la autorevisión | autorevision_off
 apaga la autorevisión | autorevision_off
 desactiva el modo de autorevisión | autorevision_off
 quiero apagar la autorevisión | autorevision_off
 quita la autorevisión | autorevision_off
+apaga la revisión automática | autorevision_off
+deshabilita la revisión automática | autorevision_off
+detén la autorevisión | autorevision_off
+quita el modo de revisión automática | autorevision_off
+deja desactivada la autorevisión | autorevision_off
+no te autorevises más | autorevision_off
+ya no quiero avisos de autorevisión | autorevision_off
 
-# =========================
-# ARCHÉ — ESTADO
-# =========================
+# ============================================================
+# ARCHÉ — ESTADO Y ENTRENAMIENTO
+# ============================================================
 
 cuál es el estado de Arché | estadisticas
 muéstrame las estadísticas de Arché | estadisticas
 dime las estadísticas | estadisticas
 cómo va Arché | estadisticas
 muéstrame el estado general de Arché | estadisticas
+dame las estadísticas actuales | estadisticas
+qué estadísticas tiene Arché | estadisticas
+muéstrame el progreso de Arché | estadisticas
+quiero ver las estadísticas del sistema | estadisticas
+cuál es el progreso actual | estadisticas
+cuánto has aprendido hasta ahora | estadisticas
+resumen general de Arché | estadisticas
 
 cómo está el entrenamiento jerárquico | estado_jerarquico
 cuál es el estado jerárquico | estado_jerarquico
 muéstrame el estado del entrenamiento | estado_jerarquico
 cómo va el entrenamiento jerárquico | estado_jerarquico
 qué estado tiene el sistema jerárquico | estado_jerarquico
+dime cómo va el entrenamiento | estado_jerarquico
+revisa el entrenamiento jerárquico | estado_jerarquico
+muéstrame el progreso jerárquico | estado_jerarquico
+qué está pasando con el entrenamiento | estado_jerarquico
+quiero revisar el progreso del entrenamiento | estado_jerarquico
+qué precisión tiene cada red | estado_jerarquico
+cómo están las redes de dominio | estado_jerarquico
 
 entrena el sistema jerárquico | entrenar_jerarquico
 inicia el entrenamiento jerárquico | entrenar_jerarquico
 entrena el modelo jerárquico | entrenar_jerarquico
 quiero entrenar el sistema jerárquico | entrenar_jerarquico
 comienza el entrenamiento jerárquico | entrenar_jerarquico
+pon a entrenar el sistema jerárquico | entrenar_jerarquico
+ejecuta el entrenamiento jerárquico | entrenar_jerarquico
+quiero iniciar el entrenamiento jerárquico | entrenar_jerarquico
+activa el entrenamiento jerárquico | entrenar_jerarquico
+entrena todas las redes | entrenar_jerarquico
+reentrena las redes jerárquicas | entrenar_jerarquico
+actualiza los modelos jerárquicos | entrenar_jerarquico
 
 entrena Arché en segundo plano | entrenar_fondo
 inicia el entrenamiento en segundo plano | entrenar_fondo
 entrena mientras hago otras cosas | entrenar_fondo
 pon el entrenamiento en segundo plano | entrenar_fondo
 ejecuta el entrenamiento de fondo | entrenar_fondo
+entrena en segundo plano | entrenar_fondo
+ejecuta el aprendizaje en segundo plano | entrenar_fondo
+continúa el entrenamiento mientras trabajo | entrenar_fondo
+inicia el entrenamiento de fondo | entrenar_fondo
+haz el entrenamiento sin interrumpirme | entrenar_fondo
+entrena sin que me dé cuenta | entrenar_fondo
+sigue entrenando de fondo | entrenar_fondo
 
 cuál es el estado del banco | estado_banco
 muéstrame el estado del banco de conocimiento | estado_banco
 cómo está el banco de conocimiento | estado_banco
 cuántos ejemplos tiene el banco | estado_banco
 revisa el banco de conocimiento | estado_banco
+cuántos ejemplos hay en el banco | estado_banco
+cuántas intenciones están entrenadas | estado_banco
+revisa cuántos datos tiene Arché | estado_banco
+cuántos ejemplos tiene cada intención | estado_banco
+muéstrame las estadísticas del banco | estado_banco
+qué intenciones tienen pocos ejemplos | estado_banco
+qué tan lleno está el banco | estado_banco
 
-# =========================
+limpia lo que aprendiste mal | limpiar_conocimiento
+borra los aprendizajes contaminados | limpiar_conocimiento
+depura tu conocimiento de datos malos | limpiar_conocimiento
+quita del conocimiento lo que este danado | limpiar_conocimiento
+limpia el conocimiento | limpiar_conocimiento
+borra el conocimiento guardado | limpiar_conocimiento
+quiero limpiar la base de conocimiento | limpiar_conocimiento
+elimina el conocimiento almacenado | limpiar_conocimiento
+limpia la información aprendida | limpiar_conocimiento
+borra la información del banco de conocimiento | limpiar_conocimiento
+olvida lo que aprendiste mal | limpiar_conocimiento
+quita los datos erróneos que aprendiste | limpiar_conocimiento
+
+# ============================================================
 # CONVERSACIÓN
-# =========================
+# ============================================================
 
 hola Arché | saludo
 buenos días Arché | saludo
@@ -418,13 +908,29 @@ qué tal Arché | saludo
 cómo estás | saludo
 hola | saludo
 hey Arché | saludo
+qué más Arché | saludo
+buenas Arché | saludo
+qué hubo Arché | saludo
+ey Arché | saludo
+cómo andas | saludo
+todo bien Arché | saludo
+buen día | saludo
+buenas noches | saludo
+hola cómo vas | saludo
+saludos Arché | saludo
 
 quién eres | presentacion
 qué eres | presentacion
 preséntate | presentacion
 dime quién eres | presentacion
-qué puedes hacer | presentacion
 cuál es tu función | presentacion
+cómo te llamas | presentacion
+dime tu nombre | presentacion
+háblame sobre ti | presentacion
+qué eres exactamente | presentacion
+para qué fuiste creado | presentacion
+quién te creó | presentacion
+cuéntame de ti | presentacion
 
 hablemos un rato | conversar
 quiero conversar | conversar
@@ -432,10 +938,19 @@ podemos hablar | conversar
 quiero hablar contigo | conversar
 conversemos | conversar
 tengo ganas de hablar | conversar
+quiero hablar un momento | conversar
+hablemos | conversar
+puedes conversar conmigo | conversar
+quiero tener una conversación | conversar
+me siento aburrido háblame | conversar
+cuéntame algo | conversar
+charlemos un rato | conversar
+quiero platicar contigo | conversar
+acompáñame un rato | conversar
 
-# =========================
+# ============================================================
 # TIEMPO
-# =========================
+# ============================================================
 
 qué hora es | hora
 dime la hora | hora
@@ -445,6 +960,12 @@ dime la hora actual | hora
 qué hora tenemos | hora
 me dices la hora | hora
 qué hora es ahorita | hora
+qué hora marca el sistema | hora
+puedes decirme la hora actual | hora
+me regalas la hora | hora
+qué horas son | hora
+hora actual | hora
+a qué hora estamos | hora
 
 qué fecha es | fecha
 dime la fecha | fecha
@@ -453,10 +974,17 @@ qué fecha tenemos | fecha
 dime la fecha de hoy | fecha
 qué día estamos | fecha
 cuál es la fecha actual | fecha
+dime qué fecha es hoy | fecha
+qué fecha tenemos hoy | fecha
+cuál es el día de hoy | fecha
+a cuántos estamos hoy | fecha
+qué día de la semana es | fecha
+en qué fecha vivimos | fecha
+qué día del mes es hoy | fecha
 
-# =========================
+# ============================================================
 # AYUDA
-# =========================
+# ============================================================
 
 qué puedes hacer | ayuda
 qué comandos tienes | ayuda
@@ -465,503 +993,437 @@ cómo puedo usar Arché | ayuda
 necesito ayuda | ayuda
 qué funciones tienes | ayuda
 enséñame a usar Arché | ayuda
+cómo se usa Arché | ayuda
+enséñame a utilizar Arché | ayuda
+necesito saber cómo funciona Arché | ayuda
+ayuda | ayuda
+lista de comandos | ayuda
 
 qué puedo hacer con las notas | ayuda_categoria | notas
 qué comandos tienes para notas | ayuda_categoria | notas
 cómo manejo mis notas | ayuda_categoria | notas
+cómo creo una nota | ayuda_categoria | notas
+cómo borro una nota | ayuda_categoria | notas
+qué hago para leer mis notas | ayuda_categoria | notas
 qué puedo hacer con la memoria | ayuda_categoria | memoria
 qué comandos tienes para memoria | ayuda_categoria | memoria
+cómo hago para que recuerdes algo | ayuda_categoria | memoria
+cómo corrijo un dato de la memoria | ayuda_categoria | memoria
 qué puedo hacer con los recordatorios | ayuda_categoria | recordatorios
+cómo programo un recordatorio | ayuda_categoria | recordatorios
+cómo marco un recordatorio como hecho | ayuda_categoria | recordatorios
 qué comandos tienes para estudiar | ayuda_categoria | estudio
+cómo hago que Arché estudie | ayuda_categoria | estudio
+cómo pongo un examen | ayuda_categoria | estudio
 qué funciones tienes para código | ayuda_categoria | código
+cómo reviso mi código | ayuda_categoria | código
+qué hago para corregir errores del programa | ayuda_categoria | código
 qué comandos tienes para archivos | ayuda_categoria | archivos
+cómo busco un archivo | ayuda_categoria | archivos
+cómo abro un documento | ayuda_categoria | archivos
+qué puedo hacer con esta categoría | ayuda_categoria | 
+
+# ============================================================
+# WEB — BUSCAR
+# ============================================================
 
 busca recetas de arepas | buscar | recetas de arepas
 investiga como funciona un motor electrico | buscar | como funciona un motor electrico
 averiguame el precio del dolar hoy | buscar | el precio del dolar hoy
 googlea tutoriales de arduino para principiantes | buscar | tutoriales de arduino para principiantes
 encuentrame informacion sobre el sistema solar | buscar | el sistema solar
+busca información sobre Arduino | buscar | Arduino
+investiga sobre inteligencia artificial | buscar | inteligencia artificial
+búscame información sobre ESP32 | buscar | ESP32
+busca como programar un esp32 | buscar | como programar un esp32
+googlea el clima de mañana | buscar | el clima de mañana
+investiga que es un servomotor | buscar | que es un servomotor
+busca en internet noticias de tecnologia | buscar | noticias de tecnologia
+averigua cuanto cuesta un arduino uno | buscar | cuanto cuesta un arduino uno
+buscame tutoriales de python | buscar | tutoriales de python
+busca la diferencia entre ram y rom | buscar | la diferencia entre ram y rom
+quiero saber quien invento el telefono | buscar | quien invento el telefono
+busca imagenes de robots cuadrupedos | buscar | imagenes de robots cuadrupedos
+investiga el protocolo i2c | buscar | el protocolo i2c
+buscame videos de cinematica inversa | buscar | videos de cinematica inversa
+googlea como soldar cables | buscar | como soldar cables
+dime en internet cuanto mide el everest | buscar | cuanto mide el everest
+consulta en la web que es un pid | buscar | que es un pid
+busca el significado de la palabra efimero | buscar | el significado de la palabra efimero
+busca cual es la capital de australia | buscar | cual es la capital de australia
+buscame una receta de ajiaco | buscar | una receta de ajiaco
+busca cuanto cuesta un sensor ultrasonico | buscar | cuanto cuesta un sensor ultrasonico
+mira en internet como funciona un motor paso a paso | buscar | como funciona un motor paso a paso
+busca ofertas de laptops | buscar | ofertas de laptops
+investiga quien fue Nikola Tesla | buscar | quien fue Nikola Tesla
+busca el pronostico del clima en Bogotá | buscar | el pronostico del clima en Bogotá
+quiero buscar algo en internet | buscar | 
+haz una búsqueda en internet | buscar | 
+quiero que busques algo | buscar | 
+necesito buscar una cosa en internet | buscar | 
+googlea algo por mi | buscar | 
+
+# ============================================================
+# WEB — ABRIR PROGRAMAS Y SITIOS
+# ============================================================
+
 abre youtube | abrir | youtube
 entra a gmail | abrir | gmail
 abreme spotify | abrir | spotify
 inicia el bloc de notas | abrir | el bloc de notas
 ve a mercadolibre | abrir | mercadolibre
-crea una nota llamada ideas de tesis | crear_nota | ideas de tesis
-quiero una nota nueva que se llame gastos del mes | crear_nota | gastos del mes
-apunta una nota sobre la reunion del viernes | crear_nota | la reunion del viernes
-nueva nota proyecto final | crear_nota | proyecto final
-cuales notas tengo guardadas | listar_notas
-ensename el listado de mis notas | listar_notas
-lista mis notas por favor | listar_notas
-que notas he creado | listar_notas
-limpia lo que aprendiste mal | limpiar_conocimiento
-borra los aprendizajes contaminados | limpiar_conocimiento
-depura tu conocimiento de datos malos | limpiar_conocimiento
-quita del conocimiento lo que este danado | limpiar_conocimiento
-
-# ============================================================
-# COMPLETAR INTENCIONES HASTA 10 EJEMPLOS
-# ============================================================
-
-# =========================
-# NOTAS — 4 → 10
-# =========================
-
-crea una nota nueva | crear_nota | 
-anota esto para después | crear_nota | 
-quiero guardar una nota | crear_nota | 
-guarda esta información en una nota | crear_nota | 
-hazme una nota nueva | crear_nota | 
-crea una nota sobre el proyecto | crear_nota | proyecto
-
-muéstrame todas mis notas | listar_notas
-qué notas tengo guardadas | listar_notas
-lista mis notas | listar_notas
-quiero ver todas las notas | listar_notas
-qué notas he creado | listar_notas
-enséñame las notas que tengo | listar_notas
-
-# =========================
-# CALCULADORA — 4 → 10
-# =========================
-
-muéstrame mi historial de operaciones | historial_calculos
-enséñame las cuentas anteriores | historial_calculos
-quiero revisar mis cálculos anteriores | historial_calculos
-qué operaciones he realizado | historial_calculos
-dime qué cálculos hice antes | historial_calculos
-muéstrame todas las operaciones | historial_calculos
-
-dime cuál fue mi último cálculo | ultimo_calculo
-enséñame la última operación que hice | ultimo_calculo
-qué operación hice de última | ultimo_calculo
-recuerda cuál fue mi cálculo anterior | ultimo_calculo
-muéstrame el cálculo más reciente | ultimo_calculo
-cuál fue la última cuenta que hice | ultimo_calculo
-
-# =========================
-# CÓDIGO — 4 → 10
-# =========================
-
-revisa los cambios que hice en el código | revisar_cambios
-comprueba qué cambios tiene el código | revisar_cambios
-quiero revisar las modificaciones | revisar_cambios
-analiza las modificaciones realizadas | revisar_cambios
-enséñame las modificaciones del código | revisar_cambios
-verifica los cambios realizados | revisar_cambios
-
-qué modificaciones me faltan | cambios_pendientes
-qué cambios todavía no he terminado | cambios_pendientes
-dime qué modificaciones faltan | cambios_pendientes
-revisa si quedan cambios pendientes | cambios_pendientes
-qué partes todavía necesitan cambios | cambios_pendientes
-qué queda pendiente en el código | cambios_pendientes
-
-# =========================
-# ESTUDIO — 4 → 10
-# =========================
-
-ponte a estudiar | estudiar
-quiero que estudies | estudiar
-continúa estudiando | estudiar
-sigue con el estudio | estudiar
-haz que Arché estudie | estudiar
-continúa con el aprendizaje | estudiar
-
-inicia una sesión de aprendizaje | iniciar_estudio
-empieza la sesión de estudio | iniciar_estudio
-pon en marcha el estudio | iniciar_estudio
-comienza una sesión de aprendizaje | iniciar_estudio
-activa el proceso de estudio | iniciar_estudio
-comienza a estudiar ahora | iniciar_estudio
-
-# =========================
-# LIMPIAR CONOCIMIENTO — 4 → 10
-# =========================
-
-limpia el conocimiento | limpiar_conocimiento
-borra el conocimiento guardado | limpiar_conocimiento
-quiero limpiar la base de conocimiento | limpiar_conocimiento
-elimina el conocimiento almacenado | limpiar_conocimiento
-limpia la información aprendida | limpiar_conocimiento
-borra la información del banco de conocimiento | limpiar_conocimiento
-
-# =========================
-# EXAMEN — 4 → 10
-# =========================
-
-dime cómo está el modo examen | estado_examen
-revisa el estado de la evaluación | estado_examen
-quiero saber si hay un examen activo | estado_examen
-comprueba el estado de la prueba | estado_examen
-el examen está funcionando | estado_examen
-dime si estoy en modo examen | estado_examen
-
-# =========================
-# PRESENTACIÓN — 5 → 10
-# =========================
-
-cómo te llamas | presentacion
-dime tu nombre | presentacion
-háblame sobre ti | presentacion
-qué eres exactamente | presentacion
-para qué fuiste creado | presentacion
-
-# =========================
-# WEB — 5 → 10
-# =========================
-
-busca información sobre Arduino | buscar | Arduino
-investiga sobre inteligencia artificial | buscar | inteligencia artificial
-búscame información sobre ESP32 | buscar | ESP32
-quiero buscar algo en internet | buscar | 
-haz una búsqueda en internet | buscar | 
-
 abre Google | abrir | Google
-abre YouTube | abrir | YouTube
 abre el navegador | abrir | navegador
-quiero entrar a internet | abrir | navegador
 abre la página de Arduino | abrir | Arduino
-
-# =========================
-# ARCHIVOS — 5 → 10
-# =========================
-
-actualiza la lista de archivos | actualizar_archivos
-vuelve a revisar los archivos | actualizar_archivos
-comprueba si hay nuevos archivos | actualizar_archivos
-recarga los archivos disponibles | actualizar_archivos
-revisa nuevamente mis archivos | actualizar_archivos
-
-# =========================
-# CONFIGURACIÓN — 5 → 10
-# =========================
-
-enséñame cómo está configurado todo | mostrar_config
-quiero revisar mi configuración | mostrar_config
-dime mis ajustes actuales | mostrar_config
-muéstrame los ajustes de Arché | mostrar_config
-revisa la configuración actual | mostrar_config
-
-pon mi nombre como Daniel | cambiar_nombre_usuario | Daniel
-quiero que mi nombre sea Daniel | cambiar_nombre_usuario | Daniel
-establece mi nombre como Daniel | cambiar_nombre_usuario | Daniel
-cambia el nombre que tienes guardado | cambiar_nombre_usuario | Daniel
-actualiza mi nombre | cambiar_nombre_usuario | Daniel
-
-cambia el nombre de Arché | cambiar_nombre_asistente | Arché
-quiero ponerle otro nombre al asistente | cambiar_nombre_asistente | 
-modifica el nombre del asistente | cambiar_nombre_asistente | 
-establece un nuevo nombre para ti | cambiar_nombre_asistente | 
-actualiza tu nombre | cambiar_nombre_asistente | 
-
-vuelve a los ajustes iniciales | restablecer_config
-restaura todos los ajustes | restablecer_config
-devuelve la configuración a su estado original | restablecer_config
-quiero reiniciar los ajustes | restablecer_config
-restaura los valores predeterminados | restablecer_config
-
-# =========================
-# CÓDIGO — 5 → 10
-# =========================
-
-quiero cambiar una parte del programa | modificar_codigo
-haz una modificación en el código | modificar_codigo
-necesito editar el programa | modificar_codigo
-cambia el código del proyecto | modificar_codigo
-quiero editar una parte del programa | modificar_codigo
-
-haz una revisión completa del código | autorevisar
-busca errores en mi programa | autorevisar
-comprueba que el código esté bien | autorevisar
-analiza el programa en busca de errores | autorevisar
-haz una revisión automática | autorevisar
-
-corrige automáticamente los errores | autorevisar_y_arreglar
-revisa y soluciona los errores | autorevisar_y_arreglar
-arregla automáticamente el programa | autorevisar_y_arreglar
-detecta y corrige los problemas | autorevisar_y_arreglar
-soluciona los errores que encuentres | autorevisar_y_arreglar
-
-qué hace esta función | analizar_funcion
-explícame esta función | analizar_funcion
-analiza el funcionamiento de esta función | analizar_funcion
-quiero saber cómo funciona esta función | analizar_funcion
-estudia el funcionamiento de esta función | analizar_funcion
-
-qué funciones dependen de esta | impacto_funcion
-qué puede afectar esta función | impacto_funcion
-qué partes del programa modifica esta función | impacto_funcion
-qué efecto tiene esta función | impacto_funcion
-qué pasa si cambio esta función | impacto_funcion
-
-qué peligro hay en hacer este cambio | riesgo_propuesta
-qué problemas puede generar esta propuesta | riesgo_propuesta
-evalúa los riesgos de esta modificación | riesgo_propuesta
-qué podría salir mal con esta propuesta | riesgo_propuesta
-analiza si esta propuesta es segura | riesgo_propuesta
-
-# =========================
-# ARCHÉ / ESTUDIO — 5 → 10
-# =========================
-
-termina el estudio | detener_estudio
-detén la sesión de estudio | detener_estudio
-quiero detener el aprendizaje | detener_estudio
-interrumpe el estudio | detener_estudio
-para la sesión de aprendizaje | detener_estudio
-
-qué temas debo estudiar | temas_estudio
-qué temas tiene Arché para estudiar | temas_estudio
-muéstrame la lista de temas | temas_estudio
-qué temas están registrados | temas_estudio
-dime qué temas tiene guardados | temas_estudio
-
-dame las estadísticas actuales | estadisticas
-qué estadísticas tiene Arché | estadisticas
-muéstrame el progreso de Arché | estadisticas
-quiero ver las estadísticas del sistema | estadisticas
-cuál es el progreso actual | estadisticas
-
-enciende la revisión automática | autorevision_on
-habilita la revisión automática | autorevision_on
-activa el sistema de autorevisión | autorevision_on
-pon la autorevisión en funcionamiento | autorevision_on
-quiero que la autorevisión quede activa | autorevision_on
-
-apaga la revisión automática | autorevision_off
-deshabilita la revisión automática | autorevision_off
-detén la autorevisión | autorevision_off
-quita el modo de revisión automática | autorevision_off
-deja desactivada la autorevisión | autorevision_off
-
-comienza el entrenamiento jerárquico | entrenar_jerarquico
-pon a entrenar el sistema jerárquico | entrenar_jerarquico
-ejecuta el entrenamiento jerárquico | entrenar_jerarquico
-quiero iniciar el entrenamiento jerárquico | entrenar_jerarquico
-activa el entrenamiento jerárquico | entrenar_jerarquico
-
-dime cómo va el entrenamiento | estado_jerarquico
-revisa el entrenamiento jerárquico | estado_jerarquico
-muéstrame el progreso jerárquico | estado_jerarquico
-qué está pasando con el entrenamiento | estado_jerarquico
-quiero revisar el progreso del entrenamiento | estado_jerarquico
-
-hazme una prueba | examen
-quiero realizar una evaluación | examen
-ponme una evaluación | examen
-quiero comprobar mis conocimientos | examen
-inicia una evaluación de conocimientos | examen
-
-activa el examen ahora | examen_on
-enciende el modo de evaluación | examen_on
-pon Arché en modo examen | examen_on
-habilita el modo de examen | examen_on
-comienza el modo evaluación | examen_on
-
-apaga el examen | examen_off
-desactiva la evaluación | examen_off
-quita el modo examen | examen_off
-sal del modo de evaluación | examen_off
-termina el modo examen | examen_off
-
-qué objetivos tengo registrados | objetivos
-muéstrame las metas actuales | objetivos
-dime cuáles son mis metas | objetivos
-qué objetivos están guardados | objetivos
-revisa mis objetivos | objetivos
-
-marca como cumplido este objetivo | objetivo_logrado | 
-ya cumplí esta meta | objetivo_logrado | 
-terminé ese objetivo | objetivo_logrado | 
-completa el objetivo | objetivo_logrado | 
-marca la meta como lograda | objetivo_logrado | 
-
-entrena en segundo plano | entrenar_fondo
-ejecuta el aprendizaje en segundo plano | entrenar_fondo
-continúa el entrenamiento mientras trabajo | entrenar_fondo
-inicia el entrenamiento de fondo | entrenar_fondo
-haz el entrenamiento sin interrumpirme | entrenar_fondo
-
-# =========================
-# ESTADO DEL BANCO — 5 → 10
-# =========================
-
-cuántos ejemplos hay en el banco | estado_banco
-cuántas intenciones están entrenadas | estado_banco
-revisa cuántos datos tiene Arché | estado_banco
-cuántos ejemplos tiene cada intención | estado_banco
-muéstrame las estadísticas del banco | estado_banco
-
-# =========================
-# CONVERSACIÓN — 6 → 10
-# =========================
-
-quiero hablar un momento | conversar
-hablemos | conversar
-puedes conversar conmigo | conversar
-quiero tener una conversación | conversar
-
-# =========================
-# MEMORIA — 6 → 10
-# =========================
-
-qué información tienes sobre mí | mostrar_memoria
-dime qué datos recuerdas | mostrar_memoria
-quiero revisar lo que recuerdas | mostrar_memoria
-muéstrame todo lo que recuerdas | mostrar_memoria
-
-cambia un dato que recuerdas | editar_memoria
-quiero editar algo de tu memoria | editar_memoria
-actualiza un recuerdo | editar_memoria
-corrige la información que recuerdas | editar_memoria
-
-ya terminé esa tarea pendiente | completar_recordatorio | 
-marca como realizado el recordatorio | completar_recordatorio | 
-he terminado el recordatorio | completar_recordatorio | 
-completa esa tarea pendiente | completar_recordatorio | 
-
-elimina ese recordatorio pendiente | eliminar_recordatorio | 
-quiero quitar un recordatorio | eliminar_recordatorio | 
-borra una tarea pendiente | eliminar_recordatorio | 
-quita ese aviso | eliminar_recordatorio | 
-
-abre la nota que guardé | abrir_nota | 
-quiero entrar a una nota | abrir_nota | 
-abre una de mis notas | abrir_nota | 
-accede a la nota | abrir_nota | 
-
-añade información a una nota | agregar_nota | 
-escribe algo en mi nota | agregar_nota | 
-agrega contenido a la nota | agregar_nota | 
-quiero añadir algo a una nota | agregar_nota | 
-
-quita una nota | eliminar_nota | 
-quiero eliminar una nota guardada | eliminar_nota | 
-borra una de mis notas | eliminar_nota | 
-elimina una nota que ya no necesito | eliminar_nota | 
-
-# =========================
-# ARCHIVOS / SISTEMA — 6 → 10
-# =========================
-
-abre mi archivo | abrir_archivo | 
-quiero abrir un documento | abrir_archivo | 
-abre el documento que necesito | abrir_archivo | 
-quiero acceder a un archivo | abrir_archivo | 
-
-revisa el estado del computador | estado_sistema
-cómo se encuentra el equipo | estado_sistema
-comprueba el funcionamiento del PC | estado_sistema
-dime cómo está mi computador | estado_sistema
-
-revisa cuánto espacio queda | espacio_disco
-muéstrame el almacenamiento disponible | espacio_disco
-cuánto almacenamiento libre tengo | espacio_disco
-comprueba el espacio disponible | espacio_disco
-
-# =========================
-# ARCHÉ — 6 → 10
-# =========================
-
-añade otro objetivo | agregar_objetivo | 
-quiero registrar una nueva meta | agregar_objetivo | 
-crea una nueva meta | agregar_objetivo | 
-guarda un nuevo objetivo | agregar_objetivo | 
-
-# =========================
-# TIEMPO — 7 → 10
-# =========================
-
-dime qué fecha es hoy | fecha
-qué fecha tenemos hoy | fecha
-cuál es el día de hoy | fecha
-
-# =========================
-# MEMORIA — 7 → 10
-# =========================
-
-guarda este dato en tu memoria | recordar | 
-quiero que guardes esto | recordar | 
-memoriza esta información | recordar | 
-
-# =========================
-# RECORDATORIOS — 7 → 10
-# =========================
-
-muéstrame las tareas que tengo pendientes | mostrar_recordatorios
-qué cosas tengo pendientes | mostrar_recordatorios
-qué avisos tengo pendientes | mostrar_recordatorios
-
-# =========================
-# NOTAS — 7 → 10
-# =========================
-
-lee mi nota | leer_nota | 
-quiero consultar una nota | leer_nota | 
-muéstrame el contenido de una nota | leer_nota | 
-
-# =========================
-# ARCHIVOS — 7 → 10
-# =========================
-
-encuentra mi archivo | buscar_archivo | 
-quiero localizar un archivo | buscar_archivo | 
-localiza el documento que necesito | buscar_archivo | 
-
-# =========================
-# SISTEMA — 7 → 10
-# =========================
-
-qué programa está usando más recursos | procesos_consumen
-qué está consumiendo el procesador | procesos_consumen
-muéstrame los programas que más recursos usan | procesos_consumen
-
-# =========================
-# AYUDA — 7 → 10
-# =========================
-
-cómo se usa Arché | ayuda
-enséñame a utilizar Arché | ayuda
-necesito saber cómo funciona Arché | ayuda
-
-# =========================
-# TEMAS — 7 → 10
-# =========================
-
-añade un nuevo tema de estudio | agregar_tema | 
-registra un tema para estudiar | agregar_tema | 
-quiero guardar un tema nuevo | agregar_tema | 
-
-# =========================
-# SALUDO — 8 → 10
-# =========================
-
-qué más Arché | saludo
-buenas Arché | saludo
-
-# =========================
-# HORA — 8 → 10
-# =========================
-
-qué hora marca el sistema | hora
-puedes decirme la hora actual | hora
-
-# =========================
-# RED — 8 → 10
-# =========================
-
-comprueba si tengo internet | estado_red
-revisa el estado de mi conexión | estado_red
-
-# =========================
-# RECORDATORIOS — 9 → 10
-# =========================
-
-muéstrame qué recordatorios tengo pendientes | mostrar_recordatorios
-
-# =========================
-# AYUDA CATEGORÍA — 9 → 10
-# =========================
-
-qué puedo hacer con esta categoría | ayuda_categoria | 
+abre facebook | abrir | facebook
+entra a whatsapp | abrir | whatsapp
+abre la calculadora | abrir | la calculadora
+inicia visual studio code | abrir | visual studio code
+abre el explorador de archivos | abrir | el explorador de archivos
+lanza chrome | abrir | chrome
+abre discord | abrir | discord
+abre el administrador de tareas | abrir | el administrador de tareas
+entra a github | abrir | github
+abre netflix | abrir | netflix
+abre word | abrir | word
+inicia arduino ide | abrir | arduino ide
+abre outlook | abrir | outlook
+ve a wikipedia | abrir | wikipedia
+abre el paint | abrir | el paint
+abre instagram | abrir | instagram
+entra a twitter | abrir | twitter
+abre excel | abrir | excel
+abre el panel de control | abrir | el panel de control
+abre la configuracion de windows | abrir | la configuracion de windows
+pon youtube | abrir | youtube
+abre el cmd | abrir | el cmd
+abre la terminal | abrir | la terminal
+abre tinkercad | abrir | tinkercad
+ábreme el correo | abrir | el correo
+quiero entrar a internet | abrir | navegador
+quiero abrir un programa | abrir | 
+abre una aplicación | abrir | 
+lanza un programa | abrir | 
+
+# ============================================================
+# ROBOT — MOVIMIENTO
+# ============================================================
+
+sientate | robot_sentarse
+perro sientate | robot_sentarse
+sentate | robot_sentarse
+perro sentate | robot_sentarse
+sientese | robot_sentarse
+toma asiento | robot_sentarse
+quiero que te sientes | robot_sentarse
+siéntate ahí | robot_sentarse
+sientate perro | robot_sentarse
+sientate ya perro | robot_sentarse
+a sentarse | robot_sentarse
+perro a sentarse | robot_sentarse
+quiero que te sientes ahora | robot_sentarse
+sientate un ratico | robot_sentarse
+ponte sentado | robot_sentarse
+quedate sentado | robot_sentarse
+siéntate en el piso | robot_sentarse
+a ver, sientate | robot_sentarse
+
+parate | robot_pararse
+perro parate | robot_pararse
+levantate | robot_pararse
+perro levantate | robot_pararse
+ponte de pie | robot_pararse
+de pie | robot_pararse
+quiero que te levantes | robot_pararse
+arriba perro | robot_pararse
+arriba | robot_pararse
+levantate perro | robot_pararse
+parate ya | robot_pararse
+a pararse | robot_pararse
+perro a pararse | robot_pararse
+ponte de pie ya | robot_pararse
+ponte parado | robot_pararse
+levántate del suelo | robot_pararse
+incorporate | robot_pararse
+a ver, levántate | robot_pararse
+
+acuestate | robot_acostarse
+perro acuestate | robot_acostarse
+echate | robot_acostarse
+perro echate | robot_acostarse
+tirate | robot_acostarse
+ponte en el suelo | robot_acostarse
+quiero que te acuestes | robot_acostarse
+échate en el suelo | robot_acostarse
+acuestate perro | robot_acostarse
+a echarse | robot_acostarse
+perro a echarse | robot_acostarse
+tumbate | robot_acostarse
+perro tumbate | robot_acostarse
+ponte en el piso | robot_acostarse
+echate a dormir | robot_acostarse
+ponte echado | robot_acostarse
+tirate al piso | robot_acostarse
+a ver, acuestate | robot_acostarse
+
+avanza | robot_avanzar
+perro avanza | robot_avanzar
+camina | robot_avanzar
+perro camina | robot_avanzar
+ven | robot_avanzar
+perro ven | robot_avanzar
+anda | robot_avanzar
+adelante | robot_avanzar
+anda adelante | robot_avanzar
+camina hacia adelante | robot_avanzar
+ven para acá | robot_avanzar
+ven aquí perrito | robot_avanzar
+camina perro | robot_avanzar
+avanza un poco | robot_avanzar
+da un paso adelante | robot_avanzar
+ve hacia adelante | robot_avanzar
+anda para adelante | robot_avanzar
+muevete hacia adelante | robot_avanzar
+camina un poquito | robot_avanzar
+sigue derecho | robot_avanzar
+avanza perrito | robot_avanzar
+camina recto | robot_avanzar
+ven pa acá | robot_avanzar
+acércate | robot_avanzar
+
+retrocede | robot_retroceder
+perro retrocede | robot_retroceder
+atras | robot_retroceder
+perro atras | robot_retroceder
+marcha atras | robot_retroceder
+da marcha atras | robot_retroceder
+camina hacia atrás | robot_retroceder
+da un paso atrás | robot_retroceder
+ve hacia atrás | robot_retroceder
+retrocede un poco | robot_retroceder
+anda para atrás | robot_retroceder
+echa para atrás | robot_retroceder
+reversa | robot_retroceder
+da un paso para atrás | robot_retroceder
+muevete hacia atrás | robot_retroceder
+aléjate | robot_retroceder
+camina de espaldas | robot_retroceder
+retrocede perrito | robot_retroceder
+
+gira a la izquierda | robot_izquierda
+perro gira a la izquierda | robot_izquierda
+gira izquierda | robot_izquierda
+voltea a la izquierda | robot_izquierda
+izquierda | robot_izquierda
+perro izquierda | robot_izquierda
+voltea a tu izquierda | robot_izquierda
+gira hacia la izquierda | robot_izquierda
+gira a tu izquierda | robot_izquierda
+dobla a la izquierda | robot_izquierda
+ve a la izquierda | robot_izquierda
+da la vuelta a la izquierda | robot_izquierda
+muevete a la izquierda | robot_izquierda
+tuerce a la izquierda | robot_izquierda
+hacia la izquierda perro | robot_izquierda
+por la izquierda | robot_izquierda
+gira un poco a la izquierda | robot_izquierda
+
+gira a la derecha | robot_derecha
+perro gira a la derecha | robot_derecha
+gira derecha | robot_derecha
+voltea a la derecha | robot_derecha
+derecha | robot_derecha
+perro derecha | robot_derecha
+voltea a tu derecha | robot_derecha
+gira hacia la derecha | robot_derecha
+gira a tu derecha | robot_derecha
+dobla a la derecha | robot_derecha
+ve a la derecha | robot_derecha
+da la vuelta a la derecha | robot_derecha
+muevete a la derecha | robot_derecha
+tuerce a la derecha | robot_derecha
+hacia la derecha perro | robot_derecha
+por la derecha | robot_derecha
+gira un poco a la derecha | robot_derecha
+
+quieto | robot_quieto
+perro quieto | robot_quieto
+quieta | robot_quieto
+detente | robot_quieto
+perro detente | robot_quieto
+alto | robot_quieto
+para | robot_quieto
+no te muevas | robot_quieto
+quédate quieto | robot_quieto
+no te muevas más | robot_quieto
+detente ya | robot_quieto
+quieto ahí | robot_quieto
+perro quédate ahí | robot_quieto
+espera | robot_quieto
+perro espera | robot_quieto
+stop | robot_quieto
+frena | robot_quieto
+quédate donde estás | robot_quieto
+ya no camines | robot_quieto
+deja de moverte | robot_quieto
+
+ladra | robot_ladrar
+perro ladra | robot_ladrar
+ladrale | robot_ladrar
+guau | robot_ladrar
+haz ruido de perro | robot_ladrar
+ladra fuerte | robot_ladrar
+haz guau | robot_ladrar
+ladra una vez | robot_ladrar
+ladra dos veces | robot_ladrar
+ladra perro ladra | robot_ladrar
+haz un ladrido | robot_ladrar
+guau guau | robot_ladrar
+ladra bajito | robot_ladrar
+suelta un ladrido | robot_ladrar
+a ver, ladra | robot_ladrar
+di guau | robot_ladrar
+ladra duro | robot_ladrar
+
+mueve la cola | robot_cola
+perro mueve la cola | robot_cola
+menea la cola | robot_cola
+cola | robot_cola
+menea la colita | robot_cola
+mueve tu cola | robot_cola
+mueve el rabo | robot_cola
+menea el rabito | robot_cola
+mueve la colita | robot_cola
+agita la cola | robot_cola
+mueve la cola de felicidad | robot_cola
+meneale la cola | robot_cola
+a ver, mueve la cola | robot_cola
+mueve la cola rapidito | robot_cola
+
+da la pata | robot_saludar
+perro da la pata | robot_saludar
+dame la pata | robot_saludar
+saluda | robot_saludar
+perro saluda | robot_saludar
+saludame | robot_saludar
+dame la patita | robot_saludar
+saluda al visitante | robot_saludar
+dame la mano | robot_saludar
+saluda a la gente | robot_saludar
+dame la pata derecha | robot_saludar
+chócala | robot_saludar
+da la patica | robot_saludar
+saluda con la pata | robot_saludar
+saluda a los invitados | robot_saludar
+di hola con la pata | robot_saludar
+
+# ============================================================
+# ROBOT — MODO, ESTADO, EMERGENCIA, AYUDA
+# (nombres tomados de tu log: robot_modo_on / robot_modo_off.
+#  Si en "intenciones" aparecen como robot_modo_perro_on / _off,
+#  haz buscar y reemplazar.)
+# ============================================================
+
+activa el modo perro | robot_modo_on
+actúa como perro | robot_modo_on
+activa el modo perro por favor | robot_modo_on
+ponte en modo perro | robot_modo_on
+empieza a comportarte como perro | robot_modo_on
+modo perro activado | robot_modo_on
+conviertete en perro | robot_modo_on
+enciende el modo perro | robot_modo_on
+quiero que actues como un perro | robot_modo_on
+haz de cuenta que eres un perro | robot_modo_on
+pasa a modo perro | robot_modo_on
+perro activa el modo perro | robot_modo_on
+
+desactiva el modo perro | robot_modo_off
+deja de actuar como perro | robot_modo_off
+apaga el modo perro | robot_modo_off
+quita el modo perro | robot_modo_off
+sal del modo perro | robot_modo_off
+ya no actues como perro | robot_modo_off
+termina el modo perro | robot_modo_off
+vuelve a ser un robot normal | robot_modo_off
+deja el modo perro | robot_modo_off
+ya no seas perro | robot_modo_off
+sal del personaje de perro | robot_modo_off
+perro desactiva el modo perro | robot_modo_off
+
+estado del robot | robot_estado
+prueba que el robot funcione | robot_estado
+como esta el robot | robot_estado
+dime el estado del robot | robot_estado
+revisa si el robot funciona | robot_estado
+el robot esta conectado | robot_estado
+muestrame el estado del perro robot | robot_estado
+comprueba que el robot responda | robot_estado
+verifica el robot | robot_estado
+esta vivo el robot | robot_estado
+chequea el robot | robot_estado
+el robot esta encendido | robot_estado
+como va el robot | robot_estado
+hay conexion con el robot | robot_estado
+responde el robot | robot_estado
+
+parada de emergencia | robot_emergencia
+emergencia | robot_emergencia
+paro de emergencia | robot_emergencia
+apaga todo el robot | robot_emergencia
+para todo ahora mismo | robot_emergencia
+frena el robot de inmediato | robot_emergencia
+detencion de emergencia | robot_emergencia
+perro emergencia | robot_emergencia
+corta el movimiento del robot | robot_emergencia
+emergencia detén los motores | robot_emergencia
+apaga los motores ya | robot_emergencia
+se va a caer detenlo todo | robot_emergencia
+botón de pánico | robot_emergencia
+
+comandos del robot | robot_ayuda
+que comandos tiene el robot | robot_ayuda
+ayuda con el robot | robot_ayuda
+que puede hacer el perro robot | robot_ayuda
+muestrame los comandos del perro | robot_ayuda
+lista de comandos del robot | robot_ayuda
+como controlo el robot | robot_ayuda
+que ordenes entiende el robot | robot_ayuda
+enseñame los comandos del robot | robot_ayuda
+que trucos sabe el robot | robot_ayuda
+como le doy ordenes al robot | robot_ayuda
+
+# ============================================================
+# ROBOT — SERVO Y CONEXIÓN (con dato variable)
+# Estas dos no aparecen en las clases del log; si el importador las
+# rechaza, es porque se manejan fuera del clasificador. No pasa nada.
+# ============================================================
+
+mueve el servo a 90 | robot_mover_servo | 90
+mueve el servo a 45 | robot_mover_servo | 45
+pon el servo en 120 | robot_mover_servo | 120
+gira el servo a 0 grados | robot_mover_servo | 0
+mueve el servo a 180 grados | robot_mover_servo | 180
+lleva el servo a 30 | robot_mover_servo | 30
+ajusta el servo a 75 | robot_mover_servo | 75
+pon el servo a 90 grados | robot_mover_servo | 90
+rota el servo a 60 | robot_mover_servo | 60
+sube el servo a 150 grados | robot_mover_servo | 150
+baja el servo a 20 | robot_mover_servo | 20
+coloca el servo en 135 | robot_mover_servo | 135
+quiero mover un servo | robot_mover_servo | 
+mueve el servo | robot_mover_servo | 
+necesito probar un servo | robot_mover_servo | 
+
+conecta el robot a 192.168.1.45 | robot_conectar | 192.168.1.45
+conecta el robot a 192.168.0.10 | robot_conectar | 192.168.0.10
+conectate a 192.168.1.100 | robot_conectar | 192.168.1.100
+conecta con el robot en 10.0.0.5 | robot_conectar | 10.0.0.5
+enlaza el robot con la ip 192.168.4.1 | robot_conectar | 192.168.4.1
+establece conexion con el robot en 192.168.1.20 | robot_conectar | 192.168.1.20
+conectate al robot en la ip 192.168.0.50 | robot_conectar | 192.168.0.50
+la ip del robot es 192.168.1.77 conectate | robot_conectar | 192.168.1.77
+conecta el esp32 en 192.168.4.2 | robot_conectar | 192.168.4.2
+quiero conectarme al robot | robot_conectar | 
+conecta el perro robot | robot_conectar | 
+conectate al robot | robot_conectar | 
+vincula el robot | robot_conectar |

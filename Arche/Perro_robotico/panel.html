@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banco de pruebas · perro robótico</title>
+<style>
+  :root { color-scheme: dark; --bg:#14161a; --card:#1d2026; --linea:#2b3038; --txt:#e8eaed; --sub:#9aa3ad; --ok:#3fb27f; --mal:#e5534b; --warn:#e3a008; --azul:#4c8dff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--txt); }
+  header { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; padding:.7rem 1rem; border-bottom:1px solid var(--linea); }
+  h1 { font-size:1.05rem; margin:0 1rem 0 0; }
+  .pill { padding:.25rem .7rem; border-radius:99px; font-size:.82rem; background:#2a2f37; color:var(--sub); }
+  .pill.ok { background:#18382c; color:#7fe0b3; } .pill.mal { background:#472322; color:#ff9b94; } .pill.warn { background:#443612; color:#ffd36b; }
+  main { display:grid; grid-template-columns: minmax(320px, 1.1fr) minmax(320px, 1fr); gap:1rem; padding:1rem; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .card { background:var(--card); border:1px solid var(--linea); border-radius:12px; padding:.9rem 1rem; margin-bottom:1rem; }
+  .card h2 { font-size:.8rem; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin:0 0 .6rem; }
+  #video { width:100%; border-radius:8px; background:#000; min-height:180px; display:block; }
+  #evento { font-size:2.2rem; font-weight:700; margin:.5rem 0 .1rem; }
+  .sub { color:var(--sub); font-size:.85rem; }
+  .fila { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.4rem 0; }
+  button { font:inherit; padding:.55rem 1rem; border-radius:8px; border:1px solid var(--linea); background:#2a2f37; color:var(--txt); cursor:pointer; }
+  button:hover { background:#343a44; }
+  button.sel { background:var(--azul); border-color:var(--azul); color:#fff; }
+  #paro { width:100%; padding:1rem; font-size:1.3rem; font-weight:800; background:var(--mal); border-color:var(--mal); color:#fff; letter-spacing:.04em; }
+  #paro:hover { background:#f0625a; }
+  #banner { display:none; background:#472322; border:1px solid var(--mal); color:#ffb4ae; border-radius:10px; padding:.7rem 1rem; margin-bottom:1rem; }
+  select, input[type=number] { font:inherit; padding:.35rem .5rem; border-radius:6px; background:#12141a; color:var(--txt); border:1px solid var(--linea); }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  th, td { text-align:left; padding:.3rem .4rem; border-bottom:1px solid var(--linea); }
+  th { color:var(--sub); font-weight:600; }
+  .num { text-align:right; font-variant-numeric: tabular-nums; }
+  .slider { display:grid; grid-template-columns: 11rem 1fr 3.5rem; gap:.5rem; align-items:center; margin:.3rem 0; font-size:.88rem; }
+  .slider input { width:100%; }
+  .big { font-size:1.6rem; font-weight:700; }
+  .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:.5rem; text-align:center; }
+  .kpis div { background:#12141a; border-radius:8px; padding:.5rem .2rem; }
+  .kpis .sub { font-size:.72rem; }
+  #msg { min-height:1.3em; font-size:.88rem; color:var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <h1>🐕 Banco de pruebas</h1>
+  <span id="p-cam" class="pill">celular: —</span>
+  <span id="p-esp" class="pill">ESP32: —</span>
+  <span id="p-mqtt" class="pill">MQTT: —</span>
+  <span id="p-modo" class="pill">modo: —</span>
+</header>
+
+<main>
+<div>
+  <div id="banner"></div>
+
+  <div class="card">
+    <h2>Lo que ve el celular</h2>
+    <img id="video" src="/video" alt="video">
+    <div id="evento">—</div>
+    <div id="detalle" class="sub">—</div>
+  </div>
+
+  <div class="card">
+    <h2>Control</h2>
+    <button id="paro">⛔ PARO DE EMERGENCIA</button>
+    <div class="fila" style="margin-top:.8rem">
+      <button id="b-manual">Modo manual</button>
+      <button id="b-perro">Modo perro</button>
+      <button id="b-reanudar" style="display:none">Reanudar</button>
+    </div>
+    <div id="msg"></div>
+    <div class="fila">
+      <span class="sub">Probar reacción:</span>
+      <select id="sel-probar"></select>
+      <button id="b-probar">Enviar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Calibración de la visión</h2>
+    <div class="fila"><span class="sub" style="width:11rem">Color de la pelota</span><select id="c-color"></select></div>
+    <div id="sliders"></div>
+    <div class="fila">
+      <label><input type="checkbox" id="c-invertir"> Invertir el giro (si el perro gira al lado contrario)</label>
+    </div>
+    <div class="fila"><button id="b-recal">Recalibrar (celular movido de sitio)</button></div>
+  </div>
+</div>
+
+<div>
+  <div class="card" id="card-manual">
+    <h2>Modo manual · qué hace al ver cada cosa</h2>
+    <table id="t-mapa"></table>
+    <div class="fila">
+      <span class="sub">Espera mínima entre reacciones</span>
+      <input type="number" id="c-cooldown" min="0" max="30" step="0.5" style="width:5rem"> <span class="sub">s</span>
+    </div>
+    <div class="sub">La reacción se dispara cuando la detección cambia (ej. de “nada” a “cara”). “quieto” siempre pasa; “ninguna” deja al robot como está.</div>
+  </div>
+
+  <div class="card" id="card-perro">
+    <h2>Modo perro · personalidad</h2>
+    <div class="fila"><span class="big" id="d-mood">—</span><span class="sub" id="d-postura"></span></div>
+    <div class="sub" id="d-razon">—</div>
+    <div class="slider"><span>Se sienta tras</span><input type="range" id="c-seg_sentarse" min="5" max="120" step="1"><span id="v-seg_sentarse"></span></div>
+    <div class="slider"><span>Se duerme tras</span><input type="range" id="c-seg_dormir" min="10" max="300" step="5"><span id="v-seg_dormir"></span></div>
+    <div class="sub" style="margin-top:.5rem">
+      Cara → se alegra y se acerca · Pelota → la persigue · Movimiento brusco → se asusta y retrocede ·
+      Algo cerca → se detiene · Nada → se aburre, se sienta y se duerme.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Latencia</h2>
+    <div class="kpis">
+      <div><div class="big" id="l-det">—</div><div class="sub">detección (ms)</div></div>
+      <div><div class="big" id="l-red">—</div><div class="sub">red celular→PC (ms)</div></div>
+      <div><div class="big" id="l-pub">—</div><div class="sub">cuadro→MQTT (ms)</div></div>
+      <div><div class="big" id="l-tot">—</div><div class="sub">cuadro→ESP32 (ms)</div></div>
+    </div>
+    <table id="t-lat" style="margin-top:.8rem"></table>
+    <div class="fila"><button id="b-lat-reset">Reiniciar medidas</button></div>
+    <div class="sub">“cuadro→ESP32” corre desde que llega el cuadro que confirma la detección hasta que el ESP32 avisa que recibió la orden de la pata (no incluye el tiempo físico del servo).</div>
+  </div>
+
+  <div class="card">
+    <h2>Últimas reacciones</h2>
+    <table id="t-hist"></table>
+  </div>
+</div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
+const fmt = (v, d=0) => (v === null || v === undefined) ? "—" : Number(v).toFixed(d);
+let E = null, armado = false;
+
+const SLIDERS = [
+  ["umbral_movimiento", "Sensibilidad al movimiento", 0.02, 0.4, 0.01, "fracción de píxeles que cambian"],
+  ["cerca_por_tamano",  "Cara “cerca” si ocupa",      0.04, 0.5, 0.01, "del cuadro"],
+  ["cerca_pelota",      "Pelota “cerca” si ocupa",    0.02, 0.4, 0.01, "del cuadro"],
+  ["cerca_por_textura", "Centro tapado si textura <", 0.05, 0.6, 0.01, "de lo normal"],
+  ["area_min_pelota",   "Pelota mínima",              0.001, 0.05, 0.001, "del cuadro"],
+];
+
+function msg(t) { $("msg").textContent = t || ""; }
+
+function armar(e) {
+  // selects de reacciones
+  for (const a of e.reacciones) { const o = document.createElement("option"); o.value = o.textContent = a; $("sel-probar").appendChild(o); }
+  $("sel-probar").value = "saludar";
+  // tabla del mapa manual
+  const t = $("t-mapa");
+  t.innerHTML = "<tr><th>Si ve…</th><th>hace…</th></tr>";
+  for (const ev of e.eventos) {
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td"); td1.textContent = ev;
+    const td2 = document.createElement("td"); const s = document.createElement("select"); s.id = "m-" + ev;
+    for (const a of e.reacciones) { const o = document.createElement("option"); o.value = o.textContent = a; s.appendChild(o); }
+    s.onchange = () => api("/api/mapa", {evento: ev, accion: s.value});
+    td2.appendChild(s); tr.append(td1, td2); t.appendChild(tr);
+  }
+  // colores
+  for (const c of e.colores) { const o = document.createElement("option"); o.value = o.textContent = c; $("c-color").appendChild(o); }
+  $("c-color").onchange = () => api("/api/config", {color_pelota: $("c-color").value});
+  // sliders de la vision
+  for (const [k, nombre, mn, mx, st, unidad] of SLIDERS) {
+    const d = document.createElement("div"); d.className = "slider";
+    d.innerHTML = `<span title="${unidad}">${nombre}</span><input type="range" id="c-${k}" min="${mn}" max="${mx}" step="${st}"><span id="v-${k}"></span>`;
+    $("sliders").appendChild(d);
+    const r = d.querySelector("input");
+    r.oninput = () => $("v-" + k).textContent = Number(r.value).toFixed(3);
+    r.onchange = () => api("/api/config", {[k]: Number(r.value)});
+  }
+  for (const k of ["seg_sentarse", "seg_dormir"]) {
+    const r = $("c-" + k);
+    r.oninput = () => $("v-" + k).textContent = r.value + " s";
+    r.onchange = () => api("/api/config", {[k]: Number(r.value)});
+  }
+  $("c-cooldown").onchange = () => api("/api/config", {cooldown: Number($("c-cooldown").value)});
+  $("c-invertir").onchange = () => api("/api/config", {invertir_giro: $("c-invertir").checked});
+  armado = true;
+}
+
+function poner(el, valor) { if (document.activeElement !== el) el.value = valor; }
+
+function pintar(e) {
+  if (!armado) armar(e);
+  // pills
+  const cam = $("p-cam"); cam.textContent = e.camara.ok ? `celular: ${e.camara.fps} fps` : "celular: sin video";
+  cam.className = "pill " + (e.camara.ok ? "ok" : "mal");
+  const esp = $("p-esp");
+  if (e.esp.perdido) { esp.textContent = "ESP32: perdido"; esp.className = "pill mal"; }
+  else if (e.esp.hb_visto) { esp.textContent = "ESP32: en línea"; esp.className = "pill ok"; }
+  else { esp.textContent = "ESP32: sin latido (¿.ino viejo?)"; esp.className = "pill warn"; }
+  const mq = $("p-mqtt"); mq.textContent = "MQTT: " + (e.mqtt.ok ? "ok" : "sin conexión"); mq.className = "pill " + (e.mqtt.ok ? "ok" : "mal");
+  const pm = $("p-modo"); pm.textContent = "modo: " + e.modo; pm.className = "pill " + (e.modo === "paro" ? "mal" : "ok");
+
+  // paro / botones
+  const enParo = e.modo === "paro";
+  $("banner").style.display = enParo ? "block" : "none";
+  $("banner").textContent = "⛔ EN PARO — " + (e.motivo_paro || "");
+  $("b-reanudar").style.display = enParo ? "inline-block" : "none";
+  $("b-manual").className = e.modo === "manual" ? "sel" : "";
+  $("b-perro").className = e.modo === "perro" ? "sel" : "";
+  $("card-manual").style.opacity = e.modo === "perro" ? .45 : 1;
+  $("card-perro").style.opacity = e.modo === "manual" ? .45 : 1;
+  if (e.error && !$("msg").textContent) msg(e.error);
+
+  // deteccion
+  $("evento").textContent = e.evento + (e.accion_actual && !enParo ? "  →  " + e.accion_actual : "");
+  const d = e.detalle, partes = [];
+  partes.push(`movimiento ${fmt(d.movimiento * 100, 1)}%`);
+  partes.push(`textura ${fmt(d.textura, 2)}×`);
+  if (d.cara) partes.push(`cara x=${d.cara.x} área=${fmt(d.cara.area * 100, 1)}%`);
+  if (d.pelota) partes.push(`pelota x=${d.pelota.x} área=${fmt(d.pelota.area * 100, 1)}%`);
+  if (d.cerca_por) partes.push(`cerca por: ${d.cerca_por}`);
+  $("detalle").textContent = partes.join(" · ");
+
+  // mapa y config
+  for (const ev of e.eventos) poner($("m-" + ev), e.mapa[ev]);
+  poner($("c-cooldown"), e.cooldown);
+  poner($("c-color"), e.config.color_pelota);
+  $("c-invertir").checked = e.invertir_giro;
+  for (const [k] of SLIDERS) { poner($("c-" + k), e.config[k]); $("v-" + k).textContent = Number(e.config[k]).toFixed(3); }
+  for (const k of ["seg_sentarse", "seg_dormir"]) { poner($("c-" + k), e.perro.params[k]); $("v-" + k).textContent = e.perro.params[k] + " s"; }
+
+  // perro
+  $("d-mood").textContent = e.perro.mood; $("d-postura").textContent = "(" + e.perro.postura + ")";
+  $("d-razon").textContent = e.perro.razon;
+
+  // latencia
+  const L = e.lat;
+  $("l-det").textContent = fmt(L.deteccion, 0); $("l-red").textContent = fmt(L.red_celular, 0);
+  $("l-pub").textContent = fmt(L.publicar, 0); $("l-tot").textContent = fmt(L.total, 0);
+  let h = "<tr><th>Detección</th><th class='num'>n</th><th class='num'>prom ms</th><th class='num'>mín</th><th class='num'>máx</th></tr>";
+  for (const [ev, s] of Object.entries(L.por_evento)) h += `<tr><td>${ev}</td><td class='num'>${s.n}</td><td class='num'>${fmt(s.prom, 0)}</td><td class='num'>${fmt(s.min, 0)}</td><td class='num'>${fmt(s.max, 0)}</td></tr>`;
+  $("t-lat").innerHTML = h;
+  let hh = "<tr><th>Hora</th><th>Vio</th><th>Hizo</th><th class='num'>→MQTT</th><th class='num'>→ESP32</th></tr>";
+  for (const r of L.historial) hh += `<tr><td>${r.hora}</td><td>${r.evento}</td><td>${r.accion}</td><td class='num'>${fmt(r.pub_ms, 0)}</td><td class='num'>${fmt(r.total_ms, 0)}</td></tr>`;
+  $("t-hist").innerHTML = hh;
+}
+
+async function refrescar() {
+  try { E = await (await fetch("/api/estado")).json(); pintar(E); }
+  catch (err) { const c = $("p-cam"); c.textContent = "sin conexión con Arche"; c.className = "pill mal"; }
+}
+
+$("paro").onclick = async () => { await api("/api/paro"); msg("Paro enviado."); refrescar(); };
+$("b-manual").onclick = async () => { const r = await api("/api/modo", {modo: "manual"}); msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-perro").onclick = async () => { const r = await api("/api/modo", {modo: "perro"}); msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-reanudar").onclick = async () => { const r = await api("/api/reanudar"); msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-probar").onclick = async () => { const r = await api("/api/probar", {accion: $("sel-probar").value}); msg(r.ok ? "" : r.msg); };
+$("b-recal").onclick = () => api("/api/recalibrar");
+$("b-lat-reset").onclick = () => api("/api/reiniciar_latencias");
+document.addEventListener("keydown", ev => { if (ev.key === "Escape") $("paro").click(); });   // Esc = paro
+
+setInterval(refrescar, 400);
+refrescar();
+</script>
+</body>
+</html>

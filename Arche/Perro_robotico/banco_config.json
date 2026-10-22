@@ -1,0 +1,23 @@
+{
+  "mapa": {
+    "cara": "saludar",
+    "pelota": "avanzar",
+    "movimiento": "pararse",
+    "cerca": "saludar",
+    "nada": "correr"
+  },
+  "cooldown": 2.5,
+  "invertir_giro": false,
+  "detector": {
+    "color_pelota": "amarilla (tenis)",
+    "umbral_movimiento": 0.1,
+    "cerca_por_tamano": 0.12,
+    "cerca_pelota": 0.06,
+    "cerca_por_textura": 0.2,
+    "area_min_pelota": 0.004
+  },
+  "perro": {
+    "seg_sentarse": 31.0,
+    "seg_dormir": 255.0
+  }
+}

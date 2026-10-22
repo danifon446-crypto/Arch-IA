@@ -1,7 +1,8 @@
 {
-  "corriendo": true,
-  "paso": "generando variaciones de 'hola'",
-  "aprendidos_ronda": 41,
+  "corriendo": false,
+  "paso": "terminado",
+  "aprendidos_ronda": 48,
   "ultimo_error": null,
-  "actualizado_ts": 1792082273.014366
+  "actualizado_ts": 1792481714.0142553,
+  "fin_ultima_ronda_ts": 1792481714.0142553
 }

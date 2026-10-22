@@ -1416,7 +1416,9 @@
       "titulo": "",
       "nivel": "normal",
       "ventana": null,
-      "opts": {}
+      "opts": {
+       "plegado": true
+      }
      },
      {
       "id": "panel",

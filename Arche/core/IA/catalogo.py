@@ -363,6 +363,43 @@ _e("aprendiz_off", "configuracion", "responde la nube primero", "que la nube con
 _e("aprendiz_estado", "configuracion", "estado aprendiz", "ver cuantas respuestas mias coincidieron con la nube y cuanto aprendi",
    ["como va el modo aprendiz", "estado del modo aprendiz"])
 
+# ------------------- perro robotico (Perro_robotico/acciones_robot.py)
+# El perro SIGUE reconociendo sus frases exactas primero (main.py -> manejar_robot). Esto solo le suma la red:
+# entiende otras formas de pedirlo y las reinyecta con el comando de abajo. Lo que mueve al robot pide
+# confirmacion cuando lo detecta la red (confirmar=True); parar y quedarse quieto nunca la piden.
+_e("robot_sentarse", "robot", "sientate", "que el perro robot se siente",
+   ["sientate perro", "quiero que te sientes", "haz que el perro se siente", "toma asiento robot"])
+_e("robot_pararse", "robot", "parate", "que el perro robot se ponga de pie",
+   ["levantate perro", "ponte de pie perro", "haz que el perro se levante", "que se pare el robot"])
+_e("robot_acostarse", "robot", "acuestate", "que el perro robot se acueste",
+   ["echate perro", "tirate al suelo perro", "haz que el perro se acueste", "que se eche el robot"])
+_e("robot_avanzar", "robot", "avanza", "que el perro robot camine hacia adelante",
+   ["camina perro", "ven perro", "anda hacia adelante perro", "haz que el perro camine"], confirmar=True)
+_e("robot_retroceder", "robot", "retrocede", "que el perro robot camine hacia atras",
+   ["marcha atras perro", "ve hacia atras perro", "haz que el perro retroceda", "que el robot de marcha atras"], confirmar=True)
+_e("robot_izquierda", "robot", "gira a la izquierda", "que el perro robot gire a la izquierda",
+   ["voltea a la izquierda perro", "doblale a la izquierda perro", "haz que el perro gire a la izquierda"], confirmar=True)
+_e("robot_derecha", "robot", "gira a la derecha", "que el perro robot gire a la derecha",
+   ["voltea a la derecha perro", "doblale a la derecha perro", "haz que el perro gire a la derecha"], confirmar=True)
+_e("robot_quieto", "robot", "quieto", "que el perro robot se quede quieto",
+   ["no te muevas perro", "detente perro", "alto perro", "que el robot se quede quieto"])
+_e("robot_ladrar", "robot", "ladra", "que el perro robot ladre",
+   ["ladrale a alguien perro", "haz que el perro ladre", "guau perro", "quiero que ladres"])
+_e("robot_cola", "robot", "mueve la cola", "que el perro robot mueva la cola",
+   ["menea la colita perro", "haz que el perro mueva la cola", "mueve la colita", "que el robot menee la cola"])
+_e("robot_saludar", "robot", "da la pata", "que el perro robot salude dando la pata",
+   ["dame la pata perro", "saluda perro", "haz que el perro me salude", "que el robot de la pata"])
+_e("robot_modo_on", "robot", "activa el modo perro", "activar el modo perro: el robot actua solo, juega, camina y se cansa",
+   ["enciende el modo perro", "actua como un perro", "pon al robot en modo perro", "que el perro actue solo"], confirmar=True)
+_e("robot_modo_off", "robot", "desactiva el modo perro", "apagar el modo perro autonomo del robot",
+   ["apaga el modo perro", "deja de actuar como un perro", "quita el modo perro", "sal del modo perro"])
+_e("robot_emergencia", "robot", "parada de emergencia", "frenar el perro robot de inmediato y apagar el modo perro",
+   ["detente todo perro", "alto total robot", "para el robot ya", "frena al perro ya"])
+_e("robot_estado", "robot", "estado del robot", "ver si el perro robot esta conectado y que esta haciendo",
+   ["prueba el robot", "esta conectado el perro", "revisa el perro robot", "como esta el robot"])
+_e("robot_ayuda", "robot", "comandos del perro", "ver todo lo que puede hacer el perro robot",
+   ["que sabe hacer el perro", "ayuda del robot", "que puede hacer el robot", "que haces perro"])
+
 # ------------------- elegir y cuidar la nube / aprender de ella (nube.py, aprender_de_nube.py)
 _e("proveedor_nube", "configuracion", "usa la nube de {X}", "elegir con que empresa se conecta la nube: groq o gemini (gratis con limites) o anthropic (de pago)",
    ["cambia la nube a {X}", "quiero usar {X} en la nube", "pon el proveedor {X}"], argumento="proveedor")

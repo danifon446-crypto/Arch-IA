@@ -94,6 +94,7 @@ def _sistema_para_nube():
         "Si en esta respuesta te piden algo del computador, no digas que no puedes controlarlo: dile la orden exacta, "
         "por ejemplo 'sube el brillo al 40' o 'pon X en spotify', y que con 'comandos' ve la lista. "
         "No inventes cómo funciona Arché por dentro; si no lo sabes, dilo. "
+        "REGLA IMPORTANTE: tú solo conversas. Nunca digas ni insinúes que acabas de abrir una ventana, dibujar, crear un archivo, mover algo o hacer cualquier cosa en el computador, y no ofrezcas hacerlo (nada de '¿quieres que lo dibuje?'). Esas acciones las ejecuta Arché con órdenes concretas; si te piden algo que no sea una orden que existe, di con claridad que todavía no sabes hacerlo y que pueden decir 'comandos'. "
         f"Hoy es {_fecha_en_español()}."
     ]
     if nube.envia_memoria():
@@ -192,7 +193,7 @@ def _responder_primero_local(pregunta):
         return None
 
 
-def responder(pregunta):
+def _responder_sin_filtro(pregunta):
     """
     Respuesta a una charla normal. Devuelve dict:
       texto, fuente ('nube'|'ollama'), aviso, web (bool), cacheable (bool)
@@ -655,3 +656,38 @@ def manejar(comando):
         configuracion.cambiar("ciudad", ciudad)
         _msg(f"Anotado: tu ciudad es {ciudad}. Cuando pidas el clima sin decir ciudad uso esa.")
     return (intencion, arg)
+
+
+# ----------------------------------------------------------------------
+# Filtro anti-"hice algo en el PC": la nube SOLO conversa. Si en su texto afirma
+# que abrió/dibujó/creó algo en el equipo, es mentira (ella no controla nada):
+# Arché lo reemplaza por una respuesta honesta y no la guarda ni aprende de ella.
+# ----------------------------------------------------------------------
+
+_CONTEXTO_PC = re.compile(r"\b(ventana|lienzo|aplicacion de dibujo|programa de dibujo|paint|pantalla|"
+                          r"archivo|carpeta|navegador|la imagen|el mapa|el lienzo)\b")
+_YO_LO_HICE = re.compile(r"\b(abro|abri|abrire|creo|cree|dibujo|dibuje|trazo|trace|genero|genere|guardo|guarde|"
+                         r"muestro|mostre|coloco|llevo|maximizo|"
+                         r"ya (?:esta|tienes|puedes ver)|(?:esta|queda) (?:abierta|abierto|lista|listo)|"
+                         r"deberias verl[ao])\b")
+
+
+def _afirma_accion_falsa(texto):
+    t = _sin_tildes((texto or "").lower())
+    t = re.sub(r"\bcreo que\b", "", t)
+    return bool(_CONTEXTO_PC.search(t) and _YO_LO_HICE.search(t))
+
+
+_MENSAJE_HONESTO = ("No hice eso: la parte de mí que conversa solo puede hablar, no abrir ventanas ni dibujar. "
+                    "Si es una acción del PC, necesito una orden que Arché ya tenga (di 'comandos'); "
+                    "si todavía no existe, dímelo y la agregamos.")
+
+
+def responder(pregunta):
+    """Igual que antes, pero sin dejar pasar respuestas que afirman acciones que no ocurrieron."""
+    r = _responder_sin_filtro(pregunta)
+    if _afirma_accion_falsa(r.get("texto", "")):
+        if r.get("fuente") == "nube" and len(_historial) >= 2:
+            del _historial[-2:]              # que la nube no aprenda de su propia mentira
+        r = dict(r, texto=_MENSAJE_HONESTO, fuente="arche", aviso="", cacheable=False, web=False)
+    return r

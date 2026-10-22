@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ojos del perro</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #111; color: #eee; text-align: center; }
+  video { width: 100%; max-height: 62vh; background: #000; object-fit: contain; }
+  #evento { font-size: 2rem; font-weight: 700; margin: .4rem 0 0; }
+  #info { color: #9aa; font-size: .9rem; margin: .2rem 0 .8rem; min-height: 1.2em; }
+  button, select { font-size: 1.1rem; padding: .7rem 1.2rem; margin: .3rem; border-radius: 10px; border: 0; }
+  button { background: #2a7; color: #fff; }
+  button.off { background: #555; }
+  #msg { color: #fc6; padding: .5rem 1rem; }
+</style>
+</head>
+<body>
+<video id="v" autoplay playsinline muted></video>
+<canvas id="c" hidden></canvas>
+<div id="evento">—</div>
+<div id="info">Pulsa Iniciar y deja el celular fijo apuntando a la escena.</div>
+<div>
+  <select id="cam">
+    <option value="environment">Cámara trasera</option>
+    <option value="user">Cámara frontal</option>
+  </select>
+  <button id="b">Iniciar</button>
+</div>
+<div id="msg"></div>
+
+<script>
+const FPS_MAX = 15, ANCHO = 320, CALIDAD = 0.5;
+const v = document.getElementById("v"), c = document.getElementById("c");
+const $ = id => document.getElementById(id);
+let corriendo = false, netMs = null, stream = null, wake = null;
+const espera = ms => new Promise(r => setTimeout(r, ms));
+const aviso = t => $("msg").textContent = t || "";
+
+async function iniciar() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    aviso("El navegador bloquea la cámara en esta dirección. Abre la página con https:// " +
+          "(y acepta el aviso del certificado), o usa una app de cámara IP con --fuente.");
+    return;
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: $("cam").value }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+  } catch (e) { aviso("No pude abrir la cámara: " + e.message); return; }
+  v.srcObject = stream;
+  await v.play();
+  try { wake = await navigator.wakeLock.request("screen"); } catch (e) {}
+  corriendo = true; aviso("");
+  $("b").textContent = "Detener"; $("b").className = "off";
+  bucle();
+}
+
+function detener() {
+  corriendo = false;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (wake) wake.release().catch(() => {});
+  $("b").textContent = "Iniciar"; $("b").className = "";
+  $("evento").textContent = "—"; $("info").textContent = "Detenido.";
+}
+
+async function bucle() {
+  while (corriendo) {
+    const t0 = performance.now();
+    await enviar();
+    const resto = 1000 / FPS_MAX - (performance.now() - t0);
+    if (resto > 0) await espera(resto);          // un cuadro a la vez: nunca se acumula cola
+  }
+}
+
+async function enviar() {
+  if (!v.videoWidth) return;
+  const w = ANCHO, h = Math.round(ANCHO * v.videoHeight / v.videoWidth);
+  c.width = w; c.height = h;
+  c.getContext("2d").drawImage(v, 0, 0, w, h);
+  const blob = await new Promise(r => c.toBlob(r, "image/jpeg", CALIDAD));
+  const cab = { "Content-Type": "image/jpeg" };
+  if (netMs !== null) cab["X-Net-Ms"] = netMs.toFixed(1);     // red medida en el cuadro anterior
+  const t1 = performance.now();
+  try {
+    const r = await fetch("/frame", { method: "POST", body: blob, headers: cab });
+    const j = await r.json();
+    const total = performance.now() - t1;
+    netMs = Math.max(0, total - (j.proc_ms || 0));            // ida y vuelta sin el tiempo de proceso de Arche
+    $("evento").textContent = j.evento || "—";
+    $("info").textContent = `modo ${j.modo} · red ${netMs.toFixed(0)} ms · Arche ${ (j.proc_ms||0).toFixed(0) } ms`;
+    aviso("");
+  } catch (e) {
+    aviso("Sin conexión con Arche, reintentando…");
+    netMs = null;
+    await espera(600);
+  }
+}
+
+$("b").onclick = () => corriendo ? detener() : iniciar();
+document.addEventListener("visibilitychange", async () => {
+  if (corriendo && document.visibilityState === "visible") { try { wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
+});
+</script>
+</body>
+</html>
