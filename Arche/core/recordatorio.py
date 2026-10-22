@@ -25,7 +25,7 @@ def cargar_recordatorios():
     try:
         with open(archivo_recordatorios, "r", encoding="utf-8") as archivo:
             return json.load(archivo)
-    except:
+    except Exception:
         return []
 
 
