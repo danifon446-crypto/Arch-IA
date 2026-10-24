@@ -31,6 +31,7 @@ siempre (comandos fijos + comprender() de toda la vida).
 
 import json
 import os
+import re
 import unicodedata
 
 from core.IA import catalogo
@@ -184,5 +185,12 @@ def enrutar(texto):
         aprendizaje.aprender(texto, id_intencion, contenido, fuente="enrutador_natural")
     except Exception:
         pass  # que falle el aprendizaje no debe tirar abajo la respuesta de este turno
+    try:
+        # Se aprendió solo, sin que nadie lo confirmara: queda en la lista
+        # de 'revisar fallos' por si la nube / Ollama se equivocó.
+        from core.IA import revisar_fallos
+        revisar_fallos.anotar(texto, motivo="aprendido solo (nube/Ollama)", opciones=[id_intencion])
+    except Exception:
+        pass
 
     return id_intencion, contenido, CONFIANZA_OLLAMA

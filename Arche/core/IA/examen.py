@@ -107,6 +107,11 @@ def _cargar_progreso():
     # progreso por primera vez, lo suma sin pisar lo que ya habia.
     for nombre in dominios.nombres_de_dominios():
         progreso.setdefault("dominios", {}).setdefault(nombre, {"racha": 0, "listo": False})
+    # y al revés: si un dominio desapareció (ej. 'sistema', cuyas
+    # intenciones se unieron con las de 'computador'), se quita -- si no,
+    # quedaría "atrasado" para siempre y el nivel del grupo nunca subiría.
+    vigentes = set(dominios.nombres_de_dominios())
+    progreso["dominios"] = {d: info for d, info in progreso["dominios"].items() if d in vigentes}
     return progreso
 
 

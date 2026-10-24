@@ -293,15 +293,15 @@ _e("borrar_rutina", "computador", "borra la rutina {X}", "borrar una rutina guar
 
 # --------------------------- mantenimiento del PC (core/pc_avanzado.py)
 _e("diagnostico_pc", "computador", "dame un diagnostico de mi pc", "resumen del estado del PC: CPU, memoria, disco, bateria y que gasta mas",
-   ["como esta mi computador", "revisa mi pc", "esta lento mi pc", "chequeo del equipo", "estado completo del pc"])
+   ["como esta mi computador", "revisa mi pc", "esta lento mi pc", "chequeo del equipo", "estado completo del pc", "como anda la computadora", "dime el estado del equipo", "cuanta memoria y cpu estoy usando", "como va el rendimiento de mi compu", "que tal esta el sistema", "estado del sistema"])
 _e("programas_cpu", "computador", "que consume mas cpu", "ver que programas gastan mas procesador",
-   ["que esta gastando el procesador", "que programa pone lento el pc", "quien usa mas cpu"])
+   ["que esta gastando el procesador", "que programa pone lento el pc", "quien usa mas cpu", "que programa esta gastando mas recursos", "que proceso hace lenta mi pc", "muestrame que gasta mas cpu", "por que esta lenta la compu", "procesos que mas consumen"])
 _e("programas_memoria", "computador", "que consume mas memoria", "ver que programas gastan mas memoria RAM",
    ["que usa mas ram", "quien se come la memoria", "que programa gasta mas ram"])
 _e("liberar_memoria", "computador", "libera memoria", "mostrar lo mas pesado y cerrar lo que el usuario elija para liberar RAM",
    ["libera ram", "cierra lo que mas consume", "quiero liberar memoria"], confirmar=True)
 _e("espacio_discos", "computador", "espacio de mis discos", "ver cuanto espacio libre queda en cada disco",
-   ["cuanto espacio me queda en los discos", "capacidad de mis discos", "cuanto disco tengo libre"])
+   ["cuanto espacio me queda en los discos", "capacidad de mis discos", "cuanto disco tengo libre", "cuanto almacenamiento tengo libre", "me queda espacio en el disco duro", "dime cuanto espacio libre hay", "estoy corto de espacio", "espacio libre"])
 _e("archivos_grandes", "computador", "que ocupa mas espacio", "encontrar los archivos mas grandes del PC",
    ["cuales son mis archivos mas pesados", "que archivos gastan mas disco", "que pesa mas en mi pc"])
 _e("buscar_duplicados", "computador", "busca archivos duplicados", "encontrar archivos repetidos para liberar espacio",
@@ -475,12 +475,11 @@ _e("ultimo_calculo", "calculadora", "ultimo calculo", "ver el ultimo calculo que
    ["cual fue mi ultimo calculo", "dime la ultima operacion que hice", "que fue lo ultimo que calcule", "cual fue la ultima cuenta"])
 
 # --------------------------------------------------------------------- sistema
-_e("estado_sistema", "sistema", "estado del sistema", "ver el estado del computador: procesador, memoria y disco",
-   ["como esta mi pc", "como anda la computadora", "dime el estado del equipo", "cuanta memoria y cpu estoy usando", "como va el rendimiento de mi compu", "que tal esta el sistema"])
-_e("procesos_consumen", "sistema", "procesos que mas consumen", "ver que programas consumen mas recursos",
-   ["que programa esta gastando mas recursos", "que esta consumiendo mas memoria", "que proceso hace lenta mi pc", "muestrame que gasta mas cpu", "por que esta lenta la compu", "que programas usan mas ram"])
-_e("espacio_disco", "sistema", "espacio libre", "ver cuanto espacio libre queda en el disco",
-   ["cuanto espacio me queda en el disco", "cuanto almacenamiento tengo libre", "me queda espacio en el disco duro", "dime cuanto espacio libre hay", "cuanto disco tengo disponible", "estoy corto de espacio"])
+# Las 3 intenciones que vivian aca (estado_sistema, procesos_consumen,
+# espacio_disco) eran DUPLICADOS de diagnostico_pc, programas_cpu y
+# espacio_discos: la red nunca podia acertar entre ellas porque
+# significan lo mismo. Se unieron (ver UNIFICADAS mas abajo); sus
+# frases de ejemplo pasaron a la intencion que quedo.
 
 # --------------------------------------------------------------- configuracion
 _e("mostrar_config", "configuracion", "configuracion", "ver la configuracion actual del asistente",
@@ -592,6 +591,22 @@ EXTRA_FIJOS_PREFIJOS = (
     "autorevisate cada", "entrenar a fondo", "que hace ", "modo gran sabio",
     "comandos ", "ensenar ", "importar ejemplos", "intenciones de ",
 )
+
+
+# Intenciones que se unieron con otra porque significaban lo mismo.
+# Los ejemplos viejos guardados con el nombre de la izquierda se leen
+# como si fueran de la derecha (ver aprendizaje.cargar), y 'ensenar' /
+# 'importar ejemplos' aceptan todavia el nombre viejo.
+UNIFICADAS = {
+    "estado_sistema": "diagnostico_pc",
+    "procesos_consumen": "programas_cpu",
+    "espacio_disco": "espacio_discos",
+}
+
+
+def unificar(id_intencion):
+    """Nombre vigente de una intencion (el mismo si no se unio con otra)."""
+    return UNIFICADAS.get(id_intencion, id_intencion)
 
 
 def normalizar(texto):

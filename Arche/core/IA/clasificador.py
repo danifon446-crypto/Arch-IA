@@ -53,12 +53,12 @@ SCORE_MINIMO_UTILIZABLE = 0.55
 # memorice) y también la activación tanh, que en las pruebas ganó.
 GRILLA_HIPERPARAMETROS = {
     "hidden_layer_sizes": [(128,), (256,)],
-    "alpha": [0.001, 0.01, 0.1],
+    "alpha": [0.01, 0.1],   # 8 combinaciones en total: menos que antes (9), entrena igual de rápido
     "activation": ["relu", "tanh"],
 }
 
 # ----------------------------------------------------------------------
-# Rasgos de PALABRAS (además del embedding)
+# Rasgos de PALABRAS y de LETRAS (además del embedding)
 # ----------------------------------------------------------------------
 # El modelo de embeddings capta el TEMA de la frase pero casi ignora el
 # verbo: para él "pon el examen" y "detén el examen" se parecen 98%. Por
@@ -67,37 +67,75 @@ GRILLA_HIPERPARAMETROS = {
 # la frase (qué palabras y pares de palabras aparecen). Así "pon" vs
 # "deten" sí cambia lo que ve la red.
 #
-# Se usa HashingVectorizer: convierte cada palabra en una posición fija
-# con una fórmula, sin necesidad de guardar un vocabulario. Siempre da lo
-# mismo para la misma frase, así que no hay nada extra que guardar en el
-# .pkl.
-USAR_TEXTO = True
-N_RASGOS_TEXTO = 1024
+# Versión 2 suma trozos de LETRAS (de 3 a 5 letras seguidas): así
+# "ensiende" (mal escrito, o mal transcrito por la voz) comparte casi
+# todos sus trozos con "enciende", y la red lo reconoce igual.
+#
+# Se usa HashingVectorizer: convierte cada palabra/trozo en una posición
+# fija con una fórmula, sin necesidad de guardar un vocabulario. Siempre
+# da lo mismo para la misma frase, así que no hay nada extra que guardar
+# en el .pkl.
+#
+# Cada modelo guarda en su metadata con qué versión se entrenó
+# ("rasgos_texto"), así un modelo viejo sigue funcionando hasta que se
+# reentrene:
+#   0 = solo embedding
+#   1 = embedding + palabras
+#   2 = embedding + palabras + letras  (la actual)
+VERSION_RASGOS = 2
+USAR_TEXTO = VERSION_RASGOS > 0   # (se conserva el nombre por compatibilidad)
+N_RASGOS_TEXTO = 1024             # columnas por cada bolsa (palabras / letras)
 
-_hasher = None
+_hashers = {}
 
 
-def _rasgos_texto(texto):
-    global _hasher
+def _hasher(tipo):
+    if tipo not in _hashers:
+        from sklearn.feature_extraction.text import HashingVectorizer
+        if tipo == "palabras":
+            _hashers[tipo] = HashingVectorizer(
+                ngram_range=(1, 2), n_features=N_RASGOS_TEXTO,
+                alternate_sign=False, norm="l2",
+            )
+        else:
+            _hashers[tipo] = HashingVectorizer(
+                analyzer="char_wb", ngram_range=(3, 5), n_features=N_RASGOS_TEXTO,
+                alternate_sign=False, norm="l2",
+            )
+    return _hashers[tipo]
+
+
+def _rasgos(texto, tipo):
     if not texto:
         return np.zeros(N_RASGOS_TEXTO)
-    if _hasher is None:
-        from sklearn.feature_extraction.text import HashingVectorizer
-        _hasher = HashingVectorizer(
-            ngram_range=(1, 2), n_features=N_RASGOS_TEXTO,
-            alternate_sign=False, norm="l2",
-        )
     from core.IA.aprendizaje import _normalizar
-    return _hasher.transform([_normalizar(texto)]).toarray()[0]
+    return _hasher(tipo).transform([_normalizar(texto)]).toarray()[0]
 
 
-def armar_entrada(embedding, texto=None, usa_texto=USAR_TEXTO):
-    """Lo que de verdad entra a la red: el embedding, y si el modelo se
-    entrenó con texto, pegados detrás los rasgos de palabras."""
+def version_de(metadata):
+    """Con qué versión de rasgos se entrenó un modelo guardado."""
+    metadata = metadata or {}
+    if "rasgos_texto" in metadata:
+        return int(metadata["rasgos_texto"])
+    return 1 if metadata.get("usa_texto") else 0
+
+
+def columnas_extra(version=VERSION_RASGOS):
+    return {0: 0, 1: N_RASGOS_TEXTO}.get(version, 2 * N_RASGOS_TEXTO)
+
+
+def armar_entrada(embedding, texto=None, version=VERSION_RASGOS):
+    """Lo que de verdad entra a la red: el embedding y, según la versión
+    con que se entrenó el modelo, las palabras y las letras de la frase.
+    (`version` acepta también True/False por compatibilidad: True = 1.)"""
+    version = int(version)
     emb = np.asarray(embedding, dtype=float)
-    if not usa_texto:
-        return emb
-    return np.concatenate([emb, _rasgos_texto(texto)])
+    partes = [emb]
+    if version >= 1:
+        partes.append(_rasgos(texto, "palabras"))
+    if version >= 2:
+        partes.append(_rasgos(texto, "letras"))
+    return np.concatenate(partes) if len(partes) > 1 else emb
 
 
 def fila_de(dato):
@@ -106,8 +144,122 @@ def fila_de(dato):
 
 
 def dimension_embedding_de(X):
-    """Cuántas columnas de X son embedding (el resto son palabras)."""
-    return X.shape[1] - (N_RASGOS_TEXTO if USAR_TEXTO else 0)
+    """Cuántas columnas de X son embedding (el resto son palabras/letras)."""
+    return X.shape[1] - columnas_extra()
+
+
+# ----------------------------------------------------------------------
+# Votación: red neuronal + regresión logística
+# ----------------------------------------------------------------------
+class Conjunto:
+    """
+    Junta la red neuronal con una regresión logística (un modelo lineal,
+    mucho más simple). Con pocos ejemplos por intención, la regresión
+    logística muchas veces acierta tanto como la red, y se equivoca en
+    OTRAS frases -- promediar las dos probabilidades corrige errores de
+    cada una. Solo se usa si en la validación cruzada la mezcla le gana a
+    la red sola (ver _ajustar).
+
+    Se comporta como un modelo de sklearn para el resto de Arché:
+    predict_proba, classes_ y named_steps (la vista de redes de la
+    interfaz sigue dibujando las neuronas de la red).
+    """
+
+    def __init__(self, red, lineal, peso_lineal=0.5):
+        self.red = red
+        self.lineal = lineal
+        self.peso_lineal = peso_lineal
+
+    @property
+    def classes_(self):
+        return self.red.classes_
+
+    @property
+    def named_steps(self):
+        return self.red.named_steps
+
+    def predict_proba(self, X):
+        p = self.red.predict_proba(X)
+        if self.lineal is None or self.peso_lineal <= 0:
+            return p
+        return (1 - self.peso_lineal) * p + self.peso_lineal * self.lineal.predict_proba(X)
+
+    def predict(self, X):
+        return self.classes_[self.predict_proba(X).argmax(axis=1)]
+
+
+def _nueva_red():
+    from sklearn.neural_network import MLPClassifier
+    from imblearn.pipeline import Pipeline as PipelineDesbalanceado
+    from imblearn.over_sampling import RandomOverSampler
+    return PipelineDesbalanceado([
+        ("balanceo", RandomOverSampler(random_state=42)),
+        ("red", MLPClassifier(max_iter=2000, random_state=42)),
+    ])
+
+
+def _nuevo_lineal():
+    from sklearn.linear_model import LogisticRegression
+    from imblearn.pipeline import Pipeline as PipelineDesbalanceado
+    from imblearn.over_sampling import RandomOverSampler
+    return PipelineDesbalanceado([
+        ("balanceo", RandomOverSampler(random_state=42)),
+        ("lineal", LogisticRegression(C=10.0, max_iter=3000)),
+    ])
+
+
+def _ajustar(X, y_cod, n_folds, n_jobs):
+    """
+    Núcleo de entrenamiento compartido por la red clásica y por TODAS las
+    redes del árbol jerárquico:
+
+    1. Busca la mejor configuración de la red (GridSearchCV, con el
+       balanceo DENTRO de cada fold -- ver comentario en entrenar()).
+    2. Con esos mismos folds mide la red sola y la mezcla red + lineal.
+    3. Se queda con la que acierte más.
+
+    Devuelve (modelo_final, score, hiperparametros, peso_lineal).
+    Lanza excepción si algo falla (el que llama decide qué hacer).
+    """
+    from sklearn.model_selection import GridSearchCV, StratifiedKFold
+    from sklearn.base import clone
+
+    cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    grilla = {f"red__{k}": v for k, v in GRILLA_HIPERPARAMETROS.items()}
+    busqueda = GridSearchCV(_nueva_red(), grilla, cv=cv, scoring="accuracy", n_jobs=n_jobs)
+    busqueda.fit(X, y_cod)
+    hiper = {k.split("__", 1)[-1]: v for k, v in busqueda.best_params_.items()}
+    red_final = busqueda.best_estimator_
+    score_red = float(busqueda.best_score_)
+
+    # ¿La mezcla con la regresión logística le gana a la red sola?
+    try:
+        aciertos_mezcla, total = 0, 0
+        for tr, te in cv.split(X, y_cod):
+            red = clone(red_final).fit(X[tr], y_cod[tr])
+            lin = _nuevo_lineal().fit(X[tr], y_cod[tr])
+            # las columnas de predict_proba son las clases vistas en ese fold
+            p_red = _alinear(red.predict_proba(X[te]), red.classes_, len(set(y_cod)))
+            p_lin = _alinear(lin.predict_proba(X[te]), lin.classes_, len(set(y_cod)))
+            pred = (0.5 * p_red + 0.5 * p_lin).argmax(axis=1)
+            aciertos_mezcla += int((pred == y_cod[te]).sum())
+            total += len(te)
+        score_mezcla = aciertos_mezcla / total
+    except Exception:
+        score_mezcla = -1.0
+
+    if score_mezcla > score_red:
+        lineal = _nuevo_lineal().fit(X, y_cod)
+        return Conjunto(red_final, lineal, 0.5), score_mezcla, hiper, 0.5
+    return Conjunto(red_final, None, 0.0), score_red, hiper, 0.0
+
+
+def _alinear(probs, clases_vistas, n_clases):
+    """Pone las probabilidades en columnas 0..n_clases-1 (un fold puede
+    no haber visto alguna clase)."""
+    salida = np.zeros((probs.shape[0], n_clases))
+    salida[:, np.asarray(clases_vistas, dtype=int)] = probs
+    return salida
 
 
 def _preparar_dataset(datos):
@@ -180,11 +332,8 @@ def entrenar(silencioso=False):
     """
     try:
         from core.IA.aprendizaje import cargar
-        from sklearn.neural_network import MLPClassifier
-        from sklearn.model_selection import GridSearchCV, StratifiedKFold
         from sklearn.preprocessing import LabelEncoder
-        from imblearn.pipeline import Pipeline as PipelineDesbalanceado
-        from imblearn.over_sampling import RandomOverSampler
+        import sklearn.neural_network, sklearn.linear_model, imblearn  # noqa: F401 (avisa si faltan)
     except ImportError as e:
         if not silencioso:
             print(f"Arché: Falta una dependencia para el clasificador ({e}).")
@@ -230,38 +379,20 @@ def entrenar(silencioso=False):
     # real que aprender; con este fix, ronda el 40%, mucho más cerca
     # del azar real y del 55% no lo cruza salvo que el modelo
     # realmente esté aprendiendo algo.
-    pipeline = PipelineDesbalanceado([
-        ("balanceo", RandomOverSampler(random_state=42)),
-        ("red", MLPClassifier(max_iter=2000, random_state=42)),
-    ])
-    grilla_pipeline = {f"red__{clave}": valores for clave, valores in GRILLA_HIPERPARAMETROS.items()}
-
     # cv no puede ser mayor que la cantidad de ejemplos de la clase más
     # chica -- acá se calcula sobre los datos ORIGINALES (sin
     # balancear), porque el split de CV pasa ANTES del balanceo dentro
     # del pipeline.
-    n_folds = min(3, min(conteo.values()))
-    n_folds = max(n_folds, 2)
+    n_folds = max(min(3, min(conteo.values())), 2)
 
     try:
-        cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
-
-        busqueda = GridSearchCV(
-            pipeline,
-            grilla_pipeline,
-            cv=cv,
-            scoring="accuracy",
-            n_jobs=-1,
+        modelo_nuevo, score_nuevo, hiperparametros_limpios, peso_lineal = _ajustar(
+            X, y_cod, n_folds, n_jobs=-1
         )
-        busqueda.fit(X, y_cod)
-
     except Exception as e:
         if not silencioso:
             print(f"Arché: El entrenamiento de la red neuronal falló ({e}).")
         return False
-
-    score_nuevo = busqueda.best_score_
-    modelo_nuevo = busqueda.best_estimator_  # pipeline completo (balanceo + red) ya reentrenado con todos los datos
 
     if score_nuevo < SCORE_MINIMO_UTILIZABLE:
         if not silencioso:
@@ -281,15 +412,13 @@ def entrenar(silencioso=False):
             )
         return False
 
-    hiperparametros_limpios = {
-        clave.split("__", 1)[-1]: valor for clave, valor in busqueda.best_params_.items()
-    }
-
     metadata = {
         "score": score_nuevo,
         "n_ejemplos": len(X),
         "dimension_embedding": dimension_embedding,
         "usa_texto": USAR_TEXTO,
+        "rasgos_texto": VERSION_RASGOS,
+        "votacion": peso_lineal > 0,
         "hiperparametros": hiperparametros_limpios,
         "clases": sorted(set(y.tolist())),
     }
@@ -304,7 +433,8 @@ def entrenar(silencioso=False):
         print(
             f"Arché: Red neuronal actualizada. Precisión de validación: "
             f"{score_nuevo:.0%} ({len(X)} ejemplos, {len(metadata['clases'])} "
-            f"intenciones, config {hiperparametros_limpios})."
+            f"intenciones, config {hiperparametros_limpios}"
+            f"{', con votación red + lineal' if peso_lineal > 0 else ''})."
         )
     return True
 
@@ -351,7 +481,7 @@ def predecir(embedding_pregunta, texto=None):
         return None, 0.0
 
     try:
-        entrada = armar_entrada(embedding_pregunta, texto, metadata.get("usa_texto", False))
+        entrada = armar_entrada(embedding_pregunta, texto, version_de(metadata))
         probs = modelo.predict_proba([entrada])[0]
         idx_max = int(probs.argmax())
         accion = codificador.inverse_transform([idx_max])[0]

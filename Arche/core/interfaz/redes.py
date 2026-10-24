@@ -196,7 +196,7 @@ def forward(clave, emb):
         modelo = p["modelo"]
         red = _mlp(modelo)
         entrada = _ia().cl.armar_entrada(emb, getattr(emb, "texto", None),
-                                         p["metadata"].get("usa_texto", False))
+                                         _ia().cl.version_de(p["metadata"]))
         a = entrada
         acts = []
         for w, b in zip(red.coefs_[:-1], red.intercepts_[:-1]):

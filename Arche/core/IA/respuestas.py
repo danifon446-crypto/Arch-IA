@@ -42,6 +42,12 @@ _lock = threading.Lock()  # protege respuestas.json de escrituras concurrentes (
 # jugamos reutilizar una RESPUESTA COMPLETA, no solo una clasificación
 # -> el margen de error tiene que ser mucho más chico.
 UMBRAL_RESPUESTA = 0.90
+try:
+    # umbral calibrado para el modelo de embeddings actual (ver recalcular_embeddings.py)
+    from core.IA.embeddings import leer_config as _leer_config_emb
+    UMBRAL_RESPUESTA = float(_leer_config_emb().get("umbral_respuesta", UMBRAL_RESPUESTA))
+except Exception:
+    pass
 
 
 def _normalizar(texto):

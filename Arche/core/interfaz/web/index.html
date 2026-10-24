@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arché</title>
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="mi_estilo.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-inicio" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+    <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-sistema" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></symbol>
+    <symbol id="i-arche" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></symbol>
+    <symbol id="i-comandos" viewBox="0 0 24 24"><path d="m5 7 5 5-5 5"/><path d="M12 17h7"/></symbol>
+    <symbol id="i-ajustes" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
+    <symbol id="i-buscar" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M4 12 20 4l-5 16-3-6.5z"/><path d="m12 13.5 8-9.5"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></symbol>
+    <symbol id="i-voz" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6v12L9 12zM6 6v12"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 6v12l9-6zM18 6v12"/></symbol>
+    <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+    <symbol id="i-captura" viewBox="0 0 24 24"><path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-escritorio" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 13h18"/></symbol>
+    <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-luna" viewBox="0 0 24 24"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></symbol>
+    <symbol id="i-reiniciar" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></symbol>
+    <symbol id="i-apagar" viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></symbol>
+    <symbol id="i-carpeta" viewBox="0 0 24 24"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2.5h8.5A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z"/></symbol>
+    <symbol id="i-app" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-escoba" viewBox="0 0 24 24"><path d="m14 4 6 6M17 7l-6.5 6.5"/><path d="M10.5 13.5 4 20h6l3-3.5z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-campana" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-nota" viewBox="0 0 24 24"><path d="M6 3.5h9l4 4V20.5H6z"/><path d="M14.5 3.5V8H19M9 12h7M9 15.5h5"/></symbol>
+    <symbol id="i-dinero" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/></symbol>
+    <symbol id="i-nube" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.4 1.5A3.75 3.75 0 0 1 17.5 18.5z"/></symbol>
+    <symbol id="i-diario" viewBox="0 0 24 24"><path d="M4 5.5h13v14H6a2 2 0 0 1-2-2z"/><path d="M17 8.5h3v9a2 2 0 0 1-2 2"/><path d="M7.5 9h6M7.5 12.5h6M7.5 16h4"/></symbol>
+    <symbol id="i-calendario" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V5.5a1.5 1.5 0 0 0-1.5-1.5H5.5A1.5 1.5 0 0 0 4 5.5V14a1.5 1.5 0 0 0 1.5 1.5h3"/></symbol>
+    <symbol id="i-papelera" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></symbol>
+    <symbol id="i-lateral" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M9.5 4.5v15"/></symbol>
+    <symbol id="i-ventana" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9h17"/><path d="M6.5 6.8h.01M9 6.8h.01"/></symbol>
+    <symbol id="i-portapapeles" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3.5h6V5"/><path d="M8.5 11h7M8.5 14.5h5"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3.5V7M14 3.5V7M10 17v3.5M14 17v3.5M3.5 10H7M3.5 14H7M17 10h3.5M17 14h3.5"/></symbol>
+    <symbol id="i-estrella" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></symbol>
+    <symbol id="i-rayo" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6z"/></symbol>
+    <symbol id="i-musica" viewBox="0 0 24 24"><path d="M9 18V5.5l10-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></symbol>
+    <symbol id="i-libro" viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></symbol>
+    <symbol id="i-casa" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-5H9v5H4z"/></symbol>
+    <symbol id="i-corazon" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.3 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></symbol>
+    <symbol id="i-reloj" viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9.5V13l2.5 2M9.5 2.5h5"/></symbol>
+    <symbol id="i-lapiz" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></symbol>
+    <symbol id="i-arriba" viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></symbol>
+    <symbol id="i-abajo" viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></symbol>
+    <symbol id="i-ojo" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-ojo-no" viewBox="0 0 24 24"><path d="M10 6a9.6 9.6 0 0 1 2-.5c6 0 9.5 6.5 9.5 6.5a16 16 0 0 1-2.4 3.2M6.6 7.6C3.9 9.4 2.5 12 2.5 12S6 18.5 12 18.5a9 9 0 0 0 4.4-1.2M3.5 3.5l17 17"/></symbol>
+    <symbol id="i-descargar" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></symbol>
+    <symbol id="i-subir" viewBox="0 0 24 24"><path d="M12 20V9M7 13.5l5-5 5 5M5 4.5h14"/></symbol>
+    <symbol id="i-ancho" viewBox="0 0 24 24"><path d="M3.5 12h17M7 8.5 3.5 12 7 15.5M17 8.5l3.5 3.5-3.5 3.5"/></symbol>
+    <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3.5s6 6.5 6 10.5a6 6 0 0 1-12 0c0-4 6-10.5 6-10.5z"/></symbol>
+    <symbol id="i-globo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5s1-5.9 3.5-8.5z"/></symbol>
+  </defs>
+</svg>
+
+<canvas id="escena" aria-hidden="true"></canvas>
+<div id="fondo-img" aria-hidden="true"></div>
+<div id="luz" aria-hidden="true"></div>
+
+<div class="app" id="app">
+  <!-- ======================= barra lateral ======================= -->
+  <nav class="rail" aria-label="Secciones">
+    <button class="rail-marca" data-sec="inicio" aria-label="Arché">
+      <canvas id="orbe-mini" width="96" height="96" aria-hidden="true"></canvas>
+      <span class="rail-txt"><strong>Arché</strong><small id="estado-txt">conectando…</small></span>
+    </button>
+    <div class="rail-nav" id="nav">
+      <button data-sec="inicio"><svg><use href="#i-chat"/></svg><span class="rail-txt">Arché</span><em class="insignia" id="insignia-chat" hidden></em></button>
+      <button data-sec="hoy"><svg><use href="#i-calendario"/></svg><span class="rail-txt">Hoy</span><em class="insignia suave" id="insignia-hoy" hidden></em></button>
+      <button data-sec="equipo"><svg><use href="#i-pc"/></svg><span class="rail-txt">Equipo</span></button>
+      <button data-sec="mente"><svg><use href="#i-arche"/></svg><span class="rail-txt">Mente</span></button>
+      <button data-sec="ajustes"><svg><use href="#i-ajustes"/></svg><span class="rail-txt">Ajustes</span></button>
+    </div>
+    <div class="rail-pie">
+      <button id="abrir-paleta" title="Buscar o pedir algo (Ctrl+K)"><svg><use href="#i-buscar"/></svg><span class="rail-txt">Buscar</span></button>
+      <button id="btn-voz" title="Leer en voz alta lo que digo"><svg><use href="#i-voz"/></svg><span class="rail-txt">Voz</span></button>
+      <button id="btn-mic" title="Escuchar con el micrófono"><svg><use href="#i-mic"/></svg><span class="rail-txt">Micrófono</span></button>
+    </div>
+  </nav>
+
+  <main class="principal">
+    <header class="barra">
+      <div class="barra-titulo"><h1 id="titulo-sec"></h1></div>
+      <div class="pestanas" id="pestanas" role="tablist"></div>
+      <div class="barra-der">
+        <button class="modo-chip" id="modo-chip" title="Cambiar de modo"><svg><use href="#i-app"/></svg><span id="modo-txt">Modo</span></button>
+        <span class="estado-pastilla" id="estado-pastilla"><i></i><span id="estado-pastilla-txt"></span></span>
+        <span class="reloj" id="reloj"></span>
+      </div>
+    </header>
+
+    <!-- ======================= ARCHÉ (escenario) ======================= -->
+    <section class="seccion" id="s-inicio" data-titulo="">
+      <div class="escenario" id="escenario">
+        <div class="esfera-zona">
+          <canvas id="orbe-grande" width="560" height="560" aria-hidden="true"></canvas>
+        </div>
+        <div class="bienvenida">
+          <p class="fecha" id="fecha-larga"></p>
+          <h2 id="saludo">Hola</h2>
+          <div class="vistazos" id="vistazos"></div>
+        </div>
+
+        <div class="conversacion" id="conversacion">
+          <div class="conv-cabecera">
+            <canvas id="orbe-conv" width="120" height="120" aria-hidden="true"></canvas>
+            <div class="conv-quien"><strong>Arché</strong><span id="conv-estado">en reposo</span></div>
+            <canvas id="ondas-conv" aria-hidden="true"></canvas>
+          </div>
+          <div class="conv-herr">
+            <button class="ico-btn" id="conv-buscar-btn" title="Buscar en la conversación" aria-label="Buscar en la conversación"><svg><use href="#i-buscar"/></svg></button>
+            <button class="ico-btn" id="chat-exportar" title="Guardar la conversación como texto" aria-label="Guardar como texto"><svg><use href="#i-descargar"/></svg></button>
+            <button class="ico-btn" id="chat-limpiar" title="Vaciar la vista" aria-label="Vaciar la vista"><svg><use href="#i-escoba"/></svg></button>
+          </div>
+          <div class="conv-buscar" id="conv-buscar" hidden><svg><use href="#i-buscar"/></svg><input id="chat-filtro" placeholder="Buscar en la conversación" aria-label="Buscar en la conversación"><button class="ico-btn" id="conv-buscar-cerrar" aria-label="Cerrar búsqueda"><svg><use href="#i-x"/></svg></button></div>
+          <div class="mensajes" id="mensajes" aria-live="polite"></div>
+          <button class="mini ver-anterior" id="ver-anterior" hidden></button>
+        </div>
+
+        <div class="pie-escenario">
+          <div class="pensando" id="pensando" hidden><i></i><i></i><i></i><span>Pensando</span></div>
+          <div class="chips centrados" id="respuestas-rapidas"></div>
+          <div class="chips centrados" id="sugerencias"></div>
+          <div class="dock" id="dock"></div>
+          <form class="redactar" id="form-chat" autocomplete="off">
+            <textarea id="chat-txt" rows="1" placeholder="Escríbele a Arché" aria-label="Mensaje para Arché"></textarea>
+            <button type="button" class="ico-btn" id="chat-mic" title="Escuchar con el micrófono"><svg><use href="#i-mic"/></svg></button>
+            <button type="submit" class="enviar" aria-label="Enviar"><svg><use href="#i-enviar"/></svg></button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= HOY ======================= -->
+    <section class="seccion" id="s-hoy" data-titulo="Hoy" hidden>
+      <div class="pestana" data-pestana="tareas">
+        <div class="dos-col">
+          <article class="panel">
+            <header><h3>Pendientes</h3><button class="mini" id="limpiar-hechos">Quitar los hechos</button></header>
+            <form class="agregar" id="form-pend" autocomplete="off">
+              <input id="pend-txt" placeholder="Agregar un pendiente" aria-label="Nuevo pendiente">
+              <button class="ico-btn" aria-label="Agregar"><svg><use href="#i-mas"/></svg></button>
+            </form>
+            <ul class="lista pendientes" id="pendientes"></ul>
+          </article>
+          <div class="columna">
+            <article class="panel">
+              <header><h3>Recordatorios</h3><button class="mini" data-pedir="recuérdame ">Nuevo</button></header>
+              <ul class="lista" id="alarmas"></ul>
+            </article>
+            <article class="panel secundario">
+              <header><h3>Hábitos</h3><span class="tenue">últimos 7 días</span></header>
+              <ul class="lista habitos" id="habitos"></ul>
+              <form class="agregar" id="form-habito" autocomplete="off">
+                <input id="habito-txt" placeholder="Nuevo hábito: leer 20 min, tomar agua…" aria-label="Nuevo hábito">
+                <button class="ico-btn" aria-label="Agregar hábito"><svg><use href="#i-mas"/></svg></button>
+              </form>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="pestana" data-pestana="enfoque" hidden>
+        <div class="enfoque">
+          <div class="pomodoro" id="pomodoro">
+            <div class="pomo-anillo"><canvas id="pomo-canvas" width="520" height="520" aria-hidden="true"></canvas>
+              <div class="pomo-centro"><span id="pomo-fase">Concentración</span><strong id="pomo-tiempo">25:00</strong><span class="tenue" id="pomo-hoy"></span></div></div>
+            <div class="pomo-botones">
+              <button class="btn" id="pomo-reiniciar">Reiniciar</button>
+              <button class="btn-acento grande" id="pomo-iniciar">Empezar</button>
+              <button class="btn" id="pomo-saltar">Saltar</button>
+            </div>
+            <p class="tenue pomo-ayuda">Cambia los minutos en Ajustes. Sigue contando aunque cambies de sección.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pestana" data-pestana="dinero" hidden>
+        <div class="dos-col">
+          <article class="panel">
+            <div class="cifra-grande"><span>Gastado hoy</span><strong id="gasto-hoy">$0</strong></div>
+            <div class="barritas" id="gasto-semana"></div>
+            <div class="cifras-mini"><div><span>Esta semana</span><strong id="gasto-semana-total">$0</strong></div><div><span>Este mes</span><strong id="gasto-mes">$0</strong></div></div>
+          </article>
+          <article class="panel">
+            <header><h3>Anotar un gasto</h3></header>
+            <form class="agregar dos" id="form-gasto" autocomplete="off">
+              <input id="gasto-concepto" placeholder="En qué" aria-label="Concepto del gasto">
+              <input id="gasto-valor" placeholder="Cuánto" inputmode="decimal" aria-label="Valor">
+              <button class="ico-btn" aria-label="Anotar gasto"><svg><use href="#i-mas"/></svg></button>
+            </form>
+            <ul class="lista" id="gastos-hoy"></ul>
+          </article>
+        </div>
+      </div>
+
+      <div class="pestana" data-pestana="notas" hidden>
+        <div class="notas-barra"><button class="btn-acento" id="nota-nueva"><svg><use href="#i-mas"/></svg>Nueva nota</button></div>
+        <div class="notas" id="notas"></div>
+      </div>
+
+      <div class="pestana" data-pestana="mundo" hidden>
+        <div class="dos-col">
+          <article class="panel" id="p-clima">
+            <header><h3 id="clima-ciudad">Clima</h3></header>
+            <div id="clima"><p class="vacio">Cargando el clima…</p></div>
+          </article>
+          <div class="columna">
+            <article class="panel" id="p-noticias">
+              <header><h3>Titulares</h3></header>
+              <ul class="lista noticias" id="noticias"></ul>
+            </article>
+            <article class="panel secundario">
+              <blockquote id="frase"></blockquote>
+              <ul class="lista compacta" id="fechas"></ul>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= EQUIPO ======================= -->
+    <section class="seccion" id="s-equipo" data-titulo="Equipo" hidden>
+      <div class="pestana" data-pestana="controles">
+        <div class="rejilla">
+          <article class="panel ancho-2">
+            <div class="deslizadores">
+              <div class="deslizador-fila">
+                <svg><use href="#i-voz"/></svg><span>Volumen</span>
+                <input type="range" min="0" max="100" value="50" id="vol" class="deslizador" aria-label="Volumen"><strong id="vol-valor">50%</strong>
+              </div>
+              <div class="deslizador-fila">
+                <svg><use href="#i-sol"/></svg><span>Brillo</span>
+                <input type="range" min="0" max="100" value="70" id="brillo" class="deslizador" aria-label="Brillo"><strong id="brillo-valor">70%</strong>
+              </div>
+            </div>
+            <div class="musica">
+              <button class="ico-btn grande" data-orden="silencia" aria-label="Silenciar"><svg><use href="#i-mute"/></svg></button>
+              <button class="ico-btn grande" data-orden="canción anterior" aria-label="Canción anterior"><svg><use href="#i-prev"/></svg></button>
+              <button class="ico-btn grande principal-play" data-orden="pausa" aria-label="Pausar o reproducir"><svg><use href="#i-play"/></svg></button>
+              <button class="ico-btn grande" data-orden="siguiente canción" aria-label="Siguiente canción"><svg><use href="#i-next"/></svg></button>
+            </div>
+          </article>
+          <article class="panel">
+            <header><h3>Abrir</h3></header>
+            <form class="agregar" id="form-abrir" autocomplete="off">
+              <input id="abrir-txt" placeholder="chrome, spotify, youtube…" aria-label="Qué abrir">
+              <button class="ico-btn" aria-label="Abrir"><svg><use href="#i-enviar"/></svg></button>
+            </form>
+            <div class="chips" id="apps"></div>
+            <div class="chips secundario" id="carpetas"></div>
+          </article>
+          <article class="panel">
+            <header><h3>Acciones</h3></header>
+            <div class="acciones">
+              <button data-orden="toma una captura de pantalla"><svg><use href="#i-captura"/></svg>Captura</button>
+              <button data-orden="muestra el escritorio"><svg><use href="#i-escritorio"/></svg>Escritorio</button>
+              <button data-orden="mis ventanas"><svg><use href="#i-ventana"/></svg>Ventanas</button>
+              <button data-orden="portapapeles"><svg><use href="#i-portapapeles"/></svg>Portapapeles</button>
+              <button data-orden="bloquea el pc"><svg><use href="#i-candado"/></svg>Bloquear</button>
+              <button data-orden="suspende el pc" data-confirmar="¿Suspender el equipo?"><svg><use href="#i-luna"/></svg>Suspender</button>
+              <button data-orden="reinicia el pc" data-confirmar="¿Reiniciar el equipo? Guarda lo que estés haciendo."><svg><use href="#i-reiniciar"/></svg>Reiniciar</button>
+              <button class="peligro" data-orden="apaga el pc" data-confirmar="¿Apagar el equipo? Guarda lo que estés haciendo."><svg><use href="#i-apagar"/></svg>Apagar</button>
+            </div>
+          </article>
+          <article class="panel secundario">
+            <header><h3>Escribir por ti</h3></header>
+            <form class="agregar" id="form-teclear" autocomplete="off">
+              <input id="teclear-txt" placeholder="Texto para la ventana activa" aria-label="Texto a teclear">
+              <button class="ico-btn" aria-label="Teclear"><svg><use href="#i-enviar"/></svg></button>
+            </form>
+            <div class="chips" id="atajos-teclado"></div>
+          </article>
+        </div>
+      </div>
+
+      <div class="pestana" data-pestana="rendimiento" hidden>
+        <div class="medidores" id="medidores"></div>
+        <div class="dos-col">
+          <article class="panel">
+            <header><h3>Últimos minutos</h3><span class="leyenda"><i class="l-cpu"></i>CPU <i class="l-ram"></i>RAM</span></header>
+            <canvas id="grafica" aria-label="Uso de CPU y RAM en los últimos minutos" role="img"></canvas>
+          </article>
+          <article class="panel">
+            <header><h3>Lo que más gasta ahora</h3></header>
+            <ul class="lista" id="pesados"></ul>
+          </article>
+        </div>
+        <div class="dos-col secundario">
+          <article class="panel">
+            <header><h3>Mantenimiento</h3></header>
+            <div class="acciones texto">
+              <button data-orden="hazme un diagnóstico del pc"><strong>Diagnóstico</strong><span>Por qué va lento</span></button>
+              <button data-orden="libera memoria"><strong>Liberar memoria</strong><span>Te pregunta antes</span></button>
+              <button data-orden="espacio de mis discos"><strong>Espacio en disco</strong><span>Cada unidad</span></button>
+              <button data-orden="qué puedo limpiar"><strong>Qué puedo limpiar</strong><span>Temporales y duplicados</span></button>
+              <button data-orden="archivos grandes"><strong>Archivos grandes</strong><span>Lo que más ocupa</span></button>
+              <button data-orden="cancela el apagado"><strong>Cancelar apagado</strong><span>Si programaste uno</span></button>
+            </div>
+          </article>
+          <article class="panel">
+            <header><h3>Lo que hago en segundo plano</h3></header>
+            <ul class="lista" id="procesos"></ul>
+          </article>
+        </div>
+      </div>
+
+      <div class="pestana" data-pestana="rutinas" hidden>
+        <div class="angosto">
+          <div class="notas-barra"><p class="tenue">Varias órdenes seguidas con un clic. También funciona escribiendo «ejecuta la rutina estudio».</p>
+            <button class="btn-acento" id="rutina-nueva"><svg><use href="#i-mas"/></svg>Nueva rutina</button></div>
+          <ul class="lista rutinas" id="rutinas"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= MENTE ======================= -->
+    <section class="seccion" id="s-mente" data-titulo="Mente" hidden>
+      <div class="pestana" data-pestana="trabajo">
+        <div class="angosto"><article class="panel"><div id="controles"></div></article></div>
+      </div>
+      <div class="pestana" data-pestana="redes" hidden>
+        <div class="redes-layout">
+          <aside class="panel redes-lista-panel">
+            <header><h3>Mis redes</h3><span class="tenue" id="redes-resumen"></span></header>
+            <ul class="lista redes-lista" id="redes-lista"><li class="vacio">Leyendo las redes…</li></ul>
+            <button class="btn" id="redes-entrenar-todas"><svg><use href="#i-reiniciar"/></svg>Reentrenar todas</button>
+          </aside>
+          <div class="columna">
+            <article class="panel red-detalle">
+              <header><div><h3 id="red-nombre">Red neuronal</h3><span class="tenue" id="red-sub"></span></div>
+                <button class="mini" id="red-entrenar">Reentrenar esta</button></header>
+              <div class="red-cifras" id="red-cifras"></div>
+              <div class="red-lienzo"><canvas id="red-canvas" aria-label="Dibujo de la red neuronal" role="img"></canvas></div>
+              <p class="tenue red-nota" id="red-nota"></p>
+            </article>
+            <div class="dos-col redes-acciones">
+              <article class="panel">
+                <header><h3>Probar una frase</h3></header>
+                <form class="agregar" id="form-probar" autocomplete="off">
+                  <input id="probar-txt" placeholder="pon música de lofi" aria-label="Frase para probar">
+                  <button class="ico-btn" aria-label="Probar"><svg><use href="#i-play"/></svg></button>
+                </form>
+                <div id="prueba"></div>
+              </article>
+              <article class="panel">
+                <header><h3>Enseñarme frases</h3></header>
+                <form class="agregar" id="form-ensenar" autocomplete="off">
+                  <input id="ensenar-txt" placeholder="sube el volumen; ponle más sonido" aria-label="Frases nuevas">
+                  <button class="ico-btn" aria-label="Enseñar"><svg><use href="#i-mas"/></svg></button>
+                </form>
+                <p class="tenue">Separa varias con «;». Yo decido a qué intención van; si dudo, te pregunto.</p>
+                <ul class="lista compacta" id="ensenados"></ul>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pestana" data-pestana="aprendizaje" hidden>
+        <div class="dos-col">
+          <article class="panel"><header><h3>Examen</h3></header><div id="examen"></div></article>
+          <div class="columna">
+            <article class="panel"><header><h3>Mejoras que hice sola</h3></header><ul class="lista compacta" id="mejora"></ul></article>
+            <article class="panel secundario"><header><h3>Cerebro en la nube</h3></header><div id="nube"></div></article>
+          </div>
+        </div>
+      </div>
+      <div class="pestana" data-pestana="sabe" hidden>
+        <div class="comandos-barra">
+          <div class="buscar-campo"><svg><use href="#i-buscar"/></svg><input id="cmd-filtro" placeholder="Qué quieres hacer: clima, volumen, nota…" aria-label="Buscar comandos"></div>
+          <div class="chips" id="cmd-categorias"></div>
+        </div>
+        <div id="lista-comandos" class="lista-comandos"></div>
+      </div>
+      <div class="pestana" data-pestana="actividad" hidden>
+        <div class="dos-col">
+          <article class="panel"><header><h3>Lo último que entendí</h3></header><ul class="lista compacta" id="actividad"></ul></article>
+          <div class="columna">
+            <article class="panel"><header><h3>Haciendo ahora</h3></header><ul class="lista" id="procesos-2"></ul></article>
+            <article class="panel"><header><h3>Lo que dije por mi cuenta</h3></header><ul class="lista compacta" id="avisos-fondo"></ul></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= AJUSTES ======================= -->
+    <section class="seccion" id="s-ajustes" data-titulo="Ajustes" hidden>
+      <div class="ajustes-layout">
+        <nav class="ajustes-indice" id="ajustes-indice" aria-label="Grupos de ajustes"></nav>
+        <div class="ajustes-cuerpo">
+          <div class="buscar-campo"><svg><use href="#i-buscar"/></svg><input id="aj-filtro" placeholder="Buscar un ajuste" aria-label="Buscar un ajuste"></div>
+
+          <section class="grupo" id="grupo-estilos">
+            <h2>Estilos rápidos</h2>
+            <p class="tenue">Un clic cambia varias cosas a la vez. Después puedes ajustar cada detalle abajo.</p>
+            <div class="estilos" id="estilos"></div>
+          </section>
+
+          <section class="grupo" id="grupo-modos">
+            <h2>Modos</h2>
+            <p class="tenue">Cada modo recuerda su propio aspecto. También puedes decirle a Arché «modo programar».</p>
+            <div class="modos" id="modos"></div>
+          </section>
+
+          <section class="grupo" id="grupo-temas">
+            <h2>Tema</h2>
+            <div class="temas" id="temas"></div>
+          </section>
+
+          <div id="personalizacion"></div>
+
+          <section class="grupo" id="grupo-fondo">
+            <h2>Imagen de fondo</h2>
+            <input type="file" id="fondo-archivo" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" hidden>
+            <div class="fondos" id="fondos"></div>
+            <div class="ajuste"><div class="et"><strong>Oscurecer la imagen</strong><span>Para que el texto se lea bien encima</span></div>
+              <div class="ctl"><input type="range" class="deslizador" min="0" max="90" data-aj="fondo_oscuridad" data-tipo="int" aria-label="Oscurecer la imagen"><span class="num"></span></div></div>
+            <div class="ajuste"><div class="et"><strong>Desenfocar la imagen</strong></div>
+              <div class="ctl"><input type="range" class="deslizador" min="0" max="20" data-aj="fondo_desenfoque" data-tipo="int" aria-label="Desenfocar la imagen"><span class="num"></span></div></div>
+          </section>
+
+          <section class="grupo" id="grupo-orden">
+            <h2>Orden de secciones y pestañas</h2>
+            <p class="tenue">Sube, baja u oculta lo que no uses. Arché y Ajustes siempre se ven.</p>
+            <div class="dos-col">
+              <ul class="lista orden" id="orden-secciones"></ul>
+              <ul class="lista orden" id="orden-hoy"></ul>
+            </div>
+            <button class="mini" data-restablecer="__orden__">Volver al orden de fábrica</button>
+          </section>
+
+          <section class="grupo" id="grupo-botones">
+            <h2>Mis botones</h2>
+            <p class="tenue">Salen encima de la caja de texto y en la búsqueda (Ctrl+K).</p>
+            <ul class="lista orden" id="lista-botones"></ul>
+            <button class="btn" id="boton-nuevo"><svg><use href="#i-mas"/></svg>Nuevo botón</button>
+          </section>
+
+          <section class="grupo" id="grupo-css">
+            <h2>Mi estilo (CSS)</h2>
+            <p class="tenue">Se aplica encima de todo y se guarda en Database/web/mi_estilo.css. Cada opción pone un atributo que puedes usar, por ejemplo <code>[data-web_superficie="vidrio"]</code>.</p>
+            <textarea id="css-propio" spellcheck="false" placeholder=".panel h3 { color: var(--a2); }"></textarea>
+            <div class="fila-botones"><button class="btn-acento" id="css-guardar">Aplicar y guardar</button><span class="tenue" id="css-estado"></span></div>
+          </section>
+
+          <section class="grupo" id="grupo-copia">
+            <h2>Copia y restablecer</h2>
+            <p class="tenue">Guarda todo tu aspecto en un archivo para otro PC o para volver a él después.</p>
+            <div class="fila-botones">
+              <button class="btn" id="exportar-pers"><svg><use href="#i-descargar"/></svg>Guardar en un archivo</button>
+              <label class="btn" for="importar-archivo"><svg><use href="#i-subir"/></svg>Cargar desde un archivo</label>
+              <input type="file" id="importar-archivo" accept=".json,application/json" hidden>
+              <span class="espacio"></span>
+              <button class="btn peligro" data-restablecer="__todo__">Restablecer todo el aspecto</button>
+            </div>
+            <p class="tenue" id="aviso-pywebview"></p>
+            <button class="mini" id="abrir-clasica">Abrir la ventana clásica</button>
+          </section>
+
+          <h2 class="titulo-mas" id="mas-ajustes">Más ajustes de Arché</h2>
+          <div id="ajustes"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Paleta -->
+<div class="velo" id="paleta" hidden>
+  <div class="paleta" role="dialog" aria-label="Buscar o pedir algo">
+    <div class="paleta-entrada"><svg><use href="#i-buscar"/></svg><input id="paleta-txt" placeholder="Escribe una orden o busca algo" aria-label="Orden o búsqueda"></div>
+    <ul id="paleta-res"></ul>
+    <p class="paleta-ayuda">Enter manda lo que escribiste como orden. Con ↑ y ↓ eliges una sugerencia.</p>
+  </div>
+</div>
+
+<!-- Confirmar -->
+<div class="velo" id="confirmar" hidden>
+  <div class="dialogo" role="alertdialog" aria-labelledby="conf-txt">
+    <p id="conf-txt"></p>
+    <div class="fila-botones derecha">
+      <button class="btn" id="conf-no">Cancelar</button>
+      <button class="btn-acento" id="conf-si">Sí, hazlo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nota -->
+<div class="velo" id="editor-nota" hidden>
+  <div class="dialogo grande" role="dialog" aria-label="Nota">
+    <input id="nota-nombre" class="nota-nombre" placeholder="Nombre de la nota" aria-label="Nombre de la nota">
+    <textarea id="nota-texto" placeholder="Escribe aquí…" aria-label="Texto de la nota"></textarea>
+    <div class="fila-botones">
+      <button class="btn peligro" id="nota-borrar"><svg><use href="#i-papelera"/></svg>Borrar</button>
+      <span class="espacio"></span>
+      <button class="btn" id="nota-cerrar">Cerrar</button>
+      <button class="btn-acento" id="nota-guardar">Guardar nota</button>
+    </div>
+  </div>
+</div>
+
+<!-- Botón -->
+<div class="velo" id="editor-boton" hidden>
+  <div class="dialogo" role="dialog" aria-label="Botón">
+    <h3 class="dialogo-titulo">Mi botón</h3>
+    <label class="campo"><span>Nombre</span><input id="boton-texto" maxlength="40" placeholder="Modo estudio"></label>
+    <label class="campo"><span>Lo que le pide a Arché</span><input id="boton-orden" maxlength="300" placeholder="ejecuta la rutina estudio"></label>
+    <div class="campo"><span>Icono</span><div class="iconos-elegir" id="boton-iconos"></div></div>
+    <div class="fila-botones">
+      <button class="btn peligro" id="boton-borrar"><svg><use href="#i-papelera"/></svg>Borrar</button>
+      <span class="espacio"></span>
+      <button class="btn" id="boton-cerrar">Cancelar</button>
+      <button class="btn-acento" id="boton-guardar">Guardar botón</button>
+    </div>
+  </div>
+</div>
+
+<!-- Rutina -->
+<div class="velo" id="editor-rutina" hidden>
+  <div class="dialogo" role="dialog" aria-label="Rutina">
+    <h3 class="dialogo-titulo">Rutina</h3>
+    <label class="campo"><span>Nombre</span><input id="rutina-nombre" maxlength="40" placeholder="estudio"></label>
+    <label class="campo"><span>Órdenes, una por línea</span><textarea id="rutina-pasos" rows="6" placeholder="silencia el sonido&#10;pon el brillo al 70&#10;abre spotify"></textarea></label>
+    <div class="fila-botones">
+      <button class="btn peligro" id="rutina-borrar"><svg><use href="#i-papelera"/></svg>Borrar</button>
+      <span class="espacio"></span>
+      <button class="btn" id="rutina-cerrar">Cancelar</button>
+      <button class="btn-acento" id="rutina-guardar">Guardar rutina</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menú de modos -->
+<div class="menu-modos" id="menu-modos" hidden role="menu"></div>
+
+<!-- Mascota -->
+<div class="mascota" id="mascota" hidden>
+  <div class="globo" id="globo" hidden>
+    <p id="globo-txt"></p>
+    <div class="globo-botones" id="globo-botones"></div>
+  </div>
+  <canvas id="mascota-canvas" width="240" height="240" aria-label="Mascota de Arché" role="img" title="Tócame"></canvas>
+</div>
+
+<!-- Recorrido -->
+<div class="recorrido" id="recorrido" hidden><div class="foco" id="foco"></div></div>
+
+<div class="avisos" id="avisos" aria-live="polite"></div>
+<script src="app.js"></script>
+<script src="mascota.js"></script>
+</body>
+</html>

@@ -69,11 +69,11 @@
     },
     {
       "frase": "como va el compu",
-      "intencion": "estado_sistema"
+      "intencion": "diagnostico_pc"
     },
     {
       "frase": "como esta el compu",
-      "intencion": "estado_sistema"
+      "intencion": "diagnostico_pc"
     },
     {
       "frase": "hazme una captura",
@@ -89,7 +89,7 @@
     },
     {
       "frase": "cuanto me queda de disco",
-      "intencion": "espacio_disco"
+      "intencion": "espacio_discos"
     },
     {
       "frase": "que tareas tengo pendientes",

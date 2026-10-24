@@ -65,11 +65,11 @@ def _norm(texto):
 def _resolver_intencion(texto):
     """(id_valido | None, sugerencias). Acepta el id exacto o con
     espacios/guiones en vez de '_' ('crear nota' -> 'crear_nota')."""
-    candidato = texto.strip().lower().replace(" ", "_").replace("-", "_")
+    candidato = catalogo.unificar(texto.strip().lower().replace(" ", "_").replace("-", "_"))
     if candidato in catalogo.POR_ID:
         return candidato, []
     # sin tildes por si la escribieron con ellas
-    candidato = _norm(texto).replace(" ", "_").replace("-", "_")
+    candidato = catalogo.unificar(_norm(texto).replace(" ", "_").replace("-", "_"))
     if candidato in catalogo.POR_ID:
         return candidato, []
     return None, get_close_matches(candidato, list(catalogo.POR_ID), n=3, cutoff=0.7)

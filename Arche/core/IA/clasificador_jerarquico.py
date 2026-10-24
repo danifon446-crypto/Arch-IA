@@ -47,7 +47,8 @@ from core.IA import dominios
 from core.IA.clasificador import (
     MIN_EJEMPLOS_POR_CLASE, MIN_CLASES, SCORE_MINIMO_UTILIZABLE,
     GRILLA_HIPERPARAMETROS, _hay_datos_suficientes, _vale_la_pena_reemplazar,
-    USAR_TEXTO, armar_entrada, fila_de, dimension_embedding_de,
+    USAR_TEXTO, VERSION_RASGOS, armar_entrada, fila_de, dimension_embedding_de,
+    version_de, _ajustar,
 )
 
 BASE = os.path.dirname(__file__)
@@ -156,11 +157,8 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
     Devuelve True si guardó un modelo nuevo/actualizado, False si no.
     """
     try:
-        from sklearn.neural_network import MLPClassifier
-        from sklearn.model_selection import GridSearchCV, StratifiedKFold
         from sklearn.preprocessing import LabelEncoder
-        from imblearn.pipeline import Pipeline as PipelineDesbalanceado
-        from imblearn.over_sampling import RandomOverSampler
+        import sklearn.neural_network, sklearn.linear_model, imblearn  # noqa: F401 (avisa si faltan)
     except ImportError as e:
         if not silencioso:
             print(f"Arché: Falta una dependencia para el clasificador jerárquico ({e}).")
@@ -181,33 +179,22 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
     codificador = LabelEncoder()
     y_cod = codificador.fit_transform(y)
 
-    pipeline = PipelineDesbalanceado([
-        ("balanceo", RandomOverSampler(random_state=42)),
-        ("red", MLPClassifier(max_iter=2000, random_state=42)),
-    ])
-    grilla_pipeline = {f"red__{clave}": valores for clave, valores in GRILLA_HIPERPARAMETROS.items()}
-
     n_folds = max(min(3, min(conteo.values())), 2)
 
     try:
-        cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
         # n_jobs=1 A PROPOSITO, no -1: el reentreno automático puede
         # dispararse desde un hilo de fondo (examen automático,
         # entrenamiento masivo, aprendizaje.aprender() al cruzar
         # UMBRAL_REENTRENO) -- en Windows, lanzar procesos en paralelo
         # desde un hilo que no es el principal puede colgarse en
-        # silencio, sin error ni aviso, para siempre. La grilla es
-        # chica (9 combinaciones), así que perder el paralelismo no
-        # se nota en el tiempo, y evita el cuelgue por completo.
-        busqueda = GridSearchCV(pipeline, grilla_pipeline, cv=cv, scoring="accuracy", n_jobs=1)
-        busqueda.fit(X, y_cod)
+        # silencio, sin error ni aviso, para siempre.
+        modelo_nuevo, score_nuevo, hiperparametros_limpios, peso_lineal = _ajustar(
+            X, y_cod, n_folds, n_jobs=1
+        )
     except Exception as e:
         if not silencioso:
             print(f"Arché: [{etiqueta}] el entrenamiento falló ({e}).")
         return False
-
-    score_nuevo = busqueda.best_score_
-    modelo_nuevo = busqueda.best_estimator_
 
     if score_nuevo < SCORE_MINIMO_UTILIZABLE:
         if not silencioso:
@@ -223,14 +210,13 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
                   f"{meta_anterior.get('n_ejemplos', 0)} ejemplos). Mantengo el actual.")
         return False
 
-    hiperparametros_limpios = {
-        clave.split("__", 1)[-1]: valor for clave, valor in busqueda.best_params_.items()
-    }
     metadata = {
         "score": score_nuevo,
         "n_ejemplos": len(X),
         "dimension_embedding": dimension_embedding,
         "usa_texto": USAR_TEXTO,
+        "rasgos_texto": VERSION_RASGOS,
+        "votacion": peso_lineal > 0,
         "hiperparametros": hiperparametros_limpios,
         "clases": sorted(set(y.tolist())),
     }
@@ -335,7 +321,7 @@ def _distribucion(archivo, embedding, texto=None):
     if len(embedding) != metadata.get("dimension_embedding"):
         return None
     try:
-        entrada = armar_entrada(embedding, texto, metadata.get("usa_texto", False))
+        entrada = armar_entrada(embedding, texto, version_de(metadata))
         probs = modelo.predict_proba([entrada])[0]
         # modelo.classes_ son los enteros del LabelEncoder, en el mismo
         # orden que las columnas de predict_proba.

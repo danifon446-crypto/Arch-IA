@@ -1,4 +1,4 @@
-"""Banco de pruebas del perro robotico:  celular (ojos) -> Arche (cerebro) -> ESP32 (patas).
+"""banco_de_prueba.py Banco de pruebas del perro robotico:  celular (ojos) -> Arche (cerebro) -> ESP32 (patas).
 
     celular  --JPEG por WiFi-->  Arche (vision + reglas)  --MQTT-->  ESP32 (4 servos)
 

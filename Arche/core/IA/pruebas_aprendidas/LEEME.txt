@@ -1,0 +1,2 @@
+# Aquí Arché guarda las pruebas de cada error que arregló sola.
+# El autotest las corre siempre. No las borres sin revisar.

@@ -13,6 +13,13 @@ _lock = threading.Lock()  # protege conocimiento.json de escrituras concurrentes
 
 UMBRAL_SIMILITUD = 0.85  # qué tan parecida debe ser una frase para aceptarla por similitud (caracteres)
 UMBRAL_SEMANTICO = 0.78  # qué tan parecida debe ser en SIGNIFICADO para aceptarla (embeddings)
+try:
+    # Cada modelo de embeddings da números distintos: si se cambió de
+    # modelo, recalcular_embeddings.py guardó un umbral calibrado para él.
+    from core.IA.embeddings import umbral_configurado as _umbral_configurado
+    UMBRAL_SEMANTICO = _umbral_configurado(UMBRAL_SEMANTICO)
+except Exception:
+    pass
 
 ARCHIVO_META = os.path.join(BASE, "meta.json")
 UMBRAL_REENTRENO = 5  # cada cuántos comandos nuevos se reentrena el clasificador automáticamente
@@ -119,6 +126,20 @@ def _con_reintentos(accion, intentos=6, pausa=0.5):
     raise ultimo
 
 
+def _unificar_acciones(datos):
+    """Los ejemplos guardados con una intencion que se unio con otra
+    (catalogo.UNIFICADAS) se leen con el nombre vigente. Al guardar,
+    quedan ya con el nombre nuevo."""
+    try:
+        from core.IA.catalogo import unificar
+    except Exception:
+        return datos
+    for dato in datos:
+        if isinstance(dato, dict) and dato.get("accion"):
+            dato["accion"] = unificar(dato["accion"])
+    return datos
+
+
 def cargar(estricto=False):
 
     if not os.path.exists(ARCHIVO):
@@ -129,7 +150,7 @@ def cargar(estricto=False):
             return json.load(archivo)
 
     try:
-        return _con_reintentos(_leer)
+        return _unificar_acciones(_con_reintentos(_leer))
     except PermissionError:
         # Bloqueado de verdad. Para ESCRIBIR hay que fallar (devolver [] y guardar borraria lo aprendido);
         # para solo consultar se sigue sin datos.
@@ -228,6 +249,20 @@ def _contenido_seguro(pregunta_norm, dato):
     if dato["accion"] in ACCIONES_SIN_CONTENIDO_VARIABLE:
         return dato["contenido"]
 
+    # Órdenes SIN dato variable que main.py ejecuta con un comando fijo
+    # ("pon el examen", "muestra el escritorio", "pausa la musica"...): no
+    # hay contenido que inventar, así que reutilizarlas es seguro. Antes
+    # quedaban afuera, y TODA frase nueva para ellas se iba a la nube /
+    # Ollama aunque Arché ya tuviera ejemplos casi iguales.
+    if not dato.get("contenido"):
+        try:
+            from core.IA import catalogo
+            entrada = catalogo.POR_ID.get(dato["accion"])
+        except Exception:
+            entrada = None
+        if entrada and entrada.get("comando") and "{X}" not in entrada["comando"]:
+            return ""
+
     return None
 
 
@@ -236,6 +271,11 @@ def _contenido_seguro(pregunta_norm, dato):
 # ----------------------------------------------------------------------
 def aprender(pregunta, accion, contenido, fuente="ollama"):
 
+    try:
+        from core.IA.catalogo import unificar
+        accion = unificar(accion)
+    except Exception:
+        pass
     pregunta_norm = _normalizar(pregunta)
     contenido_norm = _normalizar(contenido) if contenido else ""
 
@@ -364,7 +404,19 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
             mejor_resultado = {"accion": dato["accion"], "contenido": contenido_seguro}
 
     if mejor_score >= umbral_similitud:
-        return mejor_resultado
+        # Segunda opinión: el parecido por LETRAS confunde "activa" con
+        # "desactiva" (una contiene a la otra). Si la red, segura, dice
+        # otra intención, no se acepta acá y se deja decidir al paso 3.
+        vector = _embedding_o_none(pregunta_norm)
+        if vector is None:
+            return mejor_resultado
+        accion_red, confianza_red = _predecir_con_clasificador(vector, texto=pregunta_norm)
+        if not (accion_red and accion_red != mejor_resultado["accion"] and confianza_red >= CONFIANZA_VETO):
+            return mejor_resultado
+        resultado_semantico = _resolver_semantico(pregunta_norm, datos, vector_pregunta=vector)
+        if resultado_semantico is None:
+            _anotar_duda(pregunta_norm, mejor_resultado["accion"], mejor_score, accion_red, confianza_red)
+        return resultado_semantico
 
     # --- Paso 3: similitud semántica (embeddings) ---
     # Entiende significado, no solo caracteres. Cubre sinónimos y
@@ -375,6 +427,14 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
         return resultado_semantico
 
     return None
+
+
+def _embedding_o_none(texto):
+    try:
+        from core.IA.embeddings import calcular_embedding
+        return calcular_embedding(texto)
+    except Exception:
+        return None
 
 
 def _predecir_con_clasificador(vector_pregunta, texto=None):
@@ -406,7 +466,31 @@ def _predecir_con_clasificador(vector_pregunta, texto=None):
         return None, 0.0
 
 
-def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO):
+# Segunda opinión de la red (ver _resolver_semantico).
+CONFIANZA_VETO = 0.70      # la red debe estar así de segura para llevarle la contraria al vecino
+CONFIANZA_RESCATE = 0.60   # ... o para aceptar un vecino que no llegó al umbral
+MARGEN_RESCATE = 0.08      # cuánto por debajo del umbral se acepta un vecino si la red lo respalda
+
+
+def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO, vector_pregunta=None):
+    """
+    Paso 3: el vecino más cercano en SIGNIFICADO (embeddings), con la red
+    como segunda opinión.
+
+    El problema que resuelve: el vecino más cercano solo mira el
+    embedding, y para el embedding "pon el examen" y "detén el examen"
+    son 98% iguales. Antes se aceptaba el vecino sin preguntar, y Arché
+    podía ENCENDER algo que le pediste apagar. La red mira también las
+    palabras (y letras) de la frase, así que ahora:
+
+    - Vecino y red de acuerdo  -> se acepta.
+    - Red segura y en contra   -> se usa el ejemplo más parecido de la
+      intención que dice la red; si no hay ninguno razonable, NO se
+      decide nada (devuelve None) y la frase pasa a la nube / Ollama.
+      Eso es el "no sé": mejor preguntar que ejecutar mal.
+    - Vecino algo por debajo del umbral, pero la red respalda una
+      intención con ejemplos cercanos -> se acepta (rescate).
+    """
     try:
         from core.IA.embeddings import calcular_embedding, similitud_coseno
     except Exception:
@@ -418,48 +502,62 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO)
     if not entradas_con_embedding:
         return None
 
-    try:
-        vector_pregunta = calcular_embedding(pregunta_norm)
-    except Exception as e:
-        print(f"Arché: No se pudo calcular el embedding de la pregunta ({e}).")
-        return None
+    if vector_pregunta is None:
+        try:
+            vector_pregunta = calcular_embedding(pregunta_norm)
+        except Exception as e:
+            print(f"Arché: No se pudo calcular el embedding de la pregunta ({e}).")
+            return None
 
-    mejor_score = 0.0
-    mejor_resultado = None
-    mejor_dato = None
-
+    # Mejor vecino (con contenido usable) en total y por intención.
+    mejor_por_accion = {}
     for dato in entradas_con_embedding:
         score = similitud_coseno(vector_pregunta, dato["embedding"])
-        if score > mejor_score:
-            contenido_seguro = _contenido_seguro(pregunta_norm, dato)
-            if contenido_seguro is None:
-                # La pregunta se parece en SIGNIFICADO, pero no podemos
-                # confiar en que el contenido guardado sirva para esta
-                # pregunta nueva (ej. "buscar"/"conversar" con contenido
-                # resumido por Ollama, no extraíble). No lo usamos.
-                continue
-            mejor_score = score
-            mejor_dato = dato
-            mejor_resultado = {"accion": dato["accion"], "contenido": contenido_seguro}
+        actual = mejor_por_accion.get(dato["accion"])
+        if actual is not None and score <= actual[0]:
+            continue
+        contenido_seguro = _contenido_seguro(pregunta_norm, dato)
+        if contenido_seguro is None:
+            # La pregunta se parece en SIGNIFICADO, pero no podemos
+            # confiar en que el contenido guardado sirva para esta
+            # pregunta nueva (ej. "buscar"/"conversar" con contenido
+            # resumido por Ollama, no extraíble). No lo usamos.
+            continue
+        mejor_por_accion[dato["accion"]] = (score, {"accion": dato["accion"], "contenido": contenido_seguro})
+
+    if not mejor_por_accion:
+        return None
+    mejor_score, mejor_resultado = max(mejor_por_accion.values(), key=lambda par: par[0])
+
+    accion_red, confianza_red = _predecir_con_clasificador(vector_pregunta, texto=pregunta_norm)
+
+    def _vecino_de(accion):
+        par = mejor_por_accion.get(accion)
+        if par and par[0] >= umbral_semantico - MARGEN_RESCATE:
+            return par[1]
+        return None
 
     if mejor_score >= umbral_semantico:
+        if accion_red and accion_red != mejor_resultado["accion"] and confianza_red >= CONFIANZA_VETO:
+            _anotar_duda(pregunta_norm, mejor_resultado["accion"], mejor_score, accion_red, confianza_red)
+            return _vecino_de(accion_red)  # None = "no sé" -> nube / Ollama
         return mejor_resultado
 
     # --- Rescate por clasificador (paso 3.5) ---
-    # Caso límite: el vecino más cercano no llegó al umbral, pero está
-    # razonablemente cerca. Le preguntamos al clasificador entrenado
-    # (jerárquico si está disponible, si no el de siempre) su opinión;
-    # si coincide en la intención con confianza suficiente, aceptamos
-    # el resultado del vecino más cercano de todas formas (el
-    # clasificador no puede aportar el "contenido", solo confirma que
-    # la intención es plausible; el contenido ya pasó por el mismo
-    # filtro de _contenido_seguro de arriba).
-    margen_rescate = 0.08
-    confianza_minima = 0.6
-
-    if mejor_resultado and mejor_score >= (umbral_semantico - margen_rescate):
-        accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta, texto=pregunta_norm)
-        if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima:
-            return mejor_resultado
+    if accion_red and confianza_red >= CONFIANZA_RESCATE:
+        return _vecino_de(accion_red)
 
     return None
+
+
+def _anotar_duda(frase, accion_vecino, score_vecino, accion_red, confianza_red):
+    """Deja la frase en la lista de 'para revisar' (ver revisar_fallos.py).
+    Nunca debe romper la respuesta."""
+    try:
+        from core.IA import revisar_fallos
+        revisar_fallos.anotar(frase, motivo="vecino y red no coinciden",
+                              opciones=[accion_red, accion_vecino],
+                              detalle={"vecino": [accion_vecino, round(score_vecino, 3)],
+                                       "red": [accion_red, round(confianza_red, 3)]})
+    except Exception:
+        pass
