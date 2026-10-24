@@ -1,4 +1,4 @@
-"""Vision del banco de pruebas del perro robotico.
+"""vision. py Vision del banco de pruebas del perro robotico.
 
 Entrada: un cuadro BGR (numpy) que manda el celular.
 Salida: UN evento por cuadro:

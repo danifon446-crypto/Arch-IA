@@ -69,6 +69,14 @@ ARCHIVOS_PROTEGIDOS = {
     "core/IA/revisar_cambios_codigo.py",
     "core/IA/revertir_cambio_codigo.py",
     "core/IA/evaluar_confianza.py",
+    # Seguridad: Arché nunca puede aflojar su propia seguridad desde adentro.
+    "core/seguridad/__init__.py",
+    "core/seguridad/cifrado.py",
+    "core/seguridad/guardian.py",
+    "core/seguridad/comandos.py",
+    "core/interfaz/remoto.py",
+    "core/whatsapp.py",
+    "seguridad.py",
 }
 
 # Un modelo local chico no puede trabajar de forma confiable con
@@ -1011,6 +1019,20 @@ def _ejecutar_prueba_real(archivo_norm, contenido_simulado, nombre_funcion):
 
     modulo_relativo = archivo_norm.rsplit("/", 1)[0].replace("/", ".") if "/" in archivo_norm else ""
     modulo_completo = f"{modulo_relativo}.{nombre_temporal}" if modulo_relativo else nombre_temporal
+
+    # Seguridad: esta prueba EJECUTA el código de verdad. Si el código nuevo trae
+    # cosas que usaría un malware, no se ejecuta ni siquiera de prueba.
+    try:
+        from core.seguridad import guardian
+        ruta_real = _ruta_absoluta(archivo_norm)
+        original = ruta_real.read_text(encoding="utf-8") if ruta_real.exists() else ""
+        hallazgos = guardian.escanear_cambio(original, contenido_simulado)
+    except Exception as e:
+        return False, f"Bloqueado por seguridad: no pude revisar el código antes de ejecutarlo ({e})."
+    if hallazgos:
+        guardian.auditar("prueba_real_bloqueada", archivo=archivo_norm, hallazgos=[h["tipo"] for h in hallazgos])
+        return False, ("Bloqueado por seguridad antes de ejecutarlo: el código nuevo "
+                       + guardian.describir_hallazgos(hallazgos) + ".")
 
     try:
         ruta_temporal.write_text(contenido_simulado, encoding="utf-8")

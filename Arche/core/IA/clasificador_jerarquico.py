@@ -46,7 +46,8 @@ import numpy as np
 from core.IA import dominios
 from core.IA.clasificador import (
     MIN_EJEMPLOS_POR_CLASE, MIN_CLASES, SCORE_MINIMO_UTILIZABLE,
-    GRILLA_HIPERPARAMETROS, _hay_datos_suficientes,
+    GRILLA_HIPERPARAMETROS, _hay_datos_suficientes, _vale_la_pena_reemplazar,
+    USAR_TEXTO, armar_entrada, fila_de, dimension_embedding_de,
 )
 
 BASE = os.path.dirname(__file__)
@@ -79,7 +80,7 @@ def _preparar_dataset_dominio(datos):
         dom = dominios.dominio_de(d.get("accion"))
         if dom is None:
             continue
-        X.append(d["embedding"])
+        X.append(fila_de(d))
         y.append(dom)
     return np.array(X), np.array(y)
 
@@ -93,7 +94,7 @@ def _preparar_dataset_intencion(datos, dominio_nombre):
             continue
         if dominios.dominio_de(d.get("accion")) != dominio_nombre:
             continue
-        X.append(d["embedding"])
+        X.append(fila_de(d))
         y.append(d["accion"])
     return np.array(X), np.array(y)
 
@@ -112,7 +113,7 @@ def _preparar_dataset_subdominio(datos, dominio_nombre):
         sub = dominios.subdominio_de(accion)
         if sub is None:
             continue
-        X.append(d["embedding"])
+        X.append(fila_de(d))
         y.append(sub)
     return np.array(X), np.array(y)
 
@@ -126,7 +127,7 @@ def _preparar_dataset_intencion_en_subdominio(datos, subdominio_nombre):
             continue
         if dominios.subdominio_de(d.get("accion")) != subdominio_nombre:
             continue
-        X.append(d["embedding"])
+        X.append(fila_de(d))
         y.append(d["accion"])
     return np.array(X), np.array(y)
 
@@ -176,7 +177,7 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
                   f"{MIN_CLASES}+ clases). Progreso: {dict(conteo)}")
         return False
 
-    dimension_embedding = X.shape[1]
+    dimension_embedding = dimension_embedding_de(X)
     codificador = LabelEncoder()
     y_cod = codificador.fit_transform(y)
 
@@ -215,19 +216,12 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
         return False
 
     meta_anterior = _metadata_anterior(archivo_destino)
-    if meta_anterior:
-        ejemplos_antes = meta_anterior.get("n_ejemplos", 0)
-        crecimiento = (len(X) / ejemplos_antes) if ejemplos_antes else float("inf")
-        if crecimiento >= 3 and score_nuevo >= SCORE_MINIMO_UTILIZABLE and score_nuevo >= meta_anterior.get("score", 0) - 0.20:
-            pass  # bastantes más datos (3x+): se acepta aunque el score baje algo
-        else:
-            margen = 0.05 if crecimiento >= 1.3 else 0.01
-            if meta_anterior.get("score", 0) > score_nuevo + margen:
-                if not silencioso:
-                    print(f"Arché: [{etiqueta}] el modelo nuevo ({score_nuevo:.0%}, {len(X)} ejemplos) "
-                          f"es peor que el actual ({meta_anterior['score']:.0%}, {ejemplos_antes} ejemplos). "
-                          f"Mantengo el actual.")
-                return False
+    if not _vale_la_pena_reemplazar(meta_anterior, score_nuevo, len(X), sorted(set(y.tolist()))):
+        if not silencioso:
+            print(f"Arché: [{etiqueta}] el modelo nuevo ({score_nuevo:.0%}, {len(X)} ejemplos) "
+                  f"es peor que el actual ({meta_anterior['score']:.0%}, "
+                  f"{meta_anterior.get('n_ejemplos', 0)} ejemplos). Mantengo el actual.")
+        return False
 
     hiperparametros_limpios = {
         clave.split("__", 1)[-1]: valor for clave, valor in busqueda.best_params_.items()
@@ -236,6 +230,7 @@ def _entrenar_una_red(X, y, archivo_destino, etiqueta, silencioso):
         "score": score_nuevo,
         "n_ejemplos": len(X),
         "dimension_embedding": dimension_embedding,
+        "usa_texto": USAR_TEXTO,
         "hiperparametros": hiperparametros_limpios,
         "clases": sorted(set(y.tolist())),
     }
@@ -304,93 +299,135 @@ def entrenar_jerarquico(silencioso=False):
     return resultado
 
 
+# Cache de modelos ya cargados: {archivo: (fecha_modificacion, paquete)}.
+# Antes CADA comando volvia a leer del disco 2-3 archivos .pkl; ahora se
+# leen una sola vez y solo se recargan si el archivo cambio (reentreno).
+_cache_pkl = {}
+
+
 def _cargar_pkl(archivo):
-    if not os.path.exists(archivo):
+    try:
+        fecha = os.path.getmtime(archivo)
+    except OSError:
         return None, None, None
+    guardado = _cache_pkl.get(archivo)
+    if guardado and guardado[0] == fecha:
+        return guardado[1]
     try:
         with open(archivo, "rb") as f:
             paquete = pickle.load(f)
-        return paquete["modelo"], paquete["metadata"], paquete["codificador"]
+        resultado = (paquete["modelo"], paquete["metadata"], paquete["codificador"])
     except Exception:
         return None, None, None
+    _cache_pkl[archivo] = (fecha, resultado)
+    return resultado
 
 
-def _predecir_con(archivo):
-    """Carga un modelo y predice sobre el embedding que le pases luego
-    -- envuelto en una función chica para no repetir el mismo bloque
-    try/except en cada nivel del árbol."""
+def _distribucion(archivo, embedding, texto=None):
+    """
+    Probabilidades COMPLETAS de una red: [(etiqueta, prob), ...] de
+    mayor a menor. None si la red no existe todavia o las dimensiones
+    del embedding no calzan.
+    """
     modelo, metadata, codificador = _cargar_pkl(archivo)
     if modelo is None:
         return None
+    if len(embedding) != metadata.get("dimension_embedding"):
+        return None
+    try:
+        entrada = armar_entrada(embedding, texto, metadata.get("usa_texto", False))
+        probs = modelo.predict_proba([entrada])[0]
+        # modelo.classes_ son los enteros del LabelEncoder, en el mismo
+        # orden que las columnas de predict_proba.
+        etiquetas = codificador.inverse_transform(modelo.classes_)
+        pares = [(str(e), float(p)) for e, p in zip(etiquetas, probs)]
+        return sorted(pares, key=lambda par: -par[1])
+    except Exception:
+        return None
 
-    def _predecir(embedding):
-        if len(embedding) != metadata.get("dimension_embedding"):
-            return None
-        try:
-            probs = modelo.predict_proba([embedding])[0]
-            idx = int(probs.argmax())
-            etiqueta = codificador.inverse_transform([idx])[0]
-            return etiqueta, float(probs[idx])
-        except Exception:
-            return None
+
+def _predecir_con(archivo):
+    """Igual que antes (se conserva por compatibilidad): devuelve una
+    funcion que predice (etiqueta, confianza) con la red de `archivo`."""
+    if _cargar_pkl(archivo)[0] is None:
+        return None
+
+    def _predecir(embedding, texto=None):
+        dist = _distribucion(archivo, embedding, texto)
+        return dist[0] if dist else None
 
     return _predecir
 
 
-def predecir_jerarquico(embedding_pregunta):
+# Cuantos caminos se exploran en cada nivel del arbol, y desde que
+# probabilidad vale la pena explorar una rama.
+CAMINOS_POR_NIVEL = 2
+PROB_MINIMA_RAMA = 0.05
+
+
+def _intenciones_dentro_de(dominio, embedding, texto=None):
+    """[(intencion, prob DENTRO del dominio)] bajando por subdominios si
+    los hay. Lista vacia si falta alguna red en ese camino."""
+    if not dominios.tiene_subdominios(dominio):
+        ids = dominios.intenciones_de(dominio)
+        if len(ids) == 1:
+            return [(next(iter(ids)), 1.0)]
+        return _distribucion(_archivo_submodelo(dominio), embedding, texto) or []
+
+    dist_sub = _distribucion(_archivo_subdominio(dominio), embedding, texto)
+    if not dist_sub:
+        return []
+    resultado = []
+    for sub, p_sub in dist_sub[:CAMINOS_POR_NIVEL]:
+        if p_sub < PROB_MINIMA_RAMA:
+            continue
+        ids = dominios.subdominios_de(dominio).get(sub, set())
+        if len(ids) == 1:
+            resultado.append((next(iter(ids)), p_sub))
+            continue
+        dist_int = _distribucion(_archivo_submodelo_sub(dominio, sub), embedding, texto) or []
+        resultado.extend((accion, p_sub * p_int) for accion, p_int in dist_int)
+    return resultado
+
+
+def predecir_jerarquico(embedding_pregunta, texto=None):
     """
-    Predice bajando por el árbol: dominio, y si ese dominio tiene
-    subdominios, subdominio, y recién ahí la intención -- con la red
-    más chica y específica disponible en cada paso. Si un subdominio
-    tiene una sola intención posible (ver entrenar_jerarquico), no hace
-    falta ninguna red ahí: se resuelve directo, sin margen de error en
-    ese paso.
+    Predice bajando por el arbol (dominio -> subdominio -> intencion).
+
+    MEJORA DE PRECISION (antes vs ahora):
+    - Antes seguia SOLO el dominio mas probable. Si la red de dominio se
+      equivocaba (ej. dudaba 48% / 45% entre dos), todo lo de abajo ya
+      estaba perdido. Ahora explora los CAMINOS_POR_NIVEL mejores
+      dominios (y subdominios) y se queda con la intencion de mayor
+      probabilidad TOTAL.
+    - Antes la confianza devuelta era solo la de la ultima red, aunque
+      el dominio hubiera salido con 40%. Ahora es la probabilidad del
+      camino completo (P(dominio) x P(subdominio) x P(intencion)), que
+      es lo que de verdad mide que tan seguro esta el arbol.
+
+    Pasa tambien el `texto` de la frase: las redes nuevas usan sus
+    palabras ademas del embedding (ver clasificador.armar_entrada).
 
     Devuelve (accion, confianza, dominio) o (None, confianza_hasta_ahi,
-    dominio_o_None) si la cadena se corta en algún punto por falta de
-    modelo entrenado o dimensiones que no calzan.
+    dominio_o_None) si falta algun modelo entrenado.
     """
-    predecir_dominio = _predecir_con(ARCHIVO_MODELO_DOMINIO)
-    if predecir_dominio is None:
+    dist_dom = _distribucion(ARCHIVO_MODELO_DOMINIO, embedding_pregunta, texto)
+    if not dist_dom:
         return None, 0.0, None
 
-    resultado_dominio = predecir_dominio(embedding_pregunta)
-    if resultado_dominio is None:
-        return None, 0.0, None
-    dominio_predicho, confianza_dominio = resultado_dominio
+    mejor = (None, 0.0, None)
+    for dominio, p_dom in dist_dom[:CAMINOS_POR_NIVEL]:
+        if p_dom < PROB_MINIMA_RAMA:
+            continue
+        for accion, p_int in _intenciones_dentro_de(dominio, embedding_pregunta, texto):
+            total = p_dom * p_int
+            if total > mejor[1]:
+                mejor = (accion, total, dominio)
 
-    if not dominios.tiene_subdominios(dominio_predicho):
-        predecir_intencion = _predecir_con(_archivo_submodelo(dominio_predicho))
-        if predecir_intencion is None:
-            return None, confianza_dominio, dominio_predicho
-        resultado_intencion = predecir_intencion(embedding_pregunta)
-        if resultado_intencion is None:
-            return None, confianza_dominio, dominio_predicho
-        accion, confianza_intencion = resultado_intencion
-        return accion, confianza_intencion, dominio_predicho
-
-    # --- dominio con subdominios: un paso más en el árbol ---
-    predecir_subdominio = _predecir_con(_archivo_subdominio(dominio_predicho))
-    if predecir_subdominio is None:
-        return None, confianza_dominio, dominio_predicho
-    resultado_subdominio = predecir_subdominio(embedding_pregunta)
-    if resultado_subdominio is None:
-        return None, confianza_dominio, dominio_predicho
-    subdominio_predicho, confianza_subdominio = resultado_subdominio
-
-    ids_del_subdominio = dominios.subdominios_de(dominio_predicho).get(subdominio_predicho, set())
-    if len(ids_del_subdominio) == 1:
-        # subdominio trivial: una sola intención posible, se resuelve directo
-        return next(iter(ids_del_subdominio)), confianza_subdominio, dominio_predicho
-
-    predecir_intencion = _predecir_con(_archivo_submodelo_sub(dominio_predicho, subdominio_predicho))
-    if predecir_intencion is None:
-        return None, confianza_subdominio, dominio_predicho
-    resultado_intencion = predecir_intencion(embedding_pregunta)
-    if resultado_intencion is None:
-        return None, confianza_subdominio, dominio_predicho
-    accion, confianza_intencion = resultado_intencion
-    return accion, confianza_intencion, dominio_predicho
+    if mejor[0] is None:
+        dominio_top, p_top = dist_dom[0]
+        return None, p_top, dominio_top
+    return mejor
 
 
 def info_jerarquico():

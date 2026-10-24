@@ -48,8 +48,12 @@
     "computador": {
       "racha": 0,
       "listo": false
+    },
+    "robot": {
+      "racha": 0,
+      "listo": false
     }
   },
   "automatico_corriendo": true,
-  "automatico_actualizado_ts": 1792409401.45168
+  "automatico_actualizado_ts": 1792755539.067912
 }

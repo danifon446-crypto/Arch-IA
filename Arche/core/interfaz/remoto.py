@@ -7,17 +7,33 @@ Control de Arché desde el celular: una paginita web que Arché sirve en tu red
 wifi. Abres la direccion en el navegador del celular, pones el PIN y puedes
 escribirle, ver la conversacion y prender o apagar sus funciones.
 
-Seguridad: apagado por defecto; pide un PIN de 6 numeros (se ve en AJUSTES);
-tras 5 PIN malos bloquea esa direccion un minuto; solo responde en tu red.
+Seguridad:
+  * apagado por defecto; pide un PIN de 6 numeros (se ve en AJUSTES), creado
+    con `secrets` (aleatorio de verdad, no el `random` de los juegos).
+  * tras 5 PIN malos bloquea esa direccion un minuto; y si en total llegan
+    MAX_FALLOS_GLOBALES fallos (aunque vengan de muchas direcciones) se bloquea
+    a TODOS durante BLOQUEO_GLOBAL segundos.
+  * solo responde a tu red de casa, a ti mismo (127.0.0.1) y a Tailscale
+    (100.64.0.0/10). Cualquier otra direccion recibe 403.
+  * las ordenes delicadas (apagar el PC, borrar archivos, instalar, teclear,
+    tocar su propio codigo, claves...) NO se aceptan desde el celular: solo
+    desde el PC. Para permitirlas a proposito: variable de entorno
+    ARCHE_CELULAR_PERMITE_TODO=1.
+  * cabeceras de seguridad para que otra pagina no pueda meter la de Arché
+    dentro de un marco ni adivinar tipos de archivo.
 No uses esto en una wifi publica.
 """
 
 import hmac
+import ipaddress
 import json
-import random
+import os
+import re
+import secrets
 import socket
 import threading
 import time
+import unicodedata
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from . import ajustes, datos, en_vivo, entrada
@@ -25,6 +41,72 @@ from . import ajustes, datos, en_vivo, entrada
 _servidor = None
 _hilo = None
 _fallos = {}      # ip -> [cuantos, hasta_cuando]
+_fallos_globales = []   # momentos (time.time()) de cada PIN malo, venga de donde venga
+_lock_fallos = threading.Lock()
+
+MAX_FALLOS_POR_IP = 5
+BLOQUEO_IP = 60               # segundos
+MAX_FALLOS_GLOBALES = 20
+BLOQUEO_GLOBAL = 300          # segundos (5 minutos)
+
+# Redes desde las que se acepta conexion: la de casa, el propio PC y Tailscale.
+_REDES_TAILSCALE = [ipaddress.ip_network("100.64.0.0/10"), ipaddress.ip_network("fd7a:115c:a1e0::/48")]
+
+CABECERAS_SEGURIDAD = {
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Content-Security-Policy": ("default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                                "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                                "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"),
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+}
+
+# Ordenes que SOLO se aceptan desde el PC (se comparan sin tildes y en minusculas).
+_ORDENES_SOLO_PC = [re.compile(p) for p in (
+    r"\b(apaga|apagar|apagues|reinicia|reiniciar|suspende|suspender|hiberna|hibernar)\b.*"
+    r"\b(pc|computador|computadora|equipo|maquina|sistema|portatil|laptop)\b",
+    r"\bcierra (la |mi )?sesion\b|\bcerrar (la |mi )?sesion\b|\bbloquea (el pc|la pantalla)\b",
+    r"\b(teclea|teclear|tipea|presiona|presionar|pulsa|pulsar|oprime|oprimir)\b",
+    r"\bcambia esto\b|\bcambia el codigo\b|\bedita el codigo\b|\bmodifica (el|tu) codigo\b",
+    r"\b(deshaz|deshacer|revierte|revertir|rollback)\b",
+    r"\brevisate\b|\barreglate\b|\barregla todo\b|\bautorrepar|\bauto ?repar|\baprueba\b|\baplica el cambio\b",
+    r"\bmejora\b.*\bnivel\b|\bnivel\b.*\bmejora\b",
+    r"\b(clave|claves|token|contrasena|password|api ?key|pin)\b",
+    r"\bcomparte\b.*\bmemoria\b|\bmemoria\b.*\bnube\b",
+    r"\b(borra|borrar|elimina|eliminar|vacia|vaciar|formatea|formatear|limpia|limpiar|destruye)\b.*"
+    r"\b(archivo|archivos|carpeta|carpetas|disco|descargas|documentos|escritorio|fotos|imagenes|"
+    r"videos|papelera|todo|todos|duplicados)\b",
+    r"\b(instala|instalar|desinstala|desinstalar|descarga e instala)\b",
+    r"\b(ejecuta|ejecutar|corre|correr|lanza)\b.*\b(script|comando|codigo|powershell|cmd|terminal|consola|"
+    r"\.py|\.bat|\.exe|\.ps1)\b",
+    r"\b(whatsapp|celular)\b.*\b(conecta|configura|apaga|desactiva)\b|\b(conecta|configura)\b.*\bwhatsapp\b",
+    r"\bseguridad\b.*\b(desactiva|apaga|quita|sella|sellar)\b|\b(desactiva|apaga|quita)\b.*\bseguridad\b",
+)]
+
+
+def _normalizar(texto):
+    texto = unicodedata.normalize("NFD", str(texto or "").lower())
+    return "".join(c for c in texto if unicodedata.category(c) != "Mn")
+
+
+def es_orden_solo_pc(texto):
+    """True si la orden es delicada y por eso solo se acepta escrita/dicha en el PC."""
+    if os.environ.get("ARCHE_CELULAR_PERMITE_TODO") == "1":
+        return False
+    t = _normalizar(texto)
+    return any(p.search(t) for p in _ORDENES_SOLO_PC)
+
+
+def ip_permitida(ip):
+    """Solo la red de casa, el propio PC y Tailscale."""
+    try:
+        d = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    if getattr(d, "ipv4_mapped", None):
+        d = d.ipv4_mapped
+    return d.is_loopback or d.is_private or d.is_link_local or any(d in r for r in _REDES_TAILSCALE)
 
 PAGINA = """<!doctype html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -69,11 +151,21 @@ async function cargar(){
   const c=document.getElementById('chat'),abajo=c.scrollTop+c.clientHeight>=c.scrollHeight-40;
   c.innerHTML=d.chat.map(m=>'<div class="m '+m.q+'">'+m.t.replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x]))+'</div>').join('');
   if(abajo)c.scrollTop=c.scrollHeight;
+  pintarAviso();
   document.getElementById('ctl').innerHTML=d.controles.map(x=>{
    if(x.tipo=='switch')return '<button class="'+(x.valor?'on':'')+'" onclick="cmd(\\''+(x.valor?x.off:x.on)+'\\')">'+(x.valor?'● ':'○ ')+x.nombre+'</button>';
    return x.niveles.map(n=>'<button class="'+(x.valor==n[0]?'on':'')+'" onclick="cmd(\\''+n[1]+'\\')">'+x.nombre+': '+n[0]+'</button>').join('')}).join('');
  }catch(e){document.getElementById('e').textContent='sin conexión'}}
-async function cmd(t){await fetch('/api/enviar',{method:'POST',headers:H(),body:JSON.stringify({texto:t})});setTimeout(cargar,400)}
+async function cmd(t){
+ try{const r=await fetch('/api/enviar',{method:'POST',headers:H(),body:JSON.stringify({texto:t})});
+  const d=await r.json().catch(()=>({}));
+  if(d.mensaje){aviso='🔒 '+d.mensaje;avisoHasta=Date.now()+8000}
+ }catch(e){}
+ setTimeout(cargar,400)}
+let aviso='',avisoHasta=0;
+function pintarAviso(){const c=document.getElementById('chat');if(Date.now()>avisoHasta)return;
+ const m=document.createElement('div');m.className='m arche';m.style.borderLeftColor='var(--r)';m.textContent=aviso;
+ c.appendChild(m);c.scrollTop=c.scrollHeight}
 function enviar(){const i=document.getElementById('t');if(i.value.trim())cmd(i.value.trim());i.value='';return false}
 cargar();setInterval(cargar,1500);
 </script></body></html>"""
@@ -90,16 +182,20 @@ def ip_local():
         return "127.0.0.1"
 
 
+def _pin_aleatorio():
+    return "%06d" % secrets.randbelow(1_000_000)
+
+
 def _pin():
     pin = str(ajustes.obtener("celular_pin") or "")
     if len(pin) != 6 or not pin.isdigit():
-        pin = "%06d" % random.randint(0, 999999)
+        pin = _pin_aleatorio()
         ajustes.fijar("celular_pin", pin)
     return pin
 
 
 def nuevo_pin():
-    ajustes.fijar("celular_pin", "%06d" % random.randint(0, 999999))
+    ajustes.fijar("celular_pin", _pin_aleatorio())
     return ajustes.obtener("celular_pin")
 
 
@@ -111,7 +207,26 @@ def direccion():
     return f"http://{ip_local()}:{ajustes.obtener('celular_puerto')}"
 
 
+def _auditar(evento, **detalle):
+    """Deja constancia en la bitacora encadenada (si el modulo de seguridad esta)."""
+    try:
+        from core.seguridad import guardian
+        guardian.auditar(evento, origen="celular", **detalle)
+    except Exception:
+        pass
+
+
+def _limpiar_fallos(ahora):
+    """Quita los registros vencidos para que la tabla no crezca sin limite."""
+    for ip in [ip for ip, f in _fallos.items() if f[1] <= ahora]:
+        _fallos.pop(ip, None)
+    _fallos_globales[:] = [t for t in _fallos_globales if ahora - t < BLOQUEO_GLOBAL]
+
+
 class _Manejador(BaseHTTPRequestHandler):
+    server_version = "Arche"
+    sys_version = ""
+
     def log_message(self, *a):
         pass
 
@@ -121,26 +236,46 @@ class _Manejador(BaseHTTPRequestHandler):
         self.send_header("Content-Type", tipo)
         self.send_header("Content-Length", str(len(datos_)))
         self.send_header("Cache-Control", "no-store")
+        for k, v in CABECERAS_SEGURIDAD.items():
+            self.send_header(k, v)
         self.end_headers()
         self.wfile.write(datos_)
 
+    def _red_permitida(self):
+        if ip_permitida(self.client_address[0]):
+            return True
+        _auditar("conexion_rechazada_red", ip=self.client_address[0])
+        self._responder(403, "{}")
+        return False
+
     def _autorizado(self):
         ip = self.client_address[0]
-        fallos = _fallos.get(ip)
-        if fallos and fallos[0] >= 5 and time.time() < fallos[1]:
-            self._responder(429, "{}")
-            return False
-        enviado = self.headers.get("X-Pin", "")
-        if hmac.compare_digest(enviado.encode(), _pin().encode()):
-            _fallos.pop(ip, None)
-            return True
-        f = _fallos.setdefault(ip, [0, 0])
-        f[0] += 1
-        f[1] = time.time() + 60
+        ahora = time.time()
+        with _lock_fallos:
+            _limpiar_fallos(ahora)
+            if len(_fallos_globales) >= MAX_FALLOS_GLOBALES:
+                self._responder(429, "{}")
+                return False
+            fallos = _fallos.get(ip)
+            if fallos and fallos[0] >= MAX_FALLOS_POR_IP and ahora < fallos[1]:
+                self._responder(429, "{}")
+                return False
+            enviado = self.headers.get("X-Pin", "")
+            if hmac.compare_digest(enviado.encode(), _pin().encode()):
+                _fallos.pop(ip, None)
+                return True
+            f = _fallos.setdefault(ip, [0, 0])
+            f[0] += 1
+            f[1] = ahora + BLOQUEO_IP
+            _fallos_globales.append(ahora)
+            n_ip, n_global = f[0], len(_fallos_globales)
+        _auditar("pin_incorrecto", ip=ip, fallos_ip=n_ip, fallos_globales=n_global)
         self._responder(401, "{}")
         return False
 
     def do_GET(self):
+        if not self._red_permitida():
+            return
         if self.path in ("/", "/index.html"):
             return self._responder(200, PAGINA, "text/html; charset=utf-8")
         if self.path.startswith("/api/estado"):
@@ -161,17 +296,32 @@ class _Manejador(BaseHTTPRequestHandler):
         self._responder(404, "{}")
 
     def do_POST(self):
-        if self.path != "/api/enviar" or not self._autorizado():
-            if self.path != "/api/enviar":
-                self._responder(404, "{}")
+        if not self._red_permitida():
+            return
+        if self.path != "/api/enviar":
+            return self._responder(404, "{}")
+        if not self._autorizado():
             return
         try:
             largo = min(int(self.headers.get("Content-Length", "0")), 2000)
             texto = json.loads(self.rfile.read(largo) or b"{}").get("texto", "")
         except Exception:
             texto = ""
-        entrada.enviar(str(texto)[:500], "celular")
+        texto = str(texto)[:500]
+        if es_orden_solo_pc(texto):
+            _auditar("orden_delicada_rechazada", ip=self.client_address[0], texto=texto[:120])
+            return self._responder(200, json.dumps({
+                "ok": False,
+                "mensaje": "Esa orden es delicada: solo la acepto desde el PC, no desde el celular."},
+                ensure_ascii=False))
+        entrada.enviar(texto, "celular")
         self._responder(200, '{"ok":true}')
+
+    # Cualquier otro metodo (PUT, DELETE, ...) se rechaza.
+    def _no_permitido(self):
+        self._responder(405, "{}")
+
+    do_PUT = do_DELETE = do_PATCH = do_OPTIONS = _no_permitido
 
 
 def iniciar():

@@ -44,19 +44,77 @@ MIN_CLASES = 2
 # Por debajo de esto, mejor no confiar en sus predicciones.
 SCORE_MINIMO_UTILIZABLE = 0.55
 
-# Búsqueda de hiperparámetros: espacio chico a propósito (los datos son
-# pocos, no vale la pena tardar mucho en la búsqueda).
+# Búsqueda de hiperparámetros.
+# Antes: (32,), (64,), (64, 32) con alpha hasta 0.01. Con 145 intenciones,
+# una capa de 32 neuronas es un embudo (menos neuronas que clases), y la
+# búsqueda casi siempre elegía el alpha más alto disponible: señal de que
+# le faltaba regularización. Ahora prueba capas más anchas, más
+# regularización (alpha = cuánto se castigan los pesos grandes, evita que
+# memorice) y también la activación tanh, que en las pruebas ganó.
 GRILLA_HIPERPARAMETROS = {
-    "hidden_layer_sizes": [(32,), (64,), (64, 32)],
-    "alpha": [0.0001, 0.001, 0.01],
+    "hidden_layer_sizes": [(128,), (256,)],
+    "alpha": [0.001, 0.01, 0.1],
+    "activation": ["relu", "tanh"],
 }
+
+# ----------------------------------------------------------------------
+# Rasgos de PALABRAS (además del embedding)
+# ----------------------------------------------------------------------
+# El modelo de embeddings capta el TEMA de la frase pero casi ignora el
+# verbo: para él "pon el examen" y "detén el examen" se parecen 98%. Por
+# eso fallaban los pares on/off, crear/agregar/abrir nota, estado/entrenar.
+# Solución: a la red le llega el embedding Y una "bolsa de palabras" de
+# la frase (qué palabras y pares de palabras aparecen). Así "pon" vs
+# "deten" sí cambia lo que ve la red.
+#
+# Se usa HashingVectorizer: convierte cada palabra en una posición fija
+# con una fórmula, sin necesidad de guardar un vocabulario. Siempre da lo
+# mismo para la misma frase, así que no hay nada extra que guardar en el
+# .pkl.
+USAR_TEXTO = True
+N_RASGOS_TEXTO = 1024
+
+_hasher = None
+
+
+def _rasgos_texto(texto):
+    global _hasher
+    if not texto:
+        return np.zeros(N_RASGOS_TEXTO)
+    if _hasher is None:
+        from sklearn.feature_extraction.text import HashingVectorizer
+        _hasher = HashingVectorizer(
+            ngram_range=(1, 2), n_features=N_RASGOS_TEXTO,
+            alternate_sign=False, norm="l2",
+        )
+    from core.IA.aprendizaje import _normalizar
+    return _hasher.transform([_normalizar(texto)]).toarray()[0]
+
+
+def armar_entrada(embedding, texto=None, usa_texto=USAR_TEXTO):
+    """Lo que de verdad entra a la red: el embedding, y si el modelo se
+    entrenó con texto, pegados detrás los rasgos de palabras."""
+    emb = np.asarray(embedding, dtype=float)
+    if not usa_texto:
+        return emb
+    return np.concatenate([emb, _rasgos_texto(texto)])
+
+
+def fila_de(dato):
+    """Fila de entrenamiento a partir de un ejemplo de conocimiento.json."""
+    return armar_entrada(dato["embedding"], dato.get("pregunta", ""))
+
+
+def dimension_embedding_de(X):
+    """Cuántas columnas de X son embedding (el resto son palabras)."""
+    return X.shape[1] - (N_RASGOS_TEXTO if USAR_TEXTO else 0)
 
 
 def _preparar_dataset(datos):
     X, y = [], []
     for d in datos:
         if d.get("embedding"):
-            X.append(d["embedding"])
+            X.append(fila_de(d))
             y.append(d["accion"])
     return np.array(X), np.array(y)
 
@@ -65,6 +123,38 @@ def _hay_datos_suficientes(y):
     conteo = Counter(y)
     clases_validas = [c for c, n in conteo.items() if n >= MIN_EJEMPLOS_POR_CLASE]
     return len(clases_validas) >= MIN_CLASES, conteo
+
+
+def _vale_la_pena_reemplazar(meta_anterior, score_nuevo, n_ejemplos_nuevo, clases_nuevas):
+    """
+    Decide si un modelo recien entrenado debe reemplazar al guardado.
+    Compartido por clasificador.py y clasificador_jerarquico.py.
+
+    Antes, en clasificador.py, el modelo nuevo se descartaba si su score
+    era apenas 1% peor que el anterior -- aunque el nuevo supiera
+    intenciones NUEVAS que el viejo ni conocia. Resultado: Arche podia
+    quedarse para siempre con una red que no reconoce comandos que ya le
+    ensenaste. Ademas, un score medido con 40 ejemplos y otro con 400 no
+    son comparables: el de 400 es mucho mas confiable.
+
+    Reglas:
+    - sin modelo anterior -> reemplazar
+    - el modelo nuevo conoce intenciones distintas -> reemplazar (el
+      viejo no sirve para las intenciones nuevas)
+    - 3x o mas datos -> reemplazar salvo que caiga mas de 20 puntos
+    - si no, tolerar 5 puntos de caida con 30%+ mas datos, o 1 punto
+    """
+    if not meta_anterior:
+        return True
+    if set(meta_anterior.get("clases", [])) != set(clases_nuevas):
+        return True
+    score_anterior = meta_anterior.get("score", 0)
+    ejemplos_antes = meta_anterior.get("n_ejemplos", 0)
+    crecimiento = (n_ejemplos_nuevo / ejemplos_antes) if ejemplos_antes else float("inf")
+    if crecimiento >= 3:
+        return score_nuevo >= score_anterior - 0.20
+    margen = 0.05 if crecimiento >= 1.3 else 0.01
+    return score_nuevo + margen >= score_anterior
 
 
 def _metadata_anterior():
@@ -118,7 +208,7 @@ def entrenar(silencioso=False):
             print(f"       Progreso actual por intención: {dict(conteo)}")
         return False
 
-    dimension_embedding = X.shape[1]
+    dimension_embedding = dimension_embedding_de(X)
 
     # MLPClassifier con early_stopping=True falla internamente si las
     # clases son strings (bug conocido de sklearn con ciertas versiones:
@@ -183,7 +273,7 @@ def entrenar(silencioso=False):
         return False
 
     meta_anterior = _metadata_anterior()
-    if meta_anterior and meta_anterior.get("score", 0) > score_nuevo + 0.01:
+    if not _vale_la_pena_reemplazar(meta_anterior, score_nuevo, len(X), sorted(set(y.tolist()))):
         if not silencioso:
             print(
                 f"Arché: El modelo nuevo ({score_nuevo:.0%}) es peor que el "
@@ -199,6 +289,7 @@ def entrenar(silencioso=False):
         "score": score_nuevo,
         "n_ejemplos": len(X),
         "dimension_embedding": dimension_embedding,
+        "usa_texto": USAR_TEXTO,
         "hiperparametros": hiperparametros_limpios,
         "clases": sorted(set(y.tolist())),
     }
@@ -218,21 +309,34 @@ def entrenar(silencioso=False):
     return True
 
 
+_cache_modelo = {"ruta": None, "fecha": None, "paquete": (None, None, None)}
+
+
 def _cargar_modelo():
-    if not os.path.exists(ARCHIVO_MODELO):
+    """Carga clasificador.pkl UNA vez y lo mantiene en memoria; solo lo
+    vuelve a leer si el archivo cambio (o sea, si se reentreno). Antes
+    se leia del disco en cada comando."""
+    try:
+        fecha = os.path.getmtime(ARCHIVO_MODELO)
+    except OSError:
         return None, None, None
+    if _cache_modelo["ruta"] == ARCHIVO_MODELO and _cache_modelo["fecha"] == fecha:
+        return _cache_modelo["paquete"]
     try:
         with open(ARCHIVO_MODELO, "rb") as f:
             paquete = pickle.load(f)
-        return paquete["modelo"], paquete["metadata"], paquete["codificador"]
+        resultado = (paquete["modelo"], paquete["metadata"], paquete["codificador"])
     except Exception:
         return None, None, None
+    _cache_modelo.update(ruta=ARCHIVO_MODELO, fecha=fecha, paquete=resultado)
+    return resultado
 
 
-def predecir(embedding_pregunta):
+def predecir(embedding_pregunta, texto=None):
     """
     Devuelve (accion_predicha, confianza) usando la red neuronal
-    entrenada. Si todavía no existe un modelo, o las dimensiones del
+    entrenada. Pasa también el `texto` de la frase: los modelos nuevos
+    usan sus palabras además del embedding. Si todavía no existe un modelo, o las dimensiones del
     embedding no coinciden con las que se usaron para entrenar (ej.
     cambiaste el modelo de embeddings), devuelve (None, 0.0) en vez de
     fallar o dar un resultado sin sentido.
@@ -247,7 +351,8 @@ def predecir(embedding_pregunta):
         return None, 0.0
 
     try:
-        probs = modelo.predict_proba([embedding_pregunta])[0]
+        entrada = armar_entrada(embedding_pregunta, texto, metadata.get("usa_texto", False))
+        probs = modelo.predict_proba([entrada])[0]
         idx_max = int(probs.argmax())
         accion = codificador.inverse_transform([idx_max])[0]
         confianza = float(probs[idx_max])

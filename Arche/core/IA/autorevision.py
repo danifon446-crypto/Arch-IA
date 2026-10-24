@@ -761,6 +761,31 @@ def _contar_hallazgos(reporte, sin_ia=False):
     return total
 
 
+def _mensaje_hallazgos(total):
+    """Aviso de inicio: cuantas cosas se arreglan solas sin riesgo y cuantas necesitan criterio."""
+    try:
+        from core import mejora_continua
+        seguros = len(mejora_continua.parches_mecanicos(500))
+        automatica = mejora_continua.nivel() == "total"
+    except Exception:
+        seguros, automatica = 0, False
+    seguros = min(seguros, total)
+    resto = total - seguros
+    partes = [f"Me autorevisé y encontré {total} cosa(s) para mejorar en mi código."]
+    if seguros:
+        if automatica:
+            partes.append(f"{seguros} son seguras (imports sin usar, 'except:' desnudos): las arreglo sola cuando "
+                          f"no me estés usando, probándome entera después de cada lote. Si las quieres ya: "
+                          f"'arregla lo que encontraste'.")
+        else:
+            partes.append(f"{seguros} son seguras (imports sin usar, 'except:' desnudos): dime 'arregla lo que "
+                          f"encontraste' y las arreglo ya (o 'mejorate sola' para que lo haga siempre yo sola).")
+    if resto:
+        partes.append(f"Las otras {resto} (funciones duplicadas, código muerto) necesitan criterio: "
+                      f"'revisate' para verlas.")
+    return " ".join(partes)
+
+
 def iniciar_autorevision_en_background(
     retraso_inicial_seg=15,
     intervalo_seg=INTERVALO_AUTOREVISION_SEG,
@@ -799,10 +824,7 @@ def iniciar_autorevision_en_background(
                 reporte = autorevisar(usar_ollama=usar_ollama, proponer_borrado_codigo_muerto=False)
                 total = _contar_hallazgos(reporte, sin_ia=not usar_ollama)
                 if total > 0 and total != ultimo_total and avisar is not None:
-                    avisar(
-                        f"Mientras andaba en segundo plano me autorevisé y encontré {total} "
-                        f"cosa(s) para mejorar en el código. Decime 'revisate' cuando quieras el detalle."
-                    )
+                    avisar(_mensaje_hallazgos(total))
                 ultimo_total = total
             except Exception:
                 # Un error acá no debe tirar abajo el hilo de fondo.

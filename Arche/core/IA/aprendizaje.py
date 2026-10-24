@@ -377,7 +377,7 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
     return None
 
 
-def _predecir_con_clasificador(vector_pregunta):
+def _predecir_con_clasificador(vector_pregunta, texto=None):
     """
     Le pide al clasificador su opinión sobre `vector_pregunta`, usando
     PRIMERO el jerárquico (clasificador_jerarquico.py, dominio + red
@@ -391,7 +391,7 @@ def _predecir_con_clasificador(vector_pregunta):
     """
     try:
         from core.IA.clasificador_jerarquico import predecir_jerarquico
-        accion, confianza, _dominio = predecir_jerarquico(vector_pregunta)
+        accion, confianza, _dominio = predecir_jerarquico(vector_pregunta, texto=texto)
         if accion is not None:
             return accion, confianza
     except ImportError:
@@ -401,7 +401,7 @@ def _predecir_con_clasificador(vector_pregunta):
 
     try:
         from core.IA.clasificador import predecir
-        return predecir(vector_pregunta)
+        return predecir(vector_pregunta, texto=texto)
     except Exception:
         return None, 0.0
 
@@ -458,7 +458,7 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO)
     confianza_minima = 0.6
 
     if mejor_resultado and mejor_score >= (umbral_semantico - margen_rescate):
-        accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta)
+        accion_predicha, confianza = _predecir_con_clasificador(vector_pregunta, texto=pregunta_norm)
         if accion_predicha == mejor_resultado["accion"] and confianza >= confianza_minima:
             return mejor_resultado
 

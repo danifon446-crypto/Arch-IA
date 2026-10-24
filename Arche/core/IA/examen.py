@@ -514,7 +514,7 @@ def rendir_examen(dominio=None, cantidad=CANTIDAD_POR_RONDA, obtener_embedding=N
                 print(f"Arché (examen): {e}")
             break  # sin forma de embeber, no tiene sentido seguir intentando esta ronda
 
-        accion_predicha, confianza, dominio_predicho = cj.predecir_jerarquico(embedding)
+        accion_predicha, confianza, dominio_predicho = cj.predecir_jerarquico(embedding, texto=ejercicio["frase"])
         acierto_crudo = accion_predicha == ejercicio["intencion_correcta"]
         flojo = acierto_crudo and (confianza or 0) < confianza_minima(nivel)
         acierto = acierto_crudo and not flojo

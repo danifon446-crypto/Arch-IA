@@ -62,7 +62,13 @@ def _leer_consola():
 def _ventana_abierta():
     try:
         from . import ventana
-        return ventana.abierta()
+        if ventana.abierta():
+            return True
+    except Exception:
+        pass
+    try:
+        from . import web
+        return web.abierta()
     except Exception:
         return False
 

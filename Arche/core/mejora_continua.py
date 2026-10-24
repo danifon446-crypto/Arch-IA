@@ -298,6 +298,11 @@ def _leer_archivo(rel):
 def _escribir_archivo(rel, texto):
     with open(os.path.join(_raiz_app(), rel), "w", encoding="utf-8", newline="") as f:
         f.write(texto)
+    try:                                   # avisarle al guardián que fue un cambio de la propia Arché
+        from core.seguridad import guardian
+        guardian.registrar_cambio_propio(rel, motivo="mejora continua (deshacer/restaurar)")
+    except Exception:
+        pass
 
 
 def _imports_sin_usar():

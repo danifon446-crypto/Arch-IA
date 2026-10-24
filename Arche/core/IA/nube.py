@@ -18,7 +18,8 @@ PROVEEDORES (se elige con "usa la nube de groq|gemini|anthropic"):
 
   * Las claves NUNCA van en el codigo: se leen de una variable de entorno
     (GROQ_API_KEY, GEMINI_API_KEY, ANTHROPIC_API_KEY) o de un archivo en
-    Database/ (que esta en .gitignore, asi que no se sube a GitHub).
+    Database/ (que esta en .gitignore, asi que no se sube a GitHub). Ese
+    archivo va CIFRADO (core/seguridad/cifrado.py: DPAPI en Windows).
   * modo "auto"   -> nube si hay clave e internet, si no Ollama (default)
     modo "nube"   -> solo nube (si falla, avisa)
     modo "ollama" -> nunca usa la nube
@@ -188,12 +189,12 @@ def clave(prov=None):
     if de_entorno:
         return de_entorno
     try:
-        with open(_archivo_clave(prov), "r", encoding="utf-8") as f:
-            propia = f.read().strip()
-            if propia:
-                return propia
-    except OSError:
-        pass
+        from core.seguridad import cifrado
+        propia = cifrado.leer_secreto(_archivo_clave(prov))   # descifra (y cifra las de texto plano viejas)
+        if propia:
+            return propia
+    except Exception as e:
+        print(f"Arché: (seguridad) No pude abrir la clave guardada de {prov}: {e}")
     madre = PROVEEDORES[prov].get("respaldo_de")      # el segundo modelo usa la clave de su proveedor
     return clave(madre) if madre else ""
 
@@ -225,14 +226,8 @@ def guardar_clave(texto, prov=None):
     texto = limpiar_clave(texto)
     if not texto:
         raise ValueError("clave vacia")
-    os.makedirs(DATABASE, exist_ok=True)
-    ruta = _archivo_clave(prov)
-    with open(ruta, "w", encoding="utf-8") as f:
-        f.write(texto)
-    try:
-        os.chmod(ruta, 0o600)
-    except OSError:
-        pass
+    from core.seguridad import cifrado
+    cifrado.guardar_secreto(_archivo_clave(prov), texto)   # se guarda CIFRADA, nunca en texto plano
 
 
 def borrar_clave(prov=None):

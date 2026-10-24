@@ -133,7 +133,8 @@ with mock.patch.object(ajustes, "obtener", lambda clave: PIN if clave == "celula
         mock.patch.object(en_vivo, "sondear", lambda: None), \
         mock.patch.object(en_vivo, "estado_visual", lambda: "quieto"), \
         mock.patch.object(datos, "controles", lambda: []), \
-        mock.patch.object(entrada, "enviar", lambda texto, origen: recibidas.append((texto, origen))):
+        mock.patch.object(entrada, "enviar", lambda texto, origen: recibidas.append((texto, origen))), \
+        mock.patch.object(remoto, "_auditar", lambda *a, **k: None):     # no escribir en tu bitacora real
 
     servidor = ThreadingHTTPServer(("127.0.0.1", 0), remoto._Manejador)
     hilo = threading.Thread(target=servidor.serve_forever, daemon=True)

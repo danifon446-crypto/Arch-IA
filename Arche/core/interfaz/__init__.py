@@ -31,9 +31,31 @@ def entrada_en_ventana():
     return bool(ajustes.obtener("entrada_ventana"))
 
 
+def _usa_web():
+    return ajustes.obtener("interfaz_tipo") == "web" or not ventana.disponible()
+
+
+def _abrir_web():
+    try:
+        from . import web
+        ok, como = web.abrir()
+    except Exception as e:
+        return False, f"No pude abrir la interfaz nueva ({e})."
+    if como == "ya":
+        return True, "La interfaz ya está abierta."
+    if como == "ventana":
+        return True, "Listo, abrí mi interfaz. Puedes seguir hablándome por aquí o por allá."
+    extra = " (para tenerla en su propia ventana instala pywebview: pip install pywebview)"
+    return True, ("Listo, abrí mi interfaz en una ventana de Edge/Chrome." if como == "app"
+                  else "Listo, abrí mi interfaz en el navegador.") + extra
+
+
 def _arranque_automatico():
-    if ventana.disponible() and automatica() and not ventana.abierta():
-        ventana.abrir(tv=False, foco=False)     # sin robar el teclado: sigues escribiendo en la consola
+    if automatica():
+        if _usa_web():
+            _abrir_web()
+        elif not ventana.abierta():
+            ventana.abrir(tv=False, foco=False)     # sin robar el teclado: sigues escribiendo en la consola
     if ajustes.obtener("celular"):
         remoto.iniciar()
     if ajustes.obtener("escucha"):
@@ -63,6 +85,17 @@ def interpretar(comando):
     m = _R_NOMBRE.match(str(comando).strip())
     if m:
         return ("mascota_nombre", m.group(1).strip().strip("\"'").title())
+    # --- interfaz nueva (web) / clasica ---
+    if re.match(r"^(abre|abrir|muestra|mostrar|enciende|activa|lanza)( la| mi)? (interfaz|ventana)( de arche)? (web|nueva|moderna)$"
+                r"|^(interfaz|ventana) (web|nueva)$|^abre arche web$", c):
+        return ("abrir_web", None)
+    if re.match(r"^(abre|abrir|muestra|mostrar|lanza)( la| mi)? (interfaz|ventana)( de arche)? (clasica|vieja|anterior|tkinter)$", c):
+        return ("abrir_clasica", None)
+    if re.match(r"^(cierra|cerrar|quita|oculta)( la)? (interfaz|ventana)( de arche)? (web|nueva|moderna)$", c):
+        return ("cerrar_web", None)
+    m2 = re.match(r"^(usa|pon|cambia a|cambiate a|quiero)( la)? (interfaz|ventana) (web|nueva|moderna|clasica|vieja|anterior)( por defecto| siempre)?$", c)
+    if m2:
+        return ("interfaz_tipo", "web" if m2.group(4) in ("web", "nueva", "moderna") else "clasica")
     # --- ventana ---
     if re.match(r"^(activa|enciende|pon|deja)( la| mi)? (interfaz|ventana)( de arche)? (automatica|siempre|al iniciar|al arrancar)$", c):
         return ("auto_si", None)
@@ -205,6 +238,22 @@ def manejar(comando):
         return None
     intencion, dato = cual
 
+    if intencion == "abrir_interfaz" and _usa_web():
+        intencion = "abrir_web"
+    if intencion == "abrir_web":
+        _msg(_abrir_web()[1])
+        return cual
+    if intencion == "cerrar_web":
+        from . import web
+        _msg("Cerré la interfaz." if web.cerrar() else "Si está abierta en el navegador, ciérrala desde allí.")
+        return cual
+    if intencion == "interfaz_tipo":
+        ajustes.fijar("interfaz_tipo", dato)
+        _msg("Listo, desde ahora uso la interfaz nueva." if dato == "web"
+             else "Listo, desde ahora uso la ventana clásica.")
+        return cual
+    if intencion == "abrir_clasica":
+        intencion = "abrir_interfaz"
     if intencion in ("abrir_interfaz", "modo_tv", "salir_modo_tv"):
         if not ventana.disponible():
             _msg("A este Python le falta Tkinter. En Windows viene incluido; en la Raspberry instala "
@@ -230,7 +279,13 @@ def manejar(comando):
         fijar_automatica(False)
         _msg("Listo, ya no abriré la ventana al arrancar. Dime 'abre la interfaz' cuando la quieras.")
     elif intencion == "cerrar_interfaz":
-        _msg("Cerré la ventana." if ventana.cerrar() else "La ventana no estaba abierta.")
+        cerro = ventana.cerrar()
+        try:
+            from . import web
+            cerro = web.cerrar() or cerro
+        except Exception:
+            pass
+        _msg("Cerré la ventana." if cerro else "La ventana no estaba abierta.")
     elif intencion == "ir_ajustes":
         if not ventana.abierta():
             ventana.abrir(tv=False)
@@ -332,7 +387,7 @@ except Exception:
     pass
 
 # Escribir desde la ventana: input() pasa a leer de la consola Y de la ventana.
-if ventana.disponible() and entrada_en_ventana():
+if entrada_en_ventana():
     entrada.instalar()
 
 # Tema guardado

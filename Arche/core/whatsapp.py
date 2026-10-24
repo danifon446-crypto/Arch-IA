@@ -82,22 +82,53 @@ def _solo_digitos(numero):
 # Configuración
 # ------------------------------------------------------------------
 
+# Campos que son secretos: en el disco van cifrados (core/seguridad/cifrado.py).
+CAMPOS_SECRETOS = ("token", "verify_token", "app_secret")
+
+
 def _cargar():
     try:
         with open(ARCHIVO, "r", encoding="utf-8") as f:
             datos = json.load(f)
-            return datos if isinstance(datos, dict) else {}
+        if not isinstance(datos, dict):
+            return {}
     except Exception:
         return {}
+    from core.seguridad import cifrado
+    habia_plano = False
+    for campo in CAMPOS_SECRETOS:
+        valor = datos.get(campo)
+        if isinstance(valor, str) and valor:
+            if cifrado.esta_cifrado(valor):
+                try:
+                    datos[campo] = cifrado.descifrar(valor)
+                except Exception as e:
+                    print(f"Arché: (seguridad) No pude abrir el {campo} de WhatsApp: {e}")
+                    datos[campo] = ""
+            else:
+                habia_plano = True
+    if habia_plano and cifrado.metodo() != "ninguno":
+        try:
+            _guardar(datos)          # migracion: el token viejo en texto plano queda cifrado
+        except Exception:
+            pass
+    return datos
 
 
 def _guardar(datos):
-    with open(ARCHIVO, "w", encoding="utf-8") as f:
-        json.dump(datos, f, ensure_ascii=False, indent=2)
+    from core.seguridad import cifrado
+    en_disco = dict(datos)
+    for campo in CAMPOS_SECRETOS:
+        if isinstance(en_disco.get(campo), str) and en_disco[campo]:
+            en_disco[campo] = cifrado.cifrar(en_disco[campo])
+    tmp = ARCHIVO + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(en_disco, f, ensure_ascii=False, indent=2)
     try:
-        os.chmod(ARCHIVO, 0o600)
+        os.chmod(tmp, 0o600)
     except Exception:
         pass
+    os.replace(tmp, ARCHIVO)
 
 
 def configurada():

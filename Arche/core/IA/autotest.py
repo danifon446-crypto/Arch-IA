@@ -32,9 +32,11 @@ de sistema/archivos) la restaura al terminar cada prueba.
 Uso:
     python core/IA/autotest.py
     python core/IA/autotest.py -v      (muestra el detalle de cada test, no solo fallos)
+    python core/IA/autotest.py -k test_a,test_b   (solo esas pruebas)
 """
 
 import ast
+import json
 import os
 import shutil
 import sys
@@ -81,6 +83,8 @@ _MODULOS_CLAVE = [
     "core.IA.orquestador_autonomo", "core.IA.evaluar_confianza",
     "core.IA.clasificador", "core.IA.embeddings", "core.IA.estudio",
     "core.autodiagnostico",
+    "core.IA.registro_errores", "core.IA.autorreparar", "core.IA.git_arche",
+    "core.IA.autoverificacion", "core.IA.autorevision",
 ]
 
 
@@ -579,13 +583,174 @@ def test_reasoning_sandwich_verifica_riesgo_medio_y_alto_no_bajo():
             backup.unlink(missing_ok=True)
 
 
+# ==================== AUTORREPARACIÓN ====================
+
+@_test
+def test_protegidos_incluyen_a_los_jueces():
+    from core.IA.proponer_cambio_codigo import es_protegido
+    for rel in ("core/IA/autotest.py", "core/IA/autorreparar.py", "core/IA/pruebas_aprendidas/prueba_x.py",
+                "core/IA/proponer_cambio_codigo.py"):
+        assert es_protegido(rel), f"{rel} debería estar protegido siempre"
+    assert es_protegido("main.py", automatico=True) and not es_protegido("main.py")
+    assert not es_protegido("core/notas.py", automatico=True)
+
+
+@_test
+def test_registro_errores_agrupa_y_oculta_secretos():
+    from core.IA import registro_errores as re_
+    original = re_.ARCHIVO
+    tmp = Path(tempfile.mkdtemp(prefix="arche_test_registro_"))
+    re_.ARCHIVO = str(tmp / "errores.json")
+    try:
+        from core.IA.autorreparar import _fragmento   # cualquier funcion del proyecto sirve para fallar
+
+        def _falla():
+            api_key = "sk-no-se-debe-guardar"  # noqa: F841 (debe NO quedar guardada)
+            numero = 7
+            return _fragmento(None, numero)             # AttributeError dentro de autorreparar.py
+        for _ in range(2):
+            try:
+                _falla()
+            except Exception as e:
+                r = re_.registrar(e, frase="prueba")
+        assert r is not None, "no registró un error ocurrido en código del proyecto"
+        assert r["archivo"] == "core/IA/autorreparar.py" and r["veces"] == 2, r
+        todos = re_.todos()
+        assert len(todos) == 1, "errores iguales deben agruparse en una sola firma"
+        texto = json.dumps(todos)
+        assert "sk-no-se-debe-guardar" not in texto, "guardó una variable que parece una clave"
+    finally:
+        re_.ARCHIVO = original
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+@_test
+def test_autorreparacion_de_punta_a_punta_con_modelo_simulado():
+    """Un archivo con un error real -> se registra -> el 'modelo' propone arreglo + prueba ->
+    se demuestra en entorno aislado (falla antes, pasa después) -> se aplica -> queda la prueba."""
+    import importlib
+    from core.IA import autorreparar as ar, registro_errores as re_, ollamaIA
+    from core.IA import proponer_cambio_codigo as pc, revisar_cambios_codigo as rc
+
+    rel = "core/_autotest_reparar_tmp.py"
+    ruta = RAIZ_APP / rel
+    tmp = Path(tempfile.mkdtemp(prefix="arche_test_reparar_"))
+    carpeta_pruebas = RAIZ_APP / "core" / "_autotest_pruebas_aprendidas_tmp"
+    guardado = {
+        "re_archivo": re_.ARCHIVO, "carpeta": ar.CARPETA_PRUEBAS, "generar": ar._generar,
+        "aplicar": ar._aplicar_con_barandas, "anexar": ar._anexar_prueba_al_ultimo_lote, "commit": ar._commit,
+        "cupo": ar._sumar_cupo, "pc_pend": pc.ARCHIVO_PENDIENTES, "pc_log": pc.ARCHIVO_LOG,
+        "rc_log": rc.ARCHIVO_LOG, "gen_ollama": ollamaIA.generar_codigo,
+    }
+    try:
+        ruta.write_text("def promedio(numeros):\n    total = sum(numeros)\n    return total / len(numeros)\n",
+                        encoding="utf-8")
+        re_.ARCHIVO = str(tmp / "errores.json")
+        ar.CARPETA_PRUEBAS = carpeta_pruebas
+        pc.ARCHIVO_PENDIENTES = tmp / "pendientes.json"
+        pc.ARCHIVO_LOG = tmp / "log.jsonl"
+        rc.ARCHIVO_LOG = tmp / "log.jsonl"
+        ollamaIA.generar_codigo = lambda *a, **k: ""
+        ar._sumar_cupo = lambda n: None
+        ar._anexar_prueba_al_ultimo_lote = lambda rel_prueba: None
+        commits = []
+        ar._commit = lambda archivos, mensaje: (commits.append(archivos) or (True, "abc1234"))
+        ar._aplicar_con_barandas = lambda prop: (["ok"], []) if rc.aplicar_propuesta(prop) else ([], ["falló"])
+
+        modulo = importlib.import_module("core._autotest_reparar_tmp")
+        try:
+            modulo.promedio([])
+        except ZeroDivisionError as e:
+            err = re_.registrar(e, frase="promedio de nada")
+        assert err and err["archivo"] == rel and err["estado"] == "pendiente", err
+
+        respuestas = [
+            # 1er intento: la prueba NO reproduce el error -> debe rechazarse y reintentar
+            "<<<<<<< BUSCAR\n    return total / len(numeros)\n=======\n    if not numeros:\n        return 0\n"
+            "    return total / len(numeros)\n>>>>>>> REEMPLAZAR\n<<<<<<< PRUEBA\n"
+            "from core._autotest_reparar_tmp import promedio\ndef prueba():\n    assert promedio([2, 4]) == 3\n>>>>>>> FIN",
+            # 2do intento: correcto
+            "<<<<<<< BUSCAR\n    return total / len(numeros)\n=======\n    if not numeros:\n        return 0\n"
+            "    return total / len(numeros)\n>>>>>>> REEMPLAZAR\n<<<<<<< PRUEBA\n"
+            "from core._autotest_reparar_tmp import promedio\ndef prueba():\n    assert promedio([]) == 0\n"
+            "    assert promedio([2, 4]) == 3\n>>>>>>> FIN",
+        ]
+        prompts = []
+        ar._generar = lambda prompt: (prompts.append(prompt) or respuestas[len(prompts) - 1])
+
+        estado, texto = ar.reparar(re_.buscar(err["firma"]))
+        assert estado == "resuelto", f"{estado}: {texto}"
+        assert len(prompts) == 2 and "PASA" in prompts[1], "debió reintentar explicando que la prueba no reproducía el error"
+        assert "if not numeros" in ruta.read_text(encoding="utf-8"), "no aplicó el arreglo"
+        guardadas = list(carpeta_pruebas.glob("prueba_*.py"))
+        assert len(guardadas) == 1, "no guardó la prueba aprendida"
+        paso, salida = ar.correr_prueba(guardadas[0].read_text(encoding="utf-8"))
+        assert paso, f"la prueba aprendida no pasa con el código arreglado: {salida}"
+        assert re_.buscar(err["firma"])["estado"] == "resuelto"
+        assert commits and rel in commits[0], "no pidió el commit del arreglo"
+    finally:
+        re_.ARCHIVO = guardado["re_archivo"]
+        ar.CARPETA_PRUEBAS = guardado["carpeta"]
+        ar._generar = guardado["generar"]
+        ar._aplicar_con_barandas = guardado["aplicar"]
+        ar._anexar_prueba_al_ultimo_lote = guardado["anexar"]
+        ar._commit = guardado["commit"]
+        ar._sumar_cupo = guardado["cupo"]
+        pc.ARCHIVO_PENDIENTES = guardado["pc_pend"]
+        pc.ARCHIVO_LOG = guardado["pc_log"]
+        rc.ARCHIVO_LOG = guardado["rc_log"]
+        ollamaIA.generar_codigo = guardado["gen_ollama"]
+        ruta.unlink(missing_ok=True)
+        shutil.rmtree(carpeta_pruebas, ignore_errors=True)
+        shutil.rmtree(tmp, ignore_errors=True)
+        for backup in (RAIZ_APP / "core" / "IA" / "backups_codigo").glob("core___autotest_reparar_tmp*"):
+            backup.unlink(missing_ok=True)
+        sys.modules.pop("core._autotest_reparar_tmp", None)
+
+
+# ==================== PRUEBAS APRENDIDAS (autorreparación) ====================
+# Cada error real que Arché arregló sola deja aquí una prueba que lo reproduce
+# (core/IA/pruebas_aprendidas/prueba_<firma>.py). Se corren SIEMPRE, cada una en
+# una copia aislada del proyecto, para que ese error no pueda volver sin que se note.
+
+_CARPETA_APRENDIDAS = RAIZ_APP / "core" / "IA" / "pruebas_aprendidas"
+_entorno_aprendidas = []
+
+
+def _entorno_para_aprendidas():
+    if not _entorno_aprendidas:
+        from core.IA.revisar_cambios_codigo import _copiar_codigo_a_entorno_aislado
+        _entorno_aprendidas.append(_copiar_codigo_a_entorno_aislado())
+    return _entorno_aprendidas[0]
+
+
+def _registrar_pruebas_aprendidas():
+    if not _CARPETA_APRENDIDAS.is_dir():
+        return
+    for ruta in sorted(_CARPETA_APRENDIDAS.glob("prueba_*.py")):
+        def _fn(ruta=ruta):
+            from core.IA.autorreparar import correr_prueba
+            paso, salida = correr_prueba(ruta.read_text(encoding="utf-8"), entorno=_entorno_para_aprendidas())
+            assert paso, f"volvió el error que esta prueba vigila ({ruta.name}):\n       " + salida[-600:].replace("\n", "\n       ")
+        _fn.__name__ = "aprendida_" + ruta.stem[len("prueba_"):]
+        _TESTS.append(_fn)
+
+
+_registrar_pruebas_aprendidas()
+
+
 # ==================== RUNNER ====================
 
 def main():
     print("Arché -- autotest")
 
     ok, fallo = 0, 0
-    for fn in _TESTS:
+    pruebas = _TESTS
+    if "-k" in sys.argv:                 # -k nombre1,nombre2 : solo esas (para confirmar un fallo)
+        i = sys.argv.index("-k")
+        nombres = set((sys.argv[i + 1] if i + 1 < len(sys.argv) else "").split(","))
+        pruebas = [fn for fn in _TESTS if fn.__name__ in nombres]
+    for fn in pruebas:
         nombre = fn.__name__
         try:
             fn()
@@ -600,6 +765,9 @@ def main():
             fallo += 1
             print(f"  MAL  {nombre}  (error inesperado, no un assert)")
             print("       " + "\n       ".join(traceback.format_exc().splitlines()[-3:]))
+
+    for entorno in _entorno_aprendidas:
+        shutil.rmtree(entorno, ignore_errors=True)
 
     total = ok + fallo
     if fallo == 0:

@@ -316,6 +316,19 @@ print()
 print("Analizando datos...")
 time.sleep(2)
 
+# GUARDIÁN DE SEGURIDAD: revisa que nadie haya cambiado mi código a escondidas
+# (un malware, otra persona) y que la bitácora de seguridad no esté alterada.
+# Los cambios que hago yo misma con mi sistema de cambios ya quedan registrados,
+# así que solo avisa de lo raro. Para aprobar cambios hechos a mano:
+#     python seguridad.py sellar
+from core.seguridad import guardian as guardian_arche
+from core.seguridad import comandos as seguridad_arche
+_aviso_seguridad = guardian_arche.revision_al_iniciar()
+if _aviso_seguridad:
+    print("Arché: " + _aviso_seguridad)
+    if "⚠" in _aviso_seguridad:
+        hablar("Atención: encontré algo raro en mi seguridad. Te dejé los detalles en pantalla.")
+
 if obtener("mostrar_estado"):
     hablar("Todos los sistemas están operativos.")
 
@@ -431,6 +444,8 @@ while True:
     if mapa_mental_arche.manejar(comando_original):
         continue
     if whatsapp_arche.manejar(comando_original):
+        continue
+    if seguridad_arche.manejar(comando_original):   # "estado de seguridad", "bitácora de seguridad"
         continue
 
     if comando in ["adiós", "adios", "salir"]:

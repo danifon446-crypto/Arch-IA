@@ -195,12 +195,14 @@ def forward(clave, emb):
         np = _np()
         modelo = p["modelo"]
         red = _mlp(modelo)
-        a = np.asarray(emb, dtype=float)
+        entrada = _ia().cl.armar_entrada(emb, getattr(emb, "texto", None),
+                                         p["metadata"].get("usa_texto", False))
+        a = entrada
         acts = []
         for w, b in zip(red.coefs_[:-1], red.intercepts_[:-1]):
             a = _activar(red.activation, a @ w + b)
             acts.append(_normalizar_vista(a))
-        probs = [float(x) for x in modelo.predict_proba([emb])[0]]
+        probs = [float(x) for x in modelo.predict_proba([entrada])[0]]
         clases = [str(c) for c in p["codificador"].classes_]
         return clases, probs, acts, _normalizar_vista(emb)
     except Exception:
@@ -381,10 +383,21 @@ def _msg(texto, tipo="info"):
 
 
 # ------------------------------------------------------------------ embeddings y parecido
+class _EmbConTexto(list):
+    """Un embedding (lista normal) que además recuerda su frase. Las redes
+    nuevas usan las palabras de la frase además del embedding (ver
+    clasificador.armar_entrada); así forward() las encuentra sin cambiar
+    todas las funciones que pasan `emb` de mano en mano."""
+    texto = ""
+
+
 def _embedding(frase):
     m = _ia()
     from core.IA.embeddings import calcular_embedding
-    return calcular_embedding(m.ap._normalizar(frase))
+    texto = m.ap._normalizar(frase)
+    emb = _EmbConTexto(calcular_embedding(texto))
+    emb.texto = texto
+    return emb
 
 
 _emb_cache = {"clave": None, "M": None, "etq": []}

@@ -191,6 +191,31 @@ def aplicar_propuesta(propuesta):
 
     contenido_nuevo = _calcular_contenido_nuevo(propuesta, contenido_actual)
 
+    # Guardián de seguridad (va ANTES de la prueba en entorno aislado, porque esa
+    # prueba ejecuta el código nuevo: un malware correría ahí mismo).
+    # Si el cambio METE cosas que usaría un malware (ejecutar
+    # comandos, eval, borrar carpetas, conexiones, ofuscación, tocar el inicio de
+    # Windows o el propio sistema de seguridad...), NO se aplica solo. Así nadie
+    # puede usar la autocodificación (ni un texto malicioso que Arché leyó en
+    # internet) para meterle código dañino. Si de verdad lo quieres, aplícalo tú.
+    try:
+        from core.seguridad import guardian
+        hallazgos = guardian.escanear_cambio(contenido_actual, contenido_nuevo)
+    except Exception as e:
+        hallazgos = [{"tipo": "error_escaner", "que_hace": f"no pude revisar el cambio ({e})"}]
+        guardian = None
+    if hallazgos:
+        detalle_seg = "; ".join(f"{h['que_hace']} ({h['tipo']})" for h in hallazgos)
+        print("Arché: 🔒 Bloqueé este cambio por seguridad: el código nuevo " + detalle_seg + ".")
+        print("       No toqué nada. Si estás seguro de que es correcto, revísalo y aplícalo tú a mano.")
+        _log_inmutable({"tipo": "cambio_codigo_bloqueado_seguridad", "id": propuesta["id"],
+                        "archivo": propuesta["archivo"], "hallazgos": [h["tipo"] for h in hallazgos]})
+        if guardian is not None:
+            guardian.auditar("autocambio_bloqueado", archivo=propuesta["archivo"],
+                             hallazgos=[h["tipo"] for h in hallazgos])
+        return False
+
+
     if ruta.suffix == ".py":
         try:
             ast.parse(contenido_nuevo, filename=str(ruta))
@@ -247,6 +272,10 @@ def aplicar_propuesta(propuesta):
         _log_inmutable({"tipo": "cambio_codigo_fallido_escritura", "id": propuesta["id"], "error": str(e)})
         return False
 
+    try:
+        guardian.registrar_cambio_propio(propuesta["archivo"], motivo=f"propuesta {propuesta['id']}")
+    except Exception:
+        pass
     print(f"Arché: Listo, probé el cambio en un entorno aislado antes de aplicarlo y ya quedó en {propuesta['archivo']}. Backup guardado en {backup_path.name}.")
     _log_inmutable({
         "tipo": "cambio_codigo_aplicado",

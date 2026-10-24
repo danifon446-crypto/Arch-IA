@@ -25,6 +25,7 @@ import unicodedata
 
 COMANDOS = {
     # --- comandos agregados por Arché (no borrar esta línea) ---
+    'promedio de prueba': ('core.demo_falla', 'promedio_de_prueba', True, 'El promedio es {0}.'),
     'ultimo calculo': ('core.calculadora', 'ultimo_calculo', True, 'Tu último cálculo fue {0} = {1}.'),
 }
 
@@ -67,6 +68,13 @@ def manejar(comando):
         resultado = funcion()
     except Exception as e:
         print(f"Arché: No pude ejecutar '{nombre}': {type(e).__name__}: {e}")
+        try:
+            from core.IA import registro_errores
+            reg = registro_errores.registrar(e, frase=comando)
+            if reg is not None:
+                print(f"Arché: Lo anoté [{reg['firma']}] para arreglarlo ('errores registrados' / 'reparate').")
+        except Exception:
+            pass
         return True
 
     if not devuelve_valor:

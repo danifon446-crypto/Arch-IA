@@ -1427,3 +1427,105 @@ quiero conectarme al robot | robot_conectar |
 conecta el perro robot | robot_conectar | 
 conectate al robot | robot_conectar | 
 vincula el robot | robot_conectar |
+# ============================================================
+# REFUERZO (intenciones con pocos ejemplos)
+# ============================================================
+
+desactiva tu voz | desactivar_voz
+ya no me hables en voz alta | desactivar_voz
+respondeme solo escribiendo | desactivar_voz
+quita la voz | desactivar_voz
+apaga el modo voz | desactivar_voz
+no quiero escucharte, solo leer | desactivar_voz
+deja la voz apagada | desactivar_voz
+desactiva el audio de tus respuestas | desactivar_voz
+cambia a modo texto | desactivar_voz
+sin voz por favor | desactivar_voz
+
+activa tu voz | activar_voz
+enciende la voz | activar_voz
+respondeme en voz alta | activar_voz
+quiero escuchar tus respuestas | activar_voz
+pon el modo voz | activar_voz
+vuelve a hablar en voz alta | activar_voz
+lee tus respuestas en voz alta | activar_voz
+activa el audio de tus respuestas | activar_voz
+cambia a modo voz | activar_voz
+con voz por favor | activar_voz
+
+shh | callar
+callate un momento | callar
+para de hablar ya | callar
+deja de leer eso | callar
+interrumpe lo que estas diciendo | callar
+corta la voz ahora | callar
+ya, no sigas hablando | callar
+detente, no digas mas | callar
+silencio por ahora | callar
+calla esa respuesta | callar
+
+pausa | pausar_reproducir
+pausa la cancion | pausar_reproducir
+reanuda la cancion | pausar_reproducir
+detén la musica un momento | pausar_reproducir
+sigue con la musica | pausar_reproducir
+play | pausar_reproducir
+pausa spotify | pausar_reproducir
+reproduce otra vez lo que estaba sonando | pausar_reproducir
+para el video un momento | pausar_reproducir
+quita la pausa | pausar_reproducir
+
+muestrame el escritorio | mostrar_escritorio
+minimiza todas las ventanas | mostrar_escritorio
+esconde todo lo que esta abierto | mostrar_escritorio
+llevame al escritorio | mostrar_escritorio
+baja todas las ventanas | mostrar_escritorio
+dejame ver el fondo de pantalla | mostrar_escritorio
+limpia la pantalla de ventanas | mostrar_escritorio
+quita todas las ventanas de en medio | mostrar_escritorio
+escritorio | mostrar_escritorio
+minimiza todo lo abierto | mostrar_escritorio
+
+como esta la nube | estado_nube
+la nube esta conectada | estado_nube
+estado de la conexion a la nube | estado_nube
+que cerebro estas usando | estado_nube
+estas usando la nube u ollama | estado_nube
+en que modo de cerebro estas | estado_nube
+hay conexion con la nube | estado_nube
+revisa la conexion de la nube | estado_nube
+que modelo de ia estas usando | estado_nube
+funciona la nube | estado_nube
+
+usa la nube cuando haya internet | usar_nube
+activa la nube | usar_nube
+vuelve a usar la nube | usar_nube
+cambia al cerebro de la nube | usar_nube
+quiero que pienses con la nube | usar_nube
+pon el modo nube | usar_nube
+conectate a la nube para pensar | usar_nube
+usa el modelo en linea | usar_nube
+cerebro automatico | usar_nube
+prende la nube | usar_nube
+
+usa solo ollama | usar_ollama
+desactiva la nube | usar_ollama
+apaga la nube | usar_ollama
+piensa sin internet | usar_ollama
+cambia al cerebro local | usar_ollama
+quiero que uses ollama | usar_ollama
+pon el modo ollama | usar_ollama
+trabaja sin conexion | usar_ollama
+usa la ia de mi computador | usar_ollama
+solo modelo local | usar_ollama
+
+como vas en el modo aprendiz | aprendiz_estado
+cuanto has aprendido de la nube | aprendiz_estado
+cuantas respuestas coincidieron con la nube | aprendiz_estado
+resultados del modo aprendiz | aprendiz_estado
+que tal te va aprendiendo | aprendiz_estado
+progreso del aprendiz | aprendiz_estado
+muestrame el estado del aprendiz | aprendiz_estado
+cuanto llevas aprendido | aprendiz_estado
+como va tu aprendizaje con la nube | aprendiz_estado
+estadisticas del aprendiz | aprendiz_estado

@@ -30,3 +30,9 @@ Arche/core/IA/indice_funciones_cache.json
 Arche/core/IA/revision_codigo_cache.json
 Arche/core/IA/cambios_codigo_pendientes.json
 Arche/core/IA/backups_codigo/
+
+# Seguridad: la configuracion de la interfaz guarda el PIN del celular -> NO se sube a GitHub
+Arche/core/interfaz/config.json
+Arche/core/interfaz/config.json.danado-*
+*.llave
+.llave_arche

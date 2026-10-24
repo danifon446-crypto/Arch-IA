@@ -667,12 +667,15 @@ def _f_celular(v, esc):
         except Exception:
             return
         if activo:
-            v._texto(px, yy + 6 * esc, remoto.direccion(), 9, tema.AZUL_CLARO)
-            v._texto(px, yy + 22 * esc, f"PIN  {ajustes.obtener('celular_pin')}", 11, tema.TEXTO, negrita=True)
-            v._chip(px + bw - 70 * esc, yy + 14 * esc, "PIN nuevo", ("pin",), False, None, 70 * esc)
+            afuera = remoto.direccion_afuera()
+            v._texto(px, yy + 6 * esc, f"Casa:  {remoto.direccion()}", 9, tema.AZUL_CLARO)
+            v._texto(px, yy + 20 * esc, f"Afuera:  {afuera}" if afuera else "Afuera: instala Tailscale (di «cómo entro desde afuera»)",
+                     9 if afuera else 8, tema.AZUL_CLARO if afuera else tema.TENUE)
+            v._texto(px, yy + 36 * esc, f"PIN  {ajustes.obtener('celular_pin')}", 11, tema.TEXTO, negrita=True)
+            v._chip(px + bw - 70 * esc, yy + 30 * esc, "PIN nuevo", ("pin",), False, None, 70 * esc)
         else:
             v._texto(px, yy + 6 * esc, "Control por celular apagado (actívalo en CONTROLES).", 8, tema.TENUE)
-    return [(44 * esc, f)]
+    return [(58 * esc, f)]
 
 
 def _f_estados_colores(v, esc):

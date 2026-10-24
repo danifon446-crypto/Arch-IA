@@ -116,10 +116,31 @@ CONFIGURACION
   usa la nube de respaldo  -  si la nube principal falla, probar con la otra nube gratis antes de pasar a Ollama
   no uses la nube de respaldo  -  si la nube principal falla, pasar directo a Ollama
   para que usas la nube  -  ver en que tareas ayuda la nube y en cuales solo Ollama
+  responde tu primero  -  contestar yo primero con Ollama y que la nube revise mis respuestas para aprender (modo aprendiz)
+  responde la nube primero  -  que la nube conteste primero en vez de Ollama
+  estado aprendiz  -  ver cuantas respuestas mias coincidieron con la nube y cuanto aprendi
   usa la nube de <proveedor>  -  elegir con que empresa se conecta la nube: groq o gemini (gratis con limites) o anthropic (de pago)
   que modelos hay en la nube  -  ver los modelos que ofrece la nube conectada
   comparte mi memoria con la nube  -  permitir que la nube sepa lo que Arche recuerda del usuario
   no compartas mi memoria con la nube  -  impedir que la nube sepa lo que Arche recuerda del usuario
+
+ROBOT
+  sientate  -  que el perro robot se siente
+  parate  -  que el perro robot se ponga de pie
+  acuestate  -  que el perro robot se acueste
+  avanza  -  que el perro robot camine hacia adelante
+  retrocede  -  que el perro robot camine hacia atras
+  gira a la izquierda  -  que el perro robot gire a la izquierda
+  gira a la derecha  -  que el perro robot gire a la derecha
+  quieto  -  que el perro robot se quede quieto
+  ladra  -  que el perro robot ladre
+  mueve la cola  -  que el perro robot mueva la cola
+  da la pata  -  que el perro robot salude dando la pata
+  activa el modo perro  -  activar el modo perro: el robot actua solo, juega, camina y se cansa
+  desactiva el modo perro  -  apagar el modo perro autonomo del robot
+  parada de emergencia  -  frenar el perro robot de inmediato y apagar el modo perro
+  estado del robot  -  ver si el perro robot esta conectado y que esta haciendo
+  comandos del perro  -  ver todo lo que puede hacer el perro robot
 
 ARCHE
   ayuda  -  preguntar que sabe hacer el asistente
@@ -240,6 +261,9 @@ ENTRENAMIENTO
   intenciones  -  Lista las intenciones validas (para saber como llamarlas al ensenar).
       También: lista de intenciones, mis intenciones
   intenciones de <...>  -  intenciones <dominio>: solo las intenciones de ese dominio.
+
+CONECTADOS POR ARCHE
+  promedio de prueba  -  Llama a core.demo_falla.promedio_de_prueba()
 
 OTROS
   comandos todo
