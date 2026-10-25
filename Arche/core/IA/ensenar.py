@@ -31,6 +31,7 @@ guarda literal, que tambien funciona.
 """
 
 import os
+import time
 from collections import Counter
 from difflib import get_close_matches
 
@@ -40,6 +41,9 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 ARCHIVO_EJEMPLOS = os.path.join(BASE, "ejemplos_manuales.txt")
 
 FUENTE = "manual"
+
+# Cada cuantas lineas se avisa el progreso al importar (la primera siempre se avisa).
+AVISO_CADA = 10
 
 PLANTILLA_ARCHIVO = """\
 # ejemplos_manuales.txt
@@ -184,6 +188,7 @@ def importar_ejemplos(ruta=None, silencioso=False):
     informan con su numero de linea. Devuelve
     {"agregados": n, "rechazados": [(n_linea, motivo)], "ruta": ruta}.
     Si el archivo no existe, crea la plantilla para que la completes.
+    Mientras trabaja avisa el progreso y los tiempos (salvo silencioso=True).
     """
     ruta = ruta or ARCHIVO_EJEMPLOS
     if not os.path.exists(ruta):
@@ -202,6 +207,12 @@ def importar_ejemplos(ruta=None, silencioso=False):
     with open(ruta, "r", encoding="utf-8") as f:
         lineas = f.readlines()
 
+    total = sum(1 for l in lineas if l.strip() and not l.strip().startswith("#"))
+    if not silencioso:
+        print(f"Arché: Importando {total} ejemplo(s) de {os.path.basename(ruta)}...", flush=True)
+    t_ini = time.time()
+    hechos = 0
+
     # aprender() reentrena las redes cada pocos ejemplos; con un archivo
     # grande eso seria reentrenar decenas de veces. Se desactiva durante la
     # carga y se reentrena UNA sola vez al final.
@@ -213,6 +224,9 @@ def importar_ejemplos(ruta=None, silencioso=False):
             limpia = linea.strip()
             if not limpia or limpia.startswith("#"):
                 continue
+            hechos += 1
+            if not silencioso and (hechos == 1 or hechos % AVISO_CADA == 0):
+                print(f"Arché: ... {hechos}/{total} ({time.time() - t_ini:.0f}s)", flush=True)
             partes = [p.strip() for p in limpia.split("|")]
             if len(partes) < 2 or not partes[0] or not partes[1]:
                 rechazados.append((numero, "formato: frase | intencion"))
@@ -228,13 +242,19 @@ def importar_ejemplos(ruta=None, silencioso=False):
     finally:
         aprendizaje.UMBRAL_REENTRENO = umbral_original
 
+    if not silencioso:
+        print(f"Arché: Carga de ejemplos lista en {time.time() - t_ini:.0f}s.", flush=True)
+
     if not rechazados:
         marcar_importado(ruta)
 
     if agregados:
         if not silencioso:
-            print(f"Arché: Cargué {agregados} ejemplo(s); reentreno las redes una sola vez (puede tardar un poco)...")
-        aprendizaje.reentrenar_ahora()
+            print(f"Arché: Cargué {agregados} ejemplo(s); reentreno las redes una sola vez (puede tardar un poco)...",
+                  flush=True)
+        from core.IA.latido import latido
+        with latido("Reentrenando las redes", silencioso=silencioso):
+            aprendizaje.reentrenar_ahora()
 
     if not silencioso:
         print(f"Arché: Importé {agregados} ejemplo(s) de {os.path.basename(ruta)}.")
