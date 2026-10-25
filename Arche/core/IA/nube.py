@@ -7,11 +7,16 @@ Cliente de un modelo en la nube para que Arché piense con algo mucho mas
 grande que lo que entra en tu PC. Ollama NO se va: queda de respaldo
 (sin internet, sin clave, o si la nube falla, Arché sigue como siempre).
 
-PROVEEDORES (se elige con "usa la nube de groq|gemini|anthropic"):
+PROVEEDORES (se elige con "usa la nube de groq|gemini|anthropic|red"):
   * groq       -> gratis con limites (gpt-oss-120b: 30 pedidos/min, 1.000/dia
                   segun su documentacion). Es el predeterminado.
   * gemini     -> Google; tiene capa gratuita con limites que se ven en su panel.
   * anthropic  -> Claude; de pago, por uso.
+  * red        -> la nube compartida de la red de aprendizaje: la funcion "arche-nube"
+                  del buzon (Supabase) llama a Groq con la clave del dueño, que nunca
+                  sale de ahi. Se entra con el token de invitacion (Database/compartir.json),
+                  no hace falta ninguna clave propia. Tiene tope diario por persona.
+                  Si no hay ninguna clave propia pero si red conectada, es la que se usa sola.
   Groq y Gemini hablan el formato "OpenAI-compatible", asi que un solo cliente
   sirve para los dos. Los nombres de modelo cambian con el tiempo: se pueden
   ver con "que modelos hay en la nube" y cambiar con "usa el modelo <nombre>".
@@ -44,6 +49,9 @@ from core.rutas import DATABASE
 
 ARCHIVO_CONFIG = os.path.join(DATABASE, "nube.json")
 ARCHIVO_CLAVE = os.path.join(DATABASE, "nube_clave.txt")   # el de siempre: la clave de Anthropic
+ARCHIVO_RED = os.path.join(DATABASE, "compartir.json")     # lo escribe core/compartir.py al conectar la red
+RUTA_FUNCION_RED = "/functions/v1/arche-nube"
+MODELOS_RED = ("openai/gpt-oss-120b", "openai/gpt-oss-20b")   # los unicos que acepta la funcion de la red
 
 VERSION_API_ANTHROPIC = "2023-06-01"
 MODOS = ("auto", "nube", "ollama")
@@ -76,6 +84,14 @@ PROVEEDORES = {
         "url": "https://api.anthropic.com/v1/messages", "modelo": "claude-sonnet-5-5",
         "env": "ANTHROPIC_API_KEY", "donde": "https://console.anthropic.com",
         "gratis": False, "razona": False, "prefijo": "sk-ant-",
+    },
+    # La nube compartida de la red de aprendizaje. La url y el token salen de compartir.json
+    # (ver _datos_red). No entra sola de respaldo: solo se usa si se elige, o si no hay clave propia.
+    "red": {
+        "nombre": "Nube de la red de Arché (compartida, con tope diario)", "formato": "openai",
+        "url": "", "modelo": "openai/gpt-oss-120b",
+        "env": "ARCHE_RED_TOKEN", "donde": "",
+        "gratis": True, "razona": True, "prefijo": "arche_", "solo_principal": True,
     },
 }
 PROVEEDOR_POR_DEFECTO = "groq"
@@ -126,7 +142,12 @@ def fijar_modo(nuevo):
 
 def proveedor():
     p = _leer_config().get("proveedor")
-    return p if p in PROVEEDORES else PROVEEDOR_POR_DEFECTO
+    if p in PROVEEDORES:
+        return p
+    # Sin eleccion guardada: Groq; pero si no hay clave propia y la red esta conectada, la nube de la red.
+    if not clave(PROVEEDOR_POR_DEFECTO) and _datos_red()[1]:
+        return "red"
+    return PROVEEDOR_POR_DEFECTO
 
 
 def fijar_proveedor(nuevo):
@@ -182,12 +203,42 @@ def _archivo_clave(prov):
     return os.path.join(DATABASE, f"nube_clave_{prov}.txt")
 
 
+def _datos_red():
+    """(url_del_buzon, token) de la red de aprendizaje, o ('', '') si no esta conectada.
+    Lee Database/compartir.json sin depender de como se llamen sus campos: la url es el valor
+    que apunta a supabase.co y el token el que empieza por 'arche_'."""
+    try:
+        with open(ARCHIVO_RED, "r", encoding="utf-8") as f:
+            datos = json.load(f)
+    except (OSError, ValueError):
+        return "", ""
+    if not isinstance(datos, dict) or datos.get("activo") is False or datos.get("activa") is False:
+        return "", ""
+    url = token = ""
+    for valor in datos.values():
+        if not isinstance(valor, str):
+            continue
+        v = valor.strip()
+        if not url and v.startswith("https://") and ".supabase.co" in v:
+            url = v.split("/rest/")[0].rstrip("/")
+        elif not token and v.startswith("arche_"):
+            token = v
+    return (url, token) if url and token else ("", "")
+
+
+def _url_red():
+    url = _datos_red()[0]
+    return url + RUTA_FUNCION_RED if url else ""
+
+
 def clave(prov=None):
-    """La clave de la API del proveedor, o '' si no hay."""
+    """La clave de la API del proveedor, o '' si no hay. Para 'red' es el token de invitacion."""
     prov = prov or proveedor()
     de_entorno = (os.environ.get(PROVEEDORES[prov]["env"]) or "").strip()
     if de_entorno:
         return de_entorno
+    if prov == "red":
+        return _datos_red()[1]
     try:
         from core.seguridad import cifrado
         propia = cifrado.leer_secreto(_archivo_clave(prov))   # descifra (y cifra las de texto plano viejas)
@@ -294,6 +345,11 @@ def _mensaje_de_error(cuerpo):
 
 def _explicar_http(codigo, cuerpo=""):
     detalle = _mensaje_de_error(cuerpo)
+    if proveedor() == "red":
+        if codigo == 401:
+            return "la red no reconoce tu invitación (401): puede estar revocada. Pídele al dueño una nueva"
+        if codigo == 429:
+            return detalle or "llegué al tope diario de la nube de la red (vuelve a intentar mañana)"
     if codigo == 401:
         return ("la nube dice que la clave no es válida (401)" + (f": {detalle}" if detalle else "")
                 + ". Revisa que sea la clave completa con 'conecta la nube'")
@@ -336,7 +392,10 @@ def _responder_openai(mensajes, sistema, max_tokens, temperature, api_key, prov=
     todos = ([{"role": "system", "content": sistema}] if sistema else []) + list(mensajes)
     payload = {"model": modelo(prov), "messages": todos, "temperature": temperature,
                "max_tokens": int(max_tokens) + (MARGEN_RAZONAMIENTO if cfg["razona"] else 0)}
-    url = cfg["url"].rstrip("/") + "/chat/completions"
+    base = _url_red() if prov == "red" else cfg["url"]
+    if not base:
+        raise ErrorNube("la red de aprendizaje no está conectada (usa 'conecta la red de aprendizaje')")
+    url = base.rstrip("/") + "/chat/completions"
     if cfg["razona"]:
         # que piense poco: la charla debe ser rapida y no gastar el limite gratuito
         con_razonamiento = dict(payload, reasoning_effort="low")
@@ -380,7 +439,8 @@ def fijar_respaldo(valor):
 def proveedores_de_respaldo(principal=None):
     """Otras nubes GRATIS con clave guardada, en orden. Anthropic (de pago) nunca entra sola de respaldo."""
     principal = principal or proveedor()
-    return [p for p, c in PROVEEDORES.items() if p != principal and c["gratis"] and configurada(p)]
+    return [p for p, c in PROVEEDORES.items()
+            if p != principal and c["gratis"] and not c.get("solo_principal") and configurada(p)]
 
 
 def _responder_con(prov, mensajes, sistema, max_tokens, temperature):
@@ -427,6 +487,8 @@ def modelos_disponibles():
     if not api_key:
         raise ErrorNube("no hay clave de la nube (usa 'conecta la nube')")
     prov = proveedor()
+    if prov == "red":
+        return sorted(MODELOS_RED)      # la funcion de la red solo acepta estos
     cfg = PROVEEDORES[prov]
     url = URL_MODELOS_ANTHROPIC if cfg["formato"] == "anthropic" else cfg["url"].rstrip("/") + "/models"
     datos = _post(url, None, _encabezados(prov, api_key), metodo="GET")
