@@ -35,7 +35,7 @@ DEFAULTS = {
     "ambiente_minutos": 5,
     "celular": False,            # pagina de control para el celular (misma red wifi)
     "celular_pin": "",
-    "celular_puerto": 8765,
+    "celular_puerto": 8766,       # 8765 es el de WhatsApp
     "escucha": False,            # escuchar con el microfono ("oye asistente")
     "perfil": "general",         # perfil de interfaz activo
     # --- apariencia ---
@@ -185,9 +185,6 @@ DEFAULTS = {
     "sync_carpeta": "",
     "sync_incluir": ["temas", "perfiles", "ajustes"],
     "notas": [],
-    # --- interfaz web (core/interfaz/web) ---
-    "interfaz_tipo": "web",      # web (la nueva) | clasica (la ventana de Tkinter)
-    # las demas opciones de la interfaz nueva estan en personalizacion.py (se suman solas abajo)
 }
 
 _BOOL, _INT, _OPC, _HEX, _TXT, _LISTA, _DICT = "bool", "int", "opc", "hex", "txt", "lista", "dict"
@@ -240,31 +237,7 @@ ESQUEMA = {
     "estado_colores": (_DICT,), "atajos": (_DICT,), "pantallas": (_DICT,),
     "sistema_ocultar": (_LISTA,), "nav_orden": (_LISTA,), "nav_ocultas": (_LISTA,), "favoritos": (_LISTA,),
     "atajos_rapidos": (_LISTA,), "sync_incluir": (_LISTA,), "notas": (_LISTA,),
-    "interfaz_tipo": _o("web", "clasica"),
 }
-
-# Opciones de personalizacion de la interfaz nueva (una linea cada una en personalizacion.py)
-try:
-    from .personalizacion import OPCIONES as _OPS_WEB
-except Exception:
-    _OPS_WEB = []
-for _op in _OPS_WEB:
-    _k = _op["clave"]
-    if _k in DEFAULTS:
-        continue
-    DEFAULTS[_k] = _op["defecto"]
-    _t = _op["tipo"]
-    if _t == "int":
-        ESQUEMA[_k] = _i(_op["min"], _op["max"])
-    elif _t == "opc":
-        ESQUEMA[_k] = _o(*[v for v, _ in _op["opciones"]])
-    elif _t == "hex":
-        ESQUEMA[_k] = (_HEX,)
-    elif _t == "txt":
-        ESQUEMA[_k] = (_TXT, _op.get("max", 60))
-    elif _t == "lista":
-        ESQUEMA[_k] = (_LISTA,)
-    # los "bool" se deducen solos un poco mas abajo
 for _k, _v in DEFAULTS.items():                    # los booleanos se deducen de los valores por defecto
     if isinstance(_v, bool):
         ESQUEMA[_k] = (_BOOL,)
@@ -276,8 +249,7 @@ OPCIONES = {k: v[1] for k, v in ESQUEMA.items() if v[0] == _OPC}
 NO_VISUALES = {"automatica", "entrada_ventana", "recorrido_hecho", "celular", "celular_pin", "celular_puerto",
                "escucha", "perfil", "ventana_geometria", "flotante_pos", "sync_carpeta", "sync_incluir",
                "notas", "pantallas", "favoritos", "atajos_rapidos", "mascota_nombre", "atajos", "ext_tema_previo",
-               "orden_uso", "orden_horarios", "orden_frases", "orden_modos_auto", "orden_proponer",
-               "interfaz_tipo", "web_ciudad", "web_botones"}
+               "orden_uso", "orden_horarios", "orden_frases", "orden_modos_auto", "orden_proponer"}
 
 _HEX_RE = re.compile(r"^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$")
 _datos = None

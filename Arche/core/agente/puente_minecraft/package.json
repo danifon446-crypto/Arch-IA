@@ -1,0 +1,17 @@
+{
+  "name": "arche-puente-minecraft",
+  "version": "1.0.0",
+  "description": "Puente HTTP local entre el agente de Arch\u00e9 y Minecraft (Mineflayer)",
+  "main": "bot.js",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mineflayer": "^4.39.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "prismarine-recipe": "^1.5.0",
+    "vec3": "^0.2.0",
+    "minecraft-data": "^3.80.0"
+  }
+}

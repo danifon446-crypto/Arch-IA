@@ -125,13 +125,13 @@
     "chat": 1
   },
   "celular_puerto": 8766,
-  "web_degradado": "carbon",
+  "web_degradado": "ninguno",
   "web_superficie": "contorno",
   "web_radio": 23,
   "web_vidrio": 10,
   "web_fuente": "georgia",
   "web_titulos": "normal",
-  "web_peso": "fino",
+  "web_peso": "normal",
   "web_reloj_24h": true,
   "web_segundos": true,
   "web_lateral_lado": "izquierda",
@@ -159,10 +159,10 @@
       "ver": true
     }
   ],
-  "web_info": "equilibrada",
-  "web_esfera": "grande",
-  "web_luz": 25,
-  "web_densidad": "comoda",
+  "web_info": "completa",
+  "web_esfera": "pequena",
+  "web_luz": 35,
+  "web_densidad": "compacta",
   "web_lateral_compacta": false,
   "web_inicio": "inicio",
   "web_acento": "#f43f5e",
@@ -171,5 +171,55 @@
   "web_chat_diseno": "panel",
   "web_avisos_fondo": "ocultos",
   "orden_carrusel_seg": 12,
-  "interfaz_tipo": "web"
+  "interfaz_tipo": "web",
+  "orden_activo": true,
+  "orden_auto": true,
+  "orden_compactar": true,
+  "orden_rellenar": true,
+  "orden_plegar_boton": "al_pasar",
+  "orden_plegar_auto": 20,
+  "orden_barra_paginas": "auto",
+  "orden_boton_cajon": true,
+  "orden_cajon_fijos": 3,
+  "orden_tope": 10,
+  "web_desenfoque": 14,
+  "web_lateral_contadores": true,
+  "web_saludo": "",
+  "web_v_clima": true,
+  "web_v_recordatorio": true,
+  "web_v_pendientes": true,
+  "web_v_pomodoro": true,
+  "web_v_equipo": true,
+  "web_botones_dock": true,
+  "web_sugerencias": true,
+  "web_ondas_chat": "siempre",
+  "web_avatar": true,
+  "web_entendi": true,
+  "web_enter_envia": true,
+  "web_sonido_envio": false,
+  "web_aviso_respuesta": true,
+  "web_clima": true,
+  "web_noticias": true,
+  "web_hoy_pestanas": [],
+  "web_pomodoro_min": 25,
+  "web_descanso_min": 5,
+  "web_pomodoro_sonido": true,
+  "web_pomodoro_arche": false,
+  "web_botones": [
+    {
+      "texto": "Modo estudio",
+      "orden": "ejecuta la rutina estudio",
+      "icono": "libro"
+    },
+    {
+      "texto": "Noticias",
+      "orden": "dame las noticias",
+      "icono": "diario"
+    },
+    {
+      "texto": "Diagnóstico",
+      "orden": "hazme un diagnóstico del pc",
+      "icono": "cpu"
+    }
+  ]
 }

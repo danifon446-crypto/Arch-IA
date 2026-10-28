@@ -530,3 +530,7 @@
 {"tipo": "cambio_codigo_aplicado", "id": "s1", "archivo": "core/_autotest_sandwich_bajo.py", "backup": "core___autotest_sandwich_bajo.py.bak.2026-10-22_165125", "timestamp": "2026-10-22T16:51:25.102003"}
 {"tipo": "cambio_codigo_aplicado", "id": "s2", "archivo": "core/_autotest_sandwich_medio_ok.py", "backup": "core___autotest_sandwich_medio_ok.py.bak.2026-10-22_165125", "timestamp": "2026-10-22T16:51:25.608606"}
 {"tipo": "cambio_codigo_fallido_verificacion_ia", "id": "s3", "archivo": "core/_autotest_sandwich_medio_mal.py", "nivel_riesgo": "medio", "detalle": "borra la validación de permisos sin reemplazarla", "timestamp": "2026-10-22T16:51:26.814153"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_278", "archivo": "core/utiles_prueba.py", "origen": "mejora_automatica", "tipo_propuesta": "archivo_nuevo", "timestamp": "2026-10-27T19:35:09.685684"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_278", "archivo": "core/utiles_prueba.py", "backup": "core__utiles_prueba.py.bak.2026-10-27_212933", "timestamp": "2026-10-27T21:29:35.248826"}
+{"tipo": "propuesta_codigo_generada", "id": "cod_279", "archivo": "core/utiles_prueba.py", "origen": "mejora_automatica", "tipo_propuesta": "edicion", "timestamp": "2026-10-27T21:56:07.958763"}
+{"tipo": "cambio_codigo_aplicado", "id": "cod_279", "archivo": "core/utiles_prueba.py", "backup": "core__utiles_prueba.py.bak.2026-10-27_215638", "timestamp": "2026-10-27T21:56:40.095037"}

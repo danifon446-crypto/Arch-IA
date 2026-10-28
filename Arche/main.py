@@ -25,6 +25,8 @@ from core import acciones_pc
 from core import voz as voz_arche            # Arché habla (voz natural online o la de Windows)
 from core import alarmas as alarmas_arche    # alarmas, avisos y temporizadores que suenan
 from core import mejora_continua as mejora_arche  # piloto automatico: se mejora sola cuando no la usas
+from core.IA import pendientes as pendientes_arche
+pendientes_arche.registrar()
 from core import autonomia as autonomia_arche  # se adelanta: avisos del equipo, habitos, resumen del dia
 from core import rutinas as rutinas_arche    # rutinas / modos propios (estudio, cine...)
 from core import pc_avanzado                 # diagnóstico, limpieza, duplicados, buscar archivos
@@ -47,6 +49,7 @@ from core.IA import gran_sabio
 from core.IA import catalogo
 from core.IA import entrenador_masivo
 from core.IA import enrutador_natural
+from core import agente as agente_arche          # agente autónomo (Minecraft y más entornos)
 from core import canales as canales_arche            # mensajes por consola y por otros canales
 from core import whatsapp as whatsapp_arche          # Arché por WhatsApp
 from core import compartir as red_arche              # red de aprendizaje entre varios PC
@@ -450,9 +453,14 @@ while True:
     if seguridad_arche.manejar(comando_original):   # "estado de seguridad", "bitácora de seguridad"
         continue
 
+    # AGENTE AUTÓNOMO (core/agente): "en minecraft consigue madera", "agente para", "agente ayuda".
+    if agente_arche.manejar(comando_original):
+        continue
+
     if comando in ["adiós", "adios", "salir"]:
         responder_conversacion("adios")
         detener_robot()   # el perro se queda quieto y se apaga el modo perro
+        agente_arche.detener_todo()   # el agente se detiene y se cierra Minecraft
         if banco_pruebas is not None and banco_pruebas._banco is not None:
             banco_pruebas._banco.cerrar()   # banco en paro y vigilante apagado
         break
@@ -634,7 +642,7 @@ while True:
     _resultado_modulo = None
     autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
     mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-    for _modulo in (mejora_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche):
+    for _modulo in (mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break

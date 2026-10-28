@@ -214,5 +214,16 @@ with mock.patch.dict(os.environ, entorno), \
         shutil.rmtree(casa, ignore_errors=True)
         shutil.rmtree(afuera, ignore_errors=True)
 
+# --- que Arché entienda las frases del celular (core/interfaz/__init__.py) ---
+try:
+    from core.interfaz import interpretar
+    for frase, esperado in (("cómo entro desde afuera", "celular_afuera"), ("como uso el celular fuera de casa", "celular_afuera"),
+                            ("pin del celular", "celular_info"), ("activa el control del celular", "celular_si")):
+        r = interpretar(frase)
+        chequear(f"Arché entiende «{frase}»", r[0] if r else None, esperado)
+except Exception as e:
+    chequear(f"core/interfaz/__init__.py carga bien ({e})", False, True)
+chequear("remoto.py tiene direccion_afuera", hasattr(remoto, "direccion_afuera"), True)
+
 print()
 print("TODO OK" if not fallos else f"FALLARON {len(fallos)}: " + "; ".join(fallos))
