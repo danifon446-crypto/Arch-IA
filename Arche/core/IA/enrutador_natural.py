@@ -118,6 +118,25 @@ def _resolver_con_ollama(texto):
     válida o el modelo no reconoció ninguna intención."""
     from core.IA import ollamaIA
 
+    # arche-lora entrenado por el entrenador automático (Fase 4): ya se sabe
+    # las intenciones, así que se le pregunta solo la frase (core/IA/formato_lora.py).
+    from core.IA import formato_lora
+    if formato_lora.usa_formato_corto():
+        try:
+            respuesta = ollamaIA.ollama.chat(
+                model=ollamaIA.MODELO,
+                format="json",
+                keep_alive=ollamaIA.KEEP_ALIVE,
+                messages=formato_lora.mensajes_clasificar(texto),
+                options={"num_predict": 60, "temperature": 0.1},
+            )
+            resultado = formato_lora.parsear(respuesta["message"]["content"])
+        except Exception:
+            return None
+        if not resultado or resultado[0] not in catalogo.POR_ID:
+            return None
+        return resultado
+
     prompt = _armar_prompt(texto)
     try:
         respuesta = ollamaIA.ollama.chat(

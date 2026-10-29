@@ -98,6 +98,9 @@ PROTEGIDOS_SOLO_AUTOMATICO = {
     # Privacidad: el filtro de lo que sube a la nube (nada de datos personales)
     "core/compartir.py",
     "core/memoria_nube.py",
+    # Fase 4: el cambio de modelo siempre lo decides tú
+    "core/IA/modelo_nuevo.py",
+    "core/IA/formato_lora.py",
 }
 
 

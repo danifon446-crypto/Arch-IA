@@ -1,0 +1,51 @@
+# Entrenador automático de arche-lora (Fase 4).
+# Una vez al día revisa si hay suficientes ejemplos nuevos; si toca, arma el
+# dataset, lo entrena en Kaggle (GPU gratis) y, si el modelo nuevo aprueba el
+# examen, lo publica como candidato en tu Hugging Face privado.
+# Tu PC lo examina otra vez contra tu arche-lora actual antes de usarlo.
+#
+# Secretos: SUPABASE_URL, SUPABASE_SERVICE_KEY, KAGGLE_USERNAME,
+#           KAGGLE_API_TOKEN, HF_TOKEN  (y HF_REPO si quieres otro nombre)
+name: Entrenador de arche-lora
+
+on:
+  schedule:
+    - cron: "43 9 * * *"        # una vez al día (4:43 a. m. en Colombia)
+  workflow_dispatch:
+    inputs:
+      forzar:
+        description: "Entrenar ya, aunque no haya 500 ejemplos nuevos"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: entrenador-arche
+  cancel-in-progress: false
+
+jobs:
+  ciclo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -q "kaggle==2.2.5" "huggingface_hub>=0.25"
+      - name: Ciclo del entrenador
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_REPO: ${{ secrets.HF_REPO }}
+        run: |
+          [ -z "$KAGGLE_KEY" ] && unset KAGGLE_KEY
+          [ -z "$KAGGLE_API_TOKEN" ] && unset KAGGLE_API_TOKEN
+          [ -z "$HF_REPO" ] && unset HF_REPO
+          python nube/entrenador/ciclo.py ${{ inputs.forzar && '--forzar' || '' }}
