@@ -109,8 +109,12 @@ def estado_kernel(usuario):
 
 
 def estado_dataset(usuario):
-    """'ready', 'failed', otro estado de Kaggle, o el texto del error."""
+    """'ready', 'failed', otro estado de Kaggle, o el error (sin acceso / no existe)."""
     texto = kaggle("datasets", "status", f"{usuario}/{SLUG_DATASET}", revisar=False).strip()
+    if "403" in texto or "don't have access" in texto:
+        return "sin acceso: revisa KAGGLE_USERNAME (tu usuario exacto) y KAGGLE_API_TOKEN"
+    if "404" in texto or "not found" in texto.lower():
+        return "no existe: el dataset no se creó"
     return (texto.splitlines() or [""])[-1].strip().lower()
 
 
@@ -122,9 +126,13 @@ def subir_dataset(usuario, carpeta, version):
     existe = subprocess.run(["kaggle", "datasets", "status", f"{usuario}/{SLUG_DATASET}"],
                             capture_output=True, text=True).returncode == 0
     if existe:
-        kaggle("datasets", "version", "-p", carpeta, "-m", f"arche-lora v{version}", "-t", "-q")
+        salida = kaggle("datasets", "version", "-p", carpeta, "-m", f"arche-lora v{version}", "-t")
     else:
-        kaggle("datasets", "create", "-p", carpeta, "-t", "-q")       # privado por defecto
+        salida = kaggle("datasets", "create", "-p", carpeta, "-t")       # privado por defecto
+    print("  Kaggle respondió: " + " ".join(salida.split())[-300:], flush=True)
+    # la linea de comandos de Kaggle a veces devuelve "todo bien" aunque haya fallado: se revisa el texto
+    if re.search(r"error|forbidden|denied|not authorized|unauthorized|verify|phone|\b40[13]\b", salida, re.I):
+        raise ErrorTurno("Kaggle no aceptó el dataset: " + " ".join(salida.split())[-300:])
     return esperar_dataset(usuario, minutos=15)
 
 
@@ -134,7 +142,7 @@ def esperar_dataset(usuario, minutos):
         time.sleep(15)
         ultimo = estado_dataset(usuario)
         print(f"  Kaggle dice que el dataset está: {ultimo}", flush=True)
-        if ultimo in ("ready", "failed"):
+        if ultimo in ("ready", "failed") or ultimo.startswith(("sin acceso", "no existe")):
             break
     return ultimo
 
@@ -225,6 +233,11 @@ def seguir_con_dataset(supa, estado, usuario, situacion, avisar):
         guardar_estado(supa, estado)
         avisar(f"Lancé el entrenamiento v{version} en Kaggle (GPU {ACELERADOR}).")
         return 0
+    if situacion.startswith(("sin acceso", "no existe")):
+        estado.update(estado="libre", en_curso=None, nota=f"v{version}: Kaggle dice {situacion}")
+        guardar_estado(supa, estado)
+        avisar(estado["nota"])
+        return 1
     if situacion == "failed":
         estado.update(estado="libre", en_curso=None, nota=f"Kaggle no pudo procesar el dataset de v{version}")
         guardar_estado(supa, estado)
