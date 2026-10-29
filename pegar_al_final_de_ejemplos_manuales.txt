@@ -1,0 +1,45 @@
+
+# ============================================================
+# CHARLA Y PREGUNTAS GENERALES (conversar)
+# Esto le enseña a Arché qué NO es una orden. Sin esto, la red
+# mete la charla en cualquier comando parecido.
+# ============================================================
+
+que rico estuvo el almuerzo | conversar
+jajaja que chistoso | conversar
+mañana tengo parcial de calculo | conversar
+estoy aburrido | conversar
+que piensas del futbol | conversar
+me fue bien en el examen de la universidad | conversar
+hoy hace mucho calor | conversar
+cual es tu color favorito | conversar
+que es una derivada | conversar
+explicame la ley de ohm | conversar
+como funciona un transistor | conversar
+que diferencia hay entre ram y disco duro | conversar
+dame ideas para un proyecto de robotica | conversar
+cuentame un chiste | conversar
+recomiendame una pelicula | conversar
+que significa la palabra resiliencia | conversar
+como se dice computador en ingles | conversar
+quien invento la bombilla | conversar
+por que los aviones vuelan | conversar
+cuantos planetas hay en el sistema solar | conversar
+ayudame a entender los punteros en c++ | conversar
+que es un for en programacion | conversar
+estoy cansado hoy | conversar
+gracias por la ayuda | conversar
+eres muy inteligente | conversar
+que opinas de la musica reggaeton | conversar
+como hago para concentrarme mas | conversar
+dime algo interesante | conversar
+que harias si fueras humano | conversar
+como estuvo tu dia | conversar
+explicame que es un arduino | conversar
+para que sirve un capacitor | conversar
+que me recomiendas estudiar primero | conversar
+como se hace un sancocho | conversar
+que es la inteligencia artificial | conversar
+mi profesor dejo mucha tarea | conversar
+cual es el rio mas largo del mundo | conversar
+escribeme un poema corto | conversar

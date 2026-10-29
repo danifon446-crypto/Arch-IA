@@ -52,6 +52,7 @@ from core.IA import enrutador_natural
 from core import agente as agente_arche          # agente autónomo (Minecraft y más entornos)
 from core import canales as canales_arche            # mensajes por consola y por otros canales
 from core import whatsapp as whatsapp_arche          # Arché por WhatsApp
+from core import memoria_nube as memoria_nube_arche  # memoria en la nube (Supabase) + turnos sin PC
 from core import compartir as red_arche              # red de aprendizaje entre varios PC
 from core import mapa_mental as mapa_mental_arche    # mapas mentales hechos por Arché
 
@@ -409,7 +410,8 @@ _cola_comandos_naturales = []
 
 canales_arche.instalar()                 # a partir de aquí input() recibe consola y WhatsApp
 whatsapp_arche.arrancar_si_corresponde()
-red_arche.iniciar()                      # sincroniza con la red de aprendizaje en segundo plano
+red_arche.iniciar()
+memoria_nube_arche.iniciar()             # sube/baja lo aprendido a tu Supabase en segundo plano                      # sincroniza con la red de aprendizaje en segundo plano
 
 while True:
 
@@ -642,7 +644,7 @@ while True:
     _resultado_modulo = None
     autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
     mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-    for _modulo in (mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche):
+    for _modulo in (memoria_nube_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break

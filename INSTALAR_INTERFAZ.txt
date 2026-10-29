@@ -1,0 +1,22 @@
+INTERFAZ DE ARCHÉ (versión 3) — cómo instalarla
+================================================
+
+1. Descomprime este .zip ENCIMA de tu carpeta Arch-IA (la que tiene la carpeta Arche)
+   y reemplaza los archivos. Trae Arche/core/interfaz/web/, personalizacion.py,
+   __init__.py, ajustes.py y entrada.py.
+2. (Recomendado) pip install pywebview   -> ventana propia.
+3. Arranca Arché como siempre: «abre la interfaz».
+
+Lo nuevo:
+- La pantalla principal es la esfera y la conversación. Lo demás está en
+  Hoy, Equipo y Mente, cada una con pestañas.
+- Ajustes > Estilos rápidos: Calma, Equilibrio, Centro de mando, Vidrio, Neón.
+- Ajustes > Lo esencial > «Cantidad de información»: mínima, equilibrada o completa.
+
+Personalizar (sin tocar nada más):
+- Opción nueva: una línea en Arche/core/interfaz/personalizacion.py, por ejemplo
+      interruptor("web_negrita", "Letra más gruesa", "Texto", False),
+  y en Ajustes > Mi estilo (CSS):   [data-web_negrita="si"] body { font-weight: 550; }
+- Estilo rápido nuevo: copia un bloque de ESTILOS al final del mismo archivo.
+
+Atajos: Ctrl+K buscar o pedir · Alt+1…5 secciones · Esc cierra ventanitas.

@@ -1,0 +1,27 @@
+INTERFAZ NUEVA DE ARCHÉ — cómo instalarla
+=========================================
+
+1. Descomprime este .zip ENCIMA de tu carpeta Arch-IA (la que tiene la carpeta Arche).
+   Reemplaza los archivos cuando Windows pregunte. Cambia solo esto:
+     Arche/core/interfaz/web/            (carpeta nueva: la interfaz)
+     Arche/core/interfaz/__init__.py     (frases para abrirla)
+     Arche/core/interfaz/ajustes.py      (ajustes nuevos de la interfaz)
+     Arche/core/interfaz/entrada.py      (escribir desde la interfaz)
+
+2. (Recomendado) Para que tenga su propia ventana, en la consola:
+     pip install pywebview
+   Sin pywebview se abre igual en Edge/Chrome como aplicación.
+
+3. Arranca Arché como siempre (python main.py). Se abre sola.
+   Frases útiles:
+     abre la interfaz            -> abre la nueva
+     abre la interfaz clásica    -> la ventana de antes
+     usa la interfaz clásica     -> que la clásica sea la de siempre
+     usa la interfaz nueva       -> volver a la nueva
+     cierra la interfaz
+
+Atajos dentro de la interfaz:
+  Ctrl+K        buscar o pedir algo
+  Alt+1 ... 7   cambiar de sección
+  Enter         enviar (Shift+Enter = nueva línea)
+  ↑ en el chat  repetir una orden anterior

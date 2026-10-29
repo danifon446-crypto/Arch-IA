@@ -210,16 +210,6 @@ CALCULADORA
   historial calculos  -  ver el historial de calculos anteriores
   ultimo calculo  -  ver el ultimo calculo que se hizo
 
-SISTEMA
-  adiós  -  Cierra a Arche.
-      También: salir
-  estado del sistema  -  ver el estado del computador: procesador, memoria y disco
-      También: estado sistema, como esta el sistema, cómo está el sistema, como esta mi pc, cómo está mi pc
-  procesos que mas consumen  -  ver que programas consumen mas recursos
-      También: que consume mas, qué consume más
-  espacio libre  -  ver cuanto espacio libre queda en el disco
-      También: espacio en disco, espacio disponible, cuanto espacio libre tengo, cuánto espacio libre tengo
-
 CODIGO
   escribe en <...>  -  escribe en <archivo> : <instruccion>: pide un cambio de codigo indicando tu el archivo.
   revisar cambios de codigo  -  revisar y aprobar los cambios de codigo propuestos
@@ -265,7 +255,17 @@ ENTRENAMIENTO
 CONECTADOS POR ARCHE
   promedio de prueba  -  Llama a core.demo_falla.promedio_de_prueba()
 
+SISTEMA
+  adiós  -  Cierra a Arche.
+      También: salir
+
 OTROS
+  estado del sistema
+      También: estado sistema, como esta el sistema, cómo está el sistema, como esta mi pc, cómo está mi pc
+  procesos que mas consumen
+      También: que consume mas, qué consume más
+  espacio libre
+      También: espacio en disco, espacio disponible, cuanto espacio libre tengo, cuánto espacio libre tengo
   comandos todo
       También: comandos completos, comandos completo, lista completa de comandos, todos los comandos, guia completa
   comandos buscar <...>

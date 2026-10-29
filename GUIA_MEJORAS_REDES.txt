@@ -1,0 +1,92 @@
+MEJORAS DE LAS REDES DE ARCHÉ — QUÉ HACER, EN ORDEN
+====================================================
+
+Todos los comandos se escriben en PowerShell, dentro de la carpeta Arche:
+    cd C:\Users\danif\Downloads\proyectos\Arché\Arche
+Cierra Arché antes de los pasos 4 y 5.
+
+
+PASO 1 — Instalar  (1 minuto)
+-----------------------------
+Descomprime arche_mejoras_redes.zip DENTRO de
+    C:\Users\danif\Downloads\proyectos\Arché\
+(la carpeta que contiene a Arche\). Luego, en esa carpeta:
+    cd C:\Users\danif\Downloads\proyectos\Arché
+    python instalar_mejoras.py
+NO copies los archivos a mano: el instalador respeta los cambios que
+le hayas hecho a Arché estos días (los mezcla con los nuevos) y guarda
+una copia de todo antes. Si dice que no pudo mezclar alguno, pásame
+ese archivo y su .nuevo.
+No trae ejemplos_manuales.txt, así que tus ejemplos no se tocan.
+
+
+PASO 2 — Enseñarle qué NO es una orden  (5 minutos)
+---------------------------------------------------
+Abre Arche\core\IA\ejemplos_manuales.txt, baja hasta el final y pega
+todo lo que trae pegar_al_final_de_ejemplos_manuales.txt.
+Guarda, abre Arché y escribe:
+    importar ejemplos
+Esto carga los ejemplos y REENTRENA todas las redes con las mejoras
+nuevas (tarda más que antes la primera vez).
+
+
+PASO 3 — Medir  (5-10 minutos)
+------------------------------
+    python -m core.IA.evaluar_redes
+Antes tenías 87.5%. Ahora la línea 1 muestra también:
+  - red sola / regresión logística / votación de las dos
+  - cuánto acierta cuando está 60%+ y 80%+ segura
+
+
+PASO 4 (opcional, el que más puede subir) — Probar modelos de embeddings
+-------------------------------------------------------------------------
+    python -m core.IA.recalcular_embeddings comparar
+Mide con TUS ejemplos el modelo actual contra e5-small, e5-base y
+bge-m3. No cambia nada. La primera vez descarga cada modelo
+(e5-small ~0.5 GB, e5-base ~1 GB, bge-m3 ~2 GB) y puede tardar.
+Si quieres probar solo algunos:
+    python -m core.IA.recalcular_embeddings comparar minilm e5-base
+Al final te dice cuál es el mejor y el comando para cambiar, por ejemplo:
+    python -m core.IA.recalcular_embeddings usar e5-base
+Ese comando hace respaldo, recalcula todo, calibra los umbrales y
+reentrena. Para volver al de siempre:
+    python -m core.IA.recalcular_embeddings usar minilm
+
+
+PASO 5 (opcional) — Afinar el modelo con tus ejemplos (SetFit)
+--------------------------------------------------------------
+    python -m core.IA.afinar_embeddings
+Tarda unos 10-30 minutos en CPU. Mide ANTES y DESPUÉS con ejemplos que
+el modelo no vio; solo guarda si mejora. Si guardó, para usarlo:
+    python -m core.IA.recalcular_embeddings usar afinado
+Hazlo DESPUÉS del paso 4 (afina el modelo que tengas elegido).
+
+
+CADA SEMANA — Revisar fallos reales  (2 minutos)
+------------------------------------------------
+    python -m core.IA.revisar_fallos
+Te muestra frases donde Arché dudó, o que aprendió sola de la nube /
+Ollama sin que nadie las confirmara. Por cada una:
+    1, 2...   es esa intención        c   es charla (conversar)
+    nombre    es otra intención       b   está bien / no importa
+    Enter     saltar                  q   salir
+Estos son los ejemplos que más mejoran a las redes.
+
+
+QUÉ CAMBIÓ POR DENTRO
+---------------------
+- La red ve también trozos de LETRAS: aguanta faltas de ortografía y
+  errores de la voz ("ensiende" ~ "enciende").
+- Votación red + regresión logística: solo se usa si en la validación
+  le gana a la red sola.
+- La red da SEGUNDA OPINIÓN en el uso real: antes el vecino más cercano
+  decidía solo, y como para él "pon el examen" y "detén el examen" son
+  98% iguales, podía encender algo que pediste apagar. Ahora, si la red
+  está segura de otra cosa, se le hace caso; y si no hay nada claro,
+  Arché NO adivina: le pasa la frase a la nube / Ollama.
+- Órdenes sin dato (pausa la música, muestra el escritorio...) ahora se
+  resuelven en tu PC con ejemplos parecidos, sin ir siempre a la nube.
+- Se unieron los duplicados: estado_sistema -> diagnostico_pc,
+  procesos_consumen -> programas_cpu, espacio_disco -> espacio_discos.
+  Tus ejemplos viejos con esos nombres se leen con el nombre nuevo.
+- Las redes viejas siguen funcionando hasta que reentrenes.

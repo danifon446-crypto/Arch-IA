@@ -95,6 +95,9 @@ PROTEGIDOS_SOLO_AUTOMATICO = {
     "core/IA/gran_sabio.py",
     "core/IA/git_arche.py",
     "core/IA/orquestador_autonomo.py",
+    # Privacidad: el filtro de lo que sube a la nube (nada de datos personales)
+    "core/compartir.py",
+    "core/memoria_nube.py",
 }
 
 
