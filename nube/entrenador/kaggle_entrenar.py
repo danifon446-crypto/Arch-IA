@@ -56,6 +56,12 @@ def log(*a):
 
 
 def instalar_si_falta():
+    # Kaggle trae torchao 0.10 y peft nuevo se niega a funcionar con un torchao viejo
+    # ("Found an incompatible version of torchao"). No lo usamos: se quita.
+    import importlib.util
+    if importlib.util.find_spec("torchao") is not None:
+        log("Quito torchao (version vieja de Kaggle que choca con peft).")
+        subprocess.call([sys.executable, "-m", "pip", "uninstall", "-y", "-q", "torchao"])
     faltan = []
     for modulo, paquete in (("peft", "peft>=0.11"), ("accelerate", "accelerate")):
         try:
@@ -98,6 +104,12 @@ def main():
     instalar_si_falta()
     import torch
     from peft import LoraConfig, get_peft_model
+    try:      # segundo seguro: si torchao no se pudo quitar, peft hace como si no existiera
+        import peft.import_utils as _pi
+        import peft.tuners.lora.torchao as _pt
+        _pi.is_torchao_available = _pt.is_torchao_available = lambda: False
+    except Exception:
+        pass
     from transformers import (AutoModelForCausalLM, AutoTokenizer, DataCollatorForSeq2Seq,
                               EarlyStoppingCallback, Trainer, TrainingArguments)
 
