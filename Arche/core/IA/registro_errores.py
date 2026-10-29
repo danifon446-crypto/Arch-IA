@@ -158,7 +158,8 @@ def _es_protegido(rel):
         from core.IA.proponer_cambio_codigo import es_protegido
         return es_protegido(rel, automatico=True)
     except Exception:
-        return False
+        # Si no se puede comprobar, se asume protegido: ante la duda, Arché no toca.
+        return True
 
 
 # ------------------------------------------------------------------

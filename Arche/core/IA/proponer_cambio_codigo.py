@@ -79,6 +79,50 @@ ARCHIVOS_PROTEGIDOS = {
     "seguridad.py",
 }
 
+# Los "jueces": lo que decide si un cambio esta bien. Si Arché pudiera
+# editarlos, podria aprobarse sola un cambio malo. Protegidos SIEMPRE.
+JUECES_PROTEGIDOS = {
+    "core/IA/autotest.py",
+    "core/IA/autorreparar.py",
+}
+CARPETAS_PROTEGIDAS = ("core/IA/pruebas_aprendidas/",)
+
+# Protegidos solo para lo AUTOMATICO (autorreparacion, autonomia): tú si
+# puedes pedir cambios aqui, pero Arché no los aplica sola sin tu «sí».
+PROTEGIDOS_SOLO_AUTOMATICO = {
+    "main.py",
+    "core/autonomia.py",
+    "core/IA/gran_sabio.py",
+    "core/IA/git_arche.py",
+    "core/IA/orquestador_autonomo.py",
+}
+
+
+def _normalizar_rel(rel):
+    r = str(rel or "").replace("\\", "/").strip()
+    while r.startswith("./"):
+        r = r[2:]
+    if r.lower().startswith("arche/"):
+        r = r[6:]
+    return r.lower()   # Windows no distingue mayusculas: "Main.py" es main.py
+
+
+def es_protegido(rel, automatico=False):
+    """True si Arché no puede tocar `rel`.
+
+    automatico=False -> cambios que tú pediste: protegidos el motor de
+    cambios, la seguridad y los jueces.
+    automatico=True  -> cambios que Arché decide sola: ademas el arranque
+    y los limites de su propia autonomia.
+    """
+    r = _normalizar_rel(rel)
+    siempre = {p.lower() for p in ARCHIVOS_PROTEGIDOS | JUECES_PROTEGIDOS}
+    if r in siempre or any(r.startswith(c.lower()) for c in CARPETAS_PROTEGIDAS):
+        return True
+    if automatico and r in {p.lower() for p in PROTEGIDOS_SOLO_AUTOMATICO}:
+        return True
+    return False
+
 # Un modelo local chico no puede trabajar de forma confiable con
 # archivos muy largos como contexto completo (mas probabilidad de que
 # "olvide" partes o transcriba mal el fragmento a buscar).
@@ -228,7 +272,7 @@ def _validar_extension(archivo_norm: str, es_archivo_nuevo: bool):
 def _crear_propuesta(archivo, buscar, reemplazar, que, por_que, como, origen):
     archivo_norm = archivo.replace("\\", "/").strip()
 
-    if archivo_norm in ARCHIVOS_PROTEGIDOS:
+    if es_protegido(archivo_norm):
         return None, f"'{archivo_norm}' es un archivo protegido; no se puede proponer un cambio ahi."
 
     try:
@@ -1228,7 +1272,7 @@ def proponer_cambio_ia(archivo, instruccion, origen="usuario_directo"):
     proponer_cambio_manual.
     """
     archivo_norm = archivo.replace("\\", "/").strip()
-    if archivo_norm in ARCHIVOS_PROTEGIDOS:
+    if es_protegido(archivo_norm):
         return None, f"'{archivo_norm}' es un archivo protegido; no se puede proponer un cambio ahi."
 
     try:

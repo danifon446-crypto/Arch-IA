@@ -351,10 +351,17 @@ def _valor_de(texto):
     t = texto.strip().rstrip(".").strip()
     if t.lower() in _VALORES_ES:
         return True, _VALORES_ES[t.lower()]
-    try:
-        return True, ast.literal_eval(t)
-    except (ValueError, SyntaxError):
-        return False, None
+    candidatos = [t]
+    if ". " in t:
+        candidatos.append(t.split(". ", 1)[0].strip())      # texto sobrante despues del valor: "{}. Luego escribe..."
+    for c in candidatos:
+        if c.lower() in _VALORES_ES:
+            return True, _VALORES_ES[c.lower()]
+        try:
+            return True, ast.literal_eval(c)
+        except (ValueError, SyntaxError):
+            continue
+    return False, None
 
 
 def parse_criterios(texto):
