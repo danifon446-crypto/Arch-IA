@@ -87,14 +87,18 @@ def probar_ciclo(filas):
                   ciclo.MIN_NUEVOS)
     callar = lambda *_: None
     try:
-        ciclo.subir_dataset = lambda u, c, v: lanzados.append(("dataset", v))
+        ciclo.subir_dataset = lambda u, c, v: lanzados.append(("dataset", v)) or "processing"
         ciclo.lanzar_kernel = lambda u, v: lanzados.append(("kernel", v))
         ciclo.MIN_NUEVOS = 10 ** 6
         ciclo.empezar(supa, ciclo.leer_estado(supa), "david", False, callar)
         chequear("sin datos suficientes no entrena", lanzados, [])
         ciclo.empezar(supa, ciclo.leer_estado(supa), "david", True, callar)
         estado = ciclo.leer_estado(supa)
-        chequear("'entrena ya' lanza dataset y kernel", lanzados, [("dataset", 1), ("kernel", 1)])
+        chequear("si Kaggle tarda con los datos, espera sin fallar", (estado["estado"], lanzados),
+                 ("esperando_datos", [("dataset", 1)]))
+        ciclo.seguir_con_dataset(supa, estado, "david", "ready", callar)
+        estado = ciclo.leer_estado(supa)
+        chequear("cuando los datos están listos lanza el kernel", lanzados, [("dataset", 1), ("kernel", 1)])
         chequear("queda entrenando la v1", (estado["estado"], estado["en_curso"]), ("entrenando", 1))
 
         ciclo.estado_kernel = lambda u: ("complete", "")
