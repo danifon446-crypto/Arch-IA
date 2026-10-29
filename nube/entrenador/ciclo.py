@@ -4,6 +4,8 @@ ciclo.py  (Fase 4: entrenador automatico de arche-lora)
 Corre una vez al dia en GitHub Actions. Es una maquina de dos estados
 guardada en Supabase (arche_config -> "entrenador"):
 
+  (si Kaggle tarda en procesar los datos queda en ESPERANDO_DATOS y
+   el siguiente ciclo lanza el entrenamiento cuando esten listos)
   LIBRE       -> ¿toca entrenar? (>= 500 ejemplos nuevos y >= 7 dias, o
                  "entrena ya" desde Arché). Si toca: arma el dataset
                  (datos.py), lo sube a Kaggle como dataset PRIVADO, lanza
@@ -106,7 +108,14 @@ def estado_kernel(usuario):
     return "desconocido", texto.strip()
 
 
+def estado_dataset(usuario):
+    """'ready', 'failed', otro estado de Kaggle, o el texto del error."""
+    texto = kaggle("datasets", "status", f"{usuario}/{SLUG_DATASET}", revisar=False).strip()
+    return (texto.splitlines() or [""])[-1].strip().lower()
+
+
 def subir_dataset(usuario, carpeta, version):
+    """Sube el dataset y espera hasta ~15 min. Devuelve el ultimo estado que dio Kaggle."""
     with open(os.path.join(carpeta, "dataset-metadata.json"), "w", encoding="utf-8") as f:
         json.dump({"title": SLUG_DATASET, "id": f"{usuario}/{SLUG_DATASET}",
                    "licenses": [{"name": "CC0-1.0"}]}, f)
@@ -116,11 +125,18 @@ def subir_dataset(usuario, carpeta, version):
         kaggle("datasets", "version", "-p", carpeta, "-m", f"arche-lora v{version}", "-t", "-q")
     else:
         kaggle("datasets", "create", "-p", carpeta, "-t", "-q")       # privado por defecto
-    for _ in range(40):                                               # hasta ~10 min
+    return esperar_dataset(usuario, minutos=15)
+
+
+def esperar_dataset(usuario, minutos):
+    ultimo = ""
+    for _ in range(minutos * 4):
         time.sleep(15)
-        if "ready" in kaggle("datasets", "status", f"{usuario}/{SLUG_DATASET}", revisar=False).lower():
-            return
-    raise ErrorTurno("Kaggle no terminó de procesar el dataset a tiempo; reintento mañana")
+        ultimo = estado_dataset(usuario)
+        print(f"  Kaggle dice que el dataset está: {ultimo}", flush=True)
+        if ultimo in ("ready", "failed"):
+            break
+    return ultimo
 
 
 def lanzar_kernel(usuario, version):
@@ -196,12 +212,35 @@ def empezar(supa, estado, usuario, forzar, avisar):
         return 0
     carpeta = tempfile.mkdtemp(prefix="arche_datos_")
     datos.guardar(paquete, carpeta)
-    subir_dataset(usuario, carpeta, version)
-    lanzar_kernel(usuario, version)
-    estado.update(estado="entrenando", en_curso=version, iniciado=iso(ahora()), forzar=False,
-                  max_id_en_curso=max_id, nota=f"entrenando v{version} en Kaggle")
+    situacion = subir_dataset(usuario, carpeta, version)
+    estado.update(forzar=False, en_curso=version, max_id_en_curso=max_id, iniciado=iso(ahora()))
+    return seguir_con_dataset(supa, estado, usuario, situacion, avisar)
+
+
+def seguir_con_dataset(supa, estado, usuario, situacion, avisar):
+    version = estado["en_curso"]
+    if situacion == "ready":
+        lanzar_kernel(usuario, version)
+        estado.update(estado="entrenando", iniciado=iso(ahora()), nota=f"entrenando v{version} en Kaggle")
+        guardar_estado(supa, estado)
+        avisar(f"Lancé el entrenamiento v{version} en Kaggle (GPU {ACELERADOR}).")
+        return 0
+    if situacion == "failed":
+        estado.update(estado="libre", en_curso=None, nota=f"Kaggle no pudo procesar el dataset de v{version}")
+        guardar_estado(supa, estado)
+        avisar(estado["nota"])
+        return 1
+    iniciado = de_iso(estado.get("iniciado") or "")
+    if iniciado and (ahora() - iniciado).total_seconds() > 24 * 3600:
+        estado.update(estado="libre", en_curso=None,
+                      nota=f"el dataset de v{version} lleva un día sin quedar listo en Kaggle ({situacion})")
+        guardar_estado(supa, estado)
+        avisar(estado["nota"])
+        return 1
+    estado.update(estado="esperando_datos",
+                  nota=f"v{version}: datos subidos, Kaggle todavía los procesa ({situacion}). Sigo en el próximo ciclo.")
     guardar_estado(supa, estado)
-    avisar(f"Lancé el entrenamiento v{version} en Kaggle (GPU {ACELERADOR}).")
+    avisar(estado["nota"])
     return 0
 
 
@@ -265,6 +304,8 @@ def main(argv):
         estado = leer_estado(supa)
         if estado["estado"] == "entrenando":
             return revisar(supa, estado, usuario, print)
+        if estado["estado"] == "esperando_datos":
+            return seguir_con_dataset(supa, estado, usuario, esperar_dataset(usuario, minutos=10), print)
         return empezar(supa, estado, usuario, "--forzar" in argv, print)
     except ErrorTurno as e:
         print(f"El entrenador no pudo terminar: {e}")
