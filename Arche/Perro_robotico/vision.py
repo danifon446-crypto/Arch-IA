@@ -16,10 +16,17 @@ cuadro se desplome respecto a su valor normal (algo tapando el lente).
 Necesita: pip install opencv-python numpy
 """
 
+import collections
+import time
+
 import cv2
 import numpy as np
 
 ANCHO_ANALISIS = 320   # los cuadros se reducen a este ancho para analizarlos rapido
+SEG_MOVIMIENTO = 1 / 15  # el movimiento se mide contra un cuadro de hace ~67 ms, lleguen 15 o 30 por segundo:
+                         # asi subir los fps no cambia la sensibilidad que calibraste
+SEG_CARA = 1 / 15        # buscar caras es lo mas lento: se hace maximo 15 veces por segundo (como antes)
+                         # y en los cuadros de en medio se reusa la ultima; el resto va a 30 fps
 
 # rangos HSV de OpenCV (H 0-179). La roja necesita dos porque el tono "da la vuelta".
 PRESETS_COLOR = {
@@ -54,6 +61,9 @@ class Detector:
     def recalibrar(self):
         """Olvida el cuadro anterior y la textura 'normal' (usalo si cambias el celular de lugar)."""
         self._prev = None
+        self._previos = collections.deque(maxlen=12)   # (tiempo, cuadro) recientes
+        self._cara_t = -1.0
+        self._cara_ult = None
         self._base = None
         self._n = 0
 
@@ -63,11 +73,22 @@ class Detector:
         g = cv2.resize(gris, (160, max(1, int(160 * h / w))), interpolation=cv2.INTER_AREA)
         g = cv2.GaussianBlur(g, (5, 5), 0).astype(np.float32)
         g -= g.mean()                      # ignora cambios de exposicion globales
-        if self._prev is None or self._prev.shape != g.shape:
-            self._prev = g
-            return 0.0
-        d = np.abs(g - self._prev)
+        t = time.monotonic()
+        # referencia: el cuadro mas nuevo que tenga al menos SEG_MOVIMIENTO de antiguedad
+        # (si ninguno es tan viejo, el mas viejo que haya)
+        ref = None
+        for tp, gp in self._previos:
+            if gp.shape != g.shape:
+                continue
+            if ref is None or t - tp >= SEG_MOVIMIENTO:
+                ref = gp
+            if t - tp < SEG_MOVIMIENTO:
+                break
+        self._previos.append((t, g))
         self._prev = g
+        if ref is None:
+            return 0.0
+        d = np.abs(g - ref)
         return float((d > 25).mean())
 
     def _cara(self, gris, w, h):
@@ -142,7 +163,10 @@ class Detector:
         gris = cv2.cvtColor(chico, cv2.COLOR_BGR2GRAY)
 
         frac = self._movimiento(gris)
-        cara = self._cara(gris, w, h)
+        ahora = time.monotonic()
+        if ahora - self._cara_t >= SEG_CARA - 0.005 or self._cara_t < 0:
+            self._cara_ult, self._cara_t = self._cara(gris, w, h), ahora
+        cara = self._cara_ult
         pelota = self._pelota(chico, w, h)
         v, ratio = self._textura(gris)
 
@@ -190,12 +214,14 @@ _COLORES = {"cara": (80, 220, 80), "pelota": (0, 140, 255)}
 def anotar(frame, res, etiqueta=None):
     """Dibuja las cajas y el evento sobre el cuadro (para el video del panel)."""
     h, w = frame.shape[:2]
+    k = max(1.0, w / 320.0)              # cuadros mas grandes (mas nitidez) -> letras y lineas proporcionales
+    g = max(1, int(round(k)))
     for tipo, x0, y0, x1, y1 in res["cajas"]:
         p0, p1 = (int(x0 * w), int(y0 * h)), (int(x1 * w), int(y1 * h))
-        cv2.rectangle(frame, p0, p1, _COLORES.get(tipo, (255, 255, 255)), 2)
-        cv2.putText(frame, tipo, (p0[0], max(14, p0[1] - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    _COLORES.get(tipo, (255, 255, 255)), 1, cv2.LINE_AA)
+        cv2.rectangle(frame, p0, p1, _COLORES.get(tipo, (255, 255, 255)), 2 * g)
+        cv2.putText(frame, tipo, (p0[0], max(int(14 * k), p0[1] - int(6 * k))), cv2.FONT_HERSHEY_SIMPLEX, 0.5 * k,
+                    _COLORES.get(tipo, (255, 255, 255)), g, cv2.LINE_AA)
     texto = etiqueta or res["evento"]
-    cv2.rectangle(frame, (0, 0), (10 + 11 * len(texto), 26), (0, 0, 0), -1)
-    cv2.putText(frame, texto, (6, 19), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
+    cv2.rectangle(frame, (0, 0), (int((10 + 11 * len(texto)) * k), int(26 * k)), (0, 0, 0), -1)
+    cv2.putText(frame, texto, (int(6 * k), int(19 * k)), cv2.FONT_HERSHEY_SIMPLEX, 0.6 * k, (255, 255, 255), g, cv2.LINE_AA)
     return frame

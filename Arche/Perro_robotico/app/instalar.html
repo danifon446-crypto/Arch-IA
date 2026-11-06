@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instalar Perro Arché</title>
+<link rel="apple-touch-icon" href="/iconos/icono-180.png">
+<style>
+  :root { color-scheme: dark; --fondo:#12171E; --capa:#1B222B; --linea:#2E3946; --txt:#EEF2F6; --sub:#93A1B0; --ambar:#F2B544; }
+  body { margin:0; background:var(--fondo); color:var(--txt); font:16px/1.5 -apple-system, system-ui, sans-serif;
+    padding:calc(env(safe-area-inset-top) + 2rem) 1.3rem calc(env(safe-area-inset-bottom) + 2rem); }
+  .caja { max-width:34rem; margin:0 auto; }
+  img { width:84px; height:84px; border-radius:19px; }
+  h1 { font:700 1.7rem/1.15 ui-rounded, -apple-system, system-ui, sans-serif; margin:1rem 0 .4rem; }
+  p { color:var(--sub); margin:.4rem 0; }
+  ol { padding:0; margin:1.6rem 0 0; list-style:none; counter-reset:paso; }
+  li { counter-increment:paso; background:var(--capa); border-radius:14px; padding:1rem 1rem 1rem 3.3rem; margin-bottom:.6rem; position:relative; }
+  li::before { content:counter(paso); position:absolute; left:1rem; top:1rem; width:1.6rem; height:1.6rem; border-radius:50%;
+    background:var(--ambar); color:#1b1306; font-weight:700; text-align:center; line-height:1.6rem; font-size:.9rem; }
+  li b { color:var(--txt); }
+  li p { margin:.25rem 0 0; font-size:.92rem; }
+  a.boton { display:block; text-align:center; background:var(--ambar); color:#1b1306; font-weight:600; text-decoration:none;
+    border-radius:12px; padding:.8rem; margin-top:.7rem; }
+  code { background:#232C37; padding:.05rem .35rem; border-radius:5px; color:var(--txt); word-break:break-all; }
+</style>
+</head>
+<body>
+<div class="caja">
+  <img src="/iconos/icono-180.png" alt="">
+  <h1>Instalar Perro Arché en el celular</h1>
+  <p>Se hace una sola vez.</p>
+
+  <div id="android" hidden>
+  <p>En Android ábrela en <b>Chrome</b>.</p>
+  <ol>
+    <li><b>Descarga el certificado de Arché</b>
+      <p>Es lo que le permite al celular usar la cámara y abrir la app sin avisos.</p>
+      <a class="boton" href="/certificado.cer">Descargar certificado</a></li>
+    <li><b>Instálalo</b>
+      <p>Abre <b>Ajustes</b> y busca <b>certificado</b> en la lupa. Entra a <b>Instalar un certificado → Certificado de CA</b>
+        (según la marca está en <b>Seguridad → Más ajustes de seguridad → Cifrado y credenciales</b>). Toca <b>Instalar de todas formas</b>,
+        pon tu PIN y elige el archivo <b>Arche_perro.cer</b> de Descargas.</p></li>
+    <li><b>Abre la app e instálala</b>
+      <p>Toca el botón. Cuando cargue, toca el menú <b>⋮</b> de Chrome y luego <b>Instalar app</b> (o <b>Agregar a la pantalla principal</b>).</p>
+      <a class="boton" href="{{URL_APP}}">Abrir la app</a>
+      <p style="margin-top:.6rem">Dirección: <code>{{URL_APP}}</code></p></li>
+  </ol>
+  </div>
+
+  <div id="iphone">
+  <p>En iPhone ábrela en <b>Safari</b> (no en Chrome).</p>
+  <ol>
+    <li><b>Descarga el certificado de Arché</b>
+      <p>Es lo que le permite al iPhone usar la cámara y abrir la app sin avisos. Toca el botón y luego <b>Permitir</b>.</p>
+      <a class="boton" href="/certificado.cer">Descargar certificado</a></li>
+    <li><b>Instálalo</b>
+      <p>Abre <b>Ajustes</b>. Arriba aparece <b>Perfil descargado</b>: tócalo, luego <b>Instalar</b>, pon tu código y otra vez <b>Instalar</b>.</p></li>
+    <li><b>Dale confianza</b>
+      <p>En Ajustes ve a <b>General → Información → Ajustes de confianza de certificados</b> y activa <b>Arche perro (certificado local)</b>.</p></li>
+    <li><b>Abre la app y agrégala</b>
+      <p>Toca el botón. Cuando cargue, toca <b>Compartir</b> (el cuadrito con la flecha) y luego <b>Agregar a pantalla de inicio</b>.</p>
+      <a class="boton" href="{{URL_APP}}">Abrir la app</a>
+      <p style="margin-top:.6rem">Dirección: <code>{{URL_APP}}</code></p></li>
+  </ol>
+  </div>
+  <p style="margin-top:1.4rem">Desde ahí la abres con su ícono, como cualquier app. El banco tiene que estar encendido en el PC (dile a Arché <code>banco de pruebas</code>).</p>
+</div>
+<script>
+  if (/android/i.test(navigator.userAgent)) {
+    document.getElementById("android").hidden = false;
+    document.getElementById("iphone").hidden = true;
+  }
+</script>
+</body>
+</html>

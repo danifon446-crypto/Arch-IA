@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perro Arché</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/iconos/icono-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Perro">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#12171E">
+<style>
+  :root {
+    color-scheme: dark;
+    --fondo:#12171E; --capa:#1B222B; --capa2:#232C37; --linea:#2E3946;
+    --txt:#EEF2F6; --sub:#93A1B0; --ambar:#F2B544; --rojo:#E5484D; --verde:#46C08A;
+    --redondo: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+    --arriba: env(safe-area-inset-top, 0px); --abajo: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  [hidden] { display:none !important; }
+  html, body { margin:0; height:100%; background:var(--fondo); color:var(--txt);
+    font: 16px/1.4 -apple-system, "SF Pro Text", system-ui, sans-serif; overscroll-behavior:none; }
+  body { -webkit-user-select:none; user-select:none; }
+
+  /* ---------- barra de arriba */
+  header { position:fixed; inset:0 0 auto 0; z-index:5; background:rgba(18,23,30,.92);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+    padding:calc(var(--arriba) + .55rem) 1rem .6rem; border-bottom:1px solid var(--linea); }
+  header h1 { font:700 1.3rem/1.1 var(--redondo); margin:0 0 .45rem; }
+  .estados { display:flex; gap:.9rem; font-size:.8rem; color:var(--sub); flex-wrap:wrap; }
+  .estados span::before { content:""; display:inline-block; width:.5rem; height:.5rem; border-radius:50%;
+    background:#56616d; margin-right:.35rem; vertical-align:.05rem; }
+  .estados .ok::before { background:var(--verde); }
+  .estados .mal::before { background:var(--rojo); }
+  .estados .warn::before { background:var(--ambar); }
+
+  /* ---------- contenido */
+  main { padding:calc(var(--alto-cabeza, 6rem) + 1rem) 1rem calc(var(--alto-pie, 10rem) + 1.2rem); }
+  section[data-pestana] { display:none; }
+  section.activa { display:block; }
+  h2 { font:600 1.02rem/1.2 var(--redondo); margin:1.4rem 0 .6rem; color:var(--txt); }
+  h2:first-child { margin-top:.4rem; }
+  .grupo { background:var(--capa); border-radius:14px; padding:.25rem 0; margin-bottom:.4rem; }
+  .fila { display:flex; align-items:center; justify-content:space-between; gap:.8rem;
+    padding:.7rem 1rem; min-height:2.9rem; }
+  .fila + .fila { border-top:1px solid var(--linea); }
+  .fila label, .fila > span:first-child { flex:1; }
+  .nota { color:var(--sub); font-size:.82rem; margin:.4rem .2rem 0; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  /* ---------- lo que ve: el centro de la app */
+  .vista { position:relative; border-radius:16px; overflow:hidden; background:#000; aspect-ratio:4/3; }
+  .vista img, .vista video { width:100%; height:100%; object-fit:cover; display:block; }
+  .vista img:not([src]) { visibility:hidden; }
+  #vivo, #rtcv, #marcas { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  #marcas { pointer-events:none; }
+  #etiqueta-vivo { position:absolute; top:.6rem; right:.6rem; background:rgba(0,0,0,.55); color:#fff;
+    font:600 .72rem -apple-system, system-ui, sans-serif; padding:.2rem .5rem; border-radius:99px; }
+  #etiqueta-vivo::before { content:""; display:inline-block; width:.45rem; height:.45rem; border-radius:50%;
+    background:var(--verde); margin-right:.3rem; }
+  .vista .vacio { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:1.5rem; color:var(--sub); font-size:.9rem; }
+  #evento { font:700 2.3rem/1.05 var(--redondo); margin:.9rem 0 .15rem; letter-spacing:-.01em; }
+  #evento .flecha { color:var(--ambar); }
+  #detalle { color:var(--sub); font-size:.82rem; min-height:1.2em; }
+
+  #banner { display:none; background:#3a1c1e; color:#ffb4ae; border-radius:14px; padding:.8rem 1rem;
+    margin-bottom:.9rem; font-size:.92rem; }
+
+  /* control segmentado de modos */
+  .segmentos { display:grid; grid-template-columns:1fr 1fr; gap:.25rem; background:var(--capa); padding:.25rem; border-radius:12px; }
+  .segmentos button { border:0; border-radius:9px; padding:.75rem; font:600 1rem var(--redondo);
+    background:transparent; color:var(--txt); }
+  .segmentos button.sel { background:var(--ambar); color:#1b1306; }
+
+  button.boton { border:0; border-radius:12px; padding:.75rem 1.1rem; font:600 1rem -apple-system, system-ui, sans-serif;
+    background:var(--capa2); color:var(--txt); }
+  button.boton.primario { background:var(--ambar); color:#1b1306; }
+  button.boton.ancho { width:100%; margin-top:.6rem; }
+  button:active { transform:scale(.98); }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline:2px solid var(--ambar); outline-offset:2px; }
+
+  select, input[type=number] { font:inherit; color:var(--txt); background:var(--capa2); border:0;
+    border-radius:9px; padding:.45rem .6rem; max-width:11rem; }
+  input[type=range] { width:100%; accent-color:var(--ambar); }
+  input[type=checkbox] { width:1.4rem; height:1.4rem; accent-color:var(--ambar); }
+  .deslizador { padding:.7rem 1rem; }
+  .deslizador + .deslizador, .fila + .deslizador, .deslizador + .fila { border-top:1px solid var(--linea); }
+  .deslizador div { display:flex; justify-content:space-between; font-size:.92rem; margin-bottom:.35rem; }
+  .deslizador div span:last-child { color:var(--sub); }
+
+  #animo { font:700 1.6rem/1.1 var(--redondo); }
+  #msg { color:var(--ambar); font-size:.88rem; min-height:1.2em; margin:.5rem .2rem 0; }
+
+  .kpis { display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+  .kpis div { background:var(--capa); border-radius:14px; padding:.8rem .9rem; }
+  .kpis b { display:block; font:700 1.7rem/1.1 var(--redondo); }
+  .kpis span { color:var(--sub); font-size:.78rem; }
+  table { width:100%; border-collapse:collapse; font-size:.84rem; }
+  th, td { text-align:left; padding:.5rem .6rem; }
+  tr + tr td { border-top:1px solid var(--linea); }
+  th { color:var(--sub); font-weight:500; }
+  td.n, th.n { text-align:right; font-variant-numeric:tabular-nums; }
+
+  /* ---------- paro siempre a mano + pestañas */
+  #pie { position:fixed; inset:auto 0 0 0; z-index:5; background:rgba(18,23,30,.94);
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--linea);
+    padding:.6rem 1rem calc(var(--abajo) + .3rem); }
+  #paro { width:100%; border:0; border-radius:14px; padding:.95rem; background:var(--rojo); color:#fff;
+    font:800 1.15rem var(--redondo); letter-spacing:.02em; }
+  #paro.listo { background:#7a2a2d; }
+  nav { display:grid; grid-template-columns:repeat(4,1fr); margin-top:.45rem; }
+  nav button { border:0; background:none; color:var(--sub); font:500 .7rem -apple-system, system-ui, sans-serif;
+    padding:.35rem 0 .2rem; display:flex; flex-direction:column; align-items:center; gap:.15rem; }
+  nav button svg { width:1.55rem; height:1.55rem; }
+  nav button.sel { color:var(--ambar); }
+  nav button { position:relative; }
+  nav button .punto { width:.45rem; height:.45rem; border-radius:50%; background:var(--verde); position:absolute;
+    top:.3rem; left:calc(50% + .75rem); display:none; }
+  nav button.grabando .punto { display:block; }
+
+  /* aviso si el banco no responde */
+  #sinred { display:none; position:fixed; inset:0; z-index:9; background:rgba(18,23,30,.97);
+    padding:calc(var(--arriba) + 4rem) 1.6rem 2rem; text-align:left; }
+  #sinred h3 { font:700 1.5rem/1.15 var(--redondo); margin:0 0 .8rem; }
+  #sinred p { color:var(--sub); margin:.5rem 0; }
+  #sinred code { color:var(--txt); background:var(--capa); padding:.1rem .35rem; border-radius:5px; }
+
+  @media (min-width:700px) { main { max-width:640px; margin:0 auto; } #pie > * { max-width:640px; margin-left:auto; margin-right:auto; } }
+  @media (prefers-reduced-motion:reduce) { button:active { transform:none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Perro Arché</h1>
+  <div class="estados">
+    <span id="e-cam">Celular</span>
+    <span id="e-esp">ESP32</span>
+    <span id="e-mqtt">MQTT</span>
+    <span id="e-modo">Modo</span>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== PANEL -->
+  <section data-pestana="panel" class="activa">
+    <div id="banner"></div>
+    <div class="vista">
+      <img id="video" alt="Lo que ve el celular, con lo que detecta Arché">
+      <video id="vivo" autoplay playsinline muted hidden></video>
+      <video id="rtcv" autoplay playsinline muted hidden></video>
+      <canvas id="marcas"></canvas>
+      <span id="etiqueta-vivo" hidden>en vivo</span>
+      <div class="vacio" id="video-vacio">Todavía no llega video.<br>Ve a la pestaña Ojos y pulsa Iniciar cámara, o abre /camara en otro celular.</div>
+    </div>
+    <div id="evento">—</div>
+    <div id="detalle"></div>
+
+    <h2>Modo</h2>
+    <div class="segmentos">
+      <button id="b-manual">Manual</button>
+      <button id="b-perro">Perro</button>
+    </div>
+    <button id="b-reanudar" class="boton primario ancho" style="display:none">Reanudar</button>
+    <div id="msg"></div>
+
+    <h2>Probar una reacción</h2>
+    <div class="grupo">
+      <div class="fila"><select id="sel-probar" aria-label="Reacción"></select><button id="b-probar" class="boton primario">Enviar</button></div>
+    </div>
+
+    <h2>Personalidad (modo perro)</h2>
+    <div class="grupo">
+      <div class="fila"><span id="animo">—</span><span class="nota" id="postura" style="margin:0"></span></div>
+      <div class="fila"><span class="nota" id="razon" style="margin:0">—</span></div>
+    </div>
+    <p class="nota">Cara: se alegra y se acerca. Pelota: la persigue. Movimiento brusco: se asusta y retrocede. Algo cerca: se detiene. Nada: se aburre, se sienta y se duerme.</p>
+  </section>
+
+  <!-- ===================== OJOS (este iPhone como cámara) -->
+  <section data-pestana="ojos">
+    <div class="vista">
+      <video id="cam" autoplay playsinline muted></video>
+      <div class="vacio" id="cam-vacio">La cámara está apagada.</div>
+    </div>
+    <canvas id="lienzo" hidden></canvas>
+    <div id="cam-evento" style="font:700 1.8rem/1.1 var(--redondo);margin:.9rem 0 .1rem">—</div>
+    <div id="cam-camara" class="nota" style="margin-left:0;color:var(--txt)"></div>
+    <div id="cam-info" class="nota" style="margin-left:0">Pulsa Iniciar cámara y deja el iPhone fijo apuntando a la escena.</div>
+
+    <div class="grupo" style="margin-top:1rem">
+      <div class="fila"><span>Cámara</span>
+        <select id="cam-lado"><option value="environment">Trasera</option><option value="user">Frontal</option></select></div>
+      <div class="fila"><span>Fluidez</span>
+        <select id="cam-fps"><option value="120">Lo máximo que dé la cámara (hasta 120)</option><option value="60">60 fps</option><option value="30">30 fps</option><option value="24">24 fps</option><option value="15">15 fps (ahorra datos)</option></select></div>
+      <div class="fila"><span>Nitidez</span>
+        <select id="cam-calidad"><option value="auto">Automática</option><option value="maxima">Máxima (1280 px)</option><option value="alta">Alta (640 px)</option><option value="normal">Normal (320 px, ahorra datos)</option></select></div>
+    </div>
+    <button id="b-cam" class="boton primario ancho">Iniciar cámara</button>
+    <div id="cam-msg" class="nota" style="color:var(--ambar)"></div>
+    <p class="nota">Puedes cambiar de pestaña: la cámara sigue enviando. Si sales de la app o se bloquea la pantalla, el iPhone apaga la cámara y el robot entra en paro solo.</p>
+  </section>
+
+  <!-- ===================== AJUSTES -->
+  <section data-pestana="ajustes">
+    <h2>Visión</h2>
+    <div class="grupo" id="sliders">
+      <div class="fila"><span>Color de la pelota</span><select id="c-color"></select></div>
+    </div>
+    <div class="grupo">
+      <div class="fila"><label for="c-invertir">Invertir el giro</label><input type="checkbox" id="c-invertir"></div>
+    </div>
+    <p class="nota">Actívalo si el perro gira hacia el lado contrario.</p>
+    <button id="b-recal" class="boton ancho">Recalibrar (moviste el celular de sitio)</button>
+
+    <h2>Modo manual: qué hace al ver cada cosa</h2>
+    <div class="grupo" id="t-mapa"></div>
+    <div class="grupo">
+      <div class="fila"><span>Espera mínima entre reacciones (s)</span>
+        <input type="number" id="c-cooldown" min="0" max="30" step="0.5" inputmode="decimal" style="width:5rem"></div>
+    </div>
+    <p class="nota">La reacción se dispara cuando cambia lo que ve (por ejemplo de “nada” a “cara”). “quieto” siempre pasa; “ninguna” deja al robot como está.</p>
+
+    <h2>Modo perro</h2>
+    <div class="grupo">
+      <div class="deslizador"><div><span>Se sienta tras</span><span id="v-seg_sentarse"></span></div>
+        <input type="range" id="c-seg_sentarse" min="5" max="120" step="1"></div>
+      <div class="deslizador"><div><span>Se duerme tras</span><span id="v-seg_dormir"></span></div>
+        <input type="range" id="c-seg_dormir" min="10" max="300" step="5"></div>
+    </div>
+  </section>
+
+  <!-- ===================== MEDIDAS -->
+  <section data-pestana="medidas">
+    <h2>Latencia (ms)</h2>
+    <div class="kpis">
+      <div><b id="l-det">—</b><span>detección</span></div>
+      <div><b id="l-red">—</b><span>red celular → PC</span></div>
+      <div><b id="l-pub">—</b><span>cuadro → MQTT</span></div>
+      <div><b id="l-tot">—</b><span>cuadro → ESP32</span></div>
+    </div>
+    <p class="nota">“Cuadro → ESP32” va desde que llega el cuadro que confirma la detección hasta que el ESP32 avisa que recibió la orden (sin contar el movimiento del servo).</p>
+    <h2>Por detección</h2>
+    <div class="grupo"><table id="t-lat"></table></div>
+    <button id="b-lat-reset" class="boton ancho">Reiniciar medidas</button>
+    <h2>Últimas reacciones</h2>
+    <div class="grupo"><table id="t-hist"></table></div>
+  </section>
+</main>
+
+<div id="pie">
+  <button id="paro">PARO DE EMERGENCIA</button>
+  <nav>
+    <button data-ir="panel" class="sel" aria-label="Panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9c0-3 2.5-5 7-5s7 2 7 5v4c0 4-3 7-7 7s-7-3-7-7z"/><path d="M5 9 3 14M19 9l2 5"/><circle cx="9.5" cy="11" r=".8" fill="currentColor"/><circle cx="14.5" cy="11" r=".8" fill="currentColor"/><path d="M11 15h2"/></svg>Panel</button>
+    <button data-ir="ojos" id="tab-ojos" aria-label="Ojos">
+      <span class="punto"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Ojos</button>
+    <button data-ir="ajustes" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Ajustes</button>
+    <button data-ir="medidas" aria-label="Medidas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 13V9M10 3h4"/></svg>Medidas</button>
+  </nav>
+</div>
+
+<div id="sinred">
+  <h3>No encuentro el banco de pruebas</h3>
+  <p>La app se conecta a tu PC. Revisa que:</p>
+  <p>1. En el PC esté abierto el banco: dile a Arché <code>banco de pruebas</code>.</p>
+  <p>2. El iPhone esté en la misma WiFi que el PC, con Tailscale encendido, o que el acceso por internet esté abierto (dile a Arché <code>abre el tunel del perro</code>).</p>
+  <p>3. La dirección no haya cambiado. La del acceso por internet cambia cada vez que se abre el túnel: abre en Safari la nueva que te da Arché y vuelve a agregar la app a la pantalla de inicio.</p>
+  <p id="sinred-hace" style="margin-top:1.2rem">Reintentando…</p>
+</div>
+
+<script src="/rtc.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
+const fmt = (v, d=0) => (v === null || v === undefined || Number.isNaN(v)) ? "—" : Number(v).toFixed(d);
+const espera = ms => new Promise(r => setTimeout(r, ms));
+let E = null, armado = false, pestana = "panel", fallos = 0;
+
+/* ======================================== pestañas */
+function ir(nombre) {
+  pestana = nombre;
+  document.querySelectorAll("section[data-pestana]").forEach(s => s.classList.toggle("activa", s.dataset.pestana === nombre));
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("sel", b.dataset.ir === nombre));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => ir(b.dataset.ir));
+
+/* ======================================== panel (lo mismo que panel.html) */
+const SLIDERS = [
+  ["umbral_movimiento", "Sensibilidad al movimiento", 0.02, 0.4, 0.01],
+  ["cerca_por_tamano",  "Cara “cerca” si ocupa",      0.04, 0.5, 0.01],
+  ["cerca_pelota",      "Pelota “cerca” si ocupa",    0.02, 0.4, 0.01],
+  ["cerca_por_textura", "Centro tapado si textura <", 0.05, 0.6, 0.01],
+  ["area_min_pelota",   "Pelota mínima",              0.001, 0.05, 0.001],
+];
+function msg(t) { $("msg").textContent = t || ""; }
+function opciones(sel, lista) { for (const a of lista) { const o = document.createElement("option"); o.value = o.textContent = a; sel.appendChild(o); } }
+
+function armar(e) {
+  opciones($("sel-probar"), e.reacciones.filter(a => a !== "ninguna"));
+  $("sel-probar").value = "saludar";
+  const t = $("t-mapa");
+  for (const ev of e.eventos) {
+    const f = document.createElement("div"); f.className = "fila";
+    const l = document.createElement("span"); l.textContent = "Si ve " + ev;
+    const s = document.createElement("select"); s.id = "m-" + ev; s.setAttribute("aria-label", "Reacción al ver " + ev);
+    opciones(s, e.reacciones);
+    s.onchange = () => api("/api/mapa", {evento: ev, accion: s.value});
+    f.append(l, s); t.appendChild(f);
+  }
+  opciones($("c-color"), e.colores);
+  $("c-color").onchange = () => api("/api/config", {color_pelota: $("c-color").value});
+  for (const [k, nombre, mn, mx, st] of SLIDERS) {
+    const d = document.createElement("div"); d.className = "deslizador";
+    d.innerHTML = `<div><span>${nombre}</span><span id="v-${k}"></span></div><input type="range" id="c-${k}" min="${mn}" max="${mx}" step="${st}" aria-label="${nombre}">`;
+    $("sliders").appendChild(d);
+    const r = d.querySelector("input");
+    r.oninput = () => $("v-" + k).textContent = Number(r.value).toFixed(3);
+    r.onchange = () => api("/api/config", {[k]: Number(r.value)});
+  }
+  for (const k of ["seg_sentarse", "seg_dormir"]) {
+    const r = $("c-" + k);
+    r.oninput = () => $("v-" + k).textContent = r.value + " s";
+    r.onchange = () => api("/api/config", {[k]: Number(r.value)});
+  }
+  $("c-cooldown").onchange = () => api("/api/config", {cooldown: Number($("c-cooldown").value)});
+  $("c-invertir").onchange = () => api("/api/config", {invertir_giro: $("c-invertir").checked});
+  armado = true;
+}
+
+function poner(el, v) { if (el && document.activeElement !== el) el.value = v; }
+function estado(el, texto, clase) { el.textContent = texto; el.className = clase || ""; }
+
+function pintar(e) {
+  if (!armado) armar(e);
+  estado($("e-cam"), e.camara.ok ? `Celular ${e.camara.fps} fps` : "Celular sin video", e.camara.ok ? "ok" : "mal");
+  if (e.esp.perdido) estado($("e-esp"), "ESP32 perdido", "mal");
+  else if (e.esp.hb_visto) estado($("e-esp"), "ESP32 en línea", "ok");
+  else estado($("e-esp"), "ESP32 sin latido", "warn");
+  estado($("e-mqtt"), e.mqtt.ok ? "MQTT ok" : "MQTT sin conexión", e.mqtt.ok ? "ok" : "mal");
+  const enParo = e.modo === "paro";
+  estado($("e-modo"), enParo ? "En paro" : "Modo " + e.modo, enParo ? "mal" : "ok");
+
+  $("banner").style.display = enParo ? "block" : "none";
+  $("banner").textContent = "En paro. " + (e.motivo_paro || "");
+  $("b-reanudar").style.display = enParo ? "block" : "none";
+  $("b-manual").className = e.modo === "manual" ? "sel" : "";
+  $("b-perro").className = e.modo === "perro" ? "sel" : "";
+  $("paro").className = enParo ? "listo" : "";
+  $("paro").textContent = enParo ? "EN PARO" : "PARO DE EMERGENCIA";
+  if (e.error && !$("msg").textContent) msg(e.error);
+
+  const ev = $("evento");
+  ev.textContent = e.evento;
+  if (e.accion_actual && !enParo) { const s = document.createElement("span"); s.className = "flecha"; s.textContent = "  →  " + e.accion_actual; ev.appendChild(s); }
+  const d = e.detalle, p = [];
+  p.push(`movimiento ${fmt(d.movimiento * 100, 1)}%`, `textura ${fmt(d.textura, 2)}×`);
+  if (d.cara) p.push(`cara x=${d.cara.x} área=${fmt(d.cara.area * 100, 1)}%`);
+  if (d.pelota) p.push(`pelota x=${d.pelota.x} área=${fmt(d.pelota.area * 100, 1)}%`);
+  if (d.cerca_por) p.push(`cerca por ${d.cerca_por}`);
+  $("detalle").textContent = p.join(", ");
+
+  for (const x of e.eventos) poner($("m-" + x), e.mapa[x]);
+  poner($("c-cooldown"), e.cooldown);
+  poner($("c-color"), e.config.color_pelota);
+  if (document.activeElement !== $("c-invertir")) $("c-invertir").checked = e.invertir_giro;
+  for (const [k] of SLIDERS) { poner($("c-" + k), e.config[k]); if (document.activeElement !== $("c-" + k)) $("v-" + k).textContent = Number(e.config[k]).toFixed(3); }
+  for (const k of ["seg_sentarse", "seg_dormir"]) { poner($("c-" + k), e.perro.params[k]); if (document.activeElement !== $("c-" + k)) $("v-" + k).textContent = e.perro.params[k] + " s"; }
+
+  $("animo").textContent = e.perro.mood; $("postura").textContent = e.perro.postura;
+  $("razon").textContent = e.perro.razon;
+
+  const L = e.lat;
+  $("l-det").textContent = fmt(L.deteccion); $("l-red").textContent = fmt(L.red_celular);
+  $("l-pub").textContent = fmt(L.publicar);  $("l-tot").textContent = fmt(L.total);
+  let h = "<tr><th>Detección</th><th class='n'>n</th><th class='n'>prom</th><th class='n'>mín</th><th class='n'>máx</th></tr>";
+  for (const [x, s] of Object.entries(L.por_evento)) h += `<tr><td>${x}</td><td class='n'>${s.n}</td><td class='n'>${fmt(s.prom)}</td><td class='n'>${fmt(s.min)}</td><td class='n'>${fmt(s.max)}</td></tr>`;
+  $("t-lat").innerHTML = h;
+  let hh = "<tr><th>Hora</th><th>Vio</th><th>Hizo</th><th class='n'>→ESP32</th></tr>";
+  for (const r of L.historial) hh += `<tr><td>${r.hora}</td><td>${r.evento}</td><td>${r.accion}</td><td class='n'>${fmt(r.total_ms)}</td></tr>`;
+  if (!L.historial.length) hh += "<tr><td colspan='4' style='color:var(--sub)'>Todavía no hay reacciones.</td></tr>";
+  $("t-hist").innerHTML = hh;
+}
+
+async function refrescar() {
+  if (document.hidden) return;
+  try {
+    const r = await fetch("/api/estado", {cache: "no-store"});
+    if (r.status === 401) { location.href = "/entrar?siguiente=/app"; return; }   // entró por internet sin clave
+    if (!r.ok) throw new Error(r.status);
+    E = await r.json(); pintar(E);
+    fallos = 0; $("sinred").style.display = "none";
+  } catch (err) {
+    fallos++;
+    if (fallos >= 4) { $("sinred").style.display = "block"; $("sinred-hace").textContent = `Reintentando… (${fallos})`; }
+  }
+}
+
+$("paro").onclick = async () => { try { await api("/api/paro"); msg("Paro enviado."); } catch (e) { msg("No pude enviar el paro: revisa la conexión."); } refrescar(); };
+$("b-manual").onclick = async () => { const r = await api("/api/modo", {modo: "manual"}); msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-perro").onclick  = async () => { const r = await api("/api/modo", {modo: "perro"});  msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-reanudar").onclick = async () => { const r = await api("/api/reanudar"); msg(r.ok ? "" : r.msg); refrescar(); };
+$("b-probar").onclick = async () => { const r = await api("/api/probar", {accion: $("sel-probar").value}); msg(r.ok ? "" : r.msg); };
+$("b-recal").onclick = async () => { await api("/api/recalibrar"); $("b-recal").textContent = "Recalibrado"; setTimeout(() => $("b-recal").textContent = "Recalibrar (moviste el celular de sitio)", 1500); };
+$("b-lat-reset").onclick = () => api("/api/reiniciar_latencias");
+
+/* video: se pide la imagen ORIGINAL que mandó el celular (sin volver a comprimirla en el PC: más nítida)
+   y las cajas de lo que detectó Arché llegan aparte y se dibujan aquí encima, como el HUD de Lain.
+   Varios pedidos a la vez y el servidor responde apenas hay un cuadro nuevo. */
+let urlCuadro = null, nVisto = 0, remoto = null;
+async function bucleVideo(adelanto) {
+  // adelanto 0 pide "el siguiente cuadro", 1 "el que viene después", 2 el siguiente...: así todos
+  // pedidos traen imágenes distintas y mientras uno viaja el otro ya está esperando
+  while (true) {
+    if (document.hidden || pestana !== "panel" || corriendo) { await espera(300); continue; }
+    try {
+      if (rtcActivo()) {                           // la imagen ya llega por WebRTC: solo hacen falta las cajas
+        if (adelanto) { await espera(300); continue; }
+        const rm = await fetch(`/marcas?despues=${nVisto}&t=${Date.now()}`, {cache: "no-store"});
+        const jm = await rm.json();
+        if (jm.n > nVisto || jm.n < nVisto - 50) { nVisto = jm.n; remoto = jm.info; }
+        continue;
+      }
+      const r = await fetch(`/cuadro.jpg?crudo=1&despues=${nVisto + adelanto}&t=${Date.now()}`, {cache: "no-store"});
+      if (corriendo) continue;                     // mientras viajaba se encendió la cámara: ya se ve en vivo
+      const n = Number(r.headers.get("X-Cuadro") || 0);
+      if (r.status === 200 && n > nVisto) {
+        nVisto = n;
+        try { remoto = JSON.parse(r.headers.get("X-Info") || "null"); } catch (e) { remoto = null; }
+        const u = URL.createObjectURL(await r.blob());
+        $("video").src = u; if (urlCuadro) URL.revokeObjectURL(urlCuadro); urlCuadro = u;
+        $("video-vacio").style.display = (E && E.camara.ok) ? "none" : "flex";
+      } else if (r.status === 204) { $("video-vacio").style.display = "flex"; await espera(300); }
+      else if (n && n < nVisto - 50) { nVisto = 0; }          // el banco se reinició: vuelve a contar
+    } catch (e) { await espera(500); }
+  }
+}
+
+/* ======================================== ojos (lo mismo que camara.html) */
+// Nitidez de lo que se manda al PC (lo que ve el Panel en otro aparato). Arché analiza igual a 320 px:
+// esto solo cambia qué tan nítido se ve. En este mismo celular el Panel siempre se ve nítido (cámara en vivo).
+// "Automática" hace como Lain: mide qué tan rápido van el celular y la conexión y sube o baja sola.
+const ESCALERA = [[320, 0.5], [480, 0.55], [640, 0.6], [960, 0.66], [1280, 0.72]];
+const CALIDADES = {normal: 0, alta: 2, maxima: 4};
+let modoCalidad = "auto", nivel = 2, ANCHO = 640, CALIDAD = 0.6;
+function aplicarNivel(i) { nivel = Math.max(0, Math.min(ESCALERA.length - 1, i)); [ANCHO, CALIDAD] = ESCALERA[nivel]; }
+function ponerCalidad(nombre) {
+  if (nombre !== "auto" && !(nombre in CALIDADES)) nombre = "auto";
+  modoCalidad = nombre;
+  aplicarNivel(nombre === "auto" ? 2 : CALIDADES[nombre]);
+  $("cam-calidad").value = nombre;
+  try { localStorage.setItem("perro_calidad", nombre); } catch (e) {}
+}
+try { ponerCalidad(localStorage.getItem("perro_calidad") || "auto"); } catch (e) { ponerCalidad("auto"); }
+$("cam-calidad").onchange = () => { ponerCalidad($("cam-calidad").value); if (window.RTC) RTC.opciones({bitrate: bitrate(), fps: FPS_MAX}); };
+let encMs = [], bloqueos = 0, intentos = 0, ultSubida = 0;
+setInterval(() => {                                  // cada 2 s decide si sube o baja la nitidez
+  if (!corriendo || modoCalidad !== "auto" || conVideo()) { encMs = []; bloqueos = intentos = 0; return; }
+  // Prioriza NITIDEZ mientras se mantenga un mínimo de fluidez (70 % de lo elegido en "Fluidez"):
+  // con 30 fps elegidos el mínimo es 21; con 15, es 10 y deja subir mucho más la nitidez.
+  const minimo = fpsFotos() * 0.7;
+  const fps = respuestas.length / 2;
+  const enc = encMs.length ? encMs.reduce((x, y) => x + y, 0) / encMs.length : 0;
+  const saturado = intentos > 0 && bloqueos / intentos > 0.3;    // la red no da abasto: siempre lleno
+  const muestras = encMs.length;
+  encMs = []; bloqueos = intentos = 0;
+  if (!muestras) return;
+  const t = performance.now();
+  const capacidad = enc > 0 ? 1000 / enc : 999;                   // cuadros/s que alcanza a comprimir el celular
+  if (fps < minimo && (capacidad < minimo * 1.15 || saturado)) { aplicarNivel(nivel - 1); return; }
+  if (nivel < ESCALERA.length - 1 && !saturado && t - ultSubida > 4000) {
+    const crece = (ESCALERA[nivel + 1][0] / ESCALERA[nivel][0]) ** 2;   // el siguiente pesa ~ esto más
+    if (capacidad / crece >= Math.max(minimo, Math.min(fps, fpsFotos())) * 1.2) { aplicarNivel(nivel + 1); ultSubida = t; }
+  }
+}, 2000);
+// "Fluidez" = fps del VIDEO que ves (por WebRTC hasta 60). Las fotos para que Arché analice van aparte:
+// 20 por segundo y chicas mientras hay video WebRTC (para detectar no hace falta más).
+let FPS_MAX = 60;
+try { const g = Number(localStorage.getItem("perro_fps")); if ([15, 24, 30, 60, 120].includes(g)) FPS_MAX = g; } catch (e) {}
+$("cam-fps").value = String(FPS_MAX);
+const BITRATES = {auto: 6e6, maxima: 10e6, alta: 4e6, normal: 1.5e6};
+const bitrate = () => BITRATES[modoCalidad] || 6e6;
+$("cam-fps").onchange = () => {
+  FPS_MAX = Number($("cam-fps").value);
+  try { localStorage.setItem("perro_fps", String(FPS_MAX)); } catch (e) {}
+  if (flujo) flujo.getVideoTracks().forEach(t => t.applyConstraints({frameRate: {ideal: FPS_MAX, min: Math.min(FPS_MAX, 60)}})
+    .catch(() => t.applyConstraints({frameRate: {ideal: FPS_MAX}}).catch(() => {})).finally(revisarCamara));
+  if (window.RTC) RTC.opciones({fps: FPS_MAX, bitrate: bitrate()});
+};
+// Qué fps da DE VERDAD la cámara y cuál es el máximo que el navegador deja pedirle (para saber si el límite es la cámara)
+let infoCam = "";
+function revisarCamara() {
+  try {
+    const t = flujo.getVideoTracks()[0], st = t.getSettings();
+    const cap = t.getCapabilities ? t.getCapabilities() : null;
+    const max = cap && cap.frameRate && cap.frameRate.max ? Math.round(cap.frameRate.max) : null;
+    infoCam = `Cámara: ${st.width}×${st.height} a ${Math.round(st.frameRate || 0)} fps` + (max ? ` (el navegador la deja hasta ${max})` : "");
+  } catch (e) { infoCam = ""; }
+  $("cam-camara").textContent = infoCam;
+}
+let salida = null;                                   // cómo está saliendo el video WebRTC (se mide cada segundo)
+setInterval(async () => { salida = (corriendo && window.RTC && RTC.disponible) ? await RTC.estadoEmisor() : null; }, 1000);
+const conVideo = () => (window.RTC && RTC.disponible) ? RTC.visoresConectados() > 0 : false;
+const fpsFotos = () => conVideo() ? 15 : Math.min(FPS_MAX, 30);   // con video, 15 fotos/s bastan para detectar
+const EN_VUELO_MAX = 5;      // cuadros viajando a la vez: por internet cada ida y vuelta tarda, así no se espera uno por uno
+let enVuelo = 0, seq = 0, seqVisto = 0, respuestas = [];
+const idCam = Math.random().toString(36).slice(2, 10);
+let corriendo = false, netMs = null, flujo = null, wake = null;
+const camMsg = t => $("cam-msg").textContent = t || "";
+
+async function pedirWake() { try { if (navigator.wakeLock) wake = await navigator.wakeLock.request("screen"); } catch (e) {} }
+
+async function iniciarCam() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    camMsg("El iPhone no deja usar la cámara aquí. Falta instalar el certificado: abre en Safari la dirección de instalación que te da Arché.");
+    return;
+  }
+  try {
+    const base = {facingMode: {ideal: $("cam-lado").value}, width: {ideal: 1280}, height: {ideal: 720}};
+    try {      // primero exige el mínimo (que la cámara no baje sola de 60 con poca luz); si no puede, pide lo que pueda
+      flujo = await navigator.mediaDevices.getUserMedia({video: {...base, frameRate: {ideal: FPS_MAX, min: Math.min(FPS_MAX, 60)}}, audio: false});
+    } catch (e) {
+      if (e.name === "NotAllowedError") throw e;
+      flujo = await navigator.mediaDevices.getUserMedia({video: {...base, frameRate: {ideal: FPS_MAX}}, audio: false});
+    }
+  } catch (e) {
+    camMsg(e.name === "NotAllowedError"
+      ? "Bloqueaste la cámara. Actívala en Ajustes del iPhone > Safari > Cámara, y vuelve a pulsar Iniciar cámara."
+      : "No pude abrir la cámara: " + e.message);
+    return;
+  }
+  const v = $("cam"); v.srcObject = flujo; await v.play();
+  revisarCamara();
+  $("cam-vacio").style.display = "none";
+  await pedirWake();
+  corriendo = true; camMsg("");
+  vistaVivo(true);
+  if (window.RTC && RTC.disponible) { verRemoto(false); RTC.emitir(flujo, {bitrate: bitrate(), fps: FPS_MAX}); }
+  $("b-cam").textContent = "Detener cámara"; $("b-cam").className = "boton ancho";
+  $("tab-ojos").classList.add("grabando");
+  bucleCam();
+}
+
+function detenerCam(texto) {
+  corriendo = false;
+  if (window.RTC) RTC.dejarDeEmitir();
+  setTimeout(() => verRemoto(true), 500);
+  if (flujo) flujo.getTracks().forEach(t => t.stop());
+  flujo = null;
+  if (wake) { wake.release().catch(() => {}); wake = null; }
+  $("cam").srcObject = null; $("cam-vacio").style.display = "flex";
+  vistaVivo(false);
+  $("b-cam").textContent = "Iniciar cámara"; $("b-cam").className = "boton primario ancho";
+  $("tab-ojos").classList.remove("grabando");
+  $("cam-evento").textContent = "—"; $("cam-info").textContent = texto || "Detenida.";
+}
+
+async function bucleCam() {
+  let siguiente = performance.now();
+  while (corriendo) {
+    const ahora = performance.now();
+    if (ahora >= siguiente) {
+      intentos++;
+      if (enVuelo < EN_VUELO_MAX) {
+        siguiente = ahora + 1000 / fpsFotos();
+        enviarCuadro();                            // sin await: puede haber varios viajando
+      } else { bloqueos++; siguiente = ahora + 1000 / fpsFotos() / 2; }
+    }
+    await espera(10);
+  }
+}
+
+async function enviarCuadro() {
+  const v = $("cam"), c = $("lienzo");
+  if (!v.videoWidth) return;
+  enVuelo++;
+  try {
+    const t0 = performance.now();
+    const w = Math.min(conVideo() ? 320 : ANCHO, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    c.getContext("2d").drawImage(v, 0, 0, w, h);
+    const blob = await new Promise(r => c.toBlob(r, "image/jpeg", CALIDAD));
+    encMs.push(performance.now() - t0);
+    if (!blob) return;
+    const mio = ++seq;
+    const cab = {"Content-Type": "image/jpeg", "X-Cam": idCam, "X-Seq": String(mio)};
+    if (netMs !== null) cab["X-Net-Ms"] = netMs.toFixed(1);
+    const t1 = performance.now();
+    const r = await fetch("/frame", {method: "POST", body: blob, headers: cab});
+    if (r.status === 401) { location.href = "/entrar?siguiente=/app"; return; }
+    const j = await r.json();
+    netMs = Math.max(0, performance.now() - t1 - (j.proc_ms || 0));
+    const t = performance.now();
+    respuestas.push(t); respuestas = respuestas.filter(x => t - x < 2000);
+    if (mio > seqVisto) {                          // solo se muestra lo más nuevo (pueden llegar desordenados)
+      seqVisto = mio;
+      ultimo = j;
+      if (pestana === "panel") {                   // el texto también al instante, sin esperar al estado
+        const ev = $("evento"); ev.textContent = j.evento || "—";
+        if (j.accion) { const sp = document.createElement("span"); sp.className = "flecha"; sp.textContent = "  →  " + j.accion; ev.appendChild(sp); }
+      }
+      $("cam-evento").textContent = j.evento || "—";
+      const enc = encMs.length ? encMs[encMs.length - 1] : 0;
+      const nv = (window.RTC && RTC.disponible) ? RTC.visoresConectados() : 0;
+      $("cam-info").textContent = nv
+        ? `Video a ${nv} panel${nv > 1 ? "es" : ""}: ` + (salida ? `${salida.ancho}×${salida.alto} a ${Math.round(salida.fps)} fps` : "conectando") +
+          `. Arché analiza ${(respuestas.length / 2).toFixed(0)} fotos/s, red ${netMs.toFixed(0)} ms, Arché ${(j.proc_ms || 0).toFixed(0)} ms`
+        : `${(respuestas.length / 2).toFixed(0)} fps, ${ANCHO} px${modoCalidad === "auto" ? " (auto)" : ""}, ` +
+          `celular ${enc.toFixed(0)} ms, red ${netMs.toFixed(0)} ms, Arché ${(j.proc_ms || 0).toFixed(0)} ms`;
+    }
+    camMsg("");
+  } catch (e) {
+    camMsg("Sin conexión con Arché, reintentando…");
+    netMs = null; await espera(600);
+  } finally {
+    enVuelo--;
+  }
+}
+
+/* Si este celular es la cámara, el Panel muestra la cámara EN VIVO (sin pasar por el PC: cero lag)
+   y encima dibuja lo que detecta Arché con las cajas que devuelve cada cuadro. */
+let ultimo = null;
+const COLORES = {cara: "#50DC50", pelota: "#FF8C00"};
+function vistaVivo(si) {
+  const vv = $("vivo");
+  vv.srcObject = si ? flujo : null;
+  if (si) vv.play().catch(() => {});
+  vv.hidden = $("etiqueta-vivo").hidden = !si;
+  $("video").style.visibility = si ? "hidden" : "";
+  if (si) { $("video-vacio").style.display = "none"; ultimo = null; }
+}
+function dibujarMarcas() {
+  requestAnimationFrame(dibujarMarcas);
+  if (pestana !== "panel" || document.hidden) return;
+  if (corriendo) $("video-vacio").style.display = "none";
+  const fuente = corriendo ? $("vivo") : (rtcActivo() ? $("rtcv") : $("video"));
+  const esVideo = fuente.tagName === "VIDEO";
+  const fw = esVideo ? fuente.videoWidth : fuente.naturalWidth, fh = esVideo ? fuente.videoHeight : fuente.naturalHeight;
+  const datos = corriendo ? ultimo : remoto;
+  const cv = $("marcas"), dpr = window.devicePixelRatio || 1;
+  const W = cv.clientWidth, H = cv.clientHeight;
+  if (!W) return;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const g = cv.getContext("2d");
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  if (!fw || !datos || !datos.cajas || (!esVideo && !fuente.getAttribute("src"))) return;
+  // mismo recorte que object-fit: cover
+  const esc = Math.max(W / fw, H / fh);
+  const vw = fw * esc, vh = fh * esc, ox = (W - vw) / 2, oy = (H - vh) / 2;
+  g.lineWidth = 2.5; g.font = "600 13px -apple-system, system-ui, sans-serif";
+  for (const [tipo, x0, y0, x1, y1] of datos.cajas) {
+    const c = COLORES[tipo] || "#fff";
+    g.strokeStyle = g.fillStyle = c;
+    g.strokeRect(ox + x0 * vw, oy + y0 * vh, (x1 - x0) * vw, (y1 - y0) * vh);
+    g.fillText(tipo, ox + x0 * vw + 4, Math.max(14, oy + y0 * vh - 6));
+  }
+}
+
+/* Panel en OTRO aparato: recibe el video del celular por WebRTC (hasta 60 fps). Si no conecta, sigue con fotos. */
+const rtcActivo = () => !corriendo && !!$("rtcv").srcObject && $("rtcv").videoWidth > 0;
+function verRemoto(si) {
+  if (!window.RTC || !RTC.disponible) return;
+  if (!si) { RTC.dejarDeVer(); ponerRemoto(null); return; }
+  RTC.ver(ponerRemoto, () => {});
+}
+function ponerRemoto(stream) {
+  const rv = $("rtcv");
+  rv.srcObject = stream;
+  rv.hidden = !stream;
+  if (stream) { rv.play().catch(() => {}); $("video").style.visibility = "hidden"; $("video-vacio").style.display = "none"; }
+  else if (!corriendo) $("video").style.visibility = "";
+}
+$("rtcv").addEventListener("loadedmetadata", e => formaVista(e.target, e.target.videoWidth, e.target.videoHeight));
+
+$("b-cam").onclick = () => corriendo ? detenerCam() : iniciarCam();
+$("cam-lado").onchange = () => { if (corriendo) { detenerCam(); iniciarCam(); } };
+
+document.addEventListener("visibilitychange", async () => {
+  if (document.visibilityState === "visible") {
+    refrescar();
+    if (corriendo) {
+      // al volver a la app, iOS suele haber cortado la cámara: se reabre sola
+      const viva = flujo && flujo.getVideoTracks().some(t => t.readyState === "live");
+      if (!viva) { detenerCam(); iniciarCam(); } else { await pedirWake(); }
+    }
+  }
+});
+
+/* el recuadro toma la forma de la imagen (16:9 o 4:3) para no recortar los lados */
+function formaVista(el, w, h) { if (w && h) el.closest(".vista").style.aspectRatio = `${w} / ${h}`; }
+$("video").addEventListener("load", e => formaVista(e.target, e.target.naturalWidth, e.target.naturalHeight));
+for (const id of ["vivo", "cam"]) $(id).addEventListener("loadedmetadata", e => formaVista(e.target, e.target.videoWidth, e.target.videoHeight));
+
+/* ======================================== arranque */
+// la barra de arriba y la de abajo cambian de alto (muesca del iPhone, estados que bajan de línea)
+function medir() {
+  document.documentElement.style.setProperty("--alto-cabeza", document.querySelector("header").offsetHeight + "px");
+  document.documentElement.style.setProperty("--alto-pie", $("pie").offsetHeight + "px");
+}
+new ResizeObserver(medir).observe(document.querySelector("header"));
+new ResizeObserver(medir).observe($("pie"));
+medir();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+setInterval(refrescar, 400);
+refrescar();
+requestAnimationFrame(dibujarMarcas);
+for (let i = 0; i < 3; i++) bucleVideo(i);
+verRemoto(true);   // 3 pedidos escalonados: por internet cada uno tarda
+</script>
+</body>
+</html>

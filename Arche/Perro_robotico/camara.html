@@ -31,7 +31,7 @@
 <div id="msg"></div>
 
 <script>
-const FPS_MAX = 15, ANCHO = 320, CALIDAD = 0.5;
+const FPS_MAX = 30, ANCHO = 640, CALIDAD = 0.6;   // Arche analiza a 320 px igual; esto da nitidez al panel
 const v = document.getElementById("v"), c = document.getElementById("c");
 const $ = id => document.getElementById(id);
 let corriendo = false, netMs = null, stream = null, wake = null;
@@ -46,7 +46,7 @@ async function iniciar() {
   }
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: $("cam").value }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false });
+      video: { facingMode: { ideal: $("cam").value }, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30 } }, audio: false });
   } catch (e) { aviso("No pude abrir la cámara: " + e.message); return; }
   v.srcObject = stream;
   await v.play();
@@ -75,7 +75,7 @@ async function bucle() {
 
 async function enviar() {
   if (!v.videoWidth) return;
-  const w = ANCHO, h = Math.round(ANCHO * v.videoHeight / v.videoWidth);
+  const w = Math.min(ANCHO, v.videoWidth), h = Math.round(w * v.videoHeight / v.videoWidth);
   c.width = w; c.height = h;
   c.getContext("2d").drawImage(v, 0, 0, w, h);
   const blob = await new Promise(r => c.toBlob(r, "image/jpeg", CALIDAD));

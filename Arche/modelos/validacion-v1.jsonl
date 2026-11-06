@@ -1,0 +1,237 @@
+{"frase": "hola", "intencion": "saludo", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "cual fue la ultima operacion", "intencion": "ultimo_calculo", "contenido": "", "origen": "pc", "dominio": "calculadora"}
+{"frase": "encuentra el archivo de algo", "intencion": "buscar_archivo", "contenido": "algo", "origen": "pc", "dominio": "archivos"}
+{"frase": "revisa si hay archivos nuevos", "intencion": "actualizar_archivos", "contenido": "", "origen": "pc", "dominio": "archivos"}
+{"frase": "sincroniza los archivos de arche", "intencion": "actualizar_archivos", "contenido": "", "origen": "pc", "dominio": "archivos"}
+{"frase": "que procesos estan consumiendo recursos", "intencion": "programas_cpu", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "que programas estan consumiendo mas", "intencion": "programas_cpu", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "hay internet", "intencion": "estado_red", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "guarda en tu memoria que algo", "intencion": "recordar", "contenido": "algo", "origen": "pc", "dominio": "memoria"}
+{"frase": "marca como logrado terminar arche", "intencion": "objetivo_logrado", "contenido": "terminar arche", "origen": "pc", "dominio": "arche"}
+{"frase": "que objetivos tengo pendientes", "intencion": "objetivos", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "deten el estudio", "intencion": "detener_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "para el estudio", "intencion": "detener_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "inicia un examen", "intencion": "examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "hazme una prueba", "intencion": "examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "ponme una prueba sobre el tema", "intencion": "examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "quiero apagar la autorevision", "intencion": "autorevision_off", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "dime quien eres", "intencion": "presentacion", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "conversemos", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "tengo ganas de hablar", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "necesito ayuda", "intencion": "ayuda", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "que puedo hacer con los recordatorios", "intencion": "ayuda_categoria", "contenido": "recordatorios", "origen": "pc", "dominio": "arche"}
+{"frase": "busca recetas de arepas", "intencion": "buscar", "contenido": "recetas de arepas", "origen": "pc", "dominio": "web"}
+{"frase": "inicia el bloc de notas", "intencion": "abrir", "contenido": "el bloc de notas", "origen": "pc", "dominio": "web"}
+{"frase": "lista mis notas por favor", "intencion": "listar_notas", "contenido": "", "origen": "pc", "dominio": "notas"}
+{"frase": "que notas he creado", "intencion": "listar_notas", "contenido": "", "origen": "pc", "dominio": "notas"}
+{"frase": "quiero revisar mis calculos anteriores", "intencion": "historial_calculos", "contenido": "", "origen": "pc", "dominio": "calculadora"}
+{"frase": "muestrame todas las operaciones", "intencion": "historial_calculos", "contenido": "", "origen": "pc", "dominio": "calculadora"}
+{"frase": "sigue con el estudio", "intencion": "estudiar", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "dime si estoy en modo examen", "intencion": "estado_examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "quiero buscar algo en internet", "intencion": "buscar", "contenido": "", "origen": "pc", "dominio": "web"}
+{"frase": "que temas estan registrados", "intencion": "temas_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "muestrame el progreso jerarquico", "intencion": "estado_jerarquico", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "inicia una evaluacion de conocimientos", "intencion": "examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "pon arche en modo examen", "intencion": "examen_on", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "muestrame las metas actuales", "intencion": "objetivos", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "dime cuales son mis metas", "intencion": "objetivos", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "quiero hablar un momento", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "elimina ese recordatorio pendiente", "intencion": "eliminar_recordatorio", "contenido": "", "origen": "pc", "dominio": "memoria"}
+{"frase": "agrega contenido a la nota", "intencion": "agregar_nota", "contenido": "", "origen": "pc", "dominio": "notas"}
+{"frase": "quiero abrir un documento", "intencion": "abrir_archivo", "contenido": "", "origen": "pc", "dominio": "archivos"}
+{"frase": "dime como esta mi computador", "intencion": "diagnostico_pc", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "comprueba el espacio disponible", "intencion": "espacio_discos", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "que cosas tengo pendientes", "intencion": "mostrar_recordatorios", "contenido": "", "origen": "pc", "dominio": "memoria"}
+{"frase": "que avisos tengo pendientes", "intencion": "mostrar_recordatorios", "contenido": "", "origen": "pc", "dominio": "memoria"}
+{"frase": "quiero localizar un archivo", "intencion": "buscar_archivo", "contenido": "", "origen": "pc", "dominio": "archivos"}
+{"frase": "cuanto espacio hay entre la tierra y la luna", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "en que fecha estamos", "intencion": "fecha", "contenido": "", "origen": "pc", "dominio": "tiempo"}
+{"frase": "investiga sobre universidad de cundinamarca", "intencion": "buscar", "contenido": "universidad de cundinamarca", "origen": "pc", "dominio": "web"}
+{"frase": "buscame informacion de recetas de pasta", "intencion": "buscar", "contenido": "recetas de pasta", "origen": "pc", "dominio": "web"}
+{"frase": "encuentra informacion sobre robots con arduino", "intencion": "buscar", "contenido": "robots con arduino", "origen": "pc", "dominio": "web"}
+{"frase": "ve a chrome", "intencion": "abrir", "contenido": "chrome", "origen": "pc", "dominio": "web"}
+{"frase": "buscame musica relajante en spotify", "intencion": "buscar_en_sitio", "contenido": "musica relajante en spotify", "origen": "pc", "dominio": "web"}
+{"frase": "ponme gatos graciosos en youtube", "intencion": "buscar_en_sitio", "contenido": "gatos graciosos en youtube", "origen": "pc", "dominio": "web"}
+{"frase": "tengo chrome abierto", "intencion": "que_tengo_abierto", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "pasa a bloc de notas", "intencion": "enfocar_ventana", "contenido": "bloc de notas", "origen": "pc", "dominio": "computador"}
+{"frase": "activa la ventana de spotify", "intencion": "enfocar_ventana", "contenido": "spotify", "origen": "pc", "dominio": "computador"}
+{"frase": "manda el explorador a la barra de tareas", "intencion": "minimizar_ventana", "contenido": "el explorador", "origen": "pc", "dominio": "computador"}
+{"frase": "oculta bloc de notas", "intencion": "minimizar_ventana", "contenido": "bloc de notas", "origen": "pc", "dominio": "computador"}
+{"frase": "pon el explorador en pantalla completa", "intencion": "maximizar_ventana", "contenido": "el explorador", "origen": "pc", "dominio": "computador"}
+{"frase": "agranda la ventana de el explorador", "intencion": "maximizar_ventana", "contenido": "el explorador", "origen": "pc", "dominio": "computador"}
+{"frase": "expande chrome", "intencion": "maximizar_ventana", "contenido": "chrome", "origen": "pc", "dominio": "computador"}
+{"frase": "maximiza la ventana de discord", "intencion": "maximizar_ventana", "contenido": "discord", "origen": "pc", "dominio": "computador"}
+{"frase": "aumenta el volumen", "intencion": "subir_volumen", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "baja un poco el volumen", "intencion": "bajar_volumen", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "salta esta cancion", "intencion": "siguiente_cancion", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "brillo al 30 por ciento", "intencion": "brillo_a", "contenido": "30", "origen": "pc", "dominio": "computador"}
+{"frase": "pon el brillo en 30", "intencion": "brillo_a", "contenido": "30", "origen": "pc", "dominio": "computador"}
+{"frase": "digita llamar a mama", "intencion": "teclear_texto", "contenido": "llamar a mama", "origen": "pc", "dominio": "computador"}
+{"frase": "oprime esc", "intencion": "presionar_tecla", "contenido": "esc", "origen": "pc", "dominio": "computador"}
+{"frase": "aprieta alt+tab", "intencion": "presionar_tecla", "contenido": "alt+tab", "origen": "pc", "dominio": "computador"}
+{"frase": "que copie", "intencion": "ver_portapapeles", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "callate", "intencion": "callar", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "di hola", "intencion": "probar_voz", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "testea la voz", "intencion": "probar_voz", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "pon la voz de salome", "intencion": "elegir_voz", "contenido": "salome", "origen": "pc", "dominio": "computador"}
+{"frase": "muestrame mis temporizadores", "intencion": "ver_alarmas", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "muestrame la rutina estudio", "intencion": "ver_rutina", "contenido": "estudio", "origen": "pc", "dominio": "computador"}
+{"frase": "esta lento mi pc", "intencion": "diagnostico_pc", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "que puedo borrar sin problema", "intencion": "analizar_limpieza", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "analiza la limpieza", "intencion": "analizar_limpieza", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "encuentrame mis archivos de el proyecto de arduino", "intencion": "buscar_archivos_tema", "contenido": "el proyecto de arduino", "origen": "pc", "dominio": "computador"}
+{"frase": "donde estan mis archivos de la universidad", "intencion": "buscar_archivos_tema", "contenido": "la universidad", "origen": "pc", "dominio": "computador"}
+{"frase": "devuelve lo que limpiaste", "intencion": "restaurar_papelera", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "cuentame las noticias de arduino", "intencion": "noticias", "contenido": "arduino", "origen": "pc", "dominio": "web"}
+{"frase": "usa el modelo local", "intencion": "usar_ollama", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "quiero editar la nota algo", "intencion": "abrir_nota", "contenido": "algo", "origen": "pc", "dominio": "notas"}
+{"frase": "que notas tengo", "intencion": "listar_notas", "contenido": "", "origen": "pc", "dominio": "notas"}
+{"frase": "cuanto da 15*4", "intencion": "calcular", "contenido": "15*4", "origen": "pc", "dominio": "calculadora"}
+{"frase": "abre la configuracion", "intencion": "mostrar_config", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "cambiame el nombre", "intencion": "cambiar_nombre_usuario", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "que hace notas", "intencion": "ayuda_categoria", "contenido": "notas", "origen": "pc", "dominio": "arche"}
+{"frase": "repasa lo que sabes", "intencion": "estudiar", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "activa el estudio automatico", "intencion": "iniciar_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "que temas estudias", "intencion": "temas_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "aprende sobre historia de colombia", "intencion": "agregar_tema", "contenido": "historia de colombia", "origen": "pc", "dominio": "arche"}
+{"frase": "evaluate ahora", "intencion": "examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "como vas en el examen", "intencion": "estado_examen", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "examinate sola en segundo plano", "intencion": "examen_on", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "que metas faltan", "intencion": "objetivos", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "anota como objetivo terminar el informe", "intencion": "agregar_objetivo", "contenido": "terminar el informe", "origen": "pc", "dominio": "arche"}
+{"frase": "ve a youtube", "intencion": "abrir", "contenido": "youtube", "origen": "pc", "dominio": "web"}
+{"frase": "encuentrame arduino en wikipedia", "intencion": "buscar_en_sitio", "contenido": "arduino en wikipedia", "origen": "pc", "dominio": "web"}
+{"frase": "quiero que uses chrome siempre", "intencion": "fijar_navegador", "contenido": "chrome", "origen": "pc", "dominio": "computador"}
+{"frase": "manda spotify a la barra de tareas", "intencion": "minimizar_ventana", "contenido": "spotify", "origen": "pc", "dominio": "computador"}
+{"frase": "haz mas grande word", "intencion": "maximizar_ventana", "contenido": "word", "origen": "pc", "dominio": "computador"}
+{"frase": "ajusta el brillo al 70", "intencion": "brillo_a", "contenido": "70", "origen": "pc", "dominio": "computador"}
+{"frase": "pon el brillo en 70", "intencion": "brillo_a", "contenido": "70", "origen": "pc", "dominio": "computador"}
+{"frase": "teclea esto llamar a mama", "intencion": "teclear_texto", "contenido": "llamar a mama", "origen": "pc", "dominio": "computador"}
+{"frase": "pulsa alt+tab", "intencion": "presionar_tecla", "contenido": "alt+tab", "origen": "pc", "dominio": "computador"}
+{"frase": "pulsa esc", "intencion": "presionar_tecla", "contenido": "esc", "origen": "pc", "dominio": "computador"}
+{"frase": "pon la lectura corta", "intencion": "lectura_voz", "contenido": "corta", "origen": "pc", "dominio": "computador"}
+{"frase": "inicia la rutina estudio", "intencion": "ejecutar_rutina", "contenido": "estudio", "origen": "pc", "dominio": "computador"}
+{"frase": "testea la nube", "intencion": "probar_nube", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "que la nube te ayude a programar", "intencion": "nube_codigo_on", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "usa la nube para el estudio", "intencion": "nube_estudio_on", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "agrega otra nube", "intencion": "conectar_respaldo", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "quiero usar groq en la nube", "intencion": "proveedor_nube", "contenido": "groq", "origen": "pc", "dominio": "configuracion"}
+{"frase": "lista los modelos de la nube", "intencion": "modelos_nube", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "la nube puede usar mi memoria", "intencion": "compartir_memoria", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "cuentale a la nube lo que sabes de mi", "intencion": "compartir_memoria", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "lo que aprendiste de la nube", "intencion": "ver_aprendido_nube", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "mis lecciones de la nube", "intencion": "ver_aprendido_nube", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "cuanto has aprendido de la nube", "intencion": "aprendiz_estado", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "anota como objetivo mejorar el examen", "intencion": "agregar_objetivo", "contenido": "mejorar el examen", "origen": "pc", "dominio": "arche"}
+{"frase": "busca musica relajante en spotify", "intencion": "buscar_en_sitio", "contenido": "musica relajante en spotify", "origen": "pc", "dominio": "web"}
+{"frase": "quiero que aprendas a buscar en mercadolibre", "intencion": "aprender_sitio_busqueda", "contenido": "mercadolibre", "origen": "pc", "dominio": "web"}
+{"frase": "muestrame la ventana de spotify", "intencion": "enfocar_ventana", "contenido": "spotify", "origen": "pc", "dominio": "computador"}
+{"frase": "expande bloc de notas", "intencion": "maximizar_ventana", "contenido": "bloc de notas", "origen": "pc", "dominio": "computador"}
+{"frase": "oprime alt+tab", "intencion": "presionar_tecla", "contenido": "alt+tab", "origen": "pc", "dominio": "computador"}
+{"frase": "manda el atajo esc", "intencion": "presionar_tecla", "contenido": "esc", "origen": "pc", "dominio": "computador"}
+{"frase": "despiertame a las 7 de la manana", "intencion": "poner_alarma", "contenido": "7 de la manana", "origen": "pc", "dominio": "computador"}
+{"frase": "empieza la rutina descanso", "intencion": "ejecutar_rutina", "contenido": "descanso", "origen": "pc", "dominio": "computador"}
+{"frase": "que pasos tiene la rutina descanso", "intencion": "ver_rutina", "contenido": "descanso", "origen": "pc", "dominio": "computador"}
+{"frase": "cuanto es 100/8", "intencion": "calcular", "contenido": "100/8", "origen": "pc", "dominio": "calculadora"}
+{"frase": "que has mejorado", "intencion": "estado_mejora", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "ultimo calulo sin mas", "intencion": "ultimo_calculo", "contenido": "", "origen": "pc", "dominio": "calculadora"}
+{"frase": "podrias explicarme brevemente como funciona la fotosintesis", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "estado sistm a", "intencion": "diagnostico_pc", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "buscame informacion de inteligencia artificial", "intencion": "buscar", "contenido": "inteligencia artificial", "origen": "pc", "dominio": "web"}
+{"frase": "ponme zapatos en mercadolibre", "intencion": "buscar_en_sitio", "contenido": "zapatos en mercadolibre", "origen": "pc", "dominio": "web"}
+{"frase": "quiero ver restaurantes cerca en maps", "intencion": "buscar_en_sitio", "contenido": "restaurantes cerca en maps", "origen": "pc", "dominio": "web"}
+{"frase": "ensenate a buscar en netflix", "intencion": "aprender_sitio_busqueda", "contenido": "netflix", "origen": "pc", "dominio": "web"}
+{"frase": "aprende a buscar dentro de netflix", "intencion": "aprender_sitio_busqueda", "contenido": "netflix", "origen": "pc", "dominio": "web"}
+{"frase": "hazme la operacion 7*6", "intencion": "calcular", "contenido": "7*6", "origen": "pc", "dominio": "calculadora"}
+{"frase": "para que sirve recordatorios", "intencion": "ayuda_categoria", "contenido": "recordatorios", "origen": "pc", "dominio": "arche"}
+{"frase": "aprende sobre python", "intencion": "agregar_tema", "contenido": "python", "origen": "pc", "dominio": "arche"}
+{"frase": "pon la nube estudio", "intencion": "nube_estudio_off", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "desactiva el modo aprendiz", "intencion": "aprendiz_off", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "busca informacion y resumeme electronica", "intencion": "investigar", "contenido": "electronica", "origen": "pc", "dominio": "web"}
+{"frase": "que hace programas", "intencion": "ayuda_categoria", "contenido": "programas", "origen": "pc", "dominio": "arche"}
+{"frase": "muestrame lo que he aprendido en la nube de", "intencion": "ver_aprendido_nube", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "no guardes esta informacion en tu memoria no la", "intencion": "no_compartir_memoria", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "encuentrame gatos graciosos en youtube", "intencion": "buscar_en_sitio", "contenido": "gatos graciosos en youtube", "origen": "pc", "dominio": "web"}
+{"frase": "ajusta el brillo al 20", "intencion": "brillo_a", "contenido": "20", "origen": "pc", "dominio": "computador"}
+{"frase": "oprime ctrl+c", "intencion": "presionar_tecla", "contenido": "ctrl+c", "origen": "pc", "dominio": "computador"}
+{"frase": "que clima hace en medellin", "intencion": "clima", "contenido": "medellin", "origen": "pc", "dominio": "web"}
+{"frase": "va a llover en bogota", "intencion": "clima", "contenido": "bogota", "origen": "pc", "dominio": "web"}
+{"frase": "revisa el perro robot", "intencion": "robot_estado", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "averigua robots con arduino en internet", "intencion": "buscar", "contenido": "robots con arduino", "origen": "pc", "dominio": "web"}
+{"frase": "maximiza la ventana de el explorador", "intencion": "maximizar_ventana", "contenido": "el explorador", "origen": "pc", "dominio": "computador"}
+{"frase": "muestrame la carpeta de videos", "intencion": "abrir_carpeta", "contenido": "videos", "origen": "pc", "dominio": "computador"}
+{"frase": "habla con el volumen en 50", "intencion": "volumen_voz", "contenido": "50", "origen": "pc", "dominio": "computador"}
+{"frase": "que dice la nota de la algo", "intencion": "leer_nota", "contenido": "algo", "origen": "pc", "dominio": "notas"}
+{"frase": "abre la algo", "intencion": "abrir_archivo", "contenido": "algo", "origen": "pc", "dominio": "archivos"}
+{"frase": "muestrame el documento del algo", "intencion": "abrir_archivo", "contenido": "algo", "origen": "pc", "dominio": "archivos"}
+{"frase": "revisa si el disco esta lleno", "intencion": "espacio_discos", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "tu nuevo nombre es luna", "intencion": "cambiar_nombre_asistente", "contenido": "luna", "origen": "pc", "dominio": "configuracion"}
+{"frase": "de ahora en adelante te digo max", "intencion": "cambiar_nombre_asistente", "contenido": "max", "origen": "pc", "dominio": "configuracion"}
+{"frase": "apunta que algo", "intencion": "recordar", "contenido": "algo", "origen": "pc", "dominio": "memoria"}
+{"frase": "ya entregue el algo", "intencion": "completar_recordatorio", "contenido": "algo", "origen": "pc", "dominio": "memoria"}
+{"frase": "listo ya lo hice", "intencion": "completar_recordatorio", "contenido": "", "origen": "pc", "dominio": "memoria"}
+{"frase": "agrega electronica como tema", "intencion": "agregar_tema", "contenido": "electronica", "origen": "pc", "dominio": "arche"}
+{"frase": "cambia mi nombre a daniel", "intencion": "cambiar_nombre_usuario", "contenido": "daniel", "origen": "pc", "dominio": "configuracion"}
+{"frase": "ya no estudies mas", "intencion": "detener_estudio", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "arranca el modo de examen", "intencion": "examen_on", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "como estan las redes de dominio", "intencion": "estado_jerarquico", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "que tan lleno esta el banco", "intencion": "estado_banco", "contenido": "", "origen": "pc", "dominio": "arche"}
+{"frase": "saludos arche", "intencion": "saludo", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "como corrijo un dato de la memoria", "intencion": "ayuda_categoria", "contenido": "memoria", "origen": "pc", "dominio": "arche"}
+{"frase": "busca como programar un esp32", "intencion": "buscar", "contenido": "como programar un esp32", "origen": "pc", "dominio": "web"}
+{"frase": "buscame tutoriales de python", "intencion": "buscar", "contenido": "tutoriales de python", "origen": "pc", "dominio": "web"}
+{"frase": "busca imagenes de robots cuadrupedos", "intencion": "buscar", "contenido": "imagenes de robots cuadrupedos", "origen": "pc", "dominio": "web"}
+{"frase": "abre outlook", "intencion": "abrir", "contenido": "outlook", "origen": "pc", "dominio": "web"}
+{"frase": "a ver sientate", "intencion": "robot_sentarse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "levantate", "intencion": "robot_pararse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "perro levantate", "intencion": "robot_pararse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "ponte de pie ya", "intencion": "robot_pararse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "ponte parado", "intencion": "robot_pararse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "tumbate", "intencion": "robot_acostarse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "tirate al piso", "intencion": "robot_acostarse", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "detente", "intencion": "robot_quieto", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "para", "intencion": "robot_quieto", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "menea la cola", "intencion": "robot_cola", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "a ver mueve la cola", "intencion": "robot_cola", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "dame la pata", "intencion": "robot_saludar", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "saluda a los invitados", "intencion": "robot_saludar", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "desactiva el modo perro", "intencion": "robot_modo_off", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "vuelve a ser un robot normal", "intencion": "robot_modo_off", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "prueba que el robot funcione", "intencion": "robot_estado", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "emergencia deten los motores", "intencion": "robot_emergencia", "contenido": "", "origen": "pc", "dominio": "robot"}
+{"frase": "vuelve a hablar en voz alta", "intencion": "activar_voz", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "lee tus respuestas en voz alta", "intencion": "activar_voz", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "pausa la cancion", "intencion": "pausar_reproducir", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "deten la musica un momento", "intencion": "pausar_reproducir", "contenido": "", "origen": "pc", "dominio": "computador"}
+{"frase": "usa la nube cuando haya internet", "intencion": "usar_nube", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "pon el modo nube", "intencion": "usar_nube", "contenido": "", "origen": "pc", "dominio": "configuracion"}
+{"frase": "jajaja que chistoso", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "manana tengo parcial de calculo", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "como se dice computador en ingles", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "quien invento la bombilla", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "gracias por la ayuda", "intencion": "conversar", "contenido": "", "origen": "pc", "dominio": "conversacion"}
+{"frase": "podrias volver al codigo anterior", "intencion": "deshacer_mejora", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "deshaz lo que cambiaste recientemente", "intencion": "deshacer_mejora", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "hablame de los habitos que arche ha detectado", "intencion": "estado_autonomia", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "vuelva la voz a como estaba", "intencion": "restablecer_voz", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "deje la voz como venia", "intencion": "restablecer_voz", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "puedes mostrarme las alarmas pendientes", "intencion": "ver_alarmas", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "me ensena los avisos que quedan", "intencion": "ver_alarmas", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "texto y voz al unisono desde el principio", "intencion": "sincronia_voz_on", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "por favor prioriza la respuesta de la nube", "intencion": "aprendiz_off", "contenido": "", "origen": "turno_huecos", "dominio": "configuracion"}
+{"frase": "usted puede hacer que la nube responda primero", "intencion": "aprendiz_off", "contenido": "", "origen": "turno_huecos", "dominio": "configuracion"}
+{"frase": "oye pon la voz naturalonline", "intencion": "motor_voz", "contenido": "naturalonline", "origen": "turno_dificiles", "dominio": "computador"}
+{"frase": "pon la voz localfast", "intencion": "motor_voz", "contenido": "localfast", "origen": "turno_dificiles", "dominio": "computador"}
+{"frase": "mmm ponle a la lista de estudio la revolucion francesa", "intencion": "agregar_tema", "contenido": "revolucion francesa", "origen": "turno_dificiles", "dominio": "arche"}
+{"frase": "mmm muestrame el estado del clasificador", "intencion": "estado_red", "contenido": "", "origen": "turno_dificiles", "dominio": "arche"}
+{"frase": "quitar el temporizador que esta activo", "intencion": "cancelar_alarma", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "arche adelanta lo seguro por favor", "intencion": "autonomia_proactiva", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "quitale el sonido al equipo", "intencion": "silenciar", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "por favor prueba la nube completa", "intencion": "probar_nube", "contenido": "", "origen": "turno_huecos", "dominio": "configuracion"}
+{"frase": "haz el estudio usando unicamente ollama", "intencion": "nube_estudio_off", "contenido": "", "origen": "turno_huecos", "dominio": "configuracion"}
+{"frase": "pidale a ollama que haga el estudio", "intencion": "nube_estudio_off", "contenido": "", "origen": "turno_huecos", "dominio": "configuracion"}
+{"frase": "muestrame los modos que guarde", "intencion": "ver_rutinas", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "me ensenas mis modos", "intencion": "ver_rutinas", "contenido": "", "origen": "turno_huecos", "dominio": "computador"}
+{"frase": "oye arche pone mas texto en la nota algo", "intencion": "agregar_nota", "contenido": "algo", "origen": "turno_dificiles", "dominio": "notas"}
+{"frase": "enfoca el panel de outlook ahora", "intencion": "enfocar_ventana", "contenido": "outlook", "origen": "turno_dificiles", "dominio": "computador"}
+{"frase": "ver configuracion del asistente gracias", "intencion": "mostrar_config", "contenido": "", "origen": "turno_dificiles", "dominio": "configuracion"}

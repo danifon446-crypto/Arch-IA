@@ -20,20 +20,24 @@ Seguridad:
 """
 
 import argparse
+import atexit
 import collections
 import json
 import logging
 import os
 import re
+import shutil
 import socket
+import subprocess
 import threading
 import time
 
 import cv2
 import numpy as np
-from flask import Flask, Response, jsonify, request, send_file
+from flask import Flask, Response, jsonify, redirect, request, send_file, send_from_directory
 
 import acciones_robot as ar          # patas, secuencias y MQTT de publicacion
+import acceso                        # clave para cuando se entra por el tunel de internet
 from vision import Detector, PRESETS_COLOR, anotar
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -49,8 +53,11 @@ REACCIONES = ["ninguna", "quieto", "saludar", "feliz", "cola", "ladrar", "enojad
               "acostarse", "avanzar", "correr", "retroceder", "izquierda", "derecha", "asustarse"]
 MAPA_INICIAL = {"cara": "saludar", "pelota": "avanzar", "movimiento": "asustarse", "cerca": "quieto", "nada": "quieto"}
 
-# cuadros seguidos que hacen falta para dar por buena una deteccion (evita parpadeos)
+# cuadros seguidos que hacen falta para dar por buena una deteccion (evita parpadeos).
+# Estan pensados para 15 fps: con mas fps ademas se exige el mismo TIEMPO, asi el perro
+# reacciona igual de rapido/lento aunque lleguen 30 cuadros por segundo.
 CONFIRMAR = {"movimiento": 1, "cerca": 2, "cara": 2, "pelota": 2, "nada": 8}
+CONFIRMAR_SEG = {k: (n - 1) / 15.0 for k, n in CONFIRMAR.items()}
 
 LOCOMOCION = {"avanzar", "retroceder", "izquierda", "derecha", "correr"}
 
@@ -190,9 +197,19 @@ class Banco:
         self.ev = "nada"
         self.cand = "nada"
         self.cand_n = 0
+        self.cand_t0 = 0.0
         self.res = None
         self.ultimo_x = {"cara": 0.0, "pelota": 0.0}
         self.ultimo_jpg = None
+        self.ultimo_n = 0                    # numero del cuadro que hay en ultimo_jpg
+        self.hay_cuadro = threading.Condition()
+        self.cam_id = None                   # para descartar cuadros que llegan tarde (la app manda varios a la vez)
+        self.cam_seq = 0
+        # imagen ORIGINAL del celular (sin recomprimir) + lo detectado, para que el panel dibuje las cajas
+        self.crudo = None
+        self.crudo_n = 0
+        self.crudo_info = None
+        self.pide_anotado_t = 0.0            # ultima vez que alguien pidio la imagen con marcas quemadas
         self.t_ultimo_cuadro = 0.0
         self.tiempos = collections.deque(maxlen=20)
         self.cuadros = 0
@@ -355,7 +372,7 @@ class Banco:
         if modo not in ("manual", "perro"):
             return False, "Modo invalido."
         if time.time() - self.t_ultimo_cuadro > TIMEOUT_CAMARA:
-            return False, "No llega video del celular: abre /camara en el celular y pulsa Iniciar."
+            return False, "No llega video del celular: en la app, pestana Ojos > Iniciar camara (o abre /camara en el celular)."
         if self.esp_perdido():
             return False, "El ESP32 aparece desconectado: revisa su WiFi/MQTT."
         try:
@@ -390,6 +407,7 @@ class Banco:
     def cerrar(self):
         self._fin.set()
         self.paro("Banco cerrado.")
+        cerrar_tunel()                       # que el acceso por internet no quede abierto al cerrar Arche
 
     # -------------------------------------------------------- reaccionar
     def _enviar(self, accion, evento, t_llegada, det_ms):
@@ -438,11 +456,12 @@ class Banco:
         if cand == self.ev:
             self.cand, self.cand_n = cand, 0
             return self.ev
+        ahora = time.monotonic()
         if cand == self.cand:
             self.cand_n += 1
         else:
-            self.cand, self.cand_n = cand, 1
-        if self.cand_n >= CONFIRMAR[cand]:
+            self.cand, self.cand_n, self.cand_t0 = cand, 1, ahora
+        if self.cand_n >= CONFIRMAR[cand] and ahora - self.cand_t0 >= CONFIRMAR_SEG[cand] - 0.01:
             self.ev, self.cand_n = cand, 0
         return self.ev
 
@@ -474,11 +493,20 @@ class Banco:
             if accion:
                 self._enviar(accion, ev, t_llegada, det_ms)
 
-            etiqueta = f"{ev}  [{self.modo}]" + (f"  -> {self.accion_actual}" if self.accion_actual and self.modo != "paro" else "")
-            ok, buf = cv2.imencode(".jpg", anotar(frame, res, etiqueta), [cv2.IMWRITE_JPEG_QUALITY, 70])
-            if ok:
-                self.ultimo_jpg = buf.tobytes()
-            return {"evento": ev, "crudo": res["evento"], "modo": self.modo}
+            # La imagen con las marcas "quemadas" solo se arma si alguien la esta mirando (panel viejo,
+            # /video o una camara IP): recomprimir cada cuadro gasta PC y le quita nitidez.
+            if self.crudo is None or time.time() - self.pide_anotado_t < 5:
+                etiqueta = f"{ev}  [{self.modo}]" + (f"  -> {self.accion_actual}" if self.accion_actual and self.modo != "paro" else "")
+                ok, buf = cv2.imencode(".jpg", anotar(frame, res, etiqueta), [cv2.IMWRITE_JPEG_QUALITY, 80])
+                if ok:
+                    with self.hay_cuadro:
+                        self.ultimo_jpg = buf.tobytes()
+                        self.ultimo_n = self.cuadros
+                        self.hay_cuadro.notify_all()
+            return {"evento": ev, "crudo": res["evento"], "modo": self.modo,
+                    "accion": self.accion_actual if self.modo != "paro" else None,
+                    # cajas en fraccion del cuadro (0..1): la app las dibuja sobre su camara en vivo
+                    "cajas": [[c[0]] + [round(float(v), 3) for v in c[1:]] for c in res.get("cajas", [])]}
 
     # ------------------------------------------------------------- estado
     @staticmethod
@@ -521,8 +549,116 @@ class Banco:
 
 
 # ============================================================ servidor web
+def viene_por_tunel(req):
+    """True si llega desde internet (y por eso pide clave).
+    * Cloudflare SIEMPRE agrega Cf-Connecting-Ip / Cf-Ray, y nadie se las puede quitar: eso manda primero,
+      asi nadie de internet se cuela fingiendo ser de Tailscale.
+    * "tailscale serve" pone Tailscale-User-Login con la cuenta de quien entra (y borra la que traiga el
+      pedido): son tus aparatos, no hace falta clave.
+    * Cualquier otro proxy (X-Forwarded-For) se trata como internet.
+    Lo que llega directo por la WiFi o por la IP 100.x de Tailscale no trae ninguna."""
+    if req.headers.get("Cf-Connecting-Ip") or req.headers.get("Cf-Ray"):
+        return True
+    if req.headers.get("Tailscale-User-Login"):
+        return False
+    return bool(req.headers.get("X-Forwarded-For"))
+
+
+def ip_cliente(req):
+    return req.headers.get("Cf-Connecting-Ip") or (req.headers.get("X-Forwarded-For", "").split(",")[0].strip()) \
+        or req.remote_addr or "?"
+
+
+class CarteroRTC:
+    """Presenta al celular (emisor) con cada panel (visor) para que se pasen el video por WebRTC.
+    Solo pasa mensajes cortos (ofertas/respuestas): el video NO pasa por aqui, va directo."""
+
+    def __init__(self):
+        self.cv = threading.Condition()
+        self.buzones = {}           # id -> [mensajes]
+        self.visto = {}             # id -> ultima vez que reviso su buzon
+        self.emisor = None
+
+    def _limpiar(self):
+        t = time.time()
+        for k in [k for k, v in self.visto.items() if t - v > 60]:
+            self.buzones.pop(k, None)
+            self.visto.pop(k, None)
+
+    def poner(self, para, msg):
+        with self.cv:
+            caja = self.buzones.setdefault(para, [])
+            caja.append(msg)
+            del caja[:-20]          # nunca crece sin control
+            self.cv.notify_all()
+
+    def registrar_emisor(self, yo):
+        with self.cv:
+            self.emisor = yo
+            self.buzones[yo] = []
+            self.visto[yo] = time.time()
+            self._limpiar()
+
+    def emisor_vivo(self):
+        return self.emisor is not None and time.time() - self.visto.get(self.emisor, 0) < 25
+
+    def recoger(self, yo, espera=15.0):
+        with self.cv:
+            self.visto[yo] = time.time()
+            if not self.buzones.get(yo):
+                self.cv.wait_for(lambda: bool(self.buzones.get(yo)), timeout=espera)
+            self.visto[yo] = time.time()
+            msgs = self.buzones.get(yo, [])
+            self.buzones[yo] = []
+            return msgs
+
+
+_ID_OK = re.compile(r"^[A-Za-z0-9_-]{4,40}$")
+
+
+RUTAS_LIBRES = ("/entrar", "/manifest.webmanifest", "/sw.js", "/iconos/")
+
+
 def crear_app(b):
     app = Flask(__name__)
+
+    @app.before_request
+    def pedir_clave_por_internet():
+        if not viene_por_tunel(request):
+            return None
+        if any(request.path == r or (r.endswith("/") and request.path.startswith(r)) for r in RUTAS_LIBRES):
+            return None
+        if acceso.sesion_valida(request.cookies.get(acceso.COOKIE)):
+            return None
+        if request.method == "GET" and request.path in ("/", "/app", "/camara"):
+            return redirect("/entrar?siguiente=" + request.path)
+        return jsonify(error="clave", msg="Falta la clave del banco."), 401
+
+    @app.route("/entrar", methods=["GET", "POST"])
+    def entrar():
+        siguiente = request.values.get("siguiente", "/app")
+        if not siguiente.startswith("/") or siguiente.startswith("//"):
+            siguiente = "/app"
+        error = ""
+        if request.method == "POST":
+            ip = ip_cliente(request)
+            espera = acceso.bloqueado(ip)
+            if espera:
+                error = f"Demasiados intentos. Espera {max(1, espera // 60)} min."
+            elif acceso.probar_clave(ip, request.form.get("clave", "")):
+                r = redirect(siguiente)
+                r.set_cookie(acceso.COOKIE, acceso.valor_sesion(), max_age=365 * 24 * 3600,
+                             secure=True, httponly=True, samesite="Lax")
+                return r
+            else:
+                espera = acceso.bloqueado(ip)
+                error = (f"Demasiados intentos. Espera {max(1, espera // 60)} min." if espera
+                         else "Esa no es la clave. Revísala en el PC: dile a Arché “clave del perro”.")
+        with open(os.path.join(HERE, "app", "entrar.html"), "r", encoding="utf-8") as f:
+            html = f.read()
+        from html import escape
+        html = html.replace("{{SIGUIENTE}}", escape(siguiente)).replace("{{ERROR}}", escape(error))
+        return Response(html, mimetype="text/html", headers={"Cache-Control": "no-store"})
 
     @app.get("/")
     def panel():
@@ -532,13 +668,141 @@ def crear_app(b):
     def camara():
         return send_file(os.path.join(HERE, "camara.html"))
 
+    # ---- app para iPhone (lo mismo que el panel + la camara, instalable en la pantalla de inicio)
+    @app.get("/app")
+    def app_iphone():
+        r = send_file(os.path.join(HERE, "app", "app.html"))
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
+    @app.get("/manifest.webmanifest")
+    def manifest():
+        r = send_file(os.path.join(HERE, "app", "manifest.webmanifest"), mimetype="application/manifest+json")
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
+    @app.get("/sw.js")
+    def service_worker():
+        r = send_file(os.path.join(HERE, "app", "sw.js"), mimetype="text/javascript")
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
+    @app.get("/iconos/<path:nombre>")
+    def iconos(nombre):
+        return send_from_directory(os.path.join(HERE, "app", "iconos"), nombre)
+
+    @app.get("/cuadro.jpg")
+    def cuadro():
+        """El ultimo cuadro analizado (con las marcas). La app lo pide seguido: en iPhone es
+        mas confiable que el video /video, que Safari a veces deja congelado."""
+        despues = request.args.get("despues", default=0, type=int)
+        # crudo=1: la imagen tal cual la mando el celular (mas nitida) y lo detectado en la cabecera X-Info.
+        # Si no hay (camara IP con --fuente), se manda la de siempre con las marcas dibujadas.
+        crudo = request.args.get("crudo") == "1" and b.crudo is not None
+        if not crudo:
+            b.pide_anotado_t = time.time()
+        actual = (lambda: b.crudo_n) if crudo else (lambda: b.ultimo_n)
+        with b.hay_cuadro:
+            # espera (max 1.5 s) a que haya un cuadro mas nuevo que el que ya tiene la app:
+            # asi cada pedido trae una imagen nueva en vez de repetir la misma
+            if (b.crudo if crudo else b.ultimo_jpg) is not None and actual() <= despues:
+                b.hay_cuadro.wait_for(lambda: actual() > despues, timeout=1.5)
+            if crudo:
+                jpg, n, info = b.crudo, b.crudo_n, b.crudo_info
+            else:
+                jpg, n, info = b.ultimo_jpg, b.ultimo_n, None
+        if jpg is None:
+            return ("", 204)
+        cab = {"Cache-Control": "no-store", "X-Cuadro": str(n)}
+        if info is not None:
+            cab["X-Info"] = json.dumps(info)
+        return Response(jpg, mimetype="image/jpeg", headers=cab)
+
+    @app.get("/certificado.cer")
+    def certificado():
+        return _respuesta_certificado()
+
+    @app.get("/marcas")
+    def marcas():
+        """Solo lo detectado (sin imagen): cuando el video va por WebRTC, el panel ya tiene la imagen."""
+        despues = request.args.get("despues", default=0, type=int)
+        with b.hay_cuadro:
+            if b.crudo_n <= despues:
+                b.hay_cuadro.wait_for(lambda: b.crudo_n > despues, timeout=1.5)
+            n, info = b.crudo_n, b.crudo_info
+        return jsonify(n=n, info=info)
+
+    # ---------------- WebRTC: el PC solo presenta; el video va directo del celular al panel
+    cartero = CarteroRTC()
+
+    @app.get("/rtc.js")
+    def rtc_js():
+        r = send_file(os.path.join(HERE, "app", "rtc.js"), mimetype="text/javascript")
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
+    def _id(d, campo="yo"):
+        v = str((d or {}).get(campo) or "")
+        return v if _ID_OK.match(v) else None
+
+    @app.post("/rtc/emisor")
+    def rtc_emisor():
+        yo = _id(request.get_json(silent=True))
+        if not yo:
+            return jsonify(ok=False), 400
+        cartero.registrar_emisor(yo)
+        return jsonify(ok=True)
+
+    @app.post("/rtc/pedir")
+    def rtc_pedir():
+        yo = _id(request.get_json(silent=True))
+        if not yo:
+            return jsonify(ok=False), 400
+        if not cartero.emisor_vivo():
+            return jsonify(ok=False, msg="No hay celular transmitiendo.")
+        with cartero.cv:
+            cartero.buzones[yo] = []          # empieza limpio (sin ofertas viejas)
+            cartero.visto[yo] = time.time()
+        cartero.poner(cartero.emisor, {"tipo": "visor", "de": yo})
+        return jsonify(ok=True)
+
+    @app.post("/rtc/enviar")
+    def rtc_enviar():
+        d = request.get_json(silent=True) or {}
+        para, de = _id(d, "para"), _id(d, "de")
+        tipo, sdp = d.get("tipo"), d.get("sdp")
+        if not para or not de or tipo not in ("offer", "answer") or not isinstance(sdp, str) or len(sdp) > 20000:
+            return jsonify(ok=False), 400
+        cartero.poner(para, {"tipo": tipo, "de": de, "sdp": sdp})
+        return jsonify(ok=True)
+
+    @app.get("/rtc/buzon")
+    def rtc_buzon():
+        yo = _id(request.args)
+        if not yo:
+            return jsonify(mensajes=[]), 400
+        return jsonify(mensajes=cartero.recoger(yo))
+
     @app.post("/frame")
     def frame():
         t_llegada = time.perf_counter()
+        cam, seq = request.headers.get("X-Cam"), request.headers.get("X-Seq", type=int)
+        if cam and seq is not None:
+            with b.lock:
+                if cam == b.cam_id and seq <= b.cam_seq:
+                    # llego despues de uno mas nuevo (por internet pasa): no se analiza para no ir hacia atras
+                    return jsonify(evento=b.ev, modo=b.modo, descartado=True, proc_ms=0.0)
+                b.cam_id, b.cam_seq = cam, seq
         img = cv2.imdecode(np.frombuffer(request.get_data(), np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             return jsonify(error="cuadro invalido"), 400
         r = b.procesar(img, t_llegada, request.headers.get("X-Net-Ms", type=float))
+        with b.hay_cuadro:
+            b.crudo = request.get_data()
+            b.crudo_n = b.cuadros
+            b.crudo_info = {"cajas": r.get("cajas", []), "evento": r.get("evento"), "accion": r.get("accion"),
+                            "modo": r.get("modo")}
+            b.hay_cuadro.notify_all()
         r["proc_ms"] = round((time.perf_counter() - t_llegada) * 1000, 1)
         return jsonify(r)
 
@@ -547,6 +811,7 @@ def crear_app(b):
         def generar():
             ultimo = None
             while True:
+                b.pide_anotado_t = time.time()
                 jpg = b.ultimo_jpg
                 if jpg is not None and jpg is not ultimo:
                     ultimo = jpg
@@ -643,17 +908,66 @@ def ip_local():
         return "IP-DE-TU-PC"
 
 
+def _respuesta_certificado():
+    import certificados
+    certificados.preparar(ip_local())
+    return Response(certificados.ca_der(), mimetype="application/x-x509-ca-cert",
+                    headers={"Content-Disposition": 'attachment; filename="Arche_perro.cer"'})
+
+
+def crear_app_instalar(puerto_https):
+    """Pagina SIN https (puerto + 1) solo para instalar el certificado en el iPhone.
+    No tiene ningun control del robot."""
+    inst = Flask("banco_instalar")
+
+    @inst.get("/")
+    def pagina():
+        with open(os.path.join(HERE, "app", "instalar.html"), "r", encoding="utf-8") as f:
+            html = f.read()
+        url_app = f"https://{request.host.split(':')[0]}:{puerto_https}/app"
+        return html.replace("{{URL_APP}}", url_app)
+
+    @inst.get("/certificado.cer")
+    def certificado():
+        return _respuesta_certificado()
+
+    @inst.get("/iconos/<path:nombre>")
+    def iconos(nombre):
+        return send_from_directory(os.path.join(HERE, "app", "iconos"), nombre)
+
+    return inst
+
+
+def _servir_instalar(puerto_https):
+    from werkzeug.serving import make_server
+    try:
+        srv = make_server("0.0.0.0", puerto_https + 1, crear_app_instalar(puerto_https), threaded=True)
+    except OSError as e:
+        print(f"Banco: no pude abrir la pagina de instalacion en el puerto {puerto_https + 1} ({e}).")
+        return
+    srv.serve_forever()
+
+
+def contexto_https():
+    """Certificado propio (el que el iPhone puede instalar y confiar). Si algo falla, el de siempre."""
+    try:
+        import certificados
+        return certificados.contexto_ssl(ip_local())
+    except ImportError:
+        print("Banco: sin 'cryptography' no hay HTTPS y el celular no abrira la camara desde el navegador. "
+              "Instala: pip install cryptography (o usa --fuente con una app de camara IP).")
+        return None
+    except Exception as e:
+        print(f"Banco: no pude crear el certificado propio ({e}); uso uno temporal (la app de iPhone no se podra instalar).")
+        return "adhoc"
+
+
 def servir(b, puerto=PUERTO, https=True):
     logging.getLogger("werkzeug").setLevel(logging.ERROR)
     app = crear_app(b)
-    ctx = None
-    if https:
-        try:
-            import cryptography  # noqa: F401
-            ctx = "adhoc"
-        except ImportError:
-            print("Banco: sin 'cryptography' no hay HTTPS y el celular no abrira la camara desde el navegador. "
-                  "Instala: pip install cryptography (o usa --fuente con una app de camara IP).")
+    ctx = contexto_https() if https else None
+    if ctx is not None:
+        threading.Thread(target=_servir_instalar, args=(puerto,), daemon=True, name="banco-instalar").start()
     app.run(host="0.0.0.0", port=puerto, ssl_context=ctx, threaded=True, use_reloader=False)
 
 
@@ -684,11 +998,110 @@ def iniciar(puerto=PUERTO, https=True, fuente=None):
     return _url_base
 
 
+# ------------------------------------------------------- tunel publico (cloudflared)
+_tunel = None
+_url_tunel = None
+
+
+def _buscar_cloudflared():
+    exe = shutil.which("cloudflared")
+    if exe:
+        return exe
+    for r in (r"C:\Program Files (x86)\cloudflared\cloudflared.exe", r"C:\Program Files\cloudflared\cloudflared.exe",
+              os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\WinGet\Links\cloudflared.exe")):
+        if os.path.exists(r):
+            return r
+    return None
+
+
+def iniciar_tunel(puerto=PUERTO, https=True, esperar=25.0):
+    """Abre un tunel de Cloudflare hacia el banco. Devuelve (url | None, mensaje)."""
+    global _tunel, _url_tunel
+    if _tunel is not None and _tunel.poll() is None and _url_tunel:
+        return _url_tunel, "ya estaba abierto"
+    exe = _buscar_cloudflared()
+    if not exe:
+        return None, ("No encontré 'cloudflared'. Instálalo con: winget install --id Cloudflare.cloudflared "
+                      "y vuelve a abrir Arché.")
+    origen = f"https://127.0.0.1:{puerto}" if https else f"http://127.0.0.1:{puerto}"
+    args = [exe, "tunnel", "--no-autoupdate", "--url", origen]
+    if https:
+        args.append("--no-tls-verify")       # el certificado del banco es propio; el tramo PC->cloudflared es local
+    _url_tunel = None
+    try:
+        _tunel = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+                                  creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    except OSError as e:
+        _tunel = None
+        return None, f"No pude abrir cloudflared ({e})."
+
+    def _leer():
+        global _url_tunel
+        for linea in _tunel.stderr:
+            m = re.search(r"https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com", linea)   # "api." sale en los errores
+            if m and not _url_tunel:
+                _url_tunel = m.group(0)
+    threading.Thread(target=_leer, name="tunel-perro", daemon=True).start()
+
+    fin = time.time() + esperar
+    while time.time() < fin and not _url_tunel and _tunel.poll() is None:
+        time.sleep(0.2)
+    if not _url_tunel:
+        cerrar_tunel()
+        return None, "cloudflared no me dio una dirección a tiempo. Revisa tu internet e inténtalo otra vez."
+    return _url_tunel, "abierto"
+
+
+def cerrar_tunel():
+    global _tunel, _url_tunel
+    if _tunel is not None:
+        try:
+            _tunel.terminate()
+        except Exception:
+            pass
+    _tunel, _url_tunel = None, None
+
+
+atexit.register(cerrar_tunel)
+
+
+def _ip_tailscale():
+    try:
+        import certificados
+        return certificados.ip_tailscale()
+    except Exception:
+        return None
+
+
+def _url_tailscale_publicada(puerto=PUERTO):
+    try:
+        import tailscale_perro
+        if tailscale_perro.esta_publicado(puerto):
+            return tailscale_perro.url()
+    except Exception:
+        pass
+    return None
+
+
+def _url_instalar(puerto=PUERTO):
+    return f"http://{ip_local()}:{puerto + 1}"
+
+
 # OJO: "estado del banco" a secas ya es un comando de Arche (banco de entrenamiento), por eso aqui
 # siempre se exige "de pruebas".
 _RE_ABRIR = re.compile(r"^(?:abre|activa|enciende|inicia|arranca)(?: el)? banco de pruebas$|^banco de pruebas$")
 _RE_PARO = re.compile(r"^(?:apaga|para|detiene|desactiva)(?: el)? banco de pruebas$|^paro del banco de pruebas$")
 _RE_ESTADO = re.compile(r"^estado del banco de pruebas$")
+_RE_TUNEL_ABRIR = re.compile(r"^(?:abre|activa|enciende|inicia|arranca)(?: el)? (?:tunel|acceso por internet) del "
+                             r"(?:perro|banco de pruebas)$|^banco de pruebas por internet$")
+_RE_TUNEL_CERRAR = re.compile(r"^(?:cierra|apaga|desactiva|deten|detiene|quita)(?: el)? (?:tunel|acceso por internet) "
+                              r"del (?:perro|banco de pruebas)$")
+_RE_TS_ABRIR = re.compile(r"^(?:abre|activa|publica|pon|enciende)(?: el)? (?:perro|banco de pruebas) (?:en|por) tailscale$|"
+                          r"^(?:activa|enciende)(?: el)? tailscale del (?:perro|banco de pruebas)$|^banco de pruebas por tailscale$")
+_RE_TS_QUITAR = re.compile(r"^(?:quita|apaga|desactiva|cierra)(?: el)? (?:perro|banco de pruebas) (?:de|en|por) tailscale$|"
+                           r"^(?:quita|apaga|desactiva)(?: el)? tailscale del (?:perro|banco de pruebas)$")
+_RE_CLAVE_VER = re.compile(r"^(?:cual es |dime |muestrame )?(?:la )?clave del (?:perro|banco de pruebas)$")
+_RE_CLAVE_NUEVA = re.compile(r"^(?:cambia|renueva|nueva|genera)(?: una)?(?: nueva)?(?: la)? clave del (?:perro|banco de pruebas)$")
 _RE_EMERGENCIA = re.compile(r"^(?:parada de emergencia|emergencia|alto total|detente todo|detener robot|para el robot)$")
 
 
@@ -704,8 +1117,43 @@ def manejar(frase):
     try:
         if _RE_ABRIR.match(t):
             url = iniciar()
-            return (f"Banco de pruebas listo. Panel en el PC: {url}/  |  Ojos en el celular: {url}/camara  "
-                    "(acepta el aviso del certificado). Arranca en PARO: elige Manual o Perro en el panel.")
+            texto = (f"Banco de pruebas listo. Panel en el PC: {url}/  |  App del iPhone en la misma WiFi: {url}/app  "
+                     f"(la primera vez, instala el certificado desde {_url_instalar()} en Safari).")
+            url_ts = _url_tailscale_publicada()
+            if url_ts:
+                texto += f"  |  Por Tailscale (dirección fija, desde cualquier red): {url_ts}/app"
+            elif _ip_tailscale():
+                texto += "  |  Para usarlo por Tailscale con dirección fija di: abre el perro en tailscale"
+            return texto + "  |  Arranca en PARO: elige Manual o Perro."
+        if _RE_TS_ABRIR.match(t):
+            iniciar()
+            import tailscale_perro
+            url_ts, estado = tailscale_perro.publicar(PUERTO)
+            if not url_ts:
+                return "No pude publicar el banco en Tailscale. " + estado
+            return (f"Listo, el banco está en Tailscale: {url_ts}/app  |  Ábrela en Safari del iPhone con Tailscale "
+                    "encendido y agrégala a la pantalla de inicio. Esa dirección no cambia y no hace falta clave "
+                    "ni instalar certificado. Tailscale la recuerda aunque reinicies el PC.")
+        if _RE_TS_QUITAR.match(t):
+            import tailscale_perro
+            ok, salida = tailscale_perro.quitar()
+            return "Quité el banco de Tailscale." if ok else f"No pude quitarlo de Tailscale ({salida})."
+        if _RE_TUNEL_ABRIR.match(t):
+            iniciar()
+            url, estado = iniciar_tunel()
+            if not url:
+                return "No pude abrir el acceso por internet. " + estado
+            return (f"Acceso por internet listo. App: {url}/app  |  Clave: {acceso.clave_bonita()}  |  "
+                    "No hace falta instalar certificado. Esa dirección cambia cada vez que abres el túnel. "
+                    "Cuando termines di: cierra el tunel del perro.")
+        if _RE_TUNEL_CERRAR.match(t):
+            cerrar_tunel()
+            return "Acceso por internet cerrado. El banco sigue funcionando en tu WiFi y por Tailscale."
+        if _RE_CLAVE_VER.match(t):
+            return f"La clave del banco de pruebas es {acceso.clave_bonita()}."
+        if _RE_CLAVE_NUEVA.match(t):
+            return (f"Clave nueva: {acceso.cambiar_clave()}. Todos los que habían entrado por internet "
+                    "tienen que volver a escribirla.")
         if _RE_PARO.match(t):
             if _banco is None:
                 return "El banco de pruebas no esta activo."
@@ -728,6 +1176,7 @@ if __name__ == "__main__":
     ap.add_argument("--puerto", type=int, default=PUERTO)
     ap.add_argument("--http", action="store_true", help="sin HTTPS (solo sirve con --fuente)")
     ap.add_argument("--fuente", help="URL de un stream de camara IP, ej. http://192.168.1.50:8080/video")
+    ap.add_argument("--tunel", action="store_true", help="abre tambien un tunel de internet con cloudflared (pide clave)")
     a = ap.parse_args()
     b = obtener_banco()
     esquema = "http" if a.http else "https"
@@ -736,7 +1185,19 @@ if __name__ == "__main__":
     if a.fuente:
         print(f"Video: leyendo {a.fuente}")
     else:
-        print(f"Ojos (celular):  {esquema}://{ip}:{a.puerto}/camara   <- acepta el aviso de certificado")
+        print(f"Ojos (celular):  {esquema}://{ip}:{a.puerto}/camara")
+    if not a.http:
+        print(f"App iPhone:      {esquema}://{ip}:{a.puerto}/app")
+        print(f"Instalar (1a vez, en Safari del iPhone):  {_url_instalar(a.puerto)}")
+        url_ts = _url_tailscale_publicada(a.puerto)
+        if url_ts:
+            print(f"Por Tailscale:   {url_ts}/app   (direccion fija)")
+    if a.tunel:
+        def _avisar_tunel():
+            time.sleep(2)
+            url, estado = iniciar_tunel(a.puerto, https=not a.http)
+            print(f"Internet:        {url}/app   clave {acceso.clave_bonita()}" if url else f"Tunel: {estado}")
+        threading.Thread(target=_avisar_tunel, daemon=True).start()
     print("El banco arranca en PARO. Ctrl+C para salir.\n")
     if a.fuente:
         threading.Thread(target=leer_fuente, args=(b, a.fuente), daemon=True).start()
@@ -745,4 +1206,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
+        cerrar_tunel()
         b.cerrar()

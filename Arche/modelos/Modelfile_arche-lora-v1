@@ -1,0 +1,8 @@
+FROM C:\Users\danif\Downloads\proyectos\Arché\Arche\modelos\arche-lora-v1.gguf
+
+PARAMETER temperature 0.7
+PARAMETER num_predict 300
+
+SYSTEM """
+Eres Arche, un asistente inteligente. Responde de forma clara, precisa y util.
+"""

@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Ghost Gambit</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --fondo:#0b0816; --panel:rgba(26,20,48,.92); --borde:#3a2d66;
+    --morado:#8b6cf0; --cian:#3fd6f0; --texto:#f2eefc; --suave:#a99ccf;
+    --verde:#45e0a0; --rojo:#ff4d73; --amarillo:#ffd36b; --rosa:#ff2d78; --oro:#ffc83d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:100%;height:100%;background:var(--fondo);overflow:hidden}
+  #lienzo{
+    position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0;overflow:hidden;
+    font-family:Inter,system-ui,sans-serif;color:var(--texto);
+    background:
+      radial-gradient(900px 700px at 15% 8%, #2c1a63 0%, transparent 60%),
+      radial-gradient(900px 800px at 100% 95%, #0f3a4a 0%, transparent 60%),
+      var(--fondo);
+  }
+  #lienzo::before{content:"";position:absolute;inset:0;opacity:.05;
+    background-image:conic-gradient(#fff 25%,transparent 0 50%,#fff 0 75%,transparent 0);background-size:120px 120px}
+  .oculto{display:none !important}
+  .abs{position:absolute;left:40px;right:40px}
+  .tarjeta{background:var(--panel);border:2px solid var(--borde);border-radius:26px}
+  .num{font-family:"Space Grotesk",sans-serif;font-weight:700}
+
+  /* ===== 1. Reglas (acción = efecto) ===== */
+  #reglas{top:200px;padding:14px 30px;display:flex;flex-direction:column;gap:2px;
+          border-color:var(--rosa);box-shadow:0 0 40px rgba(255,45,120,.25)}
+  .regla{display:flex;align-items:center;gap:16px;font-size:38px;font-weight:900;letter-spacing:.5px;line-height:1.3;white-space:nowrap;
+         text-transform:uppercase;text-shadow:0 3px 0 rgba(0,0,0,.6)}
+  .regla .ic{width:52px;text-align:center;font-size:38px}
+  .regla .ac{color:var(--amarillo)}
+  .regla .eq{color:var(--suave)}
+  .regla .ef{color:#fff}
+  .regla.fuerte .ef{color:var(--cian)}
+
+  /* ===== 2. Fila: personaje · votación · ranking ===== */
+  #fila{top:440px;height:245px;display:grid;grid-template-columns:270px 1fr 290px;gap:18px}
+  .personaje{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px}
+  .personaje img{width:104px;height:104px;border-radius:50%;object-fit:cover;
+                 box-shadow:0 0 0 4px var(--morado),0 0 34px var(--cian)}
+  .personaje .nom{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:34px;letter-spacing:3px;
+                  background:linear-gradient(90deg,#b8a4ff,var(--cian));-webkit-background-clip:text;color:transparent}
+  .marcador{display:flex;align-items:center;gap:14px;font-size:22px;color:var(--suave);font-weight:800}
+  .marcador b{font-size:46px;line-height:1}
+  .marcador .c b{color:var(--rosa)} .marcador .g b{color:var(--cian)}
+
+  .votacion{display:flex;gap:16px;align-items:center;padding:16px}
+  .reloj{flex:none;width:132px;height:132px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+         background:conic-gradient(var(--amarillo) calc(var(--p,0)*360deg), #2a2150 0);position:relative}
+  .reloj::before{content:"";position:absolute;inset:11px;border-radius:50%;background:#160f2c}
+  .reloj b{position:relative;font-family:"Space Grotesk",sans-serif;font-size:54px;line-height:1}
+  .reloj small{position:relative;font-size:17px;color:var(--suave);font-weight:800;letter-spacing:1px}
+  .reloj.urgente b{color:var(--rojo);animation:latido .5s infinite}
+  @keyframes latido{50%{opacity:.3}}
+  .votos{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0}
+  .votos .tit{font-size:20px;font-weight:900;letter-spacing:1px;display:flex;justify-content:space-between;white-space:nowrap;gap:8px}
+  .votos .tit span{color:var(--suave);font-weight:700}
+  .fila-voto{position:relative;height:46px;border-radius:12px;background:#120d22;overflow:hidden;display:flex;align-items:center;padding:0 14px}
+  .fila-voto .relleno{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--rosa),#ff7aa8);transition:width .4s}
+  .fila-voto b,.fila-voto em{position:relative;font-size:28px}
+  .fila-voto b{font-family:"Space Grotesk",sans-serif;flex:1}
+  .fila-voto em{font-style:normal;font-weight:900}
+  .votos .espera{font-size:22px;color:var(--suave);line-height:1.4}
+  .votos .espera b{color:#fff}
+
+  .ranking{padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .ranking .tit{font-size:20px;font-weight:900;letter-spacing:1px;color:var(--oro)}
+  .puesto{display:flex;align-items:center;gap:10px;font-size:23px;font-weight:800}
+  .puesto .med{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:18px;color:#1a1430}
+  .puesto:nth-child(1) .med{background:var(--oro);box-shadow:0 0 14px var(--oro)}
+  .puesto:nth-child(2) .med{background:#d6dbe8} .puesto:nth-child(3) .med{background:#e0a36a}
+  .puesto .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .puesto .p{color:var(--rosa);font-size:20px}
+  .mejor{margin-top:auto;border-top:1px solid var(--borde);padding-top:8px;font-size:17px;color:var(--suave);font-weight:700}
+  .mejor b{display:block;color:var(--amarillo);font-size:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ===== 3. Tablero ===== */
+  #tablero{top:702px;left:170px;width:740px;height:740px;border-radius:20px;overflow:hidden;
+           box-shadow:0 0 0 3px var(--borde),0 20px 60px rgba(0,0,0,.6)}
+  #tablero svg{width:100%;height:100%;display:block}
+
+  /* ===== 4. Metas ===== */
+  #metas{top:1460px;display:grid;grid-template-columns:1fr 300px;gap:18px}
+  .meta{padding:14px 20px}
+  .meta .tit{display:flex;justify-content:space-between;align-items:baseline;font-weight:900;font-size:26px;letter-spacing:1px}
+  .meta .tit span{font-size:20px;color:var(--suave);font-weight:700}
+  .meta .tit .rojo{color:var(--rosa)}
+  .pista{margin-top:10px;height:40px;border-radius:20px;background:#120d22;border:2px solid var(--borde);overflow:hidden;position:relative}
+  .pista div{height:100%;background:linear-gradient(90deg,var(--rosa),var(--amarillo));transition:width .4s}
+  .pista em{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:900;font-size:22px;text-shadow:0 2px 4px #000}
+  .meta .pie{display:flex;justify-content:space-between;margin-top:8px;font-size:19px;color:var(--suave);font-weight:700}
+  .meta .pie b{color:var(--rosa)}
+  .seg .pista div{background:linear-gradient(90deg,var(--morado),var(--cian))}
+
+  /* ===== 5. Ghost dice ===== */
+  #dice{top:1630px;padding:14px 22px;min-height:96px;display:flex;gap:16px;align-items:center}
+  #dice img{width:58px;height:58px;border-radius:50%;flex:none}
+  #pensamiento{font-size:28px;line-height:1.25;font-weight:700}
+
+  /* ===== Avisos animados ===== */
+  #alerta{position:absolute;left:110px;right:110px;top:900px;padding:30px;border-radius:30px;text-align:center;
+          background:rgba(11,8,22,.94);border:5px solid var(--amarillo);box-shadow:0 0 80px rgba(255,211,107,.5)}
+  #alerta .t{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:92px;line-height:1.05}
+  #alerta .x{font-size:36px;font-weight:800;color:var(--suave);margin-top:10px}
+  #alerta.deshacer{border-color:var(--cian);box-shadow:0 0 90px rgba(63,214,240,.6)} #alerta.deshacer .t{color:var(--cian)}
+  #alerta.regalo{border-color:var(--rosa)} #alerta.regalo .t{color:var(--rosa)}
+  #alerta.seguir{border-color:var(--verde)} #alerta.seguir .t{color:var(--verde)}
+  #alerta.meta .t{color:var(--amarillo)}
+  .entra{animation:entra .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes entra{from{transform:scale(.4) rotate(-6deg);opacity:0}}
+  #final{position:absolute;left:110px;right:110px;top:1000px;padding:40px;border-radius:30px;text-align:center;
+         background:rgba(11,8,22,.94);border:5px solid var(--amarillo);font-family:"Space Grotesk",sans-serif;font-size:88px;font-weight:700}
+
+  /* ===== Modo Lichess (pantalla simple) ===== */
+  #lichess{position:absolute;inset:0;padding:70px 60px;display:flex;flex-direction:column;gap:26px}
+  #lichess .logo{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:84px;letter-spacing:4px;
+        background:linear-gradient(90deg,var(--morado),var(--cian));-webkit-background-clip:text;color:transparent}
+  #lichess .rival{display:flex;justify-content:space-between;padding:20px 28px;font-size:36px}
+  #lichess .rival .elo{color:var(--amarillo)}
+  #tableroL{width:960px;height:960px;border-radius:20px;overflow:hidden}
+  #tableroL svg{width:100%;height:100%}
+  #lichess .stats{display:flex;gap:20px}
+  #lichess .stat{flex:1;text-align:center;padding:16px}
+  #lichess .stat b{display:block;font-size:60px}
+  #lichess .stat small{font-size:24px;color:var(--suave)}
+  #pensamientoL{font-size:40px;padding:24px 30px}
+
+  /* ===== Diseño HORIZONTAL (Twitch / OBS 1920x1080): se activa solo si la pantalla es ancha ===== */
+  body.horizontal #lienzo{width:1920px;height:1080px}
+  body.horizontal .abs{right:auto}
+  body.horizontal #reglas{top:50px;left:30px;width:500px;padding:14px 18px}
+  body.horizontal .regla{font-size:21px;gap:8px}
+  body.horizontal .regla .ic{width:30px;font-size:22px}
+  body.horizontal #fila{top:330px;left:40px;width:470px;height:auto;display:flex;flex-direction:column;gap:18px}
+  body.horizontal .personaje{flex-direction:row;justify-content:space-around;padding:16px}
+  body.horizontal .votacion{height:260px}
+  body.horizontal .ranking{position:absolute;left:1370px;top:-280px;width:470px;height:310px}
+  body.horizontal #tablero{top:90px;left:550px;width:800px;height:800px}
+  body.horizontal #metas{top:390px;left:1410px;width:470px;grid-template-columns:1fr !important}
+  body.horizontal #dice{top:560px;left:1410px;width:470px}
+  body.horizontal #alerta{left:580px;right:auto;width:740px;top:380px}
+  body.horizontal #alerta .t{font-size:76px}
+  body.horizontal #final{left:580px;right:auto;width:740px;top:420px;font-size:70px}
+  body.horizontal #lichess{flex-direction:row;flex-wrap:wrap;align-content:flex-start}
+</style>
+</head>
+<body>
+<div id="lienzo">
+
+  <!-- =================== MODO INTERACTIVO (TikTok / Twitch) =================== -->
+  <div id="interactivo">
+    <div id="reglas" class="abs tarjeta"></div>
+
+    <div id="fila" class="abs">
+      <div class="tarjeta personaje">
+        <img src="/personaje.png" alt="">
+        <div class="nom nombre">GHOST</div>
+        <div class="marcador">
+          <div class="c">CHAT<br><b id="ganaTk">0</b></div>
+          <div>VS</div>
+          <div class="g"><span class="nombre">GHOST</span><br><b id="ganaAr">0</b></div>
+        </div>
+      </div>
+
+      <div class="tarjeta votacion">
+        <div class="reloj" id="reloj"><b id="segundos">–</b><small id="relojTxt">ESPERA</small></div>
+        <div class="votos">
+          <div class="tit">💬 VOTOS <span id="votantes">0</span></div>
+          <div id="filas"></div>
+          <div class="espera" id="ayuda">Escribe tu jugada:<br><b>e4 · Cf3 · e2e4 · enroque</b></div>
+        </div>
+      </div>
+
+      <div class="tarjeta ranking">
+        <div class="tit">🏆 TOP APOYO</div>
+        <div id="puestos"></div>
+        <div class="mejor" id="mejor">MEJOR REGALO<b>—</b></div>
+      </div>
+    </div>
+
+    <div id="tablero" class="abs"></div>
+
+    <div id="metas" class="abs">
+      <div class="tarjeta meta">
+        <div class="tit"><span class="rojo" id="metaTit">❤️ META DE LIKES</span><span id="metaVeces"></span></div>
+        <div class="pista"><div id="metaBar" style="width:0%"></div><em id="metaTxt">0 / 300</em></div>
+        <div class="pie"><span id="metaFalta">faltan 300</span><b>→ <span class="nombre-normal">Ghost</span> se distrae</b></div>
+      </div>
+      <div class="tarjeta meta seg" id="metaSeg">
+        <div class="tit" style="font-size:22px">➕ SEGUIDORES <span>HOY</span></div>
+        <div class="pista"><div id="segBar" style="width:0%"></div><em id="segTxt">0 / 20</em></div>
+        <div class="pie"><span>¡Síguelo!</span></div>
+      </div>
+    </div>
+
+    <div id="dice" class="abs tarjeta">
+      <img src="/personaje.png" alt="">
+      <div id="pensamiento">…</div>
+    </div>
+
+    <div id="alerta" class="oculto"><div class="t" id="alertaT"></div><div class="x" id="alertaX"></div></div>
+    <div id="final" class="oculto"></div>
+  </div>
+
+  <!-- =================== MODO LICHESS =================== -->
+  <div id="lichess" class="oculto">
+    <div class="logo nombre">GHOST</div>
+    <div class="rival tarjeta"><div>VS <b id="rival">Esperando rival</b> <span class="elo" id="elo"></span></div><div id="estado"></div></div>
+    <div id="tableroL"></div>
+    <div id="pensamientoL" class="tarjeta">…</div>
+    <div class="stats">
+      <div class="stat tarjeta"><b id="victorias" style="color:var(--verde)">0</b><small>VICTORIAS</small></div>
+      <div class="stat tarjeta"><b id="derrotas" style="color:var(--rojo)">0</b><small>DERROTAS</small></div>
+      <div class="stat tarjeta"><b id="tablas" style="color:var(--amarillo)">0</b><small>TABLAS</small></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const lienzo = document.getElementById("lienzo");
+  function escalar(){
+    const horizontal = innerWidth / innerHeight > 1.2;      // OBS 1920x1080 (Twitch) -> horizontal
+    document.body.classList.toggle("horizontal", horizontal);
+    const W = horizontal ? 1920 : 1080, H = horizontal ? 1080 : 1920;
+    const e = Math.min(innerWidth/W, innerHeight/H);
+    lienzo.style.transform = `scale(${e})`;
+    lienzo.style.left = ((innerWidth - W*e)/2) + "px";
+  }
+  addEventListener("resize", escalar); escalar();
+
+  const $ = id => document.getElementById(id);
+  const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const miles = n => Number(n || 0).toLocaleString("es-CO");
+  let version = -1, tableroPrevio = "", textoPrevio = "", ultimo = null, alertaId = 0, alertaTimer = null;
+
+  function escribir(texto, el){
+    textoPrevio = texto; el.textContent = "";
+    let i = 0;
+    const paso = () => { if (texto !== textoPrevio) return;
+      el.textContent = texto.slice(0, ++i); if (i < texto.length) setTimeout(paso, 20); };
+    paso();
+  }
+
+  function reloj(){
+    if (!ultimo) return;
+    const r = $("reloj");
+    if (ultimo.fase === "votando"){
+      const total = ultimo.dur_votacion || 25000, falta = Math.max(0, ultimo.fin_votacion - Date.now());
+      $("segundos").textContent = Math.ceil(falta/1000);
+      $("relojTxt").textContent = "VOTA";
+      r.style.setProperty("--p", Math.min(1, falta/total));
+      r.classList.toggle("urgente", falta < 5000);
+    } else {
+      $("segundos").textContent = ultimo.fase === "arche" ? "🤔" : "–";
+      $("relojTxt").textContent = ultimo.fase === "arche" ? (ultimo.personaje || "GHOST").toUpperCase() : "ESPERA";
+      r.style.setProperty("--p", 0); r.classList.remove("urgente");
+    }
+  }
+  setInterval(reloj, 200);
+
+  function mostrarAlerta(a){
+    const el = $("alerta");
+    el.className = a.tipo || "";
+    $("alertaT").textContent = a.titulo || "";
+    $("alertaX").textContent = a.texto || "";
+    void el.offsetWidth; el.classList.add("entra");
+    clearTimeout(alertaTimer);
+    alertaTimer = setTimeout(() => el.classList.add("oculto"), a.tipo === "deshacer" ? 4500 : 2800);
+  }
+
+  async function actualizar(){
+    try{
+      const d = await (await fetch("/estado", {cache:"no-store"})).json();
+      if (d.version === version) return;
+      version = d.version; ultimo = d;
+      const interactivo = d.modo === "tiktok";
+      $("interactivo").classList.toggle("oculto", !interactivo);
+      $("lichess").classList.toggle("oculto", interactivo);
+
+      const nom = d.personaje || "Ghost";
+      document.querySelectorAll(".nombre").forEach(e => e.textContent = nom.toUpperCase());
+      document.querySelectorAll(".nombre-normal").forEach(e => e.textContent = nom);
+
+      if (!interactivo){
+        if (d.tablero !== tableroPrevio){ $("tableroL").innerHTML = d.tablero; tableroPrevio = d.tablero; }
+        if (d.pensamiento !== textoPrevio) escribir(d.pensamiento, $("pensamientoL"));
+        $("rival").textContent = d.rival || "Esperando rival";
+        $("elo").textContent = d.rival_rating ? `(${d.rival_rating})` : "";
+        $("estado").textContent = d.estado || "";
+        ["victorias","derrotas","tablas"].forEach(k => $(k).textContent = d[k]);
+        return;
+      }
+
+      if (d.tablero !== tableroPrevio){ $("tablero").innerHTML = d.tablero; tableroPrevio = d.tablero; }
+      if (d.pensamiento !== textoPrevio) escribir(d.pensamiento, $("pensamiento"));
+
+      // Reglas
+      $("reglas").innerHTML = (d.leyenda || []).map((r, i) =>
+        `<div class="regla${i === 3 ? " fuerte" : ""}"><span class="ic">${r.icono}</span><span class="ac">${esc(r.accion)}</span><span class="eq">=</span><span class="ef">${esc(r.efecto)}</span></div>`).join("");
+
+      // Marcador
+      $("ganaTk").textContent = d.gana_tiktok; $("ganaAr").textContent = d.gana_arche;
+
+      // Votos
+      $("votantes").textContent = `${d.votantes} ${d.votantes === 1 ? "votante" : "votantes"}`;
+      const max = Math.max(1, ...d.votos.map(v => v.n));
+      $("filas").innerHTML = d.votos.slice(0,3).map(v =>
+        `<div class="fila-voto"><div class="relleno" style="width:${v.n/max*100}%"></div><b>${esc(v.jugada)}</b><em>${v.n}</em></div>`).join("");
+      $("ayuda").classList.toggle("oculto", d.votos.length > 0);
+
+      // Ranking
+      const medallas = ["👑","2","3"];
+      $("puestos").innerHTML = (d.ranking || []).map((r, i) =>
+        `<div class="puesto"><span class="med">${medallas[i]}</span><span class="n">${esc(r.nombre)}</span><span class="p">${miles(r.puntos)}</span></div>`).join("")
+        || `<div class="puesto" style="color:var(--suave);font-size:19px">Vota, da likes o regalos para aparecer aquí</div>`;
+      $("mejor").innerHTML = "MEJOR REGALO" + (d.mejor_regalo
+        ? `<b>${esc(d.mejor_regalo.nombre)} · ${esc(d.mejor_regalo.regalo)}</b>` : "<b>—</b>");
+
+      // Meta de likes / mensajes
+      const twitch = d.plataforma === "Twitch";
+      $("metaTit").textContent = twitch ? "🔥 META DE MENSAJES" : "❤️ META DE LIKES";
+      const pct = Math.min(100, d.likes / Math.max(1, d.meta_likes) * 100);
+      $("metaBar").style.width = pct + "%";
+      $("metaTxt").textContent = `${miles(d.likes)} / ${miles(d.meta_likes)}`;
+      $("metaFalta").textContent = `faltan ${miles(Math.max(0, d.meta_likes - d.likes))}`;
+      $("metaVeces").textContent = d.veces_meta ? `lograda ${d.veces_meta}×` : "";
+
+      // Seguidores (TikTok)
+      $("metaSeg").classList.toggle("oculto", twitch);
+      $("metas").style.gridTemplateColumns = twitch ? "1fr" : "1fr 300px";
+      $("segBar").style.width = Math.min(100, d.seguidores_hoy / Math.max(1, d.meta_seguidores) * 100) + "%";
+      $("segTxt").textContent = `${d.seguidores_hoy} / ${d.meta_seguidores}`;
+
+      // Avisos
+      if (d.alerta && d.alerta.id && d.alerta.id !== alertaId){
+        const primera = alertaId === 0 && version <= 1;
+        alertaId = d.alerta.id;
+        if (!primera) mostrarAlerta(d.alerta);
+      }
+      const f = $("final");
+      if (d.fase === "final"){ f.textContent = d.estado; f.classList.remove("oculto"); }
+      else f.classList.add("oculto");
+    }catch(e){ /* el programa aún no está encendido */ }
+  }
+  setInterval(actualizar, 350); actualizar();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perro Arché</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/iconos/icono-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Perro">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#12171E">
+<style>
+  :root { color-scheme: dark; --fondo:#12171E; --capa:#1B222B; --txt:#EEF2F6; --sub:#93A1B0; --ambar:#F2B544; --rojo:#ff9b94; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--fondo); color:var(--txt); font:16px/1.45 -apple-system, system-ui, sans-serif;
+    padding:calc(env(safe-area-inset-top) + 3.5rem) 1.4rem 2rem; }
+  .caja { max-width:24rem; margin:0 auto; }
+  img { width:76px; height:76px; border-radius:17px; }
+  h1 { font:700 1.6rem/1.15 ui-rounded, -apple-system, system-ui, sans-serif; margin:1rem 0 .4rem; }
+  p { color:var(--sub); margin:.3rem 0 1.4rem; }
+  label { display:block; font-size:.9rem; color:var(--sub); margin-bottom:.4rem; }
+  input { width:100%; font:600 1.5rem/1 ui-monospace, "SF Mono", monospace; letter-spacing:.15em; text-transform:uppercase;
+    text-align:center; padding:.9rem; border-radius:12px; border:2px solid transparent; background:var(--capa); color:var(--txt); }
+  input:focus { outline:none; border-color:var(--ambar); }
+  button { width:100%; margin-top:.9rem; border:0; border-radius:12px; padding:.9rem; background:var(--ambar); color:#1b1306;
+    font:600 1.05rem -apple-system, system-ui, sans-serif; }
+  .error { color:var(--rojo); min-height:1.3em; font-size:.92rem; margin-top:.8rem; }
+  code { color:var(--txt); background:var(--capa); padding:.05rem .35rem; border-radius:5px; }
+</style>
+</head>
+<body>
+<div class="caja">
+  <img src="/iconos/icono-180.png" alt="">
+  <h1>Escribe la clave del banco</h1>
+  <p>Estás entrando por internet, así que el banco pide la clave antes de dejar ver o mover el perro. Para verla, dile a Arché en el PC <code>clave del perro</code>.</p>
+  <form method="post" action="/entrar">
+    <input type="hidden" name="siguiente" value="{{SIGUIENTE}}">
+    <label for="clave">Clave</label>
+    <input id="clave" name="clave" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"
+           maxlength="12" placeholder="XXXX-XXXX" required autofocus>
+    <button type="submit">Entrar</button>
+    <div class="error">{{ERROR}}</div>
+  </form>
+</div>
+</body>
+</html>
