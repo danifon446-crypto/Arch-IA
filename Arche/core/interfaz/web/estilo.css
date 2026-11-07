@@ -690,3 +690,10 @@ label.btn { cursor: pointer; }
 @media (max-height: 640px) { .rail-pie .rail-txt { display: none; } }
 [data-web_chat_diseno="libre"] .conversando .conv-herr { opacity: .55; }
 .conv-herr .ico-btn { width: 34px; height: 34px; }
+
+/* ---------- barra lateral «solo iconos»: esconder los nombres (antes quedaban cortados) ---------- */
+[data-web_lateral_compacta="si"] .rail { padding-left: 10px; padding-right: 10px; align-items: stretch; }
+[data-web_lateral_compacta="si"] .rail .rail-txt { display: none; }
+[data-web_lateral_compacta="si"] .rail button { justify-content: center; gap: 0; padding: 0; }
+[data-web_lateral_compacta="si"] .rail-marca canvas { width: 42px; height: 42px; }
+[data-web_lateral_compacta="si"] .insignia { top: 4px; left: auto; right: 6px; }

@@ -530,12 +530,20 @@ def fijar_arranque(activo):
         return True
     carpeta_arche = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     python = sys.executable or "python"
-    if os.path.basename(python).lower() == "pythonw.exe":
-        python = os.path.join(os.path.dirname(python), "python.exe")
+    # En segundo plano (arche_fondo.pyw) se usa pythonw: Arché arranca sin ventana de consola.
+    # Si ese archivo no existe, queda como antes: consola minimizada con main.py.
+    fondo = os.path.isfile(os.path.join(carpeta_arche, "arche_fondo.pyw"))
+    nombre = "pythonw.exe" if fondo else "python.exe"
+    if os.path.basename(python).lower() in ("python.exe", "pythonw.exe"):
+        python = os.path.join(os.path.dirname(python), nombre)
+    if fondo:
+        orden = f'start "" "{python}" arche_fondo.pyw\r\n'
+    else:
+        orden = f'start "Arche" /min "{python}" main.py\r\n'
     contenido = ("@echo off\r\n"
-                 "rem Lo creó Arché (control del celular). Bórralo para que no arranque solo.\r\n"
+                 "rem Lo creó Arché. Bórralo para que no arranque solo con Windows.\r\n"
                  f'cd /d "{carpeta_arche}"\r\n'
-                 f'start "Arche" /min "{python}" main.py\r\n')
+                 + orden)
     try:
         os.makedirs(os.path.dirname(ruta), exist_ok=True)
         with open(ruta, "w", encoding="mbcs" if sys.platform == "win32" else "utf-8") as fh:

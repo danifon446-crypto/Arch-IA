@@ -569,6 +569,51 @@ def ip_cliente(req):
         or req.remote_addr or "?"
 
 
+# Palabras -> reaccion. Se revisan en orden: la primera que aparezca gana.
+ORDENES = [
+    (("paro", "emergencia", "alto total"), "__paro"),
+    (("modo perro", "personalidad"), "__perro"),
+    (("modo manual", "manual"), "__manual"),
+    (("quieto", "quieta", "detente", "para ", "alto", "stop", "espera"), "quieto"),
+    (("sientate", "sentado", "sentar", "sit"), "sentarse"),
+    (("acuestate", "echate", "acostado", "duerme", "dormir"), "acostarse"),
+    (("parate", "levantate", "arriba", "de pie", "pararse"), "pararse"),
+    (("saluda", "saludo", "hola", "pata"), "saludar"),
+    (("cola", "menea"), "cola"),
+    (("ladra", "habla", "guau"), "ladrar"),
+    (("feliz", "contento", "baila", "alegre"), "feliz"),
+    (("enojado", "bravo", "furioso", "grr"), "enojado"),
+    (("asusta", "susto", "miedo"), "asustarse"),
+    (("corre", "rapido"), "correr"),
+    (("atras", "retrocede", "devuelvete", "reversa"), "retroceder"),
+    (("izquierda",), "izquierda"),
+    (("derecha",), "derecha"),
+    (("adelante", "avanza", "camina", "ven", "sigue"), "avanzar"),
+]
+
+
+def interpretar_orden(b, texto):
+    """(ok, mensaje, accion). Respeta el paro: si esta en paro no mueve nada."""
+    t = " " + ar._normalizar(str(texto or ""))[:200] + " "
+    if not t.strip():
+        return False, "Escribe o di una orden.", None
+    for palabras, accion in ORDENES:
+        if any((" " + p + " ") in t or (p.endswith(" ") and (" " + p) in t) or (len(p) > 4 and p in t) for p in palabras):
+            if accion == "__paro":
+                b.paro("Paro pedido por una orden.")
+                return True, "Paro: el robot está quieto.", "paro"
+            if accion in ("__perro", "__manual"):
+                ok, msg = b.set_modo(accion[2:])
+                return ok, msg, accion[2:]
+            if b.modo == "paro":
+                return False, "Está en paro: toca Manual (o Perro) para que obedezca.", accion
+            if b.modo == "perro" and accion != "quieto":
+                b.set_modo("manual")      # una orden directa toma el control: pasa a manual
+            ok, msg = b.probar(accion)
+            return ok, (f"Hecho: {accion}." if ok else msg), accion
+    return False, "No entendí la orden. Prueba con: siéntate, saluda, adelante, izquierda, quieto…", None
+
+
 class CarteroRTC:
     """Presenta al celular (emisor) con cada panel (visor) para que se pasen el video por WebRTC.
     Solo pasa mensajes cortos (ofertas/respuestas): el video NO pasa por aqui, va directo."""
@@ -735,6 +780,18 @@ def crear_app(b):
     # ---------------- WebRTC: el PC solo presenta; el video va directo del celular al panel
     cartero = CarteroRTC()
 
+    @app.get("/cara.js")
+    def cara_js():
+        r = send_file(os.path.join(HERE, "app", "cara.js"), mimetype="text/javascript")
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
+    @app.get("/control.js")
+    def control_js():
+        r = send_file(os.path.join(HERE, "app", "control.js"), mimetype="text/javascript")
+        r.headers["Cache-Control"] = "no-cache"
+        return r
+
     @app.get("/rtc.js")
     def rtc_js():
         r = send_file(os.path.join(HERE, "app", "rtc.js"), mimetype="text/javascript")
@@ -852,6 +909,12 @@ def crear_app(b):
     def probar():
         ok, msg = b.probar((request.get_json(silent=True) or {}).get("accion"))
         return jsonify(ok=ok, msg=msg)
+
+    @app.post("/api/orden")
+    def orden():
+        """Orden escrita o hablada desde el celular de control o el PC ("sientate", "ve a la izquierda")."""
+        ok, msg, accion = interpretar_orden(b, (request.get_json(silent=True) or {}).get("texto", ""))
+        return jsonify(ok=ok, msg=msg, accion=accion)
 
     @app.post("/api/recalibrar")
     def recalibrar():

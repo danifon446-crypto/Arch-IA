@@ -1499,7 +1499,10 @@ def _navegador_app(url):
     for exe in candidatos:
         if exe and os.path.isfile(exe):
             try:
-                subprocess.Popen([exe, f"--app={url}", "--window-size=1320,860"])
+                # perfil propio de Arché: si Edge/Chrome ya estaba abierto, sin esto ignora el tamaño pedido
+                perfil = os.path.join(os.path.expanduser("~"), ".arche_ventana")
+                subprocess.Popen([exe, f"--app={url}", "--window-size=1320,860", "--window-position=80,60",
+                                  f"--user-data-dir={perfil}", "--no-first-run"])
                 return True
             except Exception:
                 continue

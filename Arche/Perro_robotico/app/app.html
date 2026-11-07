@@ -168,7 +168,10 @@
     <button id="b-reanudar" class="boton primario ancho" style="display:none">Reanudar</button>
     <div id="msg"></div>
 
-    <h2>Probar una reacción</h2>
+    <h2>Control</h2>
+    <div class="grupo" style="padding:1rem"><div id="control"></div></div>
+
+    <h2>Más reacciones</h2>
     <div class="grupo">
       <div class="fila"><select id="sel-probar" aria-label="Reacción"></select><button id="b-probar" class="boton primario">Enviar</button></div>
     </div>
@@ -201,6 +204,8 @@
         <select id="cam-calidad"><option value="auto">Automática</option><option value="maxima">Máxima (1280 px)</option><option value="alta">Alta (640 px)</option><option value="normal">Normal (320 px, ahorra datos)</option></select></div>
     </div>
     <button id="b-cam" class="boton primario ancho">Iniciar cámara</button>
+    <button id="b-cara" class="boton ancho">Poner la cara del perro</button>
+    <p class="nota">La cara usa la cámara frontal: monta este celular al frente del perro con la pantalla hacia afuera. Los ojos miran a las personas y cambian con su ánimo. Para salir, mantén el dedo 2 segundos.</p>
     <div id="cam-msg" class="nota" style="color:var(--ambar)"></div>
     <p class="nota">Puedes cambiar de pestaña: la cámara sigue enviando. Si sales de la app o se bloquea la pantalla, el iPhone apaga la cámara y el robot entra en paro solo.</p>
   </section>
@@ -277,6 +282,8 @@
 </div>
 
 <script src="/rtc.js"></script>
+<script src="/cara.js"></script>
+<script src="/control.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
@@ -681,6 +688,15 @@ function ponerRemoto(stream) {
 $("rtcv").addEventListener("loadedmetadata", e => formaVista(e.target, e.target.videoWidth, e.target.videoHeight));
 
 $("b-cam").onclick = () => corriendo ? detenerCam() : iniciarCam();
+
+/* Modo cara: este celular va montado en el perro. Cámara frontal = ojos de verdad; la pantalla = la cara. */
+$("b-cara").onclick = async () => {
+  if ($("cam-lado").value !== "user") { $("cam-lado").value = "user"; if (corriendo) detenerCam(); }
+  if (!corriendo) await iniciarCam();
+  if (!corriendo) return;                            // no se pudo abrir la cámara: el aviso ya se muestra
+  Cara.abrir({estado: () => E, deteccion: () => ultimo, alCerrar: () => ir("ojos")});
+};
+Control.montar($("control"));
 $("cam-lado").onchange = () => { if (corriendo) { detenerCam(); iniciarCam(); } };
 
 document.addEventListener("visibilitychange", async () => {

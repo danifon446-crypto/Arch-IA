@@ -321,7 +321,8 @@ def _iniciar_tunel(puerto):
         return False
     try:
         _tunel = subprocess.Popen([exe, "tunnel", "--url", f"http://127.0.0.1:{puerto}"],
-                                  stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+                                  creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))   # sin ventana negra
     except Exception:
         _tunel = None
         return False
@@ -393,7 +394,12 @@ def detener(silencioso=False):
         _tunel = None
     _url_publica = None
     if not silencioso:
-        print("Arché: WhatsApp apagado.")
+        # si lo apagas tú, tampoco vuelve a arrancar solo al abrir Arché
+        cfg = _cargar()
+        if cfg.get("auto_inicio"):
+            cfg["auto_inicio"] = False
+            _guardar(cfg)
+        print("Arché: WhatsApp apagado (y ya no arranca solo).")
 
 
 def arrancar_si_corresponde():

@@ -88,6 +88,11 @@
   </div>
 
   <div class="card">
+    <h2>Control · flechas o W A S D para caminar, espacio = quieto</h2>
+    <div id="control"></div>
+  </div>
+
+  <div class="card">
     <h2>Calibración de la visión</h2>
     <div class="fila"><span class="sub" style="width:11rem">Color de la pelota</span><select id="c-color"></select></div>
     <div id="sliders"></div>
@@ -142,6 +147,7 @@
 </main>
 
 <script src="/rtc.js"></script>
+<script src="/control.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
@@ -333,6 +339,7 @@ if (window.RTC && RTC.disponible) {
   }, 1000);
 }
 
+Control.montar($("control"));
 setInterval(refrescar, 400);
 refrescar();
 </script>

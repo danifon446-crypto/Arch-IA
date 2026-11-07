@@ -33,6 +33,7 @@ from core import pc_avanzado                 # diagnóstico, limpieza, duplicado
 from core import interfaz as interfaz_arche  # la cara de Arché: paneles, ventana y modo TV
 from core.IA import cerebro as cerebro_nube  # internet (clima, noticias, investigar) y nube + Ollama
 from core.IA import aprender_de_nube         # aprende de la nube: intenciones y datos (en segundo plano)
+from core.IA import git_arche                # commits de mis cambios y «sube los cambios a github»
 from cerebroIA import *
 from core.IA.ollamaIA import conversar
 from core.IA.clasificador import info_modelo
@@ -646,7 +647,7 @@ while True:
     _resultado_modulo = None
     autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
     mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-    for _modulo in (memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche):
+    for _modulo in (memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche, git_arche):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break
