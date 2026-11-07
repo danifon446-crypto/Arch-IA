@@ -1,3 +1,4 @@
+# Ruta: Arche/core/instalador.py
 """
 instalador.py
 -------------
@@ -34,6 +35,7 @@ DEPENDENCIAS = {
     "edge_tts": "edge-tts",                           # voz natural de Arché (core/voz.py)
     "PIL": "pillow",                                  # esfera, fondos y mascota de la ventana (core/interfaz)
     "rich": "rich",                                   # paneles y colores de la consola (core/interfaz)
+    "pypdf": "pypdf",                                 # leer PDFs para ordenarlos (core/organizador.py)
 }
 
 

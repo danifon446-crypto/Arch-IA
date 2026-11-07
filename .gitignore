@@ -36,3 +36,7 @@ Arche/core/interfaz/config.json
 Arche/core/interfaz/config.json.danado-*
 *.llave
 .llave_arche
+# Registros de Arché en segundo plano
+Arche/logs/
+*.lock
+*.log

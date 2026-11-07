@@ -18,10 +18,13 @@ La arranca arche_fondo.pyw (no main.py), así que con la consola normal no cambi
      (un aviso, una alarma, una mejora que hizo) te llega como notificación.
   5. VOZ: si en CONFIG "escuchar_al_iniciar" es True, el micrófono arranca solo.
 
-Librerías (se instalan solas la primera vez): keyboard, pystray, pillow, winotify.
+Librerías (se instalan solas la primera vez): pystray, pillow, winotify.
+Los atajos usan RegisterHotKey de Windows (no la librería keyboard: su gancho
+se cae solo cuando Arché está ocupada cargando modelos).
 Si alguna falta o falla, esa parte se apaga y Arché sigue funcionando.
 """
 
+import os
 import queue
 import sys
 import threading
@@ -38,13 +41,19 @@ CONFIG = {
     "notificaciones": True,           # avisos de Windows cuando Arché habla sola
     "segundos_entre_avisos": 20,      # para que no te llene de notificaciones
     "esconder_burbuja_tras": 25,      # segundos después de responder (0 = no se esconde sola)
+    "preguntar_subir": True,          # Arché te pregunta si sube a GitHub cuando hay cambios
+    "minutos_entre_preguntas": 30,    # cada cuánto revisa si hay algo sin subir
+    "minutos_tras_ahora_no": 120,     # si dices «Ahora no», cuánto espera para volver a preguntar
+    "minutos_sin_tocar": 10,          # no pregunta mientras sigues editando archivos
 }
 
-_LIBRERIAS = {"keyboard": "keyboard", "pystray": "pystray", "PIL": "pillow", "winotify": "winotify"}
+_LIBRERIAS = {"pystray": "pystray", "PIL": "pillow", "winotify": "winotify"}
 
-_estado = {"vivo": False, "ultimo_aviso": 0.0, "burbuja_visible": False}
+_estado = {"vivo": False, "ultimo_aviso": 0.0, "burbuja_visible": False, "proxima_pregunta": 0.0,
+           "subiendo": False}
 _pedidos_burbuja = queue.Queue()      # lo que la burbuja tiene que hacer (mostrar, respuesta...)
 _icono = None
+_candado_subir = threading.Lock()
 
 
 def _log(texto):
@@ -142,6 +151,8 @@ def _hilo_burbuja():
              font=F_CHICA).pack(side="left")
     micro_txt = tk.Label(pie, text="", fg=C["tenue"], bg=C["fondo"], font=F_CHICA)
     micro_txt.pack(side="right")
+    github_btn = tk.Label(pie, text="", fg=C["acento"], bg=C["fondo"], font=F_CHICA, cursor="hand2")
+    github_btn.pack(side="right", padx=(0, 14))
 
     estado = {"modo": "quieto", "fase": 0, "esconder_en": 0.0, "historial": [], "pos": None,
               "marcador": True, "puntos": 0}
@@ -196,6 +207,8 @@ def _hilo_burbuja():
         raiz.geometry(f"{ANCHO}x{alto}+{x}+{y}")
 
     def mostrar():
+        threading.Thread(target=lambda: _pedidos_burbuja.put(("contar_git", _contar_pendientes())),
+                         daemon=True).start()
         micro_txt.config(text="● escuchando «oye Arché»" if microfono_activo() else "micrófono apagado",
                          fg=C["ok"] if microfono_activo() else C["tenue"])
         acomodar()
@@ -298,6 +311,125 @@ def _hilo_burbuja():
         w.bind("<Button-1>", lambda e: caja.focus_set())
     poner_marcador()
 
+    # ---------------- GitHub: botón de la burbuja ----------------
+    def subir_desde_burbuja(_e=None):
+        if _estado["subiendo"]:
+            return
+        estado["modo"] = "pensando"
+        poner_texto("Subiendo a GitHub…")
+        _subir_en_hilo(lambda ok, texto: _pedidos_burbuja.put(("respuesta", texto)))
+        threading.Thread(target=lambda: (time.sleep(3), _pedidos_burbuja.put(("contar_git", _contar_pendientes()))),
+                         daemon=True).start()
+
+    github_btn.bind("<Button-1>", subir_desde_burbuja)
+
+    # ---------------- GitHub: la pregunta (ventanita abajo a la derecha) ----------------
+    aviso = tk.Toplevel(raiz)
+    aviso.withdraw()
+    aviso.overrideredirect(True)
+    aviso.attributes("-topmost", True)
+    aviso.configure(bg=C["borde"])
+    a_marco = tk.Frame(aviso, bg=C["fondo"], padx=16, pady=14)
+    a_marco.pack(fill="both", expand=True, padx=1, pady=1)
+    tk.Label(a_marco, text="ARCHÉ  ·  GitHub", fg=C["acento"], bg=C["fondo"], font=F_NOMBRE,
+             anchor="w").pack(fill="x")
+    a_texto = tk.Label(a_marco, text="", fg=C["texto"], bg=C["fondo"], font=F_RESP, justify="left",
+                       anchor="w", wraplength=330)
+    a_texto.pack(fill="x", pady=(6, 12))
+    a_botones = tk.Frame(a_marco, bg=C["fondo"])
+    a_botones.pack(fill="x")
+
+    def boton(padre, texto, fondo, color, accion):
+        b = tk.Label(padre, text=texto, bg=fondo, fg=color, font=(letra, 10, "bold"), padx=16, pady=7,
+                     cursor="hand2")
+        b.bind("<Button-1>", lambda e: accion())
+        b.bind("<Enter>", lambda e: b.config(bg=C["caja_foco"] if fondo != C["acento"] else "#9d90ff"))
+        b.bind("<Leave>", lambda e: b.config(bg=fondo))
+        return b
+
+    def colocar_aviso():
+        aviso.update_idletasks()
+        w, h = 370, aviso.winfo_reqheight()
+        aviso.geometry(f"{w}x{h}+{aviso.winfo_screenwidth() - w - 20}+{aviso.winfo_screenheight() - h - 64}")
+
+    def esconder_aviso():
+        aviso.withdraw()
+
+    def ahora_no():
+        _estado["proxima_pregunta"] = time.time() + CONFIG["minutos_tras_ahora_no"] * 60
+        esconder_aviso()
+
+    def si_subir():
+        a_texto.config(text="Subiendo a GitHub…")
+        for w in a_botones.winfo_children():
+            w.pack_forget()
+        colocar_aviso()
+        _subir_en_hilo(lambda ok, texto: _pedidos_burbuja.put(("resultado_subir", (ok, texto))))
+
+    b_subir = boton(a_botones, "Subir", C["acento"], "#ffffff", si_subir)
+    b_no = boton(a_botones, "Ahora no", C["caja"], C["texto"], ahora_no)
+
+    def preguntar_subir(lista):
+        if not lista or _estado["subiendo"]:
+            return
+        nombres = [os.path.basename(r.rstrip("/")) or r for _, r in lista]
+        muestra = ", ".join(nombres[:4]) + (f" y {len(nombres) - 4} más" if len(nombres) > 4 else "")
+        a_texto.config(text=f"Tengo {len(lista)} archivo(s) sin subir a GitHub:\n{muestra}\n\n¿Los subo?")
+        for w in a_botones.winfo_children():
+            w.pack_forget()
+        b_subir.pack(side="left")
+        b_no.pack(side="left", padx=(8, 0))
+        colocar_aviso()
+        aviso.deiconify()
+        aviso.lift()
+
+    NOMBRE_CAMBIO = {"cambiados": "cambió", "nuevos": "nuevo", "borrados": "borrado"}
+
+    def preguntar_sellar(r):
+        for w in a_botones.winfo_children():
+            w.pack_forget()
+        if not r.get("firma_valida", True):
+            a_texto.config(text="⚠ El registro de seguridad tiene una firma que NO es de Arché.\n"
+                                "No subo nada. Pasa Windows Defender (escaneo completo) y, si todo está "
+                                "bien, aprueba en la terminal:  python seguridad.py sellar")
+            boton(a_botones, "Cerrar", C["caja"], C["texto"], esconder_aviso).pack(side="left")
+        else:
+            lista = [(rel, NOMBRE_CAMBIO[k]) for k in ("cambiados", "nuevos", "borrados") for rel in r.get(k, [])]
+            lineas = "\n".join(f"  • {os.path.basename(rel)}  ({tipo})" for rel, tipo in lista[:6])
+            if len(lista) > 6:
+                lineas += f"\n  … y {len(lista) - 6} más"
+            a_texto.config(text=f"Antes de subir: {len(lista)} archivo(s) cambiaron y el guardián no los "
+                                f"ha aprobado:\n{lineas}\n\n¿Los cambiaste tú?")
+
+            def si_fui_yo():
+                a_texto.config(text="Aprobando y subiendo a GitHub…")
+                for w in a_botones.winfo_children():
+                    w.pack_forget()
+                colocar_aviso()
+                _aprobar_y_subir(lambda ok, texto: _pedidos_burbuja.put(("resultado_subir", (ok, texto))))
+
+            def no_fui_yo():
+                mostrar_resultado(False, "Bien, no subo nada. Pasa Windows Defender (escaneo completo) "
+                                         "y revisa esos archivos antes de aprobarlos.")
+
+            boton(a_botones, "Sí, aprobar y subir", C["acento"], "#ffffff", si_fui_yo).pack(side="left")
+            boton(a_botones, "No fui yo", C["caja"], C["texto"], no_fui_yo).pack(side="left", padx=(8, 0))
+        colocar_aviso()
+        aviso.deiconify()
+        aviso.lift()
+
+    def mostrar_resultado(ok, texto):
+        if ok is None:            # se quedó esperando tu aprobación: la ventanita ya te está preguntando
+            return
+        a_texto.config(text=("✓ " if ok else "✗ ") + texto)
+        for w in a_botones.winfo_children():
+            w.pack_forget()
+        boton(a_botones, "Cerrar", C["caja"], C["texto"], esconder_aviso).pack(side="left")
+        colocar_aviso()
+        aviso.deiconify()
+        if ok:
+            raiz.after(8000, esconder_aviso)
+
     # ---------------- bucle ----------------
     def revisar():
         try:
@@ -307,6 +439,14 @@ def _hilo_burbuja():
                     mostrar()
                 elif accion == "alternar":
                     esconder() if _estado["burbuja_visible"] else mostrar()
+                elif accion == "preguntar_subir":
+                    preguntar_subir(dato)
+                elif accion == "preguntar_sellar":
+                    preguntar_sellar(dato)
+                elif accion == "resultado_subir":
+                    mostrar_resultado(*dato)
+                elif accion == "contar_git":
+                    github_btn.config(text=f"⇪ Subir a GitHub ({dato})" if dato else "")
                 elif accion == "respuesta":
                     poner_respuesta(dato)
                 elif accion == "salir":
@@ -323,6 +463,95 @@ def _hilo_burbuja():
 
     raiz.after(45, revisar)
     raiz.mainloop()
+
+
+def _contar_pendientes():
+    try:
+        from core.IA import git_arche
+        return len(git_arche.pendientes()) if git_arche.raiz_repo() else 0
+    except Exception:
+        return 0
+
+
+def _subir_en_hilo(al_terminar):
+    """Sube a GitHub sin trabar nada y llama al_terminar(ok, texto)."""
+    with _candado_subir:
+        if _estado["subiendo"]:
+            return
+        _estado["subiendo"] = True
+
+    def trabajo():
+        try:
+            r = _cambios_sin_aprobar()
+            if r is not None:
+                # el guardián ve cambios sin aprobar: te pregunta con botones en vez de subir
+                _pedidos_burbuja.put(("preguntar_sellar", r))
+                al_terminar(None, "Antes de subir necesito que apruebes unos cambios: "
+                                  "mira la ventanita de abajo a la derecha.")
+                return
+            from core.IA import git_arche
+            ok, texto = git_arche.subir()
+        except Exception as e:
+            ok, texto = False, f"No pude subir ({e})."
+        finally:
+            _estado["subiendo"] = False
+        _estado["proxima_pregunta"] = time.time() + CONFIG["minutos_entre_preguntas"] * 60
+        al_terminar(ok, texto)
+    threading.Thread(target=trabajo, name="arche-subir", daemon=True).start()
+
+
+def _cambios_sin_aprobar():
+    """El resultado del guardián si hay archivos cambiados que nadie aprobó; si no, None."""
+    try:
+        from core.seguridad import guardian
+        r = guardian.verificar()
+        return r if guardian.hay_alerta(r) else None
+    except Exception:
+        return None
+
+
+def _aprobar_y_subir(al_terminar):
+    """Botón «Sí, fui yo»: sella el código (como «python seguridad.py sellar») y sube."""
+    def trabajo():
+        try:
+            from core.seguridad import guardian
+            n = guardian.sellar("aprobado por David con el botón de Arché")
+            _log(f"guardián: sellé {n} archivos (aprobado con el botón)")
+        except Exception as e:
+            al_terminar(False, f"No pude aprobar los cambios ({e}).")
+            return
+        _subir_en_hilo(al_terminar)
+    threading.Thread(target=trabajo, name="arche-aprobar", daemon=True).start()
+
+
+def _vigilar_github():
+    """Cada rato mira si hay archivos sin subir. Si los hay (y ya no los estás editando), pregunta."""
+    try:
+        from core.IA import git_arche
+    except Exception:
+        return
+    if git_arche.raiz_repo() is None:
+        _log("GitHub: la carpeta no es un clon de git; no pregunto por subidas")
+        return
+    _estado["proxima_pregunta"] = time.time() + 5 * 60          # la primera, 5 min después de arrancar
+    while True:
+        time.sleep(60)
+        if not CONFIG["preguntar_subir"] or time.time() < _estado["proxima_pregunta"] or _estado["subiendo"]:
+            continue
+        _estado["proxima_pregunta"] = time.time() + CONFIG["minutos_entre_preguntas"] * 60
+        try:
+            lista = git_arche.pendientes()
+            if not lista:
+                continue
+            raiz = git_arche.raiz_repo()
+            ultimo = max((os.path.getmtime(raiz / r.rstrip("/")) for _, r in lista
+                          if os.path.exists(raiz / r.rstrip("/"))), default=0)
+            if time.time() - ultimo < CONFIG["minutos_sin_tocar"] * 60:
+                _estado["proxima_pregunta"] = time.time() + CONFIG["minutos_sin_tocar"] * 60
+                continue                                         # sigues editando: espero
+            _pedidos_burbuja.put(("preguntar_subir", lista))
+        except Exception as e:
+            _log(f"GitHub: {e}")
 
 
 def abrir_burbuja():
@@ -363,6 +592,24 @@ def alternar_microfono():
             notificar("Te escucho", "Di «oye Arché» y lo que necesites.", forzar=True)
     except Exception as e:
         _log(f"micrófono: {e}")
+
+
+def reiniciar():
+    """Abre una Arché nueva (que espera a que esta se cierre) y cierra esta. Sirve para cargar archivos nuevos."""
+    import os
+    import subprocess
+    arranque = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "arche_fondo.pyw")
+    python = sys.executable
+    if os.path.basename(python).lower() == "python.exe":
+        python = os.path.join(os.path.dirname(python), "pythonw.exe")
+    try:
+        subprocess.Popen([python, arranque, "--reinicio"], cwd=os.path.dirname(arranque),
+                         creationflags=0x00000008 | 0x00000200)   # DETACHED_PROCESS | NEW_PROCESS_GROUP
+    except Exception as e:
+        notificar("No pude reiniciar", str(e), forzar=True)
+        return
+    notificar("Reiniciando Arché", "Vuelvo en unos segundos con los archivos nuevos.", forzar=True)
+    salir()
 
 
 def salir():
@@ -410,15 +657,8 @@ def aviso_de_fondo(texto):
 # ------------------------------------------------------------------
 
 def _subir_desde_icono():
-    """Sube a GitHub sin abrir nada y te cuenta el resultado con una notificación."""
-    def trabajo():
-        try:
-            from core.IA import git_arche
-            ok, texto = git_arche.subir()
-        except Exception as e:
-            ok, texto = False, str(e)
-        notificar("Subido a GitHub" if ok else "No pude subir a GitHub", texto, forzar=True)
-    threading.Thread(target=trabajo, name="arche-subir", daemon=True).start()
+    """Sube a GitHub desde el icono y muestra el resultado en la ventanita de abajo a la derecha."""
+    _subir_en_hilo(lambda ok, texto: _pedidos_burbuja.put(("resultado_subir", (ok, texto))))
 
 
 def _iniciar_bandeja():
@@ -441,6 +681,7 @@ def _iniciar_bandeja():
                          checked=lambda item: CONFIG["notificaciones"]),
         pystray.MenuItem("Subir cambios a GitHub", lambda *a: _subir_desde_icono()),
         pystray.Menu.SEPARATOR,
+        pystray.MenuItem("Reiniciar Arché", lambda *a: reiniciar()),
         pystray.MenuItem("Cerrar Arché", lambda *a: salir()),
     )
     _icono = pystray.Icon("arche", imagen, "Arché", menu)
@@ -451,11 +692,73 @@ def _iniciar_bandeja():
 # Atajos de teclado globales
 # ------------------------------------------------------------------
 
+_TECLAS_MOD = {"alt": 0x1, "ctrl": 0x2, "control": 0x2, "shift": 0x4, "mayus": 0x4, "win": 0x8}
+_TECLAS_ESP = {"space": 0x20, "espacio": 0x20, "enter": 0x0D, "esc": 0x1B, "tab": 0x09,
+               **{f"f{n}": 0x6F + n for n in range(1, 13)}}
+_hilo_atajos = {"id": None}
+
+
+def _traducir_atajo(texto):
+    """'ctrl+alt+a' -> (modificadores, codigo de tecla) para RegisterHotKey."""
+    mods, tecla = 0x4000, None                     # 0x4000 = MOD_NOREPEAT (dejarla apretada no repite)
+    for parte in texto.lower().replace(" ", "").split("+"):
+        if parte in _TECLAS_MOD:
+            mods |= _TECLAS_MOD[parte]
+        elif parte in _TECLAS_ESP:
+            tecla = _TECLAS_ESP[parte]
+        elif len(parte) == 1 and parte.isalnum():
+            tecla = ord(parte.upper())
+        else:
+            raise ValueError(f"no entiendo la tecla «{parte}» en {texto}")
+    if tecla is None:
+        raise ValueError(f"al atajo {texto} le falta la tecla")
+    return mods, tecla
+
+
+def _bucle_atajos(listo):
+    """Hilo propio: registra los atajos y espera los mensajes WM_HOTKEY de Windows.
+    Aunque Arché esté ocupada, Windows guarda el mensaje en la fila y nunca se pierde el atajo."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.windll.user32
+    _hilo_atajos["id"] = ctypes.windll.kernel32.GetCurrentThreadId()
+    acciones = {1: ("atajo_burbuja", abrir_burbuja), 2: ("atajo_interfaz", abrir_interfaz),
+                3: ("atajo_microfono", alternar_microfono)}
+    funcionan, fallaron = [], []
+    for num, (clave, _) in acciones.items():
+        try:
+            mods, tecla = _traducir_atajo(CONFIG[clave])
+            if user32.RegisterHotKey(None, num, mods, tecla):
+                funcionan.append(CONFIG[clave])
+            else:
+                fallaron.append(CONFIG[clave])
+        except ValueError as e:
+            _log(str(e))
+            fallaron.append(CONFIG[clave])
+    listo.append((funcionan, fallaron))
+    msg = wintypes.MSG()
+    while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) > 0:
+        if msg.message == 0x0312 and msg.wParam in acciones:          # WM_HOTKEY
+            threading.Thread(target=acciones[msg.wParam][1], daemon=True).start()
+    for num in acciones:
+        user32.UnregisterHotKey(None, num)
+
+
 def _iniciar_atajos():
-    import keyboard
-    keyboard.add_hotkey(CONFIG["atajo_burbuja"], abrir_burbuja, suppress=False)
-    keyboard.add_hotkey(CONFIG["atajo_interfaz"], abrir_interfaz, suppress=False)
-    keyboard.add_hotkey(CONFIG["atajo_microfono"], alternar_microfono, suppress=False)
+    listo = []
+    threading.Thread(target=_bucle_atajos, args=(listo,), name="arche-atajos", daemon=True).start()
+    for _ in range(50):
+        if listo:
+            break
+        time.sleep(0.1)
+    funcionan, fallaron = listo[0] if listo else ([], ["(no arrancó)"])
+    if fallaron:
+        notificar("Un atajo no funciona",
+                  f"Otro programa ya usa: {', '.join(fallaron)}. Cámbialo en core/presencia.py (CONFIG).",
+                  forzar=True)
+        if not funcionan:
+            raise RuntimeError("ningún atajo quedó registrado: " + ", ".join(fallaron))
+    _log("atajos activos: " + ", ".join(funcionan))
 
 
 # ------------------------------------------------------------------
@@ -481,6 +784,7 @@ def _arrancar_todo():
         time.sleep(8)                           # que Arché termine de cargar antes de prender el micrófono
         _parte("micrófono", lambda: __import__("core.interfaz.micro", fromlist=["x"]).iniciar())
     _estado["vivo"] = True
+    threading.Thread(target=_vigilar_github, name="arche-vigila-github", daemon=True).start()
     notificar("Arché está lista",
               f"{CONFIG['atajo_burbuja'].title()} para escribirme · di «oye Arché» para hablarme.", forzar=True)
 
@@ -502,7 +806,8 @@ def detener():
     except Exception:
         pass
     try:
-        import keyboard
-        keyboard.unhook_all_hotkeys()
+        if _hilo_atajos["id"]:
+            import ctypes
+            ctypes.windll.user32.PostThreadMessageW(_hilo_atajos["id"], 0x0012, 0, 0)    # WM_QUIT
     except Exception:
         pass

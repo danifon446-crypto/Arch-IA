@@ -1,2 +1,118 @@
 
 ===== Arché arrancó en segundo plano =====
+Arché: Me faltan algunas librerías para funcionar completo.
+Arché: Voy a instalar 3: keyboard, pystray, winotify
+Arché: Puede tardar varios minutos la primera vez, según tu conexión.
+
+Arché: Instalando keyboard...
+Arché: keyboard listo.
+
+Arché: Instalando pystray...
+Arché: pystray listo.
+
+Arché: Instalando winotify...
+Arché: winotify listo.
+Arché: Todas las dependencias quedaron instaladas.
+(presencia) bandeja: listo
+(presencia) atajos: listo
+(presencia) micrófono: listo
+                  Arche v2.0.1
+
+Analizando datos...
+Arché: Todos los sistemas están operativos.
+Arché: Hola, Daniell.
+Arché: ¿En qué puedo ayudarte?
+Arché: Buenas tardes. Son las 14:58.
+
+Tú: Arché: Ordené Downloads:
+  • 5.docx → Documentos/Word
+  • a.htm → Otros
+  • Acta_identificacion_problema_APA (1) 1.pdf → Documentos/PDF
+  • agente_arche (1).zip → Proyectos/Arché
+  • agente_arche (2).zip → Proyectos/Arché
+  • …y 142 más
+Listo, moví 147 archivos. Si algo no te gusta, dime 'deshaz el orden'.
+Arché: Túnel listo. En Meta (WhatsApp > Configuración > Webhook) la URL de devolución es: https://tons-properties-henry-beliefs.trycloudflare.com/webhook
+Arché: (esa URL cambia cada vez que enciendes el túnel; si cambia, actualízala en Meta.)
+Arché: Cargando modelo de embeddings 'minilm' (solo la primera vez)...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   5%|▍         | 9/199 [00:00<00:02, 80.29it/s]Loading weights:  15%|█▌        | 30/199 [00:00<00:01, 128.94it/s]Loading weights:  23%|██▎       | 46/199 [00:00<00:01, 136.26it/s]Loading weights:  30%|███       | 60/199 [00:00<00:01, 98.16it/s] Loading weights:  36%|███▌      | 71/199 [00:00<00:01, 87.42it/s]Loading weights:  41%|████      | 81/199 [00:00<00:01, 70.28it/s]Loading weights:  45%|████▍     | 89/199 [00:01<00:02, 52.42it/s]Loading weights:  48%|████▊     | 96/199 [00:01<00:01, 52.01it/s]Loading weights:  52%|█████▏    | 104/199 [00:01<00:01, 51.54it/s]Loading weights:  55%|█████▌    | 110/199 [00:01<00:01, 49.42it/s]Loading weights:  67%|██████▋   | 133/199 [00:01<00:00, 86.57it/s]Loading weights:  72%|███████▏  | 144/199 [00:01<00:00, 70.02it/s]Loading weights:  77%|███████▋  | 153/199 [00:02<00:00, 68.50it/s]Loading weights:  82%|████████▏ | 164/199 [00:02<00:00, 75.73it/s]Loading weights: 100%|██████████| 199/199 [00:02<00:00, 86.86it/s]
+Arché: Modelo de embeddings listo.
+pon el brillo a 100
+Arché: Dejé el brillo en 100%.
+
+Tú: pon el brillo a 36
+Arché: Dejé el brillo en 36%.
+
+Tú: pon el brillo a 100
+Arché: Dejé el brillo en 100%.
+
+Tú: Arché: Cargando modelo de voz 'base' (solo la primera vez)...
+C:\Users\danif\AppData\Local\Programs\Python\Python312\Lib\site-packages\huggingface_hub\file_download.py:142: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\danif\.cache\huggingface\hub\models--Systran--faster-whisper-base. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
+To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+  warnings.warn(message)
+Arché: Me autorevisé y encontré 1010 cosa(s) para mejorar en mi código. 35 son seguras (imports sin usar, 'except:' desnudos): dime 'arregla lo que encontraste' y las arreglo ya (o 'mejorate sola' para que lo haga siempre yo sola). Las otras 975 (funciones duplicadas, código muerto) necesitan criterio: 'revisate' para verlas.
+Arché: Modelo de voz 'base' listo.
+[debug] transcripción cruda (base): ''
+Arché: Ordené Downloads:
+  • Arche_completo.zip → Proyectos/Arché
+Listo, moví 1 archivos. Si algo no te gusta, dime 'deshaz el orden'.
+Arché: Ordené Downloads:
+  • Arche_completo.zip → Proyectos/Arché
+Listo, moví 1 archivos. Si algo no te gusta, dime 'deshaz el orden'.
+Arché: Ordené Downloads:
+  • Arche_completo.zip → Proyectos/Arché
+Listo, moví 1 archivos. Si algo no te gusta, dime 'deshaz el orden'.
+
+===== Arché arrancó en segundo plano =====
+(presencia) bandeja: listo
+(presencia) atajos: listo
+(presencia) micrófono: listo
+                  Arche v2.0.1
+
+Analizando datos...
+Arché: ⚠ Archivos de Arché que cambiaron sin pasar por su sistema de cambios: 1 cambiados (core/presencia.py); 1 nuevos (diagnostico_atajos.py). Si fuiste tú, corre  python seguridad.py sellar  para aprobarlo.
+Arché: Atención: encontré algo raro en mi seguridad. Te dejé los detalles en pantalla.
+Arché: Todos los sistemas están operativos.
+Arché: Hola, Daniell.
+Arché: ¿En qué puedo ayudarte?
+
+Tú: Arché: Túnel listo. En Meta (WhatsApp > Configuración > Webhook) la URL de devolución es: https://been-motion-theme-shots.trycloudflare.com/webhook
+Arché: (esa URL cambia cada vez que enciendes el túnel; si cambia, actualízala en Meta.)
+detener whatsapp
+Arché: WhatsApp apagado (y ya no arranca solo).
+
+Tú: Arché: Cargando modelo de embeddings 'minilm' (solo la primera vez)...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  86%|████████▋ | 172/199 [00:00<00:00, 1692.23it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 1735.09it/s]
+Arché: Me autorevisé y encontré 1010 cosa(s) para mejorar en mi código. 35 son seguras (imports sin usar, 'except:' desnudos): dime 'arregla lo que encontraste' y las arreglo ya (o 'mejorate sola' para que lo haga siempre yo sola). Las otras 975 (funciones duplicadas, código muerto) necesitan criterio: 'revisate' para verlas.
+Arché: Modelo de embeddings listo.
+
+===== Arché arrancó en segundo plano =====
+(presencia) bandeja: listo
+(presencia) atajos: listo
+(presencia) micrófono: listo
+Arché: Me faltan algunas librerías para funcionar completo.
+Arché: Voy a instalar 1: pypdf
+Arché: Puede tardar varios minutos la primera vez, según tu conexión.
+
+Arché: Instalando pypdf...
+Arché: pypdf listo.
+Arché: Todas las dependencias quedaron instaladas.
+                  Arche v2.0.1
+
+Analizando datos...
+Arché: ⚠ Archivos de Arché que cambiaron sin pasar por su sistema de cambios: 3 cambiados (core/instalador.py, core/organizador.py, core/presencia.py); 1 nuevos (diagnostico_atajos.py). Si fuiste tú, corre  python seguridad.py sellar  para aprobarlo.
+Arché: Atención: encontré algo raro en mi seguridad. Te dejé los detalles en pantalla.
+Arché: Todos los sistemas están operativos.
+Arché: Hola, Daniell.
+Arché: ¿En qué puedo ayudarte?
+
+Tú: Arché: Me autorevisé y encontré 1010 cosa(s) para mejorar en mi código. 35 son seguras (imports sin usar, 'except:' desnudos): dime 'arregla lo que encontraste' y las arreglo ya (o 'mejorate sola' para que lo haga siempre yo sola). Las otras 975 (funciones duplicadas, código muerto) necesitan criterio: 'revisate' para verlas.
+Arché: Cargando modelo de embeddings 'minilm' (solo la primera vez)...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:  40%|████      | 80/199 [00:00<00:00, 722.65it/s]Loading weights:  77%|███████▋  | 154/199 [00:00<00:00, 724.62it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 854.49it/s]
+Arché: Modelo de embeddings listo.
+Arché: Sueles pedir «abre la interfaz» a esta hora. ¿Lo hago? Di «sí», «no», o «siempre» (así lo haré solo cuando estés en modo proactivo).
+salir
+Arché: Nos vemos pronto.

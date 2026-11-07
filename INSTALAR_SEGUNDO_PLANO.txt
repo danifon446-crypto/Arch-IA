@@ -1,0 +1,58 @@
+ARCHÉ EN SEGUNDO PLANO + BURBUJA + SUBIR A GITHUB — cómo instalarlo
+====================================================================
+
+1. Descomprime este .zip ENCIMA de tu carpeta Arch-IA y reemplaza. Trae:
+     Arche/arche_fondo.pyw              (NUEVO)  Arché sin consola + sin ventanas negras
+     Arche/core/presencia.py            (NUEVO)  atajos, burbuja nueva, icono, notificaciones
+     Arche/instalar_inicio.py           (NUEVO)  la pone a arrancar con Windows
+     Arche/main.py                      (2 líneas) conecta «sube los cambios a github»
+     Arche/core/IA/git_arche.py         (CAMBIA) ahora también sube a GitHub
+     Arche/core/whatsapp.py             (CAMBIA) cloudflared oculto; «detener whatsapp» lo apaga para siempre
+     Arche/core/interfaz/remoto.py      (CAMBIA) el arranque usa pythonw
+     Arche/core/interfaz/web/estilo.css (CAMBIA) barra lateral sin nombres cortados
+     Arche/core/interfaz/web/__init__.py(CAMBIA) la ventana abre con su tamaño correcto
+
+   OJO: si cambiaste main.py en tu PC después del 6 de noviembre, no lo reemplaces;
+   haz a mano estos 2 cambios:
+     - debajo de  "from core.IA import aprender_de_nube"  agrega:
+           from core.IA import git_arche
+     - en la línea  "for _modulo in (..., red_arche):"  agrega  git_arche  al final:
+           ..., red_arche, git_arche):
+
+2. Aprueba los cambios en el guardián:
+     cd Arche
+     python seguridad.py sellar
+
+3. Pruébalo: doble clic a  Arche/arche_fondo.pyw
+   La primera vez instala pystray y winotify (tarda un poco).
+   Si los atajos no responden:  python diagnostico_atajos.py
+
+4. Que arranque sola con el PC:   python instalar_inicio.py
+   (para quitarlo:  python instalar_inicio.py quitar)
+
+5. Apaga WhatsApp (ya no lo usas y era el que abría la ventana de cloudflared):
+   Ctrl+Alt+A y escribe:   detener whatsapp
+
+6. SUBIR A GITHUB — la primera vez, en una terminal dentro de Arch-IA:
+     git push
+   e inicia sesión en la ventanita de GitHub. Desde ahí Arché lo hace sola:
+     «sube los cambios a github»   (o «sube al repo», «haz push»)
+     «qué hay sin subir»
+     o en el icono junto al reloj: «Subir cambios a GitHub»
+   Y ADEMÁS ARCHÉ TE PREGUNTA SOLA: cada 30 min revisa si hay archivos sin subir y, si ya
+   no los estás editando, sale una ventanita abajo a la derecha con [Subir] y [Ahora no].
+   «Ahora no» = te vuelve a preguntar en 2 horas. En la burbuja también sale el botón
+   «⇪ Subir a GitHub (N)» cuando hay algo pendiente. Los tiempos se cambian en
+   core/presencia.py (CONFIG: minutos_entre_preguntas, minutos_tras_ahora_no...).
+   Antes de subir revisa: que no vayan claves/tokens (Telegram, GitHub, Supabase, Meta...),
+   archivos de más de 50 MB, ni cambios que el guardián no aprobó. Si algo falla, NO sube nada.
+   Tu carpeta tiene que ser un clon de git (con la carpeta .git). Si no lo es, Arché te dice cómo.
+
+CÓMO SE USA
+  Ctrl+Alt+A   burbuja (Enter envía, ↑↓ historial, Esc esconde, clic afuera la esconde)
+  Ctrl+Alt+I   interfaz completa
+  Ctrl+Alt+V   micrófono on/off  —  «oye Arché, …»
+  Icono junto al reloj: Hablar, Interfaz, Micrófono, Notificaciones, Subir a GitHub, Cerrar
+
+Si algo no anda: Arche/logs/arche_fondo.log
+La consola de siempre sigue funcionando igual: python main.py

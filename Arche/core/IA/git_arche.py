@@ -313,8 +313,9 @@ def subir(mensaje=None):
     if not _git(raiz, "remote").stdout.strip():
         return False, "El repo no tiene conexión con GitHub (no hay «origin»)."
     if not _guardian_ok():
-        return False, ("No subo nada: el guardián ve archivos cambiados que nadie aprobó. "
-                       "Si los cambiaste tú, corre «python seguridad.py sellar» y me lo vuelves a pedir.")
+        return False, ("No subo nada todavía: hay archivos cambiados que el guardián no ha aprobado. "
+                       "Dale al botón «⇪ Subir a GitHub» de la burbuja (o al del ícono) y te pregunto "
+                       "ahí si fuiste tú, con un botón para aprobar y subir.")
     try:
         _asegurar_gitignore(raiz)
         _git(raiz, "add", "-A")
