@@ -47,6 +47,25 @@ def _avisar_ya_abierta():
         pass
 
 
+def _arche_vieja_corriendo():
+    """Las versiones anteriores guardaban su candado dentro de Arche/logs. Si una de esas sigue
+    abierta, no hay que abrir otra (si no, quedan dos Arché y la vieja bloquea archivos del repo)."""
+    ruta = os.path.join(AQUI, "logs", "arche_fondo.lock")
+    if sys.platform != "win32" or not os.path.exists(ruta):
+        return False
+    try:
+        import msvcrt
+        with open(ruta, "a+") as f:
+            try:
+                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+                msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+                return False
+            except OSError:
+                return True
+    except OSError:
+        return False
+
+
 def _ya_esta_corriendo():
     carpeta = CARPETA_LOGS
     os.makedirs(carpeta, exist_ok=True)
@@ -191,6 +210,15 @@ if __name__ == "__main__":
             sys.exit(0)
     elif _ya_esta_corriendo():
         _avisar_ya_abierta()
+        sys.exit(0)
+    if _arche_vieja_corriendo():
+        try:
+            from winotify import Notification
+            Notification(app_id="Arché", title="Hay una Arché vieja abierta",
+                         msg="Ciérrala: Administrador de tareas (Ctrl+Shift+Esc) > finaliza los «pythonw.exe» "
+                             "y vuelve a abrir arche_fondo.pyw.", duration="long").show()
+        except Exception:
+            pass
         sys.exit(0)
     if sys.stdout is None or os.path.basename(sys.executable).lower() == "pythonw.exe":
         _preparar_salida()

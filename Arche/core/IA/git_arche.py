@@ -30,6 +30,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import unicodedata
 from pathlib import Path
 
@@ -194,7 +195,7 @@ def manejar(comando):
 
 TIMEOUT_RED = 180
 MAX_MB = 50                       # GitHub rechaza archivos de más de 100 MB; 50 ya es sospechoso
-IGNORAR_SIEMPRE = ["Arche/logs/", "*.lock", "*.log"]      # registros de arche_fondo.pyw
+IGNORAR_SIEMPRE = ["Arche/logs/", "*.lock", "*.log", "__pycache__/", "*.pyc"]   # registros y basura de Python
 
 _SECRETOS = [
     ("token de GitHub", re.compile(r"\b(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}|\bgithub_pat_[A-Za-z0-9_]{40,}")),
@@ -237,11 +238,88 @@ def _asegurar_gitignore(raiz):
                     "# Registros de Arché en segundo plano\n" + "\n".join(faltan) + "\n")
 
 
+def _carpeta_respaldo():
+    base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+    carpeta = os.path.join(base, "Arche", "respaldo_git", time.strftime("%Y%m%d_%H%M%S"))
+    os.makedirs(carpeta, exist_ok=True)
+    return carpeta
+
+
+def _respaldar_cambios(raiz):
+    """Copia (fuera del repo) cada archivo cambiado o nuevo, tal como está ahora. Devuelve (carpeta, [rutas])."""
+    r = _git(raiz, "status", "--porcelain", "-z", "-uall")
+    rutas, partes = [], [x for x in r.stdout.split("\0") if x]
+    k = 0
+    while k < len(partes):
+        estado, ruta = partes[k][:2], partes[k][3:]
+        if estado.startswith("R"):            # renombrado: la siguiente entrada es el nombre viejo
+            k += 1
+        k += 1
+        if os.path.isfile(raiz / ruta):
+            rutas.append(ruta)
+    carpeta = _carpeta_respaldo()
+    for ruta in rutas:
+        destino = os.path.join(carpeta, ruta)
+        os.makedirs(os.path.dirname(destino), exist_ok=True)
+        shutil.copy2(raiz / ruta, destino)
+    return carpeta, rutas
+
+
+def _igual_a_github(raiz, commit, ruta, archivo):
+    """True si el archivo es idéntico a como está en ese commit de GitHub."""
+    if not commit:
+        return False
+    try:
+        r = subprocess.run(["git", "show", f"{commit}:{ruta}"], cwd=str(raiz), capture_output=True, timeout=TIMEOUT)
+        if r.returncode != 0:
+            return False
+        with open(archivo, "rb") as f:
+            return f.read().replace(b"\r\n", b"\n") == r.stdout.replace(b"\r\n", b"\n")
+    except (OSError, subprocess.SubprocessError):
+        return False
+
+
 def _arreglar_estado(raiz):
-    """Si una subida anterior quedó a medias (rebase sin terminar), la deshace primero."""
+    """Si una subida anterior quedó a medias (rebase sin terminar), la deshace SIN perder nada:
+    respalda tus archivos, cancela el rebase y los vuelve a poner. Devuelve (ok, texto)."""
     git_dir = raiz / ".git"
-    if (git_dir / "rebase-merge").exists() or (git_dir / "rebase-apply").exists():
-        _git_red(raiz, "rebase", "--abort")
+    carpeta_rebase = next((git_dir / n for n in ("rebase-merge", "rebase-apply") if (git_dir / n).exists()), None)
+    if carpeta_rebase is None:
+        return True, ""
+    def leer(nombre):
+        try:
+            return (carpeta_rebase / nombre).read_text(encoding="utf-8").strip()
+        except OSError:
+            return ""
+    rama, original, base_github = leer("head-name"), leer("orig-head"), leer("onto")
+    carpeta, rutas = _respaldar_cambios(raiz)
+    ignorados = set(_git(raiz, "check-ignore", "--no-index", "--", *rutas).stdout.split("\n")) if rutas else set()
+
+    r = _git_red(raiz, "rebase", "--abort")
+    if r.returncode != 0:
+        err = (r.stderr or r.stdout)
+        if "unlink" in err or "Permission denied" in err or "Invalid argument" in err:
+            return False, ("Una subida anterior quedó a medias y no la puedo deshacer porque un archivo está "
+                           "abierto. Seguramente hay otra Arché vieja corriendo: abre el Administrador de tareas "
+                           "(Ctrl+Shift+Esc), finaliza todos los «pythonw.exe», abre Arché otra vez y dale a subir. "
+                           f"Tus archivos están respaldados en {carpeta}")
+        # plan B: soltar el rebase sin tocar archivos y volver a tu rama tal como estaba
+        _git_red(raiz, "rebase", "--quit")
+        if rama.startswith("refs/heads/"):
+            _git_red(raiz, "symbolic-ref", "HEAD", rama)
+        if original:
+            r = _git_red(raiz, "reset", "-q", "--hard", original)
+            if r.returncode != 0:
+                return False, ("No pude dejar el repo como estaba: " + (r.stderr or r.stdout).strip()[-200:] +
+                               f" Tus archivos están respaldados en {carpeta}")
+    # devolver tus archivos (los más nuevos que tenías en la carpeta)
+    for ruta in rutas:
+        if ruta in ignorados or _igual_a_github(raiz, base_github, ruta, os.path.join(carpeta, ruta)):
+            continue                      # esa versión la había bajado la subida a medias: no es tuya
+        destino = raiz / ruta
+        os.makedirs(destino.parent, exist_ok=True)
+        shutil.copy2(os.path.join(carpeta, ruta), destino)
+    return True, f"Arreglé una subida que había quedado a medias (respaldo en {carpeta})."
 
 
 def _sacar_ignorados(raiz):
@@ -333,7 +411,9 @@ def subir(mensaje=None):
                        "Dale al botón «⇪ Subir a GitHub» de la burbuja (o al del ícono) y te pregunto "
                        "ahí si fuiste tú, con un botón para aprobar y subir.")
     try:
-        _arreglar_estado(raiz)
+        ok_estado, aviso_estado = _arreglar_estado(raiz)
+        if not ok_estado:
+            return False, aviso_estado
         _asegurar_gitignore(raiz)
         _git(raiz, "add", "-A")
         _sacar_ignorados(raiz)
@@ -377,7 +457,7 @@ def subir(mensaje=None):
         if not hay_cambios and "Everything up-to-date" in (r.stderr + r.stdout):
             return True, "No había nada nuevo: GitHub ya tiene todo."
         h = _git(raiz, "rev-parse", "--short", "HEAD").stdout.strip()
-        return True, f"Listo, subí los cambios a GitHub (commit {h})."
+        return True, (aviso_estado + " " if aviso_estado else "") + f"Listo, subí los cambios a GitHub (commit {h})."
     except subprocess.TimeoutExpired:
         return False, "Se demoró demasiado (¿internet lento?). No se perdió nada; inténtalo otra vez."
     except (OSError, subprocess.SubprocessError) as e:
