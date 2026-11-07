@@ -25,6 +25,7 @@ from core import acciones_pc
 from core import voz as voz_arche            # Arché habla (voz natural online o la de Windows)
 from core import alarmas as alarmas_arche    # alarmas, avisos y temporizadores que suenan
 from core import mejora_continua as mejora_arche  # piloto automatico: se mejora sola cuando no la usas
+from core import evolucion as evolucion_arche    # evoluciona sola: sueño, curiosidad, se automodifica, reentrena
 from core.IA import pendientes as pendientes_arche
 pendientes_arche.registrar()
 from core import autonomia as autonomia_arche  # se adelanta: avisos del equipo, habitos, resumen del dia
@@ -371,6 +372,7 @@ autonomia_arche.iniciar_vigilante()
 autonomia_arche.resumen_del_dia()
 mejora_arche.iniciar()
 mejora_arche.resumen_pendiente()
+evolucion_arche.iniciar()
 
 # ------------------------------------------------------------------
 # MODO ESTUDIO: ya NO arranca solo al iniciar Arché. Vos decidís
@@ -647,7 +649,7 @@ while True:
     _resultado_modulo = None
     autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
     mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-    for _modulo in (memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche, git_arche):
+    for _modulo in (evolucion_arche, memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche, git_arche):
         _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
             break
@@ -1336,6 +1338,7 @@ while True:
                 if _r["aviso"]:
                     print(f"Arché: ({_r['aviso']})")
                 print(f"Arché: {_r['texto']}")
+                evolucion_arche.revisar_respuesta(contenido, _r["texto"], _r["fuente"])  # si no supo, lo estudia de noche
                 if _r["cacheable"]:
                     # solo lo que contesta Ollama sin internet se guarda en el caché
                     guardar_respuesta(contenido, _r["texto"])
@@ -1348,4 +1351,8 @@ while True:
     # COMANDO DESCONOCIDO
 
     elif intencion == "desconocido":
-        print("Arché: Aún no sé hacer eso.")
+        _respuesta_habilidad = evolucion_arche.orden_no_entendida(comando_original)
+        if _respuesta_habilidad:
+            print(f"Arché: {_respuesta_habilidad}")      # una habilidad que se fabricó sola
+        else:
+            print("Arché: Aún no sé hacer eso. Lo anoto y esta noche intento aprender a hacerlo.")

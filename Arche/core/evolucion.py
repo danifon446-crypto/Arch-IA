@@ -21,11 +21,13 @@ ARCHÉ QUE EVOLUCIONA SOLA. Todo en un solo archivo, por fases:
   FASE 6  Fabrica ......... cuando falla varias veces en el mismo tipo de tarea, escribe una
                             habilidad nueva, la prueba aislada y, si funciona, se la queda.
 
-COMO CONECTARLO (en main.py, dos lineas, igual que mejora_continua):
-    from core import evolucion as evolucion_arche
-    evolucion_arche.iniciar()                    # junto a mejora_arche.iniciar()
-  y agregar  evolucion_arche  a la tupla de modulos del bucle (la del "for _modulo in (...)").
-  Opcional: donde Arche no entiende una orden, llamar  evolucion_arche.anotar_no_se(frase, "tarea").
+YA VIENE CONECTADO en main.py (iniciar, la tupla de modulos, revisar_respuesta en la charla y
+orden_no_entendida cuando no entiende algo). Todo lo demas lo hace sola, sin que intervengas:
+  * estudia sola en YouTube y la web lo que no supo, y sus temas flojos;
+  * arregla los errores que anota registro_errores.py;
+  * sube sus mejores ejemplos a Supabase -> el entrenador de la nube (GitHub Actions + Kaggle)
+    reentrena arche-lora con ellos -> tu PC lo examina -> si gana, Arche lo empieza a usar sola
+    y, si despues le va peor en su examen, vuelve sola al modelo anterior.
 
 COMANDOS:
     aprende de <link de youtube o pagina>      aprende esto: <texto>
@@ -504,8 +506,21 @@ def deshacer_ultimo_cambio():
     return archivos
 
 
+def _traer_errores_del_registro():
+    """Pasa a la lista los errores reales que registro core/IA/registro_errores.py."""
+    try:
+        from core.IA import registro_errores
+        for e in registro_errores.pendientes()[:5]:
+            if e.get("archivo") and _ruta_segura(e["archivo"]) and int(e.get("intentos", 0)) < 3:
+                anotar_no_se(f"error {e.get('tipo')} en {e['archivo']}:{e.get('linea')} ({e.get('firma', '')[:10]})",
+                             "error", e.get("traceback", ""))
+    except Exception:
+        pass
+
+
 def _reparar_errores():
     """Toma errores anotados con traceback y le pide al modelo de codigo un arreglo puntual."""
+    _traer_errores_del_registro()
     hechos = []
     for item in _no_se_pendientes("error"):
         if _detener.is_set() or _cambios_hoy() >= CAMBIOS_POR_DIA:
@@ -540,6 +555,18 @@ def _reparar_errores():
         nuevo = original.replace(arreglo["buscar"], arreglo.get("reemplazar", ""), 1)
         ok, que = aplicar_cambio_autonomo({rel: nuevo}, f"arreglo: {arreglo.get('por_que', item['tema'])}")
         _marcar_no_se(item["id"], "resuelto" if ok else "intento_fallido")
+        firma = re.search(r"\(([0-9a-f]{6,})\)$", item["tema"])
+        if firma:
+            try:
+                from core.IA import registro_errores
+                for e in registro_errores.pendientes():
+                    if e.get("firma", "").startswith(firma.group(1)):
+                        if ok:
+                            registro_errores.marcar(e["firma"], "resuelto", "lo arregló evolucion.py")
+                        else:
+                            registro_errores.sumar_intento(e["firma"], que)
+            except Exception:
+                pass
         hechos.append(f"{'arreglé' if ok else 'intenté arreglar'} un error en {rel}")
     return hechos
 
@@ -759,9 +786,32 @@ def buscar_conocimiento(pregunta, cuantos=5):
     return elegidos
 
 
+# Si no tiene dudas anotadas, estudia igual: sus areas mas flojas y estos intereses.
+INTERESES = [
+    "como calibrar servos con ESP32 y PCA9685", "como camina un robot cuadrupedo", "cinematica inversa robot perro",
+    "aperturas de ajedrez para principiantes", "tacticas de ajedrez clavada y horquilla", "buenas practicas en Python",
+    "como funciona un modelo de lenguaje", "que es fine tuning LoRA", "ley de Ohm y circuitos basicos",
+    "derivadas explicadas facil", "logica digital compuertas", "seguridad informatica basica para programadores",
+]
+
+
+def _temas_propios(cuantos):
+    hist = _estado()["historial_nivel"]
+    flojas = sorted((hist[-1].get("areas", {}) if hist else {}).items(), key=lambda x: x[1])
+    temas = [f"{a} explicado" for a, nota in flojas if nota < 80][:1]
+    ya = {_norm(s.get("tema", "")) for s in _cargar(ARCH_CONOCIMIENTO, [])}
+    pendientes = [t for t in INTERESES if not any(_parecido(t, y) > 0.5 for y in ya)] or INTERESES
+    random.shuffle(pendientes)
+    return (temas + pendientes)[:cuantos]
+
+
 def _curiosidad(maximo=TEMAS_CURIOSIDAD_POR_NOCHE):
     hechos = []
-    for item in _no_se_pendientes("conocimiento")[:maximo]:
+    pendientes = _no_se_pendientes("conocimiento")[:maximo]
+    for tema in _temas_propios(maximo - len(pendientes)):
+        anotar_no_se(tema, "conocimiento", "tema propio")
+    pendientes = _no_se_pendientes("conocimiento")[:maximo]
+    for item in pendientes:
         if _detener.is_set():
             break
         total = 0
@@ -986,6 +1036,59 @@ def ejemplos_para_lora():
         return 0
 
 
+def _subir_charla_a_la_nube():
+    """Sube los ejemplos excelentes del auto-juego a Supabase. El entrenador de la nube
+    (nube/entrenador/ciclo.py, GitHub Actions + Kaggle) los usa solo en el proximo entrenamiento."""
+    try:
+        from core import memoria_nube
+        if not memoria_nube.activo():
+            return []
+        ejemplos = []
+        with open(ARCH_DATASET, "r", encoding="utf-8") as f:
+            for linea in f:
+                try:
+                    m = json.loads(linea)["messages"]
+                    ejemplos.append({"pregunta": m[1]["content"], "respuesta": m[2]["content"]})
+                except (ValueError, KeyError, IndexError):
+                    continue
+        if not ejemplos:
+            return []
+        memoria_nube._pedir("POST", "arche_config", {"on_conflict": "clave"},
+                            [{"clave": "charla_aprendida", "valor": {"total": len(ejemplos), "ejemplos": ejemplos[-400:]}}],
+                            prefer="return=minimal,resolution=merge-duplicates")
+        return [f"subí {len(ejemplos)} ejemplos para mi próximo entrenamiento en la nube"]
+    except Exception as e:
+        _diario("nube", f"no pude subir la charla: {e}"[:200])
+        return []
+
+
+def _adoptar_modelo_nuevo():
+    """Si la nube entrenó un arche-lora nuevo y le ganó al actual en el examen de tu PC, lo usa sola.
+    Despues se pasa SU examen; si quedó peor que antes, vuelve sola al modelo anterior."""
+    try:
+        from core.IA import modelo_nuevo, formato_lora
+        modelo_nuevo.revisar_candidato(avisar=lambda *_: None)
+        candidato = (modelo_nuevo.estado_nube() or {}).get("candidato") or {}
+        version = candidato.get("version")
+        resultado = modelo_nuevo._estado()["examinados"].get(str(version)) if version else None
+        if not resultado or not resultado.get("gana"):
+            return []
+        if int(formato_lora.modelo_activo().get("version") or 0) >= int(version):
+            return []
+        antes = rendir_examen(muestra=25)["total"]
+        modelo_nuevo.usar_nuevo()
+        despues = rendir_examen(muestra=25)["total"]
+        if despues < antes - 5:
+            modelo_nuevo.volver_anterior()
+            _diario("modelo", f"probé arche-lora v{version} pero bajé de {antes} a {despues}: volví al anterior")
+            return [f"probé mi modelo nuevo v{version} pero me fue peor ({despues} vs {antes}), así que volví al anterior"]
+        _diario("modelo", f"ahora uso arche-lora v{version} ({antes} -> {despues})")
+        return [f"empecé a usar mi modelo nuevo arche-lora v{version} ({antes} → {despues})"]
+    except Exception as e:
+        _diario("modelo", f"no pude revisar el modelo nuevo: {e}"[:200])
+        return []
+
+
 # ------------------------------------------------------------------
 # FASE 6 — Fabrica de habilidades
 # ------------------------------------------------------------------
@@ -1123,6 +1226,8 @@ def dormir_y_sonar():
         ("fábrica de habilidades", fabricar_habilidades),
         ("auto-juego", auto_juego),
         ("selección natural", seleccion_natural),
+        ("subir a la nube", _subir_charla_a_la_nube),
+        ("modelo nuevo", _adoptar_modelo_nuevo),
     ]
     antes = (_estado()["historial_nivel"] or [{}])[-1].get("total")
     for nombre, paso in pasos:
@@ -1140,9 +1245,6 @@ def dormir_y_sonar():
             hechos.append(f"mi nivel pasó de {antes} a {resultado['total']}")
         else:
             hechos.append(f"mi nivel de hoy: {resultado['total']}")
-    n = ejemplos_para_lora()
-    if n >= 200:
-        hechos.append(f"ya tengo {n} ejemplos listos para reentrenar mi LoRA")
     dudas = [i["tema"] for i in _no_se_pendientes()[:3]]
     e = _estado()
     e["ultimo_sueno"] = _ahora()
@@ -1314,8 +1416,35 @@ def manejar(comando):
         _msg("Listo, evoluciono sola cuando no me uses." if e["activa"] else "Listo, no evoluciono por mi cuenta.")
         return ("evolucion", "estado")
 
-    respuesta = usar_habilidad(texto) if _cargar(ARCH_HABILIDADES, {}) else None
-    if respuesta:
-        _msg(respuesta)
-        return ("evolucion", "habilidad")
+    return None
+
+
+# ------------------------------------------------------------------
+# Ganchos que main.py llama solos (David no tiene que hacer nada)
+# ------------------------------------------------------------------
+
+_DUDA = re.compile(r"\b(no (lo )?s[eé]|no estoy segur|no tengo (esa )?informaci|no conozco|no puedo saber|"
+                   r"desconozco|i don'?t know|no tengo datos)\b", re.I)
+
+
+def revisar_respuesta(pregunta, respuesta, fuente=""):
+    """Despues de cada charla: si no supo contestar, lo anota para estudiarlo esa noche."""
+    try:
+        if not respuesta or len(respuesta) < 4 or _DUDA.search(respuesta[:300]):
+            anotar_no_se(pregunta, "conocimiento")
+    except Exception:
+        pass
+
+
+def orden_no_entendida(frase):
+    """Cuando ninguna parte de Arche entendio la orden: prueba sus habilidades fabricadas y,
+    si ninguna sirve, la anota como tarea pendiente. Devuelve la respuesta o None."""
+    try:
+        if _cargar(ARCH_HABILIDADES, {}):
+            respuesta = usar_habilidad(frase)
+            if respuesta:
+                return respuesta
+        anotar_no_se(frase, "tarea")
+    except Exception:
+        pass
     return None
