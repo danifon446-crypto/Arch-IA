@@ -100,6 +100,40 @@ def _redondear_esquinas(raiz):
         ctypes.windll.dwmapi.DwmSetWindowAttribute(hwnd, 33, ctypes.byref(valor), ctypes.sizeof(valor))
     except Exception:
         pass
+    try:                                                          # sombra suave alrededor (CS_DROPSHADOW)
+        import ctypes
+        hwnd = ctypes.windll.user32.GetParent(raiz.winfo_id()) or raiz.winfo_id()
+        leer = getattr(ctypes.windll.user32, "GetClassLongPtrW", ctypes.windll.user32.GetClassLongW)
+        poner = getattr(ctypes.windll.user32, "SetClassLongPtrW", ctypes.windll.user32.SetClassLongW)
+        poner(hwnd, -26, leer(hwnd, -26) | 0x00020000)
+    except Exception:
+        pass
+
+
+def _ruta_posicion():
+    import os
+    carpeta = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "Arche")
+    os.makedirs(carpeta, exist_ok=True)
+    return os.path.join(carpeta, "burbuja.json")
+
+
+def _leer_posicion():
+    import json
+    try:
+        with open(_ruta_posicion(), encoding="utf-8") as f:
+            d = json.load(f)
+        return int(d["x"]), int(d["y"])
+    except Exception:
+        return None
+
+
+def _guardar_posicion(pos):
+    import json
+    try:
+        with open(_ruta_posicion(), "w", encoding="utf-8") as f:
+            json.dump({"x": pos[0], "y": pos[1]} if pos else {}, f)
+    except Exception:
+        pass
 
 
 def _hilo_burbuja():
@@ -121,19 +155,100 @@ def _hilo_burbuja():
     letra = "Segoe UI Variable Text" if "Segoe UI Variable Text" in tkfont.families() else "Segoe UI"
     F_CAJA, F_RESP, F_CHICA, F_NOMBRE = (letra, 14), (letra, 11), (letra, 9), (letra, 9, "bold")
 
-    marco = tk.Frame(raiz, bg=C["fondo"], padx=16, pady=14)
-    marco.pack(fill="both", expand=True, padx=1, pady=1)
+    # --- línea de color arriba (degradado morado -> azul -> rosa) ---
+    linea = tk.Canvas(raiz, height=3, bg=C["fondo"], highlightthickness=0)
+    linea.pack(fill="x", padx=1, pady=(1, 0))
 
-    # --- fila de arriba: esfera + caja de texto + botón enviar ---
-    fila = tk.Frame(marco, bg=C["caja"], padx=12, pady=8)
-    fila.pack(fill="x")
-    esfera = tk.Canvas(fila, width=26, height=26, bg=C["caja"], highlightthickness=0)
-    esfera.pack(side="left")
-    caja = tk.Entry(fila, bg=C["caja"], fg=C["suave"], insertbackground=C["texto"], relief="flat",
+    def pintar_linea(_e=None):
+        linea.delete("all")
+        w = max(linea.winfo_width(), ANCHO)
+        paradas = [(0x8b, 0x7c, 0xff), (0x6a, 0xa8, 0xff), (0xff, 0x8a, 0xd8)]
+        for x in range(0, w, 2):
+            t = x / w * (len(paradas) - 1)
+            a, b = paradas[int(t)], paradas[min(int(t) + 1, len(paradas) - 1)]
+            f = t - int(t)
+            color = "#%02x%02x%02x" % tuple(int(a[k] + (b[k] - a[k]) * f) for k in range(3))
+            linea.create_line(x, 0, x, 3, fill=color, width=2)
+    linea.bind("<Configure>", pintar_linea)
+
+    marco = tk.Frame(raiz, bg=C["fondo"], padx=16, pady=10)
+    marco.pack(fill="both", expand=True, padx=1, pady=(0, 1))
+
+    # --- encabezado: de aquí la arrastras ---
+    cabeza = tk.Frame(marco, bg=C["fondo"], cursor="fleur")
+    cabeza.pack(fill="x", pady=(0, 8))
+    titulo = tk.Label(cabeza, text="Arché", fg=C["suave"], bg=C["fondo"], font=(letra, 9, "bold"), cursor="fleur")
+    titulo.pack(side="left")
+    agarre = tk.Label(cabeza, text="• • •", fg=C["tenue"], bg=C["fondo"], font=(letra, 8), cursor="fleur")
+    agarre.place(relx=0.5, rely=0.5, anchor="center")
+    cerrar_btn = tk.Label(cabeza, text="×", fg=C["tenue"], bg=C["fondo"], font=(letra, 13), cursor="hand2", padx=4)
+    cerrar_btn.pack(side="right")
+    cerrar_btn.bind("<Enter>", lambda e: cerrar_btn.config(fg=C["texto"]))
+    cerrar_btn.bind("<Leave>", lambda e: cerrar_btn.config(fg=C["tenue"]))
+
+    # --- caja de texto redondeada: esfera + texto + enviar ---
+    ALTO_CAJA = 52
+    pastilla = tk.Canvas(marco, height=ALTO_CAJA, bg=C["fondo"], highlightthickness=0)
+    pastilla.pack(fill="x")
+    esfera = tk.Canvas(pastilla, width=26, height=26, bg=C["caja"], highlightthickness=0)
+    caja = tk.Entry(pastilla, bg=C["caja"], fg=C["suave"], insertbackground=C["texto"], relief="flat",
                     font=F_CAJA, highlightthickness=0, bd=0)
-    caja.pack(side="left", fill="x", expand=True, padx=(10, 8), ipady=4)
-    enviar_btn = tk.Label(fila, text="↵", fg=C["tenue"], bg=C["caja"], font=(letra, 15), cursor="hand2")
-    enviar_btn.pack(side="right")
+    enviar_btn = tk.Label(pastilla, text="↵", fg=C["tenue"], bg=C["caja"], font=(letra, 15), cursor="hand2")
+    foco = {"si": False}
+
+    def redondeado(cv, x1, y1, x2, y2, r, **kw):
+        pts = [x1 + r, y1, x2 - r, y1, x2, y1, x2, y1 + r, x2, y2 - r, x2, y2, x2 - r, y2, x1 + r, y2,
+               x1, y2, x1, y2 - r, x1, y1 + r, x1, y1]
+        return cv.create_polygon(pts, smooth=True, **kw)
+
+    def pintar_pastilla(_e=None):
+        pastilla.delete("fondo")
+        w = pastilla.winfo_width()
+        if w < 50:
+            return
+        redondeado(pastilla, 1, 1, w - 2, ALTO_CAJA - 2, 18, fill=C["caja"],
+                   outline=C["acento"] if foco["si"] else C["borde"], width=1.5, tags="fondo")
+        pastilla.tag_lower("fondo")
+        pastilla.coords("w_esfera", 30, ALTO_CAJA / 2)
+        pastilla.coords("w_caja", 52, ALTO_CAJA / 2)
+        pastilla.itemconfigure("w_caja", width=max(50, w - 52 - 46))
+        pastilla.coords("w_enviar", w - 26, ALTO_CAJA / 2)
+
+    pastilla.create_window(30, ALTO_CAJA / 2, window=esfera, tags="w_esfera")
+    pastilla.create_window(52, ALTO_CAJA / 2, window=caja, anchor="w", tags="w_caja")
+    pastilla.create_window(ANCHO - 26, ALTO_CAJA / 2, window=enviar_btn, tags="w_enviar")
+    pastilla.bind("<Configure>", pintar_pastilla)
+
+    def cambiar_foco(valor):
+        foco["si"] = valor
+        pintar_pastilla()
+    caja.bind("<FocusIn>", lambda e: cambiar_foco(True), add="+")
+    caja.bind("<FocusOut>", lambda e: cambiar_foco(False), add="+")
+    fila = pastilla                                   # (nombre que usa el resto del código)
+
+    # --- arrastrar la burbuja (y recordar dónde la dejaste) ---
+    arrastre = {"dx": 0, "dy": 0}
+
+    def empezar_arrastre(e):
+        arrastre["dx"], arrastre["dy"] = e.x_root - raiz.winfo_x(), e.y_root - raiz.winfo_y()
+
+    def arrastrar(e):
+        x = min(max(e.x_root - arrastre["dx"], -ANCHO + 80), raiz.winfo_screenwidth() - 80)
+        y = min(max(e.y_root - arrastre["dy"], 0), raiz.winfo_screenheight() - 60)
+        raiz.geometry(f"+{x}+{y}")
+
+    def soltar(_e):
+        _guardar_posicion((raiz.winfo_x(), raiz.winfo_y()))
+
+    def volver_al_centro(_e):
+        _guardar_posicion(None)
+        acomodar()
+
+    for w in (cabeza, titulo, agarre, linea, marco):
+        w.bind("<ButtonPress-1>", empezar_arrastre)
+        w.bind("<B1-Motion>", arrastrar)
+        w.bind("<ButtonRelease-1>", soltar)
+        w.bind("<Double-Button-1>", volver_al_centro)
 
     # --- respuesta (se puede seleccionar y copiar) ---
     zona = tk.Frame(marco, bg=C["fondo"])
@@ -147,11 +262,13 @@ def _hilo_burbuja():
     # --- pie: ayudas + estado del micrófono ---
     pie = tk.Frame(marco, bg=C["fondo"])
     pie.pack(fill="x", pady=(10, 0))
-    tk.Label(pie, text="Enter enviar   ↑↓ historial   Esc esconder", fg=C["tenue"], bg=C["fondo"],
-             font=F_CHICA).pack(side="left")
+    tk.Label(pie, text="Enter enviar · ↑↓ historial · Esc esconder",
+             fg=C["tenue"], bg=C["fondo"], font=F_CHICA).pack(side="left")
     micro_txt = tk.Label(pie, text="", fg=C["tenue"], bg=C["fondo"], font=F_CHICA)
     micro_txt.pack(side="right")
-    github_btn = tk.Label(pie, text="", fg=C["acento"], bg=C["fondo"], font=F_CHICA, cursor="hand2")
+    github_btn = tk.Label(pie, text="", fg=C["acento"], bg=C["fondo"], font=(letra, 9, "bold"), cursor="hand2")
+    github_btn.bind("<Enter>", lambda e: github_btn.config(fg="#b3a8ff"))
+    github_btn.bind("<Leave>", lambda e: github_btn.config(fg=C["acento"]))
     github_btn.pack(side="right", padx=(0, 14))
 
     estado = {"modo": "quieto", "fase": 0, "esconder_en": 0.0, "historial": [], "pos": None,
@@ -202,8 +319,12 @@ def _hilo_burbuja():
     def acomodar():
         raiz.update_idletasks()
         alto = raiz.winfo_reqheight()
-        x = (raiz.winfo_screenwidth() - ANCHO) // 2
-        y = int(raiz.winfo_screenheight() * 0.16)
+        guardada = _leer_posicion()
+        if guardada:
+            x, y = guardada
+        else:
+            x = (raiz.winfo_screenwidth() - ANCHO) // 2
+            y = int(raiz.winfo_screenheight() * 0.16)
         raiz.geometry(f"{ANCHO}x{alto}+{x}+{y}")
 
     def mostrar():
@@ -248,10 +369,11 @@ def _hilo_burbuja():
         if not zona.winfo_ismapped():
             zona.pack(fill="x", before=pie)
         if ajustar:
-            raiz.update_idletasks()
-            cuenta = resp.count("1.0", "end", "displaylines")
-            lineas = int((cuenta[0] if isinstance(cuenta, tuple) else cuenta) or 1)
-            alto_linea = tkfont.Font(font=F_RESP).metrics("linespace") + 4
+            import math
+            medida = tkfont.Font(font=F_RESP)
+            util = ANCHO - 2 - 32 - 8                       # ancho de la ventana menos márgenes
+            lineas = sum(max(1, math.ceil(medida.measure(par) / util)) for par in texto.split("\n"))
+            alto_linea = medida.metrics("linespace") + 4
             resp.config(height=max(1, min(lineas, ALTO_RESP_MAX // alto_linea)))
             if _estado["burbuja_visible"]:
                 acomodar()
@@ -307,6 +429,7 @@ def _hilo_burbuja():
     resp.bind("<Escape>", esconder)
     raiz.bind("<FocusOut>", al_perder_foco)
     enviar_btn.bind("<Button-1>", enviar)
+    cerrar_btn.bind("<Button-1>", esconder)
     for w in (fila, esfera):                       # clic en la fila = escribir
         w.bind("<Button-1>", lambda e: caja.focus_set())
     poner_marcador()
@@ -329,8 +452,13 @@ def _hilo_burbuja():
     aviso.overrideredirect(True)
     aviso.attributes("-topmost", True)
     aviso.configure(bg=C["borde"])
+    a_linea = tk.Canvas(aviso, height=3, bg=C["fondo"], highlightthickness=0)
+    a_linea.pack(fill="x", padx=1, pady=(1, 0))
+    a_linea.bind("<Configure>", lambda e: [a_linea.create_line(x, 0, x, 3, width=2, fill=linea.itemcget(
+        linea.find_all()[min(len(linea.find_all()) - 1, x * len(linea.find_all()) // max(1, e.width))], "fill"))
+        for x in range(0, e.width, 2)] if linea.find_all() else None)
     a_marco = tk.Frame(aviso, bg=C["fondo"], padx=16, pady=14)
-    a_marco.pack(fill="both", expand=True, padx=1, pady=1)
+    a_marco.pack(fill="both", expand=True, padx=1, pady=(0, 1))
     tk.Label(a_marco, text="ARCHÉ  ·  GitHub", fg=C["acento"], bg=C["fondo"], font=F_NOMBRE,
              anchor="w").pack(fill="x")
     a_texto = tk.Label(a_marco, text="", fg=C["texto"], bg=C["fondo"], font=F_RESP, justify="left",

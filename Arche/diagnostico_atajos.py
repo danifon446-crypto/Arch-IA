@@ -13,8 +13,9 @@ import sys
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, AQUI)
-LOG = os.path.join(AQUI, "logs", "arche_fondo.log")
-LOCK = os.path.join(AQUI, "logs", "arche_fondo.lock")
+CARPETA_LOGS = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "Arche", "logs")
+LOG = os.path.join(CARPETA_LOGS, "arche_fondo.log")
+LOCK = os.path.join(CARPETA_LOGS, "arche_fondo.lock")
 
 
 def titulo(t):
@@ -63,7 +64,7 @@ if sys.platform == "win32":
     pyw = os.path.join(os.path.dirname(sys.executable), "pythonw.exe")
     print(f"pythonw.exe: {'existe' if os.path.exists(pyw) else 'NO EXISTE'} ({pyw})")
 
-titulo("4. Lo último que dijo la presencia (logs/arche_fondo.log)")
+titulo("4. Lo último que dijo la presencia (%LOCALAPPDATA%\\Arche\\logs\\arche_fondo.log)")
 if os.path.exists(LOG):
     with open(LOG, encoding="utf-8", errors="replace") as f:
         lineas = f.readlines()

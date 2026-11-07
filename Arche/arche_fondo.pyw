@@ -14,7 +14,7 @@ Cómo se usa:
   - Doble clic a este archivo (abre con pythonw, no sale consola), o
   - que arranque solo con Windows:  python instalar_inicio.py
 
-Lo que Arché "imprime" queda en  Arche/logs/arche_fondo.log  (por si algo falla).
+Lo que Arché "imprime" queda en  %LOCALAPPDATA%\\Arche\\logs\\arche_fondo.log  (por si algo falla).
 main.py NO cambia: este archivo solo prepara el terreno y luego lo ejecuta.
 """
 
@@ -27,14 +27,28 @@ os.chdir(AQUI)
 if AQUI not in sys.path:
     sys.path.insert(0, AQUI)
 os.environ["ARCHE_FONDO"] = "1"          # otros módulos pueden saber que corremos sin consola
+# Registros FUERA del repo (en la carpeta de datos de Windows): así git nunca choca con un
+# archivo que Arché tiene abierto.  En Windows: C:\Users\<tú>\AppData\Local\Arche\logs
+CARPETA_LOGS = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "Arche", "logs")
 
 
 # ------------------------------------------------------------------
 # 1. Una sola Arché a la vez (si ya está corriendo, no abrir otra)
 # ------------------------------------------------------------------
 
+def _avisar_ya_abierta():
+    """Si ya hay una Arché, no abro otra, pero te lo digo (antes se cerraba sin avisar)."""
+    try:
+        from winotify import Notification
+        Notification(app_id="Arché", title="Arché ya está abierta",
+                     msg="Para cargar archivos nuevos usa «Reiniciar Arché» en el icono junto al reloj.",
+                     duration="short").show()
+    except Exception:
+        pass
+
+
 def _ya_esta_corriendo():
-    carpeta = os.path.join(AQUI, "logs")
+    carpeta = CARPETA_LOGS
     os.makedirs(carpeta, exist_ok=True)
     ruta = os.path.join(carpeta, "arche_fondo.lock")
     global _candado_archivo
@@ -100,7 +114,7 @@ class _Registro:
 
 
 def _preparar_salida():
-    carpeta = os.path.join(AQUI, "logs")
+    carpeta = CARPETA_LOGS
     os.makedirs(carpeta, exist_ok=True)
     ruta = os.path.join(carpeta, "arche_fondo.log")
     try:
@@ -166,7 +180,17 @@ def _no_abrir_ventana_al_iniciar():
 # ------------------------------------------------------------------
 
 if __name__ == "__main__":
-    if _ya_esta_corriendo():
+    if "--reinicio" in sys.argv:
+        import time
+        for _ in range(60):                   # espera a que la Arché vieja termine de cerrarse
+            if not _ya_esta_corriendo():
+                break
+            _candado_archivo.close()
+            time.sleep(1)
+        else:
+            sys.exit(0)
+    elif _ya_esta_corriendo():
+        _avisar_ya_abierta()
         sys.exit(0)
     if sys.stdout is None or os.path.basename(sys.executable).lower() == "pythonw.exe":
         _preparar_salida()

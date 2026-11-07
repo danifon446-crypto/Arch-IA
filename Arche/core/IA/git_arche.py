@@ -237,6 +237,22 @@ def _asegurar_gitignore(raiz):
                     "# Registros de Arché en segundo plano\n" + "\n".join(faltan) + "\n")
 
 
+def _arreglar_estado(raiz):
+    """Si una subida anterior quedó a medias (rebase sin terminar), la deshace primero."""
+    git_dir = raiz / ".git"
+    if (git_dir / "rebase-merge").exists() or (git_dir / "rebase-apply").exists():
+        _git_red(raiz, "rebase", "--abort")
+
+
+def _sacar_ignorados(raiz):
+    """Archivos que .gitignore dice que no van (registros, etc.) pero que quedaron dentro del repo
+    en una subida vieja: los saca del repo SIN borrarlos de tu PC."""
+    r = _git(raiz, "ls-files", "-ci", "--exclude-standard", "-z")
+    sobran = [x for x in r.stdout.split("\0") if x]
+    if sobran:
+        _git(raiz, "rm", "-r", "-q", "--cached", "--ignore-unmatch", "--", *sobran)
+
+
 def _revisar_preparados(raiz):
     """Revisa lo que se va a subir. Devuelve lista de problemas (vacía = todo bien)."""
     problemas = []
@@ -317,8 +333,10 @@ def subir(mensaje=None):
                        "Dale al botón «⇪ Subir a GitHub» de la burbuja (o al del ícono) y te pregunto "
                        "ahí si fuiste tú, con un botón para aprobar y subir.")
     try:
+        _arreglar_estado(raiz)
         _asegurar_gitignore(raiz)
         _git(raiz, "add", "-A")
+        _sacar_ignorados(raiz)
         hay_cambios = _git(raiz, "diff", "--cached", "--quiet").returncode != 0
         if hay_cambios:
             problemas = _revisar_preparados(raiz)
@@ -339,6 +357,12 @@ def subir(mensaje=None):
             _git_red(raiz, "rebase", "--abort")
             return False, ("GitHub tiene cambios que chocan con los tuyos y no los quise mezclar a ciegas. "
                            "Tus cambios están guardados en tu PC. Detalle: " + (r.stderr or r.stdout).strip()[-200:])
+        # lo que vino de GitHub también puede traer archivos que no deben estar (registros viejos)
+        _sacar_ignorados(raiz)
+        if _git(raiz, "diff", "--cached", "--quiet").returncode != 0:
+            _git_red(raiz, *_identidad(raiz), "commit", "--no-verify", "-q", "-m",
+                     "Arché: saco del repo los registros y archivos ignorados")
+            hay_cambios = True
         r = _git_red(raiz, "push")
         if r.returncode != 0:
             err = (r.stderr or r.stdout).strip()
