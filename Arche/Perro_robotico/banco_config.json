@@ -8,6 +8,7 @@
   },
   "cooldown": 2.5,
   "invertir_giro": false,
+  "usar_camara": false,
   "detector": {
     "color_pelota": "amarilla (tenis)",
     "umbral_movimiento": 0.1,
