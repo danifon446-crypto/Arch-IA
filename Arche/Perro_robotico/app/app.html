@@ -69,6 +69,7 @@
 
   #banner { display:none; background:#3a1c1e; color:#ffb4ae; border-radius:14px; padding:.8rem 1rem;
     margin-bottom:.9rem; font-size:.92rem; }
+  #banner.pausa { background:#3a2f12; color:var(--ambar); }
 
   /* control segmentado de modos */
   .segmentos { display:grid; grid-template-columns:1fr 1fr; gap:.25rem; background:var(--capa); padding:.25rem; border-radius:12px; }
@@ -112,7 +113,31 @@
   #paro { width:100%; border:0; border-radius:14px; padding:.95rem; background:var(--rojo); color:#fff;
     font:800 1.15rem var(--redondo); letter-spacing:.02em; }
   #paro.listo { background:#7a2a2d; }
-  nav { display:grid; grid-template-columns:repeat(4,1fr); margin-top:.45rem; }
+
+  #t-esp td:first-child { color:var(--sub); width:42%; }
+  #t-esp td.ok { color:var(--verde); } #t-esp td.warn { color:var(--ambar); } #t-esp td.mal { color:var(--rojo); }
+  #t-servos { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; }
+  #t-servos .servo { position:relative; overflow:hidden; display:flex; justify-content:space-between; gap:.4rem;
+    padding:.45rem .6rem; border-radius:8px; background:var(--capa); font-size:.8rem; }
+  #t-servos .servo span { color:var(--sub); } #t-servos .servo b { font-variant-numeric:tabular-nums; position:relative; }
+  #t-servos .servo i { position:absolute; left:0; bottom:0; height:3px; background:var(--ambar); }
+  #t-esp td:first-child { white-space:nowrap; }
+  /* ---------- órdenes */
+  .chat { display:flex; gap:.5rem; }
+  .chat input { flex:1; min-width:0; font:inherit; color:var(--txt); background:var(--capa2); border:0;
+    border-radius:12px; padding:.75rem .9rem; -webkit-user-select:text; user-select:text; }
+  #respuesta { background:var(--capa); border-radius:14px; padding:.8rem 1rem; margin-top:.6rem; min-height:2.8rem;
+    font-size:.92rem; white-space:pre-line; }
+  #respuesta.mal { color:#ffb4ae; }
+  .cruceta { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; max-width:20rem; margin:0 auto; }
+  .cruceta button, .gestos button { border:0; border-radius:14px; background:var(--capa2); color:var(--txt);
+    font:600 .95rem var(--redondo); padding:1rem .3rem; touch-action:none; }
+  .cruceta button.activo { background:var(--ambar); color:#1b1306; }
+  .cruceta .quieto { background:#3a2a12; color:var(--ambar); }
+  .gestos { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; }
+  .gestos button.ancho2 { grid-column:span 3; }
+
+  nav { display:grid; grid-template-columns:repeat(5,1fr); margin-top:.45rem; }
   nav button { border:0; background:none; color:var(--sub); font:500 .7rem -apple-system, system-ui, sans-serif;
     padding:.35rem 0 .2rem; display:flex; flex-direction:column; align-items:center; gap:.15rem; }
   nav button svg { width:1.55rem; height:1.55rem; }
@@ -166,12 +191,13 @@
       <button id="b-perro">Perro</button>
     </div>
     <button id="b-reanudar" class="boton primario ancho" style="display:none">Reanudar</button>
+    <div class="grupo" style="margin-top:.6rem">
+      <div class="fila"><label for="c-camara">Usar la cámara</label><input type="checkbox" id="c-camara"></div>
+    </div>
+    <p class="nota">Apagado: Manual y Perro funcionan aunque la cámara esté apagada, y no se pausa si se corta el video. En modo Perro se mueve solo, sin reaccionar a lo que ve.</p>
     <div id="msg"></div>
 
-    <h2>Control</h2>
-    <div class="grupo" style="padding:1rem"><div id="control"></div></div>
-
-    <h2>Más reacciones</h2>
+    <h2>Probar una reacción</h2>
     <div class="grupo">
       <div class="fila"><select id="sel-probar" aria-label="Reacción"></select><button id="b-probar" class="boton primario">Enviar</button></div>
     </div>
@@ -182,6 +208,59 @@
       <div class="fila"><span class="nota" id="razon" style="margin:0">—</span></div>
     </div>
     <p class="nota">Cara: se alegra y se acerca. Pelota: la persigue. Movimiento brusco: se asusta y retrocede. Algo cerca: se detiene. Nada: se aburre, se sienta y se duerme.</p>
+  </section>
+
+  <!-- ===================== ÓRDENES (lo mismo que decirle a Arché en el PC) -->
+  <section data-pestana="ordenes">
+    <h2>Dile al perro</h2>
+    <form class="chat" id="f-orden" autocomplete="off">
+      <input id="t-orden" enterkeyhint="send" placeholder="sientate, da la pata, mueve el servo 2 a 90…" aria-label="Orden para el perro">
+      <button class="boton primario" type="submit">Enviar</button>
+    </form>
+    <div id="respuesta">Las órdenes pasan por Arché igual que si se las dijeras en el PC.</div>
+
+    <h2>Moverse</h2>
+    <div class="cruceta">
+      <span></span><button data-mover="avanza">Adelante</button><span></span>
+      <button data-mover="gira a la izquierda">Izquierda</button>
+      <button data-frase="quieto" class="quieto">Quieto</button>
+      <button data-mover="gira a la derecha">Derecha</button>
+      <span></span><button data-mover="retrocede">Atrás</button><button data-mover="corre">Correr</button>
+    </div>
+    <p class="nota">Mantén presionado para que camine; al soltar se queda quieto.</p>
+
+    <h2>Gestos</h2>
+    <div class="gestos">
+      <button data-frase="sientate">Sentarse</button>
+      <button data-frase="parate">Pararse</button>
+      <button data-frase="acuestate">Acostarse</button>
+      <button data-frase="da la pata">Dar la pata</button>
+      <button data-frase="mueve la cola">Cola</button>
+      <button data-frase="ladra">Ladrar</button>
+      <button data-frase="relaja los servos" class="ancho2">Relajar servos (ahorra batería)</button>
+    </div>
+
+    <h2>Modo perro de Arché</h2>
+    <div class="grupo">
+      <div class="fila"><span id="ap-estado">—</span><button id="b-ap" class="boton">Activar</button></div>
+      <div class="fila"><span class="nota" id="ap-evento" style="margin:0">—</span></div>
+    </div>
+    <p class="nota">Arché decide solo qué hace (juega, camina, se cansa y duerme). Es distinto del modo Perro del Panel, que reacciona a la cámara.</p>
+
+    <h2>Un servo</h2>
+    <div class="grupo">
+      <div class="fila"><span>Servo</span>
+        <select id="sv-num">
+          <option value="">Los 8</option>
+          <option value="1">1 · del. der. hombro</option><option value="2">2 · del. der. rodilla</option>
+          <option value="3">3 · del. izq. hombro</option><option value="4">4 · del. izq. rodilla</option>
+          <option value="5">5 · tras. der. hombro</option><option value="6">6 · tras. der. rodilla</option>
+          <option value="7">7 · tras. izq. hombro</option><option value="8">8 · tras. izq. rodilla</option>
+        </select></div>
+      <div class="deslizador"><div><span>Ángulo</span><span id="sv-v">90°</span></div>
+        <input type="range" id="sv-ang" min="0" max="180" step="1" value="90" aria-label="Ángulo del servo"></div>
+    </div>
+    <p class="nota">Mientras usas Órdenes la cámara no hace reaccionar al perro, para que no le pise lo que mandas. Para volver a que reaccione a lo que ve, toca Manual o Perro en el Panel.</p>
   </section>
 
   <!-- ===================== OJOS (este iPhone como cámara) -->
@@ -204,8 +283,6 @@
         <select id="cam-calidad"><option value="auto">Automática</option><option value="maxima">Máxima (1280 px)</option><option value="alta">Alta (640 px)</option><option value="normal">Normal (320 px, ahorra datos)</option></select></div>
     </div>
     <button id="b-cam" class="boton primario ancho">Iniciar cámara</button>
-    <button id="b-cara" class="boton ancho">Poner la cara del perro</button>
-    <p class="nota">La cara usa la cámara frontal: monta este celular al frente del perro con la pantalla hacia afuera. Los ojos miran a las personas y cambian con su ánimo. Para salir, mantén el dedo 2 segundos.</p>
     <div id="cam-msg" class="nota" style="color:var(--ambar)"></div>
     <p class="nota">Puedes cambiar de pestaña: la cámara sigue enviando. Si sales de la app o se bloquea la pantalla, el iPhone apaga la cámara y el robot entra en paro solo.</p>
   </section>
@@ -252,6 +329,10 @@
     <h2>Por detección</h2>
     <div class="grupo"><table id="t-lat"></table></div>
     <button id="b-lat-reset" class="boton ancho">Reiniciar medidas</button>
+    <h2>ESP32</h2>
+    <div class="grupo"><table id="t-esp"></table></div>
+    <h2>Servos (ángulo real en el ESP32)</h2>
+    <div id="t-servos"></div>
     <h2>Últimas reacciones</h2>
     <div class="grupo"><table id="t-hist"></table></div>
   </section>
@@ -262,6 +343,8 @@
   <nav>
     <button data-ir="panel" class="sel" aria-label="Panel">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9c0-3 2.5-5 7-5s7 2 7 5v4c0 4-3 7-7 7s-7-3-7-7z"/><path d="M5 9 3 14M19 9l2 5"/><circle cx="9.5" cy="11" r=".8" fill="currentColor"/><circle cx="14.5" cy="11" r=".8" fill="currentColor"/><path d="M11 15h2"/></svg>Panel</button>
+    <button data-ir="ordenes" aria-label="Órdenes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5v3M12 14.5v3M6.5 12h3M14.5 12h3"/></svg>Órdenes</button>
     <button data-ir="ojos" id="tab-ojos" aria-label="Ojos">
       <span class="punto"></span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Ojos</button>
@@ -282,8 +365,6 @@
 </div>
 
 <script src="/rtc.js"></script>
-<script src="/cara.js"></script>
-<script src="/control.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
@@ -340,6 +421,7 @@ function armar(e) {
   }
   $("c-cooldown").onchange = () => api("/api/config", {cooldown: Number($("c-cooldown").value)});
   $("c-invertir").onchange = () => api("/api/config", {invertir_giro: $("c-invertir").checked});
+  $("c-camara").onchange = async () => { await api("/api/config", {usar_camara: $("c-camara").checked}); refrescar(); };
   armado = true;
 }
 
@@ -354,10 +436,16 @@ function pintar(e) {
   else estado($("e-esp"), "ESP32 sin latido", "warn");
   estado($("e-mqtt"), e.mqtt.ok ? "MQTT ok" : "MQTT sin conexión", e.mqtt.ok ? "ok" : "mal");
   const enParo = e.modo === "paro";
-  estado($("e-modo"), enParo ? "En paro" : "Modo " + e.modo, enParo ? "mal" : "ok");
+  const NOMBRE_MODO = {manual: "Modo manual", perro: "Modo perro", ordenes: "Modo órdenes"};
+  if (enParo) estado($("e-modo"), "En paro", "mal");
+  else if (e.pausa) estado($("e-modo"), "En pausa", "warn");
+  else estado($("e-modo"), NOMBRE_MODO[e.modo] || ("Modo " + e.modo), "ok");
 
-  $("banner").style.display = enParo ? "block" : "none";
-  $("banner").textContent = "En paro. " + (e.motivo_paro || "");
+  // paro (rojo): solo lo quitas tú.  pausa (ámbar): algo se cortó un momento y vuelve sola.
+  $("banner").style.display = (enParo || e.pausa) ? "block" : "none";
+  $("banner").className = (!enParo && e.pausa) ? "pausa" : "";
+  $("banner").textContent = enParo ? "En paro. " + (e.motivo_paro || "")
+    : "En pausa: " + e.pausa + " El perro se queda quieto y sigue solo cuando vuelva.";
   $("b-reanudar").style.display = enParo ? "block" : "none";
   $("b-manual").className = e.modo === "manual" ? "sel" : "";
   $("b-perro").className = e.modo === "perro" ? "sel" : "";
@@ -379,11 +467,19 @@ function pintar(e) {
   poner($("c-cooldown"), e.cooldown);
   poner($("c-color"), e.config.color_pelota);
   if (document.activeElement !== $("c-invertir")) $("c-invertir").checked = e.invertir_giro;
+  if (document.activeElement !== $("c-camara")) $("c-camara").checked = e.usar_camara !== false;
   for (const [k] of SLIDERS) { poner($("c-" + k), e.config[k]); if (document.activeElement !== $("c-" + k)) $("v-" + k).textContent = Number(e.config[k]).toFixed(3); }
   for (const k of ["seg_sentarse", "seg_dormir"]) { poner($("c-" + k), e.perro.params[k]); if (document.activeElement !== $("c-" + k)) $("v-" + k).textContent = e.perro.params[k] + " s"; }
 
   $("animo").textContent = e.perro.mood; $("postura").textContent = e.perro.postura;
   $("razon").textContent = e.perro.razon;
+
+  if (e.arche_perro) {
+    $("ap-estado").textContent = e.arche_perro.activo ? "Activo: " + e.arche_perro.resumen : "Apagado";
+    $("ap-evento").textContent = e.arche_perro.evento;
+    $("b-ap").textContent = e.arche_perro.activo ? "Apagar" : "Activar";
+    $("b-ap").className = e.arche_perro.activo ? "boton" : "boton primario";
+  }
 
   const L = e.lat;
   $("l-det").textContent = fmt(L.deteccion); $("l-red").textContent = fmt(L.red_celular);
@@ -395,7 +491,58 @@ function pintar(e) {
   for (const r of L.historial) hh += `<tr><td>${r.hora}</td><td>${r.evento}</td><td>${r.accion}</td><td class='n'>${fmt(r.total_ms)}</td></tr>`;
   if (!L.historial.length) hh += "<tr><td colspan='4' style='color:var(--sub)'>Todavía no hay reacciones.</td></tr>";
   $("t-hist").innerHTML = hh;
+  pintarEsp(e);
 }
+
+/* ======================================== tarjeta ESP32 (datos que manda cada 2 s por MQTT) */
+const SERVOS_ESP = ["Del. der. hombro", "Del. der. rodilla", "Del. izq. hombro", "Del. izq. rodilla",
+                    "Tras. der. hombro", "Tras. der. rodilla", "Tras. izq. hombro", "Tras. izq. rodilla"];
+function tiempoBonito(s) {
+  if (s == null) return "—";
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  if (d) return `${d} d ${h} h`;
+  if (h) return `${h} h ${m} min`;
+  if (m) return `${m} min ${Math.floor(s % 60)} s`;
+  return `${Math.floor(s)} s`;
+}
+function senal(rssi) {
+  if (rssi == null) return ["—", ""];
+  if (rssi >= -60) return [`${rssi} dBm · buena`, "ok"];
+  if (rssi >= -72) return [`${rssi} dBm · regular`, "warn"];
+  return [`${rssi} dBm · débil (acércalo al router)`, "mal"];
+}
+function pintarEsp(e) {
+  const esp = e.esp, i = esp.info, fila = (k, v, c) => `<tr><td>${k}</td><td class="${c || ""}">${v}</td></tr>`;
+  let h = "";
+  if (esp.perdido) h += fila("Conexión", "Perdido", "mal");
+  else if (esp.hb_visto) h += fila("Conexión", `En línea · último latido hace ${fmt(esp.hb_hace_s, 1)} s`, "ok");
+  else h += fila("Conexión", "Todavía no llega el latido", "warn");
+  if (!i) {
+    h += fila("Datos", "El ESP32 no manda datos. Sube el perro_esp32.ino nuevo.", "warn");
+    $("t-esp").innerHTML = h; $("t-servos").innerHTML = ""; return;
+  }
+  if (esp.info_hace_s > 6) h += fila("Datos", `Sin datos nuevos hace ${fmt(esp.info_hace_s, 0)} s (lo de abajo es lo último que mandó)`, "warn");
+  const [txtSen, cSen] = senal(i.rssi);
+  h += fila("WiFi", (i.ssid ? i.ssid + " · " : "") + txtSen, cSen);
+  h += fila("IP", i.ip || "—");
+  h += fila("Encendido hace", tiempoBonito(i.up));
+  const malReinicio = /voltaje|error|colg/.test(i.reinicio || "");
+  h += fila("Último reinicio", (i.reinicio || "—") + (/voltaje/.test(i.reinicio || "") ? " · la fuente se cayó: revisa pilas/regulador" : ""), malReinicio ? "mal" : "");
+  h += fila("Reinicios vistos", esp.reinicios ? `${esp.reinicios} desde que abriste el banco` : "ninguno", esp.reinicios ? "warn" : "ok");
+  h += fila("Driver", i.drv === "PCA9685" ? "PCA9685" : "Pines directos (no encontró el PCA9685)", i.drv === "PCA9685" ? "ok" : "warn");
+  h += fila("Órdenes recibidas", i.ordenes ?? "—");
+  h += fila("Reconexiones MQTT", i.reconex ?? "—", i.reconex > 3 ? "warn" : "");
+  h += fila("Memoria libre", i.heap != null ? i.heap + " KB" : "—", i.heap != null && i.heap < 40 ? "warn" : "");
+  $("t-esp").innerHTML = h;
+  let s = "";
+  (i.ang || []).forEach((a, k) => {
+    const suelto = a < 0;
+    s += `<div class="servo"><span>${k + 1} · ${SERVOS_ESP[k] || ""}</span><b>${suelto ? "suelto" : a + "°"}</b>` +
+         `<i style="width:${suelto ? 0 : Math.round(a / 180 * 100)}%"></i></div>`;
+  });
+  $("t-servos").innerHTML = s;
+}
+
 
 async function refrescar() {
   if (document.hidden) return;
@@ -418,6 +565,61 @@ $("b-reanudar").onclick = async () => { const r = await api("/api/reanudar"); ms
 $("b-probar").onclick = async () => { const r = await api("/api/probar", {accion: $("sel-probar").value}); msg(r.ok ? "" : r.msg); };
 $("b-recal").onclick = async () => { await api("/api/recalibrar"); $("b-recal").textContent = "Recalibrado"; setTimeout(() => $("b-recal").textContent = "Recalibrar (moviste el celular de sitio)", 1500); };
 $("b-lat-reset").onclick = () => api("/api/reiniciar_latencias");
+
+/* ======================================== órdenes: la frase va a Arché (acciones_robot.manejar) */
+async function ordenar(frase) {
+  try {
+    const r = await api("/api/orden", {frase});
+    $("respuesta").textContent = r.msg || "";
+    $("respuesta").className = r.ok ? "" : "mal";
+    refrescar();
+    return r.ok;
+  } catch (e) {
+    $("respuesta").textContent = "No pude mandar la orden: revisa la conexión con el PC.";
+    $("respuesta").className = "mal";
+    return false;
+  }
+}
+$("f-orden").onsubmit = ev => {
+  ev.preventDefault();
+  const t = $("t-orden").value.trim();
+  if (!t) return;
+  ordenar(t);
+  $("t-orden").value = "";
+};
+document.querySelectorAll("[data-frase]").forEach(b => b.onclick = () => ordenar(b.dataset.frase));
+$("b-ap").onclick = () => ordenar(E && E.arche_perro && E.arche_perro.activo ? "desactiva el modo perro" : "activa el modo perro");
+
+// cruceta: mantener presionado = camina; soltar (o salir de la app) = quieto
+let moviendo = null;
+function soltar() {
+  if (!moviendo) return;
+  moviendo.classList.remove("activo");
+  moviendo = null;
+  ordenar("quieto");
+}
+document.querySelectorAll("[data-mover]").forEach(b => {
+  b.addEventListener("pointerdown", ev => {
+    ev.preventDefault();
+    if (moviendo) moviendo.classList.remove("activo");
+    moviendo = b; b.classList.add("activo");
+    b.setPointerCapture(ev.pointerId);
+    ordenar(b.dataset.mover);
+  });
+  for (const tipo of ["pointerup", "pointercancel", "lostpointercapture"]) b.addEventListener(tipo, () => { if (moviendo === b) soltar(); });
+  b.addEventListener("contextmenu", ev => ev.preventDefault());
+});
+document.addEventListener("visibilitychange", () => { if (document.hidden) soltar(); });
+window.addEventListener("pagehide", soltar);
+
+// servo: se manda al soltar el deslizador
+$("sv-ang").oninput = () => $("sv-v").textContent = $("sv-ang").value + "°";
+function mandarServo() {
+  const n = $("sv-num").value, a = $("sv-ang").value;
+  ordenar(n ? `mueve el servo ${n} a ${a}` : `mueve el servo a ${a}`);
+}
+$("sv-ang").onchange = mandarServo;
+$("sv-num").onchange = mandarServo;
 
 /* video: se pide la imagen ORIGINAL que mandó el celular (sin volver a comprimirla en el PC: más nítida)
    y las cajas de lo que detectó Arché llegan aparte y se dibujan aquí encima, como el HUD de Lain.
@@ -688,15 +890,6 @@ function ponerRemoto(stream) {
 $("rtcv").addEventListener("loadedmetadata", e => formaVista(e.target, e.target.videoWidth, e.target.videoHeight));
 
 $("b-cam").onclick = () => corriendo ? detenerCam() : iniciarCam();
-
-/* Modo cara: este celular va montado en el perro. Cámara frontal = ojos de verdad; la pantalla = la cara. */
-$("b-cara").onclick = async () => {
-  if ($("cam-lado").value !== "user") { $("cam-lado").value = "user"; if (corriendo) detenerCam(); }
-  if (!corriendo) await iniciarCam();
-  if (!corriendo) return;                            // no se pudo abrir la cámara: el aviso ya se muestra
-  Cara.abrir({estado: () => E, deteccion: () => ultimo, alCerrar: () => ir("ojos")});
-};
-Control.montar($("control"));
 $("cam-lado").onchange = () => { if (corriendo) { detenerCam(); iniciarCam(); } };
 
 document.addEventListener("visibilitychange", async () => {

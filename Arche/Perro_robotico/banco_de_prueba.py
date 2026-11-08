@@ -184,14 +184,20 @@ class Banco:
         self.lock_lat = threading.Lock()     # latencias (el ack llega por otro hilo)
         self._fin = threading.Event()
 
-        self.modo = "paro"                   # paro | manual | perro
+        self.modo = "paro"                   # paro | manual | perro | ordenes
         self.modo_previo = "manual"
         self.motivo_paro = "Arranca en paro: elige Manual o Perro."
         self.gracia_hasta = 0.0
+        # pausa = algo se corto un momento (video, ESP32, MQTT). El robot se queda quieto,
+        # pero el modo NO se pierde: cuando todo vuelve, sigue solo (sin tocar Reanudar).
+        self.pausa = ""
 
         self.mapa = dict(MAPA_INICIAL)
         self.cooldown = 2.5
         self.invertir_giro = False
+        # False = no le importa si la camara esta prendida: Manual/Perro arrancan sin video
+        # y no se pausa si se corta (el modo Perro sigue solo, como si no viera nada).
+        self.usar_camara = True
 
         # percepcion
         self.ev = "nada"
@@ -233,6 +239,10 @@ class Banco:
         self.mon_conectado = False
         self.mon_visto = False
         self.mon_error = ""
+        # datos que manda el ESP32 cada 2 s por BASE/info (senal, reinicio, servos...)
+        self.esp_info = None
+        self.t_esp_info = 0.0
+        self.esp_reinicios = 0           # reinicios vistos desde que se abrio el banco
 
         self._cargar()
         self._iniciar_mqtt()
@@ -250,12 +260,14 @@ class Banco:
                 self.mapa[k] = v
         self.aplicar_config({**d.get("detector", {}), **d.get("perro", {}),
                              "cooldown": d.get("cooldown", self.cooldown),
-                             "invertir_giro": d.get("invertir_giro", self.invertir_giro)}, guardar=False)
+                             "invertir_giro": d.get("invertir_giro", self.invertir_giro),
+                             "usar_camara": d.get("usar_camara", self.usar_camara)}, guardar=False)
 
     def _guardar(self):
         try:
             with open(RUTA_CFG, "w", encoding="utf-8") as f:
                 json.dump({"mapa": self.mapa, "cooldown": self.cooldown, "invertir_giro": self.invertir_giro,
+                           "usar_camara": self.usar_camara,
                            "detector": self.detector.config, "perro": self.cerebro.params}, f, indent=2)
         except OSError:
             pass
@@ -274,6 +286,10 @@ class Banco:
                         self.detector.config[k] = v
                 elif k == "invertir_giro":
                     self.invertir_giro = bool(v)
+                elif k == "usar_camara":
+                    self.usar_camara = bool(v)
+                    if not self.usar_camara and self.pausa.startswith("Se perdio el video"):
+                        self.pausa = ""          # si estaba en pausa solo por la camara, sigue
                 elif k in self.RANGOS:
                     lo, hi = self.RANGOS[k]
                     v = max(lo, min(hi, float(v)))
@@ -302,6 +318,7 @@ class Banco:
             return
         base = ar.TOPICS["DD"].rsplit("/pata/", 1)[0]
         self.t_estado, self.t_hb, self.t_ack = base + "/estado", base + "/hb", base + "/ack"
+        self.t_info = base + "/info"
         try:
             c = ar.mqtt.Client(ar.mqtt.CallbackAPIVersion.VERSION2)   # paho-mqtt 2.x
         except AttributeError:
@@ -310,7 +327,7 @@ class Banco:
         def on_connect(cl, userdata, flags, rc, *extra):
             self.mon_conectado = True
             self.mon_visto = True
-            cl.subscribe([(self.t_estado, 0), (self.t_hb, 0), (self.t_ack, 0)])
+            cl.subscribe([(self.t_estado, 0), (self.t_hb, 0), (self.t_ack, 0), (self.t_info, 0)])
 
         def on_disconnect(cl, userdata, *args):
             self.mon_conectado = False
@@ -324,6 +341,8 @@ class Banco:
                 self.esp_estado = msg.payload.decode("utf-8", "ignore").strip()
             elif msg.topic == self.t_ack:
                 self._on_ack(ahora)
+            elif msg.topic == self.t_info:
+                self._on_info(msg.payload)
 
         c.on_connect, c.on_disconnect, c.on_message = on_connect, on_disconnect, on_message
         try:
@@ -332,6 +351,19 @@ class Banco:
         except Exception as e:
             self.mon_error = f"No pude iniciar el monitor MQTT ({e})."
         self._mon = c
+
+    def _on_info(self, payload):
+        try:
+            d = json.loads(payload.decode("utf-8", "ignore"))
+        except ValueError:
+            return
+        if not isinstance(d, dict):
+            return
+        previo = self.esp_info
+        if previo and isinstance(d.get("up"), (int, float)) and d["up"] < previo.get("up", 0):
+            self.esp_reinicios += 1      # el tiempo encendido volvio a empezar: se reinicio
+        self.esp_info = d
+        self.t_esp_info = time.time()
 
     def esp_perdido(self):
         if self.esp_estado == "offline":
@@ -361,6 +393,7 @@ class Banco:
                 self.modo_previo = self.modo
             self.modo = "paro"
             self.motivo_paro = motivo
+            self.pausa = ""
             self.accion_actual = None
         try:
             ar._modo_perro.detener("Paro del banco de pruebas.")
@@ -371,7 +404,7 @@ class Banco:
     def set_modo(self, modo):
         if modo not in ("manual", "perro"):
             return False, "Modo invalido."
-        if time.time() - self.t_ultimo_cuadro > TIMEOUT_CAMARA:
+        if self.usar_camara and time.time() - self.t_ultimo_cuadro > TIMEOUT_CAMARA:
             return False, "No llega video del celular: en la app, pestana Ojos > Iniciar camara (o abre /camara en el celular)."
         if self.esp_perdido():
             return False, "El ESP32 aparece desconectado: revisa su WiFi/MQTT."
@@ -383,6 +416,7 @@ class Banco:
             ar._modo_perro.detener("Banco de pruebas activo.")   # apaga el modo perro viejo
             self.modo = modo
             self.motivo_paro = ""
+            self.pausa = ""
             self.gracia_hasta = time.time() + GRACIA_TRAS_ACTIVAR
             self.cerebro.reiniciar(time.time())
             self.ev_manual_prev = self.ev
@@ -392,17 +426,79 @@ class Banco:
     def reanudar(self):
         return self.set_modo(self.modo_previo if self.modo_previo in ("manual", "perro") else "manual")
 
+    def ceder_control(self):
+        """Pasa a modo "ordenes" SIN tocar el robot: la camara deja de mandar reacciones
+        para que no pise lo que mandas desde la app. No es un paro: no hay que Reanudar.
+        Devuelve el modo que habia (o None si estaba en paro: el paro solo lo quitas tu)."""
+        with self.lock:
+            if self.modo == "paro":
+                return None
+            previo = self.modo
+            if previo in ("manual", "perro"):
+                self.modo_previo = previo
+            self.modo = "ordenes"
+            self.pausa = ""
+            self.accion_actual = None
+            return previo
+
+    def devolver_control(self, previo):
+        """Deshace ceder_control (cuando la frase al final no era una orden del perro)."""
+        with self.lock:
+            if self.modo == "ordenes" and previo in ("manual", "perro"):
+                self.modo = previo
+                self.gracia_hasta = time.time() + GRACIA_TRAS_ACTIVAR
+
+    def orden(self, frase):
+        """Una frase escrita o tocada en la app pasa por el MISMO camino que cuando
+        se la dices a Arche en el PC: acciones_robot.manejar() -> MQTT -> ESP32."""
+        frase = (frase or "").strip()[:200]
+        if not frase:
+            return False, "Escribe una orden."
+        t = ar._normalizar(frase)
+        if _RE_EMERGENCIA.match(t):
+            self.paro("Parada de emergencia desde la app.")
+        try:
+            respuesta = ar.manejar(frase)
+        except Exception as e:
+            respuesta = f"El perro fallo: {e}"
+        if respuesta is None:
+            return False, "Esa frase no es una orden del perro. Prueba: sientate, ven, quieto, da la pata, comandos del perro."
+        self.ceder_control()     # era del perro: la camara deja de reaccionar para no pisarla
+        return True, respuesta
+
+    def _problema(self, t):
+        """Por que no se puede seguir reaccionando a la camara ahora mismo ("" = todo bien)."""
+        if self.usar_camara and t - self.t_ultimo_cuadro > TIMEOUT_CAMARA:
+            return "Se perdio el video del celular."
+        if self.esp_perdido():
+            return "Se perdio la conexion con el ESP32."
+        if self.mon_visto and not self.mon_conectado:
+            return "Se perdio la conexion con el broker MQTT."
+        return ""
+
     def _vigilante(self):
+        """Antes: cualquier corte = PARO y habia que tocar Reanudar a cada rato.
+        Ahora: corte = PAUSA (el robot se queda quieto) y sigue solo cuando todo vuelve.
+        En modo ordenes no vigila la camara: ahi mandas tu, no lo que ve el celular."""
         while not self._fin.wait(0.25):
             t = time.time()
-            if self.modo == "paro" or t < self.gracia_hasta:
+            if self.modo not in ("manual", "perro") or t < self.gracia_hasta:
                 continue
-            if t - self.t_ultimo_cuadro > TIMEOUT_CAMARA:
-                self.paro("Se perdio el video del celular.")
-            elif self.esp_perdido():
-                self.paro("Se perdio la conexion con el ESP32.")
-            elif self.mon_visto and not self.mon_conectado:
-                self.paro("Se perdio la conexion con el broker MQTT.")
+            problema = self._problema(t)
+            if problema and not self.pausa:
+                with self.lock:
+                    self.pausa = problema
+                    self.accion_actual = None
+                try:
+                    ar._ejecutor.quieto()    # si el ESP32 no esta, igual se pone recto solo a los 5 s
+                except Exception:
+                    pass
+            elif not problema and self.pausa:
+                with self.lock:
+                    self.pausa = ""
+                    self.gracia_hasta = t + 1.0
+                    self.cerebro.reiniciar(t)
+                    self.ev_manual_prev = self.ev
 
     def cerrar(self):
         self._fin.set()
@@ -484,7 +580,9 @@ class Banco:
                     self.ultimo_x[k] = res[k]["x"]
             ev = self._suavizar(res["evento"])
 
-            if self.modo == "manual":
+            if self.pausa:
+                accion = None
+            elif self.modo == "manual":
                 accion = self._decidir_manual(ev)
             elif self.modo == "perro":
                 accion = self.cerebro.decidir(ev, self.ultimo_x.get(ev, 0.0), ahora, self.invertir_giro)
@@ -527,10 +625,12 @@ class Banco:
         totales = [h["total_ms"] for h in hist if h["total_ms"] is not None]
         pubs = [h["pub_ms"] for h in hist if h["pub_ms"] is not None]
         return {
-            "modo": self.modo, "motivo_paro": self.motivo_paro, "error": self.ultimo_error or self.mon_error,
+            "modo": self.modo, "motivo_paro": self.motivo_paro, "pausa": self.pausa, "error": self.ultimo_error or self.mon_error,
             "camara": {"ok": cam_ok, "fps": round(fps, 1), "cuadros": self.cuadros,
                        "hace_s": round(t - self.t_ultimo_cuadro, 1) if self.t_ultimo_cuadro else None},
             "esp": {"estado": self.esp_estado, "hb_visto": self.hb_visto, "perdido": self.esp_perdido(),
+                    "info": self.esp_info, "reinicios": self.esp_reinicios,
+                    "info_hace_s": round(t - self.t_esp_info, 1) if self.t_esp_info else None,
                     "hb_hace_s": round(t - self.last_hb, 1) if self.hb_visto else None},
             "mqtt": {"ok": self.mon_conectado},
             "evento": self.ev, "crudo": res.get("evento", "nada"),
@@ -539,7 +639,9 @@ class Banco:
             "accion_actual": self.accion_actual,
             "eventos": EVENTOS, "reacciones": REACCIONES, "mapa": self.mapa,
             "colores": list(PRESETS_COLOR), "config": dict(self.detector.config),
-            "cooldown": self.cooldown, "invertir_giro": self.invertir_giro,
+            "cooldown": self.cooldown, "invertir_giro": self.invertir_giro, "usar_camara": self.usar_camara,
+            "arche_perro": {"activo": ar._modo_perro.activo, "resumen": ar._modo_perro.resumen(),
+                            "evento": ar._modo_perro.ultimo_evento},
             "perro": {"mood": self.cerebro.mood, "postura": self.cerebro.postura, "razon": self.cerebro.razon,
                       "params": dict(self.cerebro.params)},
             "lat": {"deteccion": self._prom(self.lat_det), "red_celular": self._prom(self.lat_red),
@@ -559,6 +661,9 @@ def viene_por_tunel(req):
     Lo que llega directo por la WiFi o por la IP 100.x de Tailscale no trae ninguna."""
     if req.headers.get("Cf-Connecting-Ip") or req.headers.get("Cf-Ray"):
         return True
+    # "tailscale funnel" abre el banco a todo internet (para el iPhone sin Tailscale): siempre con clave
+    if req.headers.get("Tailscale-Funnel-Request"):
+        return True
     if req.headers.get("Tailscale-User-Login"):
         return False
     return bool(req.headers.get("X-Forwarded-For"))
@@ -567,51 +672,6 @@ def viene_por_tunel(req):
 def ip_cliente(req):
     return req.headers.get("Cf-Connecting-Ip") or (req.headers.get("X-Forwarded-For", "").split(",")[0].strip()) \
         or req.remote_addr or "?"
-
-
-# Palabras -> reaccion. Se revisan en orden: la primera que aparezca gana.
-ORDENES = [
-    (("paro", "emergencia", "alto total"), "__paro"),
-    (("modo perro", "personalidad"), "__perro"),
-    (("modo manual", "manual"), "__manual"),
-    (("quieto", "quieta", "detente", "para ", "alto", "stop", "espera"), "quieto"),
-    (("sientate", "sentado", "sentar", "sit"), "sentarse"),
-    (("acuestate", "echate", "acostado", "duerme", "dormir"), "acostarse"),
-    (("parate", "levantate", "arriba", "de pie", "pararse"), "pararse"),
-    (("saluda", "saludo", "hola", "pata"), "saludar"),
-    (("cola", "menea"), "cola"),
-    (("ladra", "habla", "guau"), "ladrar"),
-    (("feliz", "contento", "baila", "alegre"), "feliz"),
-    (("enojado", "bravo", "furioso", "grr"), "enojado"),
-    (("asusta", "susto", "miedo"), "asustarse"),
-    (("corre", "rapido"), "correr"),
-    (("atras", "retrocede", "devuelvete", "reversa"), "retroceder"),
-    (("izquierda",), "izquierda"),
-    (("derecha",), "derecha"),
-    (("adelante", "avanza", "camina", "ven", "sigue"), "avanzar"),
-]
-
-
-def interpretar_orden(b, texto):
-    """(ok, mensaje, accion). Respeta el paro: si esta en paro no mueve nada."""
-    t = " " + ar._normalizar(str(texto or ""))[:200] + " "
-    if not t.strip():
-        return False, "Escribe o di una orden.", None
-    for palabras, accion in ORDENES:
-        if any((" " + p + " ") in t or (p.endswith(" ") and (" " + p) in t) or (len(p) > 4 and p in t) for p in palabras):
-            if accion == "__paro":
-                b.paro("Paro pedido por una orden.")
-                return True, "Paro: el robot está quieto.", "paro"
-            if accion in ("__perro", "__manual"):
-                ok, msg = b.set_modo(accion[2:])
-                return ok, msg, accion[2:]
-            if b.modo == "paro":
-                return False, "Está en paro: toca Manual (o Perro) para que obedezca.", accion
-            if b.modo == "perro" and accion != "quieto":
-                b.set_modo("manual")      # una orden directa toma el control: pasa a manual
-            ok, msg = b.probar(accion)
-            return ok, (f"Hecho: {accion}." if ok else msg), accion
-    return False, "No entendí la orden. Prueba con: siéntate, saluda, adelante, izquierda, quieto…", None
 
 
 class CarteroRTC:
@@ -780,18 +840,6 @@ def crear_app(b):
     # ---------------- WebRTC: el PC solo presenta; el video va directo del celular al panel
     cartero = CarteroRTC()
 
-    @app.get("/cara.js")
-    def cara_js():
-        r = send_file(os.path.join(HERE, "app", "cara.js"), mimetype="text/javascript")
-        r.headers["Cache-Control"] = "no-cache"
-        return r
-
-    @app.get("/control.js")
-    def control_js():
-        r = send_file(os.path.join(HERE, "app", "control.js"), mimetype="text/javascript")
-        r.headers["Cache-Control"] = "no-cache"
-        return r
-
     @app.get("/rtc.js")
     def rtc_js():
         r = send_file(os.path.join(HERE, "app", "rtc.js"), mimetype="text/javascript")
@@ -912,9 +960,8 @@ def crear_app(b):
 
     @app.post("/api/orden")
     def orden():
-        """Orden escrita o hablada desde el celular de control o el PC ("sientate", "ve a la izquierda")."""
-        ok, msg, accion = interpretar_orden(b, (request.get_json(silent=True) or {}).get("texto", ""))
-        return jsonify(ok=ok, msg=msg, accion=accion)
+        ok, msg = b.orden((request.get_json(silent=True) or {}).get("frase"))
+        return jsonify(ok=ok, msg=msg)
 
     @app.post("/api/recalibrar")
     def recalibrar():
@@ -1229,6 +1276,12 @@ def manejar(frase):
             return (f"Banco: modo {e['modo']}, celular {'ok' if e['camara']['ok'] else 'sin video'} "
                     f"({e['camara']['fps']} fps), ESP32 {'perdido' if e['esp']['perdido'] else (e['esp']['estado'] or 'sin datos')}, "
                     f"evento {e['evento']}.")
+        # Ordenes al perro dichas a Arche ("sientate", "ven", "mueve el servo 2 a 90"...).
+        # Con el banco abierto pasan por aqui, para que la camara no las pise (igual que desde la app).
+        if _banco is not None:
+            ok, respuesta = _banco.orden(frase)
+            if ok:
+                return respuesta
     except Exception as e:
         return f"El banco de pruebas fallo: {e}"
     return None

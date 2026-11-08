@@ -48,6 +48,14 @@
   .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:.5rem; text-align:center; }
   .kpis div { background:#12141a; border-radius:8px; padding:.5rem .2rem; }
   .kpis .sub { font-size:.72rem; }
+
+  #t-esp td:first-child { color:var(--sub); width:42%; }
+  #t-esp td.ok { color:var(--ok); } #t-esp td.warn { color:var(--warn); } #t-esp td.mal { color:var(--mal); }
+  #t-servos { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; }
+  #t-servos .servo { position:relative; overflow:hidden; display:flex; justify-content:space-between; gap:.4rem;
+    padding:.45rem .6rem; border-radius:8px; background:#12141a; font-size:.8rem; }
+  #t-servos .servo span { color:var(--sub); } #t-servos .servo b { font-variant-numeric:tabular-nums; position:relative; }
+  #t-servos .servo i { position:absolute; left:0; bottom:0; height:3px; background:var(--warn); }
   #msg { min-height:1.3em; font-size:.88rem; color:var(--warn); }
 </style>
 </head>
@@ -85,11 +93,6 @@
       <select id="sel-probar"></select>
       <button id="b-probar">Enviar</button>
     </div>
-  </div>
-
-  <div class="card">
-    <h2>Control · flechas o W A S D para caminar, espacio = quieto</h2>
-    <div id="control"></div>
   </div>
 
   <div class="card">
@@ -140,6 +143,13 @@
   </div>
 
   <div class="card">
+    <h2>ESP32</h2>
+    <table id="t-esp"></table>
+    <h2 style="margin-top:1rem">Servos (ángulo real en el ESP32)</h2>
+    <div id="t-servos"></div>
+  </div>
+
+  <div class="card">
     <h2>Últimas reacciones</h2>
     <table id="t-hist"></table>
   </div>
@@ -147,7 +157,6 @@
 </main>
 
 <script src="/rtc.js"></script>
-<script src="/control.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const api = async (ruta, cuerpo) => (await fetch(ruta, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(cuerpo||{})})).json();
@@ -217,8 +226,9 @@ function pintar(e) {
 
   // paro / botones
   const enParo = e.modo === "paro";
-  $("banner").style.display = enParo ? "block" : "none";
-  $("banner").textContent = "⛔ EN PARO — " + (e.motivo_paro || "");
+  $("banner").style.display = (enParo || e.pausa) ? "block" : "none";
+  $("banner").textContent = enParo ? "⛔ EN PARO — " + (e.motivo_paro || "")
+    : "⏸ EN PAUSA — " + e.pausa + " Sigue solo cuando vuelva.";
   $("b-reanudar").style.display = enParo ? "inline-block" : "none";
   $("b-manual").className = e.modo === "manual" ? "sel" : "";
   $("b-perro").className = e.modo === "perro" ? "sel" : "";
@@ -258,7 +268,58 @@ function pintar(e) {
   let hh = "<tr><th>Hora</th><th>Vio</th><th>Hizo</th><th class='num'>→MQTT</th><th class='num'>→ESP32</th></tr>";
   for (const r of L.historial) hh += `<tr><td>${r.hora}</td><td>${r.evento}</td><td>${r.accion}</td><td class='num'>${fmt(r.pub_ms, 0)}</td><td class='num'>${fmt(r.total_ms, 0)}</td></tr>`;
   $("t-hist").innerHTML = hh;
+  pintarEsp(e);
 }
+
+/* ======================================== tarjeta ESP32 (datos que manda cada 2 s por MQTT) */
+const SERVOS_ESP = ["Del. der. hombro", "Del. der. rodilla", "Del. izq. hombro", "Del. izq. rodilla",
+                    "Tras. der. hombro", "Tras. der. rodilla", "Tras. izq. hombro", "Tras. izq. rodilla"];
+function tiempoBonito(s) {
+  if (s == null) return "—";
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  if (d) return `${d} d ${h} h`;
+  if (h) return `${h} h ${m} min`;
+  if (m) return `${m} min ${Math.floor(s % 60)} s`;
+  return `${Math.floor(s)} s`;
+}
+function senal(rssi) {
+  if (rssi == null) return ["—", ""];
+  if (rssi >= -60) return [`${rssi} dBm · buena`, "ok"];
+  if (rssi >= -72) return [`${rssi} dBm · regular`, "warn"];
+  return [`${rssi} dBm · débil (acércalo al router)`, "mal"];
+}
+function pintarEsp(e) {
+  const esp = e.esp, i = esp.info, fila = (k, v, c) => `<tr><td>${k}</td><td class="${c || ""}">${v}</td></tr>`;
+  let h = "";
+  if (esp.perdido) h += fila("Conexión", "Perdido", "mal");
+  else if (esp.hb_visto) h += fila("Conexión", `En línea · último latido hace ${fmt(esp.hb_hace_s, 1)} s`, "ok");
+  else h += fila("Conexión", "Todavía no llega el latido", "warn");
+  if (!i) {
+    h += fila("Datos", "El ESP32 no manda datos. Sube el perro_esp32.ino nuevo.", "warn");
+    $("t-esp").innerHTML = h; $("t-servos").innerHTML = ""; return;
+  }
+  if (esp.info_hace_s > 6) h += fila("Datos", `Sin datos nuevos hace ${fmt(esp.info_hace_s, 0)} s (lo de abajo es lo último que mandó)`, "warn");
+  const [txtSen, cSen] = senal(i.rssi);
+  h += fila("WiFi", (i.ssid ? i.ssid + " · " : "") + txtSen, cSen);
+  h += fila("IP", i.ip || "—");
+  h += fila("Encendido hace", tiempoBonito(i.up));
+  const malReinicio = /voltaje|error|colg/.test(i.reinicio || "");
+  h += fila("Último reinicio", (i.reinicio || "—") + (/voltaje/.test(i.reinicio || "") ? " · la fuente se cayó: revisa pilas/regulador" : ""), malReinicio ? "mal" : "");
+  h += fila("Reinicios vistos", esp.reinicios ? `${esp.reinicios} desde que abriste el banco` : "ninguno", esp.reinicios ? "warn" : "ok");
+  h += fila("Driver", i.drv === "PCA9685" ? "PCA9685" : "Pines directos (no encontró el PCA9685)", i.drv === "PCA9685" ? "ok" : "warn");
+  h += fila("Órdenes recibidas", i.ordenes ?? "—");
+  h += fila("Reconexiones MQTT", i.reconex ?? "—", i.reconex > 3 ? "warn" : "");
+  h += fila("Memoria libre", i.heap != null ? i.heap + " KB" : "—", i.heap != null && i.heap < 40 ? "warn" : "");
+  $("t-esp").innerHTML = h;
+  let s = "";
+  (i.ang || []).forEach((a, k) => {
+    const suelto = a < 0;
+    s += `<div class="servo"><span>${k + 1} · ${SERVOS_ESP[k] || ""}</span><b>${suelto ? "suelto" : a + "°"}</b>` +
+         `<i style="width:${suelto ? 0 : Math.round(a / 180 * 100)}%"></i></div>`;
+  });
+  $("t-servos").innerHTML = s;
+}
+
 
 async function refrescar() {
   try { E = await (await fetch("/api/estado")).json(); pintar(E); }
@@ -339,7 +400,6 @@ if (window.RTC && RTC.disponible) {
   }, 1000);
 }
 
-Control.montar($("control"));
 setInterval(refrescar, 400);
 refrescar();
 </script>
