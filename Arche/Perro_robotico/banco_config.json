@@ -14,7 +14,7 @@
     "umbral_movimiento": 0.1,
     "cerca_por_tamano": 0.12,
     "cerca_pelota": 0.06,
-    "cerca_por_textura": 0.08,
+    "cerca_por_textura": 0.53,
     "area_min_pelota": 0.004
   },
   "perro": {
