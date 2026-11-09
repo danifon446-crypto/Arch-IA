@@ -116,12 +116,14 @@
 
   #t-esp td:first-child { color:var(--sub); width:42%; }
   #t-esp td.ok { color:var(--verde); } #t-esp td.warn { color:var(--ambar); } #t-esp td.mal { color:var(--rojo); }
-  #t-servos { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; }
+  #t-servos { display:grid; grid-template-columns:repeat(3, 1fr); gap:.4rem; }   /* una fila por pata */
   #t-servos .servo { position:relative; overflow:hidden; display:flex; justify-content:space-between; gap:.4rem;
     padding:.45rem .6rem; border-radius:8px; background:var(--capa); font-size:.8rem; }
   #t-servos .servo span { color:var(--sub); } #t-servos .servo b { font-variant-numeric:tabular-nums; position:relative; }
   #t-servos .servo i { position:absolute; left:0; bottom:0; height:3px; background:var(--ambar); }
   #t-esp td:first-child { white-space:nowrap; }
+  #t-servos .servo { flex-direction:column; gap:.1rem; font-size:.74rem; }
+  #t-servos .servo b { font-size:.95rem; }
   /* ---------- órdenes */
   .chat { display:flex; gap:.5rem; }
   .chat input { flex:1; min-width:0; font:inherit; color:var(--txt); background:var(--capa2); border:0;
@@ -237,6 +239,7 @@
       <button data-frase="da la pata">Dar la pata</button>
       <button data-frase="mueve la cola">Cola</button>
       <button data-frase="ladra">Ladrar</button>
+      <button data-frase="prueba las articulaciones" class="ancho2">Probar articulaciones (calibrar)</button>
       <button data-frase="relaja los servos" class="ancho2">Relajar servos (ahorra batería)</button>
     </div>
 
@@ -251,11 +254,11 @@
     <div class="grupo">
       <div class="fila"><span>Servo</span>
         <select id="sv-num">
-          <option value="">Los 8</option>
-          <option value="1">1 · del. der. hombro</option><option value="2">2 · del. der. rodilla</option>
-          <option value="3">3 · del. izq. hombro</option><option value="4">4 · del. izq. rodilla</option>
-          <option value="5">5 · tras. der. hombro</option><option value="6">6 · tras. der. rodilla</option>
-          <option value="7">7 · tras. izq. hombro</option><option value="8">8 · tras. izq. rodilla</option>
+          <option value="">Los 12</option>
+          <option value="1">1 · del. der. hombro</option><option value="2">2 · del. der. muslo</option><option value="3">3 · del. der. rodilla</option>
+          <option value="4">4 · del. izq. hombro</option><option value="5">5 · del. izq. muslo</option><option value="6">6 · del. izq. rodilla</option>
+          <option value="7">7 · tras. der. hombro</option><option value="8">8 · tras. der. muslo</option><option value="9">9 · tras. der. rodilla</option>
+          <option value="10">10 · tras. izq. hombro</option><option value="11">11 · tras. izq. muslo</option><option value="12">12 · tras. izq. rodilla</option>
         </select></div>
       <div class="deslizador"><div><span>Ángulo</span><span id="sv-v">90°</span></div>
         <input type="range" id="sv-ang" min="0" max="180" step="1" value="90" aria-label="Ángulo del servo"></div>
@@ -495,8 +498,10 @@ function pintar(e) {
 }
 
 /* ======================================== tarjeta ESP32 (datos que manda cada 2 s por MQTT) */
-const SERVOS_ESP = ["Del. der. hombro", "Del. der. rodilla", "Del. izq. hombro", "Del. izq. rodilla",
-                    "Tras. der. hombro", "Tras. der. rodilla", "Tras. izq. hombro", "Tras. izq. rodilla"];
+const SERVOS_ESP = ["Del. der. hombro", "Del. der. muslo", "Del. der. rodilla",
+                    "Del. izq. hombro", "Del. izq. muslo", "Del. izq. rodilla",
+                    "Tras. der. hombro", "Tras. der. muslo", "Tras. der. rodilla",
+                    "Tras. izq. hombro", "Tras. izq. muslo", "Tras. izq. rodilla"];
 function tiempoBonito(s) {
   if (s == null) return "—";
   const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);

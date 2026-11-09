@@ -1,19 +1,22 @@
-"""Modulo del perro robotico para Arche (8 servos con driver PCA9685).
+"""Modulo del perro robotico para Arche (12 servos con driver PCA9685, tipo SpotMicro).
 
 Arche es el cerebro: traduce frases en MOVIMIENTOS (secuencias de angulos)
 y los manda por MQTT al ESP32. El ESP32 solo mueve cada servo al angulo que
-recibe, a traves del driver PCA9685 (ver esp32/perro_esp32/perro_esp32.ino).
+recibe, a traves del driver PCA9685 (ver perro_esp32.ino).
 
-Cada pata tiene 2 servos: HOMBRO (mueve la pata adelante/atras) y RODILLA
-(dobla la pata para levantarla). El orden es el de los canales del PCA9685:
+Cada pata tiene 3 servos:
+    HOMBRO  abre/cierra la pata hacia el costado (90 = vertical)
+    MUSLO   mueve la pata adelante/atras         (90 = vertical)
+    RODILLA dobla la pata                         (90 = recta)
+El orden es el de los canales del PCA9685:
 
-    canal 0 DD hombro   1 DD rodilla     DD = delantera derecha
-    canal 2 DI hombro   3 DI rodilla     DI = delantera izquierda
-    canal 4 TD hombro   5 TD rodilla     TD = trasera derecha
-    canal 6 TI hombro   7 TI rodilla     TI = trasera izquierda
+    canal 0 DD hombro   1 DD muslo   2 DD rodilla     DD = delantera derecha
+    canal 3 DI hombro   4 DI muslo   5 DI rodilla     DI = delantera izquierda
+    canal 6 TD hombro   7 TD muslo   8 TD rodilla     TD = trasera derecha
+    canal 9 TI hombro  10 TI muslo  11 TI rodilla     TI = trasera izquierda
 
-Por cada paso se manda UN solo mensaje con los 8 angulos ("90,90,...,90"),
-asi las 8 patas se mueven a la vez y el ESP32 confirma con un solo ack.
+Por cada paso se manda UN solo mensaje con los 12 angulos ("90,90,...,90"),
+asi las 4 patas se mueven a la vez y el ESP32 confirma con un solo ack.
 
 Si la frase no es del robot devuelve None y Arche pasa al siguiente modulo.
 Necesita: pip install paho-mqtt
@@ -34,9 +37,9 @@ except ImportError:
 MQTT_BROKER = "broker.emqx.io"
 MQTT_PORT = 1883
 BASE = "perro_robot_77"
-TOPIC_SERVOS = BASE + "/servos"          # los 8 angulos juntos
+TOPIC_SERVOS = BASE + "/servos"          # los 12 angulos juntos
 # Topicos del formato viejo (4 patas). Se dejan porque el banco de pruebas saca
-# de aqui la base para escuchar latido/estado/ack. El ESP32 nuevo tambien los entiende.
+# de aqui la base para escuchar latido/estado/ack. El ESP32 tambien los entiende.
 TOPICS = {
     "DD": BASE + "/pata/delantera_der",
     "DI": BASE + "/pata/delantera_izq",
@@ -44,43 +47,57 @@ TOPICS = {
     "TI": BASE + "/pata/trasera_izq",
 }
 PATAS = ["DD", "DI", "TD", "TI"]
-SERVOS = ["DD_H", "DD_R", "DI_H", "DI_R", "TD_H", "TD_R", "TI_H", "TI_R"]   # orden = canales 0..7
-NOMBRE_SERVO = {
-    "DD_H": "delantera der hombro", "DD_R": "delantera der rodilla",
-    "DI_H": "delantera izq hombro", "DI_R": "delantera izq rodilla",
-    "TD_H": "trasera der hombro",   "TD_R": "trasera der rodilla",
-    "TI_H": "trasera izq hombro",   "TI_R": "trasera izq rodilla",
-}
+SERVOS = ["DD_H", "DD_M", "DD_R", "DI_H", "DI_M", "DI_R",
+          "TD_H", "TD_M", "TD_R", "TI_H", "TI_M", "TI_R"]          # orden = canales 0..11
+N_SERVOS = len(SERVOS)
+_PATA_TXT = {"DD": "delantera der", "DI": "delantera izq", "TD": "trasera der", "TI": "trasera izq"}
+_ART_TXT = {"H": "hombro", "M": "muslo", "R": "rodilla"}
+NOMBRE_SERVO = {n: f"{_PATA_TXT[n[:2]]} {_ART_TXT[n[3]]}" for n in SERVOS}
 
 # Los servos del lado izquierdo van montados en espejo: con True, Arche les manda
 # 180 - angulo para que "adelante" sea adelante en los dos lados.
-# Si una articulacion se mueve al reves de lo que esperas, cambia su valor aqui.
+# CALIBRA ESTO con el perro armado (ver "prueba las articulaciones" mas abajo):
+# si una articulacion se mueve al reves de lo que esperas, cambia su valor aqui.
 INVERTIR = {
-    "DD_H": False, "DD_R": False, "DI_H": True, "DI_R": True,
-    "TD_H": False, "TD_R": False, "TI_H": True, "TI_R": True,
+    "DD_H": False, "DD_M": False, "DD_R": False,
+    "DI_H": True,  "DI_M": True,  "DI_R": True,
+    "TD_H": False, "TD_M": False, "TD_R": False,
+    "TI_H": True,  "TI_M": True,  "TI_R": True,
 }
 
 # ---- POSES Y MOVIMIENTOS (CALIBRA ESTOS VALORES CON TU ROBOT) ----------------
 # Convencion (despues de INVERTIR):
-#   hombro: 90 = pata vertical, MAS de 90 = pata hacia adelante, MENOS = hacia atras
-#   rodilla: 90 = pata recta,   MENOS de 90 = pata doblada (levantada)
-# Una pose son 8 angulos en el orden de SERVOS. Un paso es pose + segundos de pausa.
-# None = no tocar ese servo. (Tambien se aceptan pasos viejos de 4 valores + pausa:
-# en ese caso son los 4 HOMBROS y las rodillas no se tocan.)
-NEUTRO = (90, 90, 90, 90, 90, 90, 90, 90)
+#   hombro: 90 = vertical,  MAS de 90 = pata abierta hacia afuera
+#   muslo:  90 = vertical,  MAS de 90 = hacia adelante, MENOS = hacia atras
+#   rodilla: 90 = recta,    MENOS de 90 = doblada
+# Una pose son 12 angulos en el orden de SERVOS. Un paso es pose + segundos de pausa.
+# None = no tocar ese servo.
+NEUTRO = (90,) * 12          # patas rectas: la posicion en la que se ensamblo
 
 
-def _pose(dd=(90, 90), di=(90, 90), td=(90, 90), ti=(90, 90)):
-    """Arma una pose de 8 angulos con (hombro, rodilla) de cada pata."""
-    return dd + di + td + ti
+def _pata(flex=20, paso=0, abre=0):
+    """(hombro, muslo, rodilla) de una pata.
+    flex: cuanto se agacha (dobla rodilla y adelanta muslo para que el pie quede debajo de la cadera).
+    paso: lleva el pie adelante (+) o atras (-).  abre: separa la pata del cuerpo (+)."""
+    return (90 + abre, 90 + flex + paso, 90 - 2 * flex)
+
+
+ALTURA = 20                  # flex al estar parado: patas un poco dobladas = mas firme que rectas
+# La rodilla queda en 90 - 2*flex: no pases de flex 35 (rodilla 20) o choca con el limite del ESP32.
+PARADO = _pata(ALTURA)
+
+
+def _pose(dd=PARADO, di=PARADO, td=PARADO, ti=PARADO):
+    """Arma una pose de 12 angulos con (hombro, muslo, rodilla) de cada pata."""
+    return tuple(dd) + tuple(di) + tuple(td) + tuple(ti)
 
 
 POSES = {
-    "pararse":   NEUTRO,
-    # traseras dobladas hacia adelante, delanteras rectas
-    "sentarse":  _pose(td=(140, 40), ti=(140, 40)),
-    # las 4 dobladas: el cuerpo baja al suelo
-    "acostarse": _pose(dd=(130, 30), di=(130, 30), td=(130, 30), ti=(130, 30)),
+    "pararse":   _pose(),
+    # traseras muy dobladas, delanteras casi rectas
+    "sentarse":  _pose(dd=_pata(0), di=_pata(0), td=_pata(35), ti=_pata(35)),
+    # las 4 muy dobladas: el cuerpo baja al suelo
+    "acostarse": _pose(dd=_pata(35), di=_pata(35), td=_pata(35), ti=_pata(35)),
 }
 
 _DERECHA = {"DD", "TD"}
@@ -88,61 +105,71 @@ _PAR_A = ("DD", "TI")      # el trote mueve las diagonales juntas
 _PAR_B = ("DI", "TD")
 
 
-def _trote(dir_der=1, dir_izq=1, amplitud=22, levanta=30, t_aire=0.16, t_suelo=0.08):
+def _trote(dir_der=1, dir_izq=1, amplitud=15, levanta=15, t_aire=0.16, t_suelo=0.08):
     """Genera los 4 pasos de un trote en diagonales.
     dir_der / dir_izq: 1 = esa mitad empuja hacia adelante, -1 = hacia atras, 0 = en el sitio.
-    amplitud: cuanto barre el hombro. levanta: cuanto se dobla la rodilla al dar el paso."""
+    amplitud: cuanto barre el muslo. levanta: cuanto mas se dobla la pata al dar el paso."""
     frames = []
     for vuela, apoya in ((_PAR_A, _PAR_B), (_PAR_B, _PAR_A)):
         for en_aire in (True, False):
             ang = {}
             for p in vuela:
                 s = dir_der if p in _DERECHA else dir_izq
-                ang[p] = (90 + s * amplitud, 90 - levanta if en_aire else 90)
+                ang[p] = _pata(ALTURA + (levanta if en_aire else 0), paso=s * amplitud)
             for p in apoya:
                 s = dir_der if p in _DERECHA else dir_izq
-                ang[p] = (90 - s * amplitud, 90)
+                ang[p] = _pata(ALTURA, paso=-s * amplitud)
             frames.append(_pose(ang["DD"], ang["DI"], ang["TD"], ang["TI"]) + (t_aire if en_aire else t_suelo,))
     return frames
 
 
+_SALUDO_BASE = dict(di=_pata(ALTURA, abre=8), td=_pata(ALTURA + 10, abre=8), ti=_pata(ALTURA + 10, abre=8))
+
 # "repetir": None = en bucle hasta que llegue otra orden o "quieto"
 # "final": pose a la que vuelve al terminar (None = se queda donde acabo)
 SECUENCIAS = {
-    "pararse":   {"frames": [NEUTRO + (0.4,)], "repetir": 1, "final": None},
-    "sentarse":  {"frames": [POSES["sentarse"] + (0.6,)], "repetir": 1, "final": None},
-    "acostarse": {"frames": [POSES["acostarse"] + (0.6,)], "repetir": 1, "final": None},
+    "pararse":   {"frames": [POSES["pararse"] + (0.5,)], "repetir": 1, "final": None},
+    "sentarse":  {"frames": [POSES["sentarse"] + (0.7,)], "repetir": 1, "final": None},
+    "acostarse": {"frames": [POSES["acostarse"] + (0.7,)], "repetir": 1, "final": None},
     "avanzar":    {"frames": _trote(1, 1), "repetir": None, "final": None},
-    "correr":     {"frames": _trote(1, 1, amplitud=28, levanta=35, t_aire=0.09, t_suelo=0.04),
+    "correr":     {"frames": _trote(1, 1, amplitud=20, levanta=15, t_aire=0.10, t_suelo=0.05),
                    "repetir": None, "final": None},
     "retroceder": {"frames": _trote(-1, -1), "repetir": None, "final": None},
     # giro: un lado empuja hacia adelante y el otro hacia atras
-    "izquierda":  {"frames": _trote(1, -1, amplitud=18), "repetir": None, "final": None},
-    "derecha":    {"frames": _trote(-1, 1, amplitud=18), "repetir": None, "final": None},
+    "izquierda":  {"frames": _trote(1, -1, amplitud=12), "repetir": None, "final": None},
+    "derecha":    {"frames": _trote(-1, 1, amplitud=12), "repetir": None, "final": None},
     # gestos
-    "ladrar":  {"frames": [_pose(dd=(90, 65), di=(90, 65)) + (0.15,), NEUTRO + (0.15,)],
+    # agacha y sube el frente rapido
+    "ladrar":  {"frames": [_pose(dd=_pata(ALTURA + 15), di=_pata(ALTURA + 15)) + (0.15,), POSES["pararse"] + (0.15,)],
                 "repetir": 3, "final": "pararse"},
-    # no hay servo de cola: menea la cadera con las traseras
-    "cola":    {"frames": [_pose(td=(80, 80), ti=(100, 90)) + (0.2,),
-                           _pose(td=(100, 90), ti=(80, 80)) + (0.2,)],
+    # no hay servo de cola: menea la cadera de lado a lado con los hombros traseros
+    "cola":    {"frames": [_pose(td=_pata(ALTURA, abre=12), ti=_pata(ALTURA, abre=-12)) + (0.2,),
+                           _pose(td=_pata(ALTURA, abre=-12), ti=_pata(ALTURA, abre=12)) + (0.2,)],
                 "repetir": 4, "final": "pararse"},
-    # carga el peso atras, sube la delantera derecha y la sacude con la rodilla
-    "saludar": {"frames": [_pose(di=(80, 85), td=(100, 75), ti=(100, 75)) + (0.3,),
-                           _pose(dd=(160, 60), di=(80, 85), td=(100, 75), ti=(100, 75)) + (0.35,),
-                           _pose(dd=(160, 110), di=(80, 85), td=(100, 75), ti=(100, 75)) + (0.25,),
-                           _pose(dd=(160, 60), di=(80, 85), td=(100, 75), ti=(100, 75)) + (0.25,),
-                           _pose(dd=(160, 110), di=(80, 85), td=(100, 75), ti=(100, 75)) + (0.5,)],
+    # abre las otras 3 patas para no caerse, sube la delantera derecha y la sacude con la rodilla
+    "saludar": {"frames": [_pose(**_SALUDO_BASE) + (0.4,),
+                           _pose(dd=(90, 150, 70), **_SALUDO_BASE) + (0.35,),
+                           _pose(dd=(90, 150, 110), **_SALUDO_BASE) + (0.25,),
+                           _pose(dd=(90, 150, 70), **_SALUDO_BASE) + (0.25,),
+                           _pose(dd=(90, 150, 110), **_SALUDO_BASE) + (0.5,)],
                 "repetir": 1, "final": "pararse"},
     # trote en el sitio, rapido
-    "feliz":   {"frames": _trote(0, 0, amplitud=0, levanta=28, t_aire=0.12, t_suelo=0.06),
+    "feliz":   {"frames": _trote(0, 0, amplitud=0, levanta=15, t_aire=0.12, t_suelo=0.06),
                 "repetir": 4, "final": "pararse"},
-    # agacha el frente y empuja atras
-    "enojado": {"frames": [_pose(dd=(70, 60), di=(70, 60), td=(110, 90), ti=(110, 90)) + (1.2,)],
+    # agacha el frente y sube la cola
+    "enojado": {"frames": [_pose(dd=_pata(33, paso=-5), di=_pata(33, paso=-5), td=_pata(5), ti=_pata(5)) + (1.2,)],
                 "repetir": 1, "final": "pararse"},
     # retrocede rapido y vuelve a pararse (lo usa el banco de pruebas)
-    "asustarse": {"frames": _trote(-1, -1, amplitud=25, levanta=30, t_aire=0.08, t_suelo=0.04),
+    "asustarse": {"frames": _trote(-1, -1, amplitud=18, levanta=15, t_aire=0.08, t_suelo=0.04),
                   "repetir": 3, "final": "pararse"},
+    # para calibrar: mueve cada articulacion sola, un poco, en el sentido "positivo"
+    "probar_articulaciones": {"frames": [], "repetir": 1, "final": "pararse"},
 }
+for _k, _n in enumerate(SERVOS):
+    _sube = [None] * 12
+    _sube[_k] = 115 if _n.endswith("_M") or _n.endswith("_H") else 65   # muslo adelante / hombro afuera / rodilla doblada
+    SECUENCIAS["probar_articulaciones"]["frames"] += [tuple(NEUTRO) + (0.6,), tuple(_sube) + (1.2,)]
+SECUENCIAS["probar_articulaciones"]["frames"].append(tuple(NEUTRO) + (0.8,))
 
 # ---- cerebro del modo perro -------------------------------------------------
 PAUSA_TRAS_ORDEN = 20
@@ -179,13 +206,17 @@ ACCIONES = [
     ("ladrar", ["ladra", "ladrale", "guau", "haz ruido de perro"], "Guau."),
     ("cola", ["mueve la cola", "menea la cola", "cola"], "Muevo la cola."),
     ("saludar", ["da la pata", "dame la pata", "saluda", "saludame"], "Te doy la pata."),
+    ("probar_articulaciones", ["prueba las articulaciones", "probar articulaciones", "calibra las patas",
+                               "prueba los servos"],
+     "Muevo cada servo solo, del 1 al 12: hombros hacia afuera, muslos hacia adelante y rodillas se doblan. "
+     "Si alguno va al reves, cambialo en INVERTIR (acciones_robot.py)."),
 ]
 
 _PREFIJO = r"^(?:por favor |oye |perro |robot |dogo )*"
 _SUFIJO = r"(?: por favor| ya| ahora| aqui| perro| robot)*$"
 
 _RE_ESTADO = re.compile(r"^(?:estado|prueba|revisa|conexion|esta vivo|esta conectado)(?: del| de el| al| a| el)?(?: robot| perro| esp32)(?: conectado)?$")
-# "mueve el servo 2 a 90": servo 1=DD, 2=DI, 3=TD, 4=TI; sin numero = las 4 patas
+# "mueve el servo 2 a 90": servo 1..12 (ver SERVOS); sin numero = los 12
 _RE_SERVO = re.compile(r"^(?:mueve|pon|gira)(?: el)? servo(?: (\d+))?(?: a| al| en)? (\d{1,3})(?: grados)?$")
 _RE_MODO_ON = re.compile(r"^(?:activa|enciende|pon|inicia|entra en)(?: el)? modo perro$|^actua como (?:un )?perro$|^modo perro(?: on| activado)?$")
 _RE_MODO_OFF = re.compile(r"^(?:desactiva|apaga|quita|sal del|termina)(?: el)? modo perro$|^deja de actuar como (?:un )?perro$|^modo perro off$")
@@ -244,23 +275,27 @@ def _obtener_cliente():
         return _cliente
 
 
-def _a_ocho(angulos):
-    """4 valores (formato viejo: solo hombros) u 8 valores -> lista de 8 (None = no tocar)."""
+def _a_doce(angulos):
+    """4 valores (formato viejo: solo muslos), 8 (formato viejo hombro+rodilla) o 12 -> lista de 12."""
     angulos = list(angulos)
+    doce = [None] * 12
     if len(angulos) == 4:
-        ocho = [None] * 8
         for k, ang in enumerate(angulos):
-            ocho[2 * k] = ang          # hombros = canales 0, 2, 4, 6
-        return ocho
-    if len(angulos) != 8:
-        raise RobotError(f"Un paso necesita 8 angulos (o 4 de hombros), llegaron {len(angulos)}.")
+            doce[3 * k + 1] = ang      # muslos = canales 1, 4, 7, 10
+        return doce
+    if len(angulos) == 8:
+        for k in range(4):
+            doce[3 * k + 1], doce[3 * k + 2] = angulos[2 * k], angulos[2 * k + 1]
+        return doce
+    if len(angulos) != 12:
+        raise RobotError(f"Un paso necesita 12 angulos, llegaron {len(angulos)}.")
     return angulos
 
 
 def _aplicar(angulos):
-    """Manda los 8 angulos en un solo mensaje. None = no tocar ese servo."""
+    """Manda los 12 angulos en un solo mensaje. None = no tocar ese servo."""
     partes = []
-    for nombre, ang in zip(SERVOS, _a_ocho(angulos)):
+    for nombre, ang in zip(SERVOS, _a_doce(angulos)):
         if ang is None:
             partes.append("-1")
             continue
@@ -272,19 +307,19 @@ def _aplicar(angulos):
 
 
 def relajar():
-    """Suelta los 8 servos (dejan de hacer fuerza y de gastar bateria)."""
+    """Suelta los 12 servos (dejan de hacer fuerza y de gastar bateria)."""
     _obtener_cliente().publish(TOPIC_SERVOS, "relajar", qos=0)
 
 
 def enviar_comando_servo(angulo, servo=None):
-    """servo 1..8 = canales 0..7 del PCA9685 (ver SERVOS). None = los 8."""
+    """servo 1..12 = canales 0..11 del PCA9685 (ver SERVOS). None = los 12."""
     if servo is None:
-        _aplicar((angulo,) * 8)
+        _aplicar((angulo,) * 12)
         return
-    if not 1 <= servo <= 8:
-        raise RobotError("Los servos van del 1 al 8: " + ", ".join(
+    if not 1 <= servo <= 12:
+        raise RobotError("Los servos van del 1 al 12: " + ", ".join(
             f"{k + 1}={NOMBRE_SERVO[n]}" for k, n in enumerate(SERVOS)) + ".")
-    angs = [None] * 8
+    angs = [None] * 12
     angs[servo - 1] = angulo
     _aplicar(angs)
 
@@ -337,7 +372,7 @@ class _Ejecutor:
         """Corta cualquier movimiento y deja las patas rectas."""
         with self._lock:
             self._cancelar.set()
-        _aplicar(NEUTRO)
+        _aplicar(POSES["pararse"])
 
 
 _ejecutor = _Ejecutor()
@@ -494,8 +529,9 @@ def _texto_ayuda():
     return "\n".join([
         "Esto puede hacer el perro:",
         "- estado del robot / prueba el robot (revisa la conexion MQTT)",
-        "- mueve el servo 2 a 90 (1-8: " + ", ".join(f"{k + 1}={NOMBRE_SERVO[n]}" for k, n in enumerate(SERVOS))
-        + "; sin numero = los 8)",
+        "- mueve el servo 2 a 90 (1-12: " + ", ".join(f"{k + 1}={NOMBRE_SERVO[n]}" for k, n in enumerate(SERVOS))
+        + "; sin numero = los 12)",
+        "- prueba las articulaciones (mueve cada servo solo, del 1 al 12, para revisar que vaya al lado correcto)",
         "- sientate, parate, acuestate, ven, corre, retrocede, gira a la izquierda, gira a la derecha",
         "- quieto, ladra, mueve la cola, da la pata",
         "- activa el modo perro / desactiva el modo perro (yo decido que hace: juega, camina, corre, se cansa, duerme)",
@@ -532,9 +568,9 @@ def manejar(frase):
             enviar_comando_servo(angulo, servo)
             _modo_perro.interaccion()
             if servo is None:
-                return f"Los 8 servos a {angulo} grados."
-            if not 1 <= servo <= 8:
-                return "Los servos van del 1 al 8."
+                return f"Los 12 servos a {angulo} grados."
+            if not 1 <= servo <= 12:
+                return "Los servos van del 1 al 12."
             return f"Servo {servo} ({NOMBRE_SERVO[SERVOS[servo - 1]]}) a {angulo} grados."
 
         if _RE_RELAJAR.match(t):

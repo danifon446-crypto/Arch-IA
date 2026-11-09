@@ -51,7 +51,7 @@
 
   #t-esp td:first-child { color:var(--sub); width:42%; }
   #t-esp td.ok { color:var(--ok); } #t-esp td.warn { color:var(--warn); } #t-esp td.mal { color:var(--mal); }
-  #t-servos { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; }
+  #t-servos { display:grid; grid-template-columns:repeat(3, 1fr); gap:.4rem; }   /* una fila por pata */
   #t-servos .servo { position:relative; overflow:hidden; display:flex; justify-content:space-between; gap:.4rem;
     padding:.45rem .6rem; border-radius:8px; background:#12141a; font-size:.8rem; }
   #t-servos .servo span { color:var(--sub); } #t-servos .servo b { font-variant-numeric:tabular-nums; position:relative; }
@@ -272,8 +272,10 @@ function pintar(e) {
 }
 
 /* ======================================== tarjeta ESP32 (datos que manda cada 2 s por MQTT) */
-const SERVOS_ESP = ["Del. der. hombro", "Del. der. rodilla", "Del. izq. hombro", "Del. izq. rodilla",
-                    "Tras. der. hombro", "Tras. der. rodilla", "Tras. izq. hombro", "Tras. izq. rodilla"];
+const SERVOS_ESP = ["Del. der. hombro", "Del. der. muslo", "Del. der. rodilla",
+                    "Del. izq. hombro", "Del. izq. muslo", "Del. izq. rodilla",
+                    "Tras. der. hombro", "Tras. der. muslo", "Tras. der. rodilla",
+                    "Tras. izq. hombro", "Tras. izq. muslo", "Tras. izq. rodilla"];
 function tiempoBonito(s) {
   if (s == null) return "—";
   const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
