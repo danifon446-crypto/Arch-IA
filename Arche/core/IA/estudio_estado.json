@@ -1,8 +1,8 @@
 {
-  "corriendo": false,
-  "paso": "terminado",
-  "aprendidos_ronda": 48,
+  "corriendo": true,
+  "paso": "generando variaciones de 'quiero que practiques muchas frases'",
+  "aprendidos_ronda": 35,
   "ultimo_error": null,
-  "actualizado_ts": 1792481714.0142553,
+  "actualizado_ts": 1794509610.4178083,
   "fin_ultima_ronda_ts": 1792481714.0142553
 }
