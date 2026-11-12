@@ -700,6 +700,7 @@ class Banco:
             "crudo": ar._crudo, "lim_servo": ar.LIM_SERVO, "capturas": ar.estado_capturas(),
             "calibracion": ar.calibracion_actual(), "rango_ajuste": ar.RANGO_AJUSTE, "rodillas": ar.RODILLAS, "rodilla_en_90": ar.RODILLA_EN_90,
             "largos": {"muslo": ar.LARGO_MUSLO, "pierna": ar.LARGO_PIERNA},
+            "patas_activas": ar.patas_activas(),
             "haciendo": {"accion": ar._ejecutor.actual, "bucle": ar._ejecutor.en_bucle, "vueltas": ar._ejecutor.vueltas},
             "acciones_bucle": [n for n in ("avanzar", "correr", "retroceder", "izquierda", "derecha", "feliz", "saludar",
                                            "cola", "ladrar", "sentarse", "acostarse", "enojado") if n in ar.SECUENCIAS],
@@ -1091,6 +1092,12 @@ def crear_app(b):
     def marcha():
         return jsonify(ok=True, marcha=ar.cambiar_marcha(request.get_json(silent=True) or {}),
                        avisos=[{"nivel": n, "texto": x} for n, x in ar.avisos_marcha()])
+
+    @app.post("/api/patas")
+    def patas():
+        """{"patas": ["DD", "TI"]} -> solo esas patas hacen los movimientos; [] = las 4."""
+        lista = (request.get_json(silent=True) or {}).get("patas") or []
+        return jsonify(ok=True, patas=ar.cambiar_patas_activas(lista if isinstance(lista, list) else []))
 
     @app.post("/api/recalibrar")
     def recalibrar():

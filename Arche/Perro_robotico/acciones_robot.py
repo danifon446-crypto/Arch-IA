@@ -595,6 +595,41 @@ def _a_doce(angulos):
 
 _ultima_pose = [None] * 12   # lo ultimo que se mando (en grados de Arche), para re-mandarlo al calibrar
 
+# ---- probar patas por separado ------------------------------------------------
+# Patas que se mueven con las acciones (caminar, correr, sentarse...). Las demas se quedan en la pose
+# de PARADO, quietas. Sirve para ver una sola pata haciendo el movimiento y encontrar cual esta mal.
+# No se guarda: al reiniciar Arche vuelven a moverse las 4.
+PATAS_ACTIVAS = set(PATAS)
+
+
+def cambiar_patas_activas(patas):
+    """patas = ["DD", "TI"] o [] / None = las 4. Devuelve la lista ordenada de las que se mueven."""
+    elegidas = {p for p in (patas or []) if p in PATAS}
+    PATAS_ACTIVAS.clear()
+    PATAS_ACTIVAS.update(elegidas or PATAS)
+    if not _ejecutor.actual and any(a is not None for a in _ultima_pose):
+        try:
+            _aplicar(POSES["pararse"])     # las que quedaron fuera vuelven a parado al instante
+        except RobotError:
+            pass
+    return patas_activas()
+
+
+def patas_activas():
+    return [p for p in PATAS if p in PATAS_ACTIVAS]
+
+
+def _filtrar_patas(angulos):
+    """Las patas que no estan activas reciben la pose de PARADO en vez de la del movimiento."""
+    doce = list(_a_doce(angulos))
+    if len(PATAS_ACTIVAS) == len(PATAS):
+        return doce
+    parado = POSES["pararse"]
+    for k, n in enumerate(SERVOS):
+        if n[:2] not in PATAS_ACTIVAS:
+            doce[k] = parado[k]
+    return doce
+
 
 def _aplicar(angulos):
     """Manda los 12 angulos en un solo mensaje. None = no tocar ese servo."""
@@ -879,9 +914,9 @@ class _Ejecutor:
             frames.append(list(POSES[sec["final"]]) + [0.3])
         partes = [str(veces)]
         for f in frames:
-            angs = ["-1" if a is None else str(_a_servo(n, a)) for n, a in zip(SERVOS, _a_doce(f[:-1]))]
+            angs = ["-1" if a is None else str(_a_servo(n, a)) for n, a in zip(SERVOS, _filtrar_patas(f[:-1]))]
             partes.append(str(int(round(f[-1] * 1000))) + "," + ",".join(angs))
-        ultimo = _a_doce(frames[-1][:-1])
+        ultimo = _filtrar_patas(frames[-1][:-1])
         for k, a in enumerate(ultimo):
             if a is not None:
                 _ultima_pose[k] = a
@@ -918,7 +953,7 @@ class _Ejecutor:
                 for *angulos, pausa in sec["frames"]:
                     if cancelar.is_set():
                         return
-                    _aplicar(angulos)
+                    _aplicar(_filtrar_patas(angulos))
                     cancelar.wait(pausa)
                 i += 1
                 self.vueltas = i

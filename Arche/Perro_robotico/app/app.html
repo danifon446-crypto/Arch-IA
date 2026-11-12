@@ -173,6 +173,12 @@
   .cruceta button.activo { background:var(--ambar); color:#1b1306; }
   .cruceta .quieto { background:#3a2a12; color:var(--ambar); }
   .gestos { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; }
+  .patas-sel { display:grid; grid-template-columns:repeat(2,1fr); gap:.45rem; max-width:20rem; margin:0 auto; }
+  .patas-sel button { border:0; border-radius:14px; background:var(--capa2); color:var(--txt);
+    font:600 .95rem var(--redondo); padding:.85rem .3rem; }
+  .patas-sel button.sel { background:var(--ambar); color:#1b1306; }
+  .patas-sel .todas { grid-column:1 / -1; }
+  #patas-aviso { color:var(--ambar); }
   .gestos button.ancho2 { grid-column:span 3; }
 
   nav { display:grid; grid-template-columns:repeat(6,1fr); margin-top:.45rem; }
@@ -294,6 +300,15 @@
         <tr><td>Se apaga o se reinicia al moverse</td><td>La fuente no aguanta: batería 2S + regulador de 6 V / 20 A</td></tr>
       </table>
     </details>
+
+    <h2>Probar por pata</h2>
+    <div class="patas-sel" id="patas-sel" role="group" aria-label="Patas que se mueven">
+      <button data-pata="DI">Delantera izq.</button><button data-pata="DD">Delantera der.</button>
+      <button data-pata="TI">Trasera izq.</button><button data-pata="TD">Trasera der.</button>
+      <button data-pata="todas" class="todas">Las 4 patas</button>
+    </div>
+    <p class="nota" id="patas-aviso">Se mueven las 4 patas.</p>
+    <p class="nota">Elige una o varias patas: caminar, correr, girar, sentarse y los gestos solo mueven esas. Las demás se quedan quietas en posición de parado. Úsalo con el perro en el aire para ver qué pata se mueve mal.</p>
 
     <h2>Moverse</h2>
     <div class="cruceta">
@@ -896,7 +911,32 @@ function armarMarcha(e) {
   }
   marchaArmada = true;
 }
+const NOMBRE_PATA = {DD: "delantera der.", DI: "delantera izq.", TD: "trasera der.", TI: "trasera izq."};
+let patasEnvio = 0;
+function pintarPatas(activas) {
+  if (!Array.isArray(activas)) return;
+  const todas = activas.length === 4;
+  document.querySelectorAll("#patas-sel [data-pata]").forEach(b => {
+    const p = b.dataset.pata;
+    b.classList.toggle("sel", p === "todas" ? todas : (!todas && activas.includes(p)));
+    b.setAttribute("aria-pressed", String(b.classList.contains("sel")));
+  });
+  $("patas-aviso").textContent = todas ? "Se mueven las 4 patas."
+    : `Solo se mueve${activas.length > 1 ? "n" : ""}: ${activas.map(p => NOMBRE_PATA[p]).join(", ")}. Las demás, quietas en parado.`;
+}
+document.querySelectorAll("#patas-sel [data-pata]").forEach(b => b.onclick = async () => {
+  const p = b.dataset.pata, actual = (E && E.patas_activas) || ["DD", "DI", "TD", "TI"];
+  let nuevas;
+  if (p === "todas") nuevas = [];
+  else if (actual.length === 4) nuevas = [p];                       // de "las 4" a solo esta
+  else nuevas = actual.includes(p) ? actual.filter(x => x !== p) : [...actual, p];
+  const mio = ++patasEnvio;
+  pintarPatas(nuevas.length ? nuevas : ["DD", "DI", "TD", "TI"]);
+  const r = await api("/api/patas", {patas: nuevas});
+  if (mio === patasEnvio && r && r.patas) { if (E) E.patas_activas = r.patas; pintarPatas(r.patas); }
+});
 function pintarMarcha(e) {
+  if (e.patas_activas) pintarPatas(e.patas_activas);
   if (!e.marcha) return;
   if (!marchaArmada) armarMarcha(e);
   for (const [k, , paso] of AJUSTES_MARCHA) {
