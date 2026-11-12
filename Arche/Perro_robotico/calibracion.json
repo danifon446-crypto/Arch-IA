@@ -1,0 +1,122 @@
+{
+  "DD_H": {
+    "invertir": false,
+    "base": -12,
+    "ajuste": 0,
+    "min": 10,
+    "max": 90
+  },
+  "DD_M": {
+    "invertir": false,
+    "base": -61,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "DD_R": {
+    "invertir": false,
+    "base": -49,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "DI_H": {
+    "invertir": false,
+    "base": -9,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "DI_M": {
+    "invertir": false,
+    "base": 99,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "DI_R": {
+    "invertir": false,
+    "base": -73,
+    "ajuste": 0,
+    "min": 10,
+    "max": 180
+  },
+  "TD_H": {
+    "invertir": false,
+    "base": -20,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "TD_M": {
+    "invertir": false,
+    "base": 82,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "TD_R": {
+    "invertir": false,
+    "base": -97,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "TI_H": {
+    "invertir": false,
+    "base": 7,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "TI_M": {
+    "invertir": false,
+    "base": -45,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "TI_R": {
+    "invertir": false,
+    "base": -26,
+    "ajuste": 0,
+    "min": 10,
+    "max": 170
+  },
+  "_rodillas": "atras",
+  "_rodilla_en_90": 90,
+  "_capturas": {
+    "parado": {
+      "raw": [
+        90,
+        10,
+        93,
+        93,
+        170,
+        69,
+        82,
+        153,
+        45,
+        109,
+        26,
+        116
+      ],
+      "logico": [
+        102.0,
+        71.0,
+        142.0,
+        102.0,
+        71.0,
+        142.0,
+        102.0,
+        71.0,
+        142.0,
+        102.0,
+        71.0,
+        142.0
+      ],
+      "hora": "2026-11-10 16:18"
+    },
+    "echado": null
+  }
+}

@@ -364,6 +364,49 @@ class Banco:
             self.esp_reinicios += 1      # el tiempo encendido volvio a empezar: se reinicio
         self.esp_info = d
         self.t_esp_info = time.time()
+        ar.ESP_SECUENCIAS = bool(d.get("seq"))   # el ESP32 nuevo reproduce las secuencias solo
+
+    def diagnostico(self):
+        """Lo que esta saliendo mal ahora mismo y QUE cambiar. Lista de {"nivel": ok|warn|mal, "texto": ...}."""
+        d = []
+        t = time.time()
+        i = self.esp_info or {}
+        if self.esp_perdido():
+            d.append(("mal", "El ESP32 no responde: revisa que este prendido y con WiFi (monitor serie: 'MQTT conectado')."))
+        elif not self.hb_visto:
+            d.append(("warn", "Todavia no llega el latido del ESP32. Si no llega en unos segundos, revisa su WiFi."))
+        if i.get("reinicio") == "bajo voltaje" or self.esp_reinicios:
+            d.append(("mal", "El ESP32 se reinicia (bajo voltaje): la fuente no aguanta los 12 servos. "
+                             "Usa bateria 2S + regulador buck de 6 V y 20 A para los servos, y uno aparte de 5 V para el ESP32. "
+                             "Mientras tanto baja 'velocidad' y 'largo del paso' para que pidan menos corriente."))
+        if isinstance(i.get("rssi"), (int, float)) and i["rssi"] < -72:
+            d.append(("warn", f"Senal WiFi del ESP32 debil ({i['rssi']} dBm): las ordenes llegan tarde y el paso se ve a saltos. "
+                              "Acerca el perro al router o usa el hotspot del celular cerca."))
+        if self.t_esp_info and t - self.t_esp_info > 6 and not self.esp_perdido():
+            d.append(("warn", "El ESP32 dejo de mandar sus datos: puede estar trabado. Reinicialo (boton EN)."))
+        if i and not i.get("seq"):
+            d.append(("warn", "El ESP32 tiene el codigo viejo: cada paso viaja por internet y el perro camina a saltos. "
+                              "Sube el perro_esp32.ino nuevo para que reproduzca los pasos solo."))
+        if i.get("drv") == "pines":
+            d.append(("warn", "El ESP32 no encuentra el PCA9685: revisa SDA=21, SCL=22, VCC=3V3 y GND del driver."))
+        sueltos = [ar.NOMBRE_SERVO[ar.SERVOS[k]] for k, a in enumerate(i.get("ang") or []) if a == -1 and k < len(ar.SERVOS)]
+        if sueltos and ar._ejecutor.actual:
+            d.append(("warn", "Estos servos estan sueltos (sin fuerza): " + ", ".join(sueltos) + ". Di 'parate' para activarlos."))
+        if isinstance(i.get("ang"), list) and len(i["ang"]) not in (0, len(ar.SERVOS)):
+            d.append(("mal", f"El ESP32 maneja {len(i['ang'])} servos y Arche {len(ar.SERVOS)}: sube el perro_esp32.ino de 12 servos."))
+        avisos = ar.avisos_marcha()
+        haciendo = ar._ejecutor.actual
+        if haciendo:                          # solo los de lo que esta haciendo ahora: lo demas es ruido
+            propios = [a for a in avisos if a[1].startswith(f"'{haciendo}'")]
+            d.extend(propios)
+            otros = len({a[1].split("'")[1] for a in avisos}) - (1 if propios else 0)
+            if otros > 0:
+                d.append(("warn", f"Otros {otros} movimientos tambien tienen avisos con estos ajustes (se ven al parar)."))
+        else:
+            d.extend(avisos)
+        if not d:
+            d.append(("ok", "Todo en orden. Si se ve mal, mira la guia 'Si ves esto, cambia esto'."))
+        return [{"nivel": n, "texto": x} for n, x in d]
 
     def esp_perdido(self):
         if self.esp_estado == "offline":
@@ -447,6 +490,20 @@ class Banco:
             if self.modo == "ordenes" and previo in ("manual", "perro"):
                 self.modo = previo
                 self.gracia_hasta = time.time() + GRACIA_TRAS_ACTIVAR
+
+    def repetir(self, accion):
+        """Repite una accion en bucle (para mirarla y ajustarla)."""
+        if accion == "quieto":
+            return self.orden("quieto")
+        if accion not in ar.SECUENCIAS:
+            return False, "No conozco esa accion."
+        try:
+            ar._modo_perro.detener("Repitiendo una accion para ajustarla.")
+            ar._ejecutor.ejecutar(accion, bucle=True)
+        except ar.RobotError as e:
+            return False, str(e)
+        self.ceder_control()
+        return True, f"Repitiendo '{accion}' sin parar. Ajusta abajo y mira como cambia. Toca Quieto para parar."
 
     def orden(self, frase):
         """Una frase escrita o tocada en la app pasa por el MISMO camino que cuando
@@ -640,6 +697,14 @@ class Banco:
             "eventos": EVENTOS, "reacciones": REACCIONES, "mapa": self.mapa,
             "colores": list(PRESETS_COLOR), "config": dict(self.detector.config),
             "cooldown": self.cooldown, "invertir_giro": self.invertir_giro, "usar_camara": self.usar_camara,
+            "marcha": ar.marcha_actual(), "rangos_marcha": ar.RANGOS_MARCHA,
+            "crudo": ar._crudo, "lim_servo": ar.LIM_SERVO, "capturas": ar.estado_capturas(),
+            "calibracion": ar.calibracion_actual(), "rango_ajuste": ar.RANGO_AJUSTE, "rodillas": ar.RODILLAS, "rodilla_en_90": ar.RODILLA_EN_90,
+            "largos": {"muslo": ar.LARGO_MUSLO, "pierna": ar.LARGO_PIERNA},
+            "haciendo": {"accion": ar._ejecutor.actual, "bucle": ar._ejecutor.en_bucle, "vueltas": ar._ejecutor.vueltas},
+            "acciones_bucle": [n for n in ("avanzar", "correr", "retroceder", "izquierda", "derecha", "feliz", "saludar",
+                                           "cola", "ladrar", "sentarse", "acostarse", "enojado") if n in ar.SECUENCIAS],
+            "diagnostico": self.diagnostico(),
             "arche_perro": {"activo": ar._modo_perro.activo, "resumen": ar._modo_perro.resumen(),
                             "evento": ar._modo_perro.ultimo_evento},
             "perro": {"mood": self.cerebro.mood, "postura": self.cerebro.postura, "razon": self.cerebro.razon,
@@ -962,6 +1027,71 @@ def crear_app(b):
     def orden():
         ok, msg = b.orden((request.get_json(silent=True) or {}).get("frase"))
         return jsonify(ok=ok, msg=msg)
+
+    @app.post("/api/repetir")
+    def repetir():
+        ok, msg = b.repetir((request.get_json(silent=True) or {}).get("accion"))
+        return jsonify(ok=ok, msg=msg)
+
+    @app.post("/api/calibrar")
+    def calibrar():
+        try:
+            b.ceder_control()
+            return jsonify(ok=True, calibracion=ar.cambiar_calibracion(request.get_json(silent=True) or {}))
+        except ar.RobotError as e:
+            return jsonify(ok=False, msg=str(e))
+
+    @app.post("/api/calibrar/pose")
+    def calibrar_pose():
+        try:
+            b.ceder_control()
+            ar._modo_perro.detener("Calibrando.")
+            ar.pose_calibrar((request.get_json(silent=True) or {}).get("pose", "recta"))
+            return jsonify(ok=True)
+        except ar.RobotError as e:
+            return jsonify(ok=False, msg=str(e))
+
+    @app.post("/api/calibrar/probar")
+    def calibrar_probar():
+        try:
+            b.ceder_control()
+            ar._modo_perro.detener("Calibrando.")
+            return jsonify(ok=True, msg=ar.probar_servo((request.get_json(silent=True) or {}).get("servo")))
+        except (ar.RobotError, TypeError, ValueError, IndexError) as e:
+            return jsonify(ok=False, msg=f"No pude probar ese servo ({e}).")
+
+    @app.post("/api/crudo")
+    def crudo():
+        d = request.get_json(silent=True) or {}
+        try:
+            b.ceder_control()
+            ar._modo_perro.detener("Moviendo servos para armar.")
+            ang = ar.mover_crudo(d.get("servo"), d.get("angulo", 90))
+            return jsonify(ok=True, angulo=ang)
+        except (ar.RobotError, TypeError, ValueError) as e:
+            return jsonify(ok=False, msg=str(e))
+
+    @app.post("/api/capturar")
+    def capturar():
+        try:
+            res = ar.capturar_pose((request.get_json(silent=True) or {}).get("pose"))
+            return jsonify(ok=True, resultado=[{"nivel": a, "texto": b} for a, b in res])
+        except ar.RobotError as e:
+            return jsonify(ok=False, msg=str(e))
+
+    @app.post("/api/barrer")
+    def barrer():
+        try:
+            b.ceder_control()
+            ar._modo_perro.detener("Moviendo servos para armar.")
+            return jsonify(ok=True, msg=ar.barrer((request.get_json(silent=True) or {}).get("servo")))
+        except (ar.RobotError, TypeError, ValueError) as e:
+            return jsonify(ok=False, msg=str(e))
+
+    @app.post("/api/marcha")
+    def marcha():
+        return jsonify(ok=True, marcha=ar.cambiar_marcha(request.get_json(silent=True) or {}),
+                       avisos=[{"nivel": n, "texto": x} for n, x in ar.avisos_marcha()])
 
     @app.post("/api/recalibrar")
     def recalibrar():

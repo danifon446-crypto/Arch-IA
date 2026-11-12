@@ -2,7 +2,7 @@
 // Solo guarda la "carcasa" de la app (la pantalla y los iconos) para que abra rapido
 // y muestre un aviso claro si el banco esta apagado. Nada de /api, /frame ni el video:
 // eso siempre va en vivo al PC.
-const VERSION = "perro-v6";
+const VERSION = "perro-v13";
 const CARCASA = ["/app", "/manifest.webmanifest", "/iconos/icono-180.png", "/iconos/icono-192.png", "/iconos/icono-512.png"];
 
 self.addEventListener("install", e => {

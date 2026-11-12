@@ -124,6 +124,42 @@
   #t-esp td:first-child { white-space:nowrap; }
   #t-servos .servo { flex-direction:column; gap:.1rem; font-size:.74rem; }
   #t-servos .servo b { font-size:.95rem; }
+  /* ---------- armar: un control por servo */
+  #armar h3 { font:600 .9rem var(--redondo); color:var(--sub); margin:1rem .2rem .4rem; }
+  .arm { background:var(--capa); border-radius:14px; padding:.6rem .8rem; margin-bottom:.45rem;
+    display:grid; grid-template-columns:5.6rem 1fr; gap:.2rem .7rem; align-items:center; }
+  .arm svg { grid-row:span 3; width:5.6rem; height:3.4rem; }
+  .arm .t { display:flex; justify-content:space-between; gap:.4rem; font-size:.9rem; }
+  .arm .t b { font-weight:600; } .arm .t span { color:var(--sub); font-size:.8rem; font-variant-numeric:tabular-nums; }
+  .arm input[type=range] { width:100%; }
+  .arm .bs { display:flex; gap:.35rem; }
+  .arm .bs button { flex:1; padding:.4rem .2rem; font-size:.8rem; border-radius:9px; }
+  /* ---------- calibrar servos */
+  ol.pasos { margin:.6rem 0 .2rem; padding-left:1.3rem; } ol.pasos li { margin:.15rem 0; }
+  #cal h3 { font:600 .9rem var(--redondo); color:var(--sub); margin:1rem .2rem .4rem; }
+  .cal { background:var(--capa); border-radius:14px; padding:.6rem .8rem; margin-bottom:.45rem; }
+  .cal .top { display:flex; align-items:center; gap:.6rem; }
+  .cal .top b { flex:1; font-weight:600; font-size:.92rem; }
+  .cal .top label { display:flex; align-items:center; gap:.35rem; font-size:.85rem; color:var(--sub); }
+  .cal .top button { padding:.4rem .8rem; font-size:.85rem; }
+  .cal .aj { display:flex; align-items:center; gap:.6rem; margin-top:.45rem; font-size:.85rem; color:var(--sub); }
+  .cal .aj input[type=range] { flex:1; }
+  .cal .aj output { min-width:2.6rem; text-align:right; color:var(--txt); font-variant-numeric:tabular-nums; }
+  .cal .lim { display:flex; gap:.8rem; margin-top:.4rem; font-size:.8rem; color:var(--sub); align-items:center; }
+  .cal .lim input { width:4.2rem; padding:.3rem .4rem; }
+  /* ---------- repetir, diagnóstico y marcha */
+  #diag .fila, #cap-res .fila { align-items:flex-start; justify-content:flex-start; font-size:.88rem; }
+  #cap-res .fila::before { content:""; flex:none; width:.55rem; height:.55rem; border-radius:50%; margin-top:.45rem; background:var(--verde); }
+  #cap-res .fila.warn::before { background:var(--ambar); } #cap-res .fila.mal::before { background:var(--rojo); }
+  #cap-res .fila.mal { color:#ffb4ae; } #cap-res:empty { display:none; }
+  #diag .fila { align-items:flex-start; justify-content:flex-start; font-size:.88rem; }
+  #diag .fila::before { content:""; flex:none; width:.55rem; height:.55rem; border-radius:50%; margin-top:.45rem; background:var(--verde); }
+  #diag .fila.warn::before { background:var(--ambar); } #diag .fila.mal::before { background:var(--rojo); }
+  #diag .fila.mal { color:#ffb4ae; }
+  #marcha .deslizador small { display:block; color:var(--sub); font-size:.76rem; margin-top:.25rem; }
+  details.guia { background:var(--capa); border-radius:14px; padding:.2rem .9rem; margin-top:.8rem; }
+  details.guia summary { padding:.6rem 0; font-weight:600; cursor:pointer; }
+  details.guia td { vertical-align:top; font-size:.82rem; }
   /* ---------- órdenes */
   .chat { display:flex; gap:.5rem; }
   .chat input { flex:1; min-width:0; font:inherit; color:var(--txt); background:var(--capa2); border:0;
@@ -139,7 +175,7 @@
   .gestos { display:grid; grid-template-columns:repeat(3,1fr); gap:.45rem; }
   .gestos button.ancho2 { grid-column:span 3; }
 
-  nav { display:grid; grid-template-columns:repeat(5,1fr); margin-top:.45rem; }
+  nav { display:grid; grid-template-columns:repeat(6,1fr); margin-top:.45rem; }
   nav button { border:0; background:none; color:var(--sub); font:500 .7rem -apple-system, system-ui, sans-serif;
     padding:.35rem 0 .2rem; display:flex; flex-direction:column; align-items:center; gap:.15rem; }
   nav button svg { width:1.55rem; height:1.55rem; }
@@ -221,6 +257,44 @@
     </form>
     <div id="respuesta">Las órdenes pasan por Arché igual que si se las dijeras en el PC.</div>
 
+    <h2>Repetir y ajustar</h2>
+    <div class="grupo">
+      <div class="fila"><select id="rep-accion" aria-label="Acción a repetir" style="max-width:none;flex:1"></select></div>
+      <div class="fila" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+        <button id="b-repetir" class="boton primario">Repetir sin parar</button>
+        <button id="b-rep-quieto" class="boton">Quieto</button></div>
+      <div class="fila"><span class="nota" id="rep-estado" style="margin:0">No está repitiendo nada.</span></div>
+    </div>
+    <p class="nota">La acción se repite sin parar. Mueve los ajustes de abajo mientras la miras: el cambio se nota en la vuelta siguiente.</p>
+
+    <h2>Diagnóstico</h2>
+    <div class="grupo" id="diag"></div>
+
+    <h2>Ajustar la marcha</h2>
+    <div class="grupo" id="marcha"></div>
+    <button id="b-marcha-reset" class="boton ancho">Volver a los valores de fábrica</button>
+
+    <details class="guia">
+      <summary>Si ves esto, cambia esto</summary>
+      <table>
+        <tr><th>Si ves…</th><th>Cambia…</th></tr>
+        <tr><td>Se cae de cara (hacia adelante)</td><td><b>Centro</b> más a la derecha (+)</td></tr>
+        <tr><td>Se cae de cola (hacia atrás)</td><td><b>Centro</b> más a la izquierda (−)</td></tr>
+        <tr><td>Se tambalea o se cae de lado</td><td>Sube <b>Abrir patas</b>; baja <b>Velocidad</b></td></tr>
+        <tr><td>Arrastra los pies o tropieza</td><td>Sube <b>Alto del paso</b></td></tr>
+        <tr><td>Mueve las patas pero casi no avanza</td><td>Sube <b>Largo del paso</b> (hasta que salga un aviso)</td></tr>
+        <tr><td>Patina en el mismo sitio</td><td>Baja <b>Velocidad</b>; ponle gomas o silicona a los pies</td></tr>
+        <tr><td>Se mueve a saltos o tiembla</td><td>Baja <b>Velocidad</b>; mira la señal WiFi en Medidas</td></tr>
+        <tr><td>Roza la panza con el piso</td><td>Baja <b>Altura</b></td></tr>
+        <tr><td>Muy alto y se ve inestable</td><td>Sube <b>Altura</b></td></tr>
+        <tr><td>Va de lado cuando debería ir recto</td><td>En <b>Ajustes → Calibrar servos</b>: <b>Patas rectas</b> y corrige el <b>Ajuste</b> de los muslos hasta que queden iguales</td></tr>
+        <tr><td>Una pata se mueve al revés que las otras</td><td>Marca <b>Invertir</b> en ese servo (Ajustes → Calibrar servos)</td></tr>
+        <tr><td>Una pata queda torcida aun parado</td><td>Mueve el <b>Ajuste</b> de ese servo (Ajustes → Calibrar servos)</td></tr>
+        <tr><td>Un servo zumba o se calienta quieto</td><td>Choca con algo: sube <b>mín</b> o baja <b>máx</b> de ese servo (Ajustes → Calibrar servos)</td></tr>
+        <tr><td>Se apaga o se reinicia al moverse</td><td>La fuente no aguanta: batería 2S + regulador de 6 V / 20 A</td></tr>
+      </table>
+    </details>
+
     <h2>Moverse</h2>
     <div class="cruceta">
       <span></span><button data-mover="avanza">Adelante</button><span></span>
@@ -290,8 +364,67 @@
     <p class="nota">Puedes cambiar de pestaña: la cámara sigue enviando. Si sales de la app o se bloquea la pantalla, el iPhone apaga la cámara y el robot entra en paro solo.</p>
   </section>
 
+  <!-- ===================== ARMAR: mover cada servo en todo su recorrido -->
+  <section data-pestana="armar">
+    <h2>Mover servos para armar</h2>
+    <div class="grupo" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.6rem">
+      <button id="ar-90" class="boton primario">Todos a 90°</button>
+      <button id="ar-relajar" class="boton">Relajar todos</button>
+    </div>
+    <p class="nota">Aquí mueves cada servo <b>en su ángulo real</b> (sin la calibración), en todo su recorrido. Úsalo para ver hasta dónde llega cada uno y poner la pieza en el diente donde le alcance el movimiento que necesita. <b>Barrer</b> lo lleva despacio de punta a punta.</p>
+    <div id="ar-msg" class="nota" style="color:var(--ambar);min-height:1.2em"></div>
+
+    <h2>Enséñale a Arché tu perro</h2>
+    <ol class="nota pasos">
+      <li>Con los controles de abajo pon el perro <b>PARADO</b> como quieres que se pare (patas derechas, un poco dobladas) y toca <b>Guardar como PARADO</b>.</li>
+      <li>Luego ponlo <b>ECHADO</b> (muslos hacia atrás, rodillas muy dobladas, como en la foto del perro amarillo) y toca <b>Guardar como ECHADO</b>.</li>
+      <li>Arché calcula sola hacia dónde gira cada servo y cuánto corregirlo. Lee los avisos: si un servo quedó pegado a su tope, gira esa pieza unos dientes y vuelve a guardar.</li>
+    </ol>
+    <div class="grupo" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.6rem">
+      <button id="cap-parado" class="boton primario">Guardar como PARADO</button>
+      <button id="cap-echado" class="boton primario">Guardar como ECHADO</button>
+    </div>
+    <p class="nota" id="cap-estado">—</p>
+    <div class="grupo" id="cap-res"></div>
+
+    <h2>Servos</h2>
+    <div id="armar"></div>
+  </section>
+
   <!-- ===================== AJUSTES -->
   <section data-pestana="ajustes">
+    <h2>Calibrar servos</h2>
+    <div class="grupo" style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.6rem">
+      <button id="cal-recta" class="boton primario">Posición de armado (90°)</button>
+      <button id="cal-parado" class="boton">Pararse</button>
+    </div>
+    <div class="grupo" style="margin-top:.5rem">
+      <div class="fila" style="flex-wrap:wrap"><span>Las rodillas apuntan</span>
+        <div class="segmentos" style="flex:1;min-width:13rem"><button id="rod-atras">Hacia atrás</button><button id="rod-adelante">Hacia adelante</button></div></div>
+    </div>
+    <p class="nota">Míralo de lado con el perro agachado: si la rodilla queda <b>detrás</b> de la cadera (como el perro Spot), es <b>hacia atrás</b>. Cambia hacia dónde gira el muslo al pararse, sentarse y caminar.</p>
+    <div class="grupo">
+      <div class="fila" style="flex-wrap:wrap"><span>Al armar (servo en 90°) la rodilla quedó</span>
+        <div class="segmentos" style="flex:1;min-width:13rem"><button id="r90-90">En L (90°)</button><button id="r90-0">Recta</button></div></div>
+    </div>
+    <div class="grupo">
+      <div class="fila" style="flex-wrap:wrap"><span>Medidas de la pata (mm)</span>
+        <span>muslo <input type="number" id="largo-muslo" min="40" max="300" step="1" inputmode="numeric" style="width:4.5rem"></span>
+        <span>pierna <input type="number" id="largo-pierna" min="40" max="300" step="1" inputmode="numeric" style="width:4.5rem"></span></div>
+    </div>
+    <p class="nota">Mide en las piezas, de centro de eje a centro de eje. <b>Muslo</b>: eje del servo del muslo → eje de la rodilla. <b>Pierna</b>: eje de la rodilla → punta del pie. Con esto Arché calcula los ángulos exactos (cinemática inversa) y el pie camina en línea recta.</p>
+    <p class="nota"><b>En L</b> es lo recomendado: la rodilla puede ir de casi recta a muy doblada y le alcanza para echarse. Armada <b>recta</b> solo le quedan unos 80° y no le alcanza.</p>
+    <ol class="nota pasos">
+      <li>Pon el perro en el aire y toca <b>Posición de armado</b>: hombro y muslo verticales, rodilla en L.</li>
+      <li>En cada servo toca <b>Probar</b>: si se movió al revés de lo que dice, marca <b>Invertir</b>.</li>
+      <li>Mueve <b>Ajuste</b> hasta que esa parte quede como en la imagen de armado (vertical o en L exacta).</li>
+      <li>Si una articulación choca con el cuerpo, sube <b>mín</b> o baja <b>máx</b>.</li>
+    </ol>
+    <p class="nota">Todo se guarda solo en el PC (calibracion.json) y se aplica al instante. No hay que volver a subir nada al ESP32.</p>
+    <div id="cal-msg" class="nota" style="color:var(--ambar);min-height:1.2em"></div>
+    <div id="cal"></div>
+    <button id="cal-reset" class="boton ancho">Volver a la calibración de fábrica</button>
+
     <h2>Visión</h2>
     <div class="grupo" id="sliders">
       <div class="fila"><span>Color de la pelota</span><select id="c-color"></select></div>
@@ -353,6 +486,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Ojos</button>
     <button data-ir="ajustes" aria-label="Ajustes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Ajustes</button>
+    <button data-ir="armar" aria-label="Armar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5a4 4 0 0 0 4.9 4.9l-8.6 8.6a2.1 2.1 0 1 1-3-3l8.6-8.6"/><path d="M14.5 5.5 17 3l4 4-2.5 2.5"/></svg>Armar</button>
     <button data-ir="medidas" aria-label="Medidas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="7.5"/><path d="M12 13V9M10 3h4"/></svg>Medidas</button>
   </nav>
@@ -495,6 +630,9 @@ function pintar(e) {
   if (!L.historial.length) hh += "<tr><td colspan='4' style='color:var(--sub)'>Todavía no hay reacciones.</td></tr>";
   $("t-hist").innerHTML = hh;
   pintarEsp(e);
+  pintarMarcha(e);
+  pintarCal(e);
+  pintarArmar(e);
 }
 
 /* ======================================== tarjeta ESP32 (datos que manda cada 2 s por MQTT) */
@@ -570,6 +708,216 @@ $("b-reanudar").onclick = async () => { const r = await api("/api/reanudar"); ms
 $("b-probar").onclick = async () => { const r = await api("/api/probar", {accion: $("sel-probar").value}); msg(r.ok ? "" : r.msg); };
 $("b-recal").onclick = async () => { await api("/api/recalibrar"); $("b-recal").textContent = "Recalibrado"; setTimeout(() => $("b-recal").textContent = "Recalibrar (moviste el celular de sitio)", 1500); };
 $("b-lat-reset").onclick = () => api("/api/reiniciar_latencias");
+
+/* ======================================== armar: mover servos en crudo (ángulo real, sin calibración) */
+let armArmado = false;
+const armTimers = {}, armPedido = {};
+function aguja(a) {                       // 0 grados a la izquierda, 180 a la derecha
+  const r = Math.PI * (1 - a / 180);
+  return [45 + 36 * Math.cos(r), 46 - 36 * Math.sin(r)];
+}
+function armMandar(n, ang, inmediato) {
+  armPedido[n] = ang;
+  $("aa-" + n).textContent = ang + "°";
+  clearTimeout(armTimers[n]);
+  armTimers[n] = setTimeout(async () => {
+    const r = await api("/api/crudo", {servo: n, angulo: ang});
+    if (!r.ok) $("ar-msg").textContent = r.msg;
+  }, inmediato ? 0 : 70);
+}
+function armarArmar(e) {
+  const [lo, hi] = e.lim_servo;
+  const PATAS = ["Delantera derecha", "Delantera izquierda", "Trasera derecha", "Trasera izquierda"];
+  for (const c of e.calibracion) {
+    const n = c.n;
+    if ((n - 1) % 3 === 0) { const h = document.createElement("h3"); h.textContent = PATAS[(n - 1) / 3]; $("armar").appendChild(h); }
+    const [x0, y0] = aguja(lo), [x1, y1] = aguja(hi);
+    const d = document.createElement("div"); d.className = "arm";
+    d.innerHTML = `
+      <svg viewBox="0 0 90 54" aria-hidden="true">
+        <path d="M9 46 A36 36 0 0 1 81 46" fill="none" stroke="var(--linea)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A36 36 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="var(--capa2)" stroke-width="6"/>
+        <line id="ap-${n}" x1="45" y1="46" x2="45" y2="12" stroke="var(--sub)" stroke-width="2" stroke-dasharray="3 3"/>
+        <line id="ag-${n}" x1="45" y1="46" x2="45" y2="12" stroke="var(--ambar)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="45" cy="46" r="4" fill="var(--ambar)"/>
+        <text x="4" y="53" font-size="7" fill="var(--sub)">0</text><text x="78" y="53" font-size="7" fill="var(--sub)">180</text>
+      </svg>
+      <div class="t"><b>${n} · ${c.nombre.replace(/^(delantera|trasera) (der|izq) /, "")}</b><span>pedido <span id="aa-${n}">—</span> · real <span id="ar-${n}">—</span></span></div>
+      <input type="range" id="as-${n}" min="${lo}" max="${hi}" step="1" value="90" aria-label="Ángulo del servo ${n}">
+      <div class="bs"><button class="boton" data-a="${lo}">${lo}°</button><button class="boton" data-a="90">90°</button>
+        <button class="boton" data-a="${hi}">${hi}°</button><button class="boton primario" data-barrer>Barrer</button></div>`;
+    $("armar").appendChild(d);
+    const sl = $("as-" + n);
+    sl.oninput = () => armMandar(n, Number(sl.value));
+    d.querySelectorAll("[data-a]").forEach(bt => bt.onclick = () => { sl.value = bt.dataset.a; armMandar(n, Number(bt.dataset.a), true); });
+    d.querySelector("[data-barrer]").onclick = async () => { const r = await api("/api/barrer", {servo: n}); $("ar-msg").textContent = r.msg || ""; };
+  }
+  armArmado = true;
+}
+function pintarCapturas(c) {
+  if (!c) return;
+  $("cap-estado").textContent = "PARADO: " + (c.parado ? "guardado " + c.parado : "sin guardar") +
+                                " · ECHADO: " + (c.echado ? "guardado " + c.echado : "sin guardar");
+  const caja = $("cap-res"); caja.innerHTML = "";
+  for (const x of c.resultado || []) { const f = document.createElement("div"); f.className = "fila " + x.nivel; f.textContent = x.texto; caja.appendChild(f); }
+}
+for (const pose of ["parado", "echado"]) $("cap-" + pose).onclick = async () => {
+  const r = await api("/api/capturar", {pose});
+  $("ar-msg").textContent = r.ok ? (pose === "parado" ? "Pose PARADO guardada." : "Pose ECHADO guardada.") : r.msg;
+  refrescar();
+};
+function pintarArmar(e) {
+  if (!e.calibracion || !e.lim_servo) return;
+  if (!armArmado) armarArmar(e);
+  pintarCapturas(e.capturas);
+  const reales = (e.esp && e.esp.info && e.esp.info.ang) || [];
+  for (let k = 0; k < 12; k++) {
+    const n = k + 1, pedido = e.crudo ? e.crudo[k] : null, real = reales[k];
+    const sl = $("as-" + n);
+    if (pedido != null && document.activeElement !== sl) { sl.value = pedido; $("aa-" + n).textContent = pedido + "°"; }
+    $("ar-" + n).textContent = real == null ? "—" : (real < 0 ? "suelto" : real + "°");
+    const [px, py] = aguja(Number(sl.value)); const ap = $("ap-" + n); ap.setAttribute("x2", px); ap.setAttribute("y2", py);
+    const ag = $("ag-" + n);
+    if (real != null && real >= 0) { const [gx, gy] = aguja(real); ag.setAttribute("x2", gx); ag.setAttribute("y2", gy); ag.style.opacity = 1; }
+    else ag.style.opacity = .25;
+  }
+}
+$("ar-90").onclick = async () => { await api("/api/crudo", {angulo: 90}); $("ar-msg").textContent = "Los 12 servos en 90°."; refrescar(); };
+$("ar-relajar").onclick = () => { ordenar("relaja los servos"); $("ar-msg").textContent = "Servos relajados: ya no hacen fuerza."; };
+
+/* ======================================== calibrar servos (se guarda en el PC: calibracion.json) */
+let calArmada = false;
+const calTimers = {};
+function calMandar(n, cambios, inmediato) {
+  clearTimeout(calTimers[n]);
+  calTimers[n] = setTimeout(async () => {
+    const r = await api("/api/calibrar", {servo: n, ...cambios});
+    if (!r.ok) $("cal-msg").textContent = r.msg;
+  }, inmediato ? 0 : 120);
+}
+function armarCal(e) {
+  const [amin, amax] = e.rango_ajuste;
+  const PATAS = ["Delantera derecha", "Delantera izquierda", "Trasera derecha", "Trasera izquierda"];
+  for (const c of e.calibracion) {
+    if ((c.n - 1) % 3 === 0) { const h = document.createElement("h3"); h.textContent = PATAS[(c.n - 1) / 3]; $("cal").appendChild(h); }
+    const d = document.createElement("div"); d.className = "cal";
+    d.innerHTML = `
+      <div class="top"><b>${c.n} · ${c.nombre.replace(/^(delantera|trasera) (der|izq) /, "")}</b>
+        <label><input type="checkbox" id="ci-${c.n}"> Invertir</label>
+        <button class="boton" id="cp-${c.n}">Probar</button></div>
+      <div class="aj">Ajuste <input type="range" id="ca-${c.n}" min="${amin}" max="${amax}" step="1"><output id="cv-${c.n}"></output></div>
+      <div class="lim">mín <input type="number" id="cmin-${c.n}" min="0" max="90" inputmode="numeric">
+        máx <input type="number" id="cmax-${c.n}" min="90" max="180" inputmode="numeric"></div>`;
+    $("cal").appendChild(d);
+    const n = c.n;
+    $("ci-" + n).onchange = ev => calMandar(n, {invertir: ev.target.checked}, true);
+    $("ca-" + n).oninput = ev => { $("cv-" + n).textContent = (ev.target.value > 0 ? "+" : "") + ev.target.value + "°"; calMandar(n, {ajuste: Number(ev.target.value)}); };
+    $("cmin-" + n).onchange = ev => calMandar(n, {min: Number(ev.target.value)}, true);
+    $("cmax-" + n).onchange = ev => calMandar(n, {max: Number(ev.target.value)}, true);
+    $("cp-" + n).onclick = async () => { const r = await api("/api/calibrar/probar", {servo: n}); $("cal-msg").textContent = r.msg || ""; };
+  }
+  calArmada = true;
+}
+function pintarCal(e) {
+  if (!e.calibracion) return;
+  if (!calArmada) armarCal(e);
+  $("rod-atras").className = e.rodillas === "atras" ? "sel" : "";
+  $("rod-adelante").className = e.rodillas === "adelante" ? "sel" : "";
+  $("r90-90").className = e.rodilla_en_90 >= 45 ? "sel" : "";
+  $("r90-0").className = e.rodilla_en_90 < 45 ? "sel" : "";
+  if (e.largos) { poner($("largo-muslo"), Math.round(e.largos.muslo)); poner($("largo-pierna"), Math.round(e.largos.pierna)); }
+  for (const c of e.calibracion) {
+    const ci = $("ci-" + c.n), ca = $("ca-" + c.n);
+    if (document.activeElement !== ci) ci.checked = c.invertir;
+    if (document.activeElement !== ca) { ca.value = c.ajuste; $("cv-" + c.n).textContent = (c.ajuste > 0 ? "+" : "") + c.ajuste + "°"; }
+    poner($("cmin-" + c.n), c.min); poner($("cmax-" + c.n), c.max);
+  }
+}
+for (const lado of ["atras", "adelante"]) $("rod-" + lado).onclick = async () => {
+  await api("/api/calibrar", {rodillas: lado}); await api("/api/calibrar/pose", {pose: "parado"});
+  $("cal-msg").textContent = lado === "atras" ? "Rodillas hacia atrás: al pararse el muslo va hacia atrás." : "Rodillas hacia adelante: al pararse el muslo va hacia adelante.";
+  refrescar();
+};
+for (const [id, v] of [["r90-90", 90], ["r90-0", 0]]) $(id).onclick = async () => {
+  await api("/api/calibrar", {rodilla_en_90: v}); await api("/api/calibrar/pose", {pose: "parado"});
+  $("cal-msg").textContent = v ? "Rodilla armada en L." : "Rodilla armada recta: no le alcanza para echarse del todo.";
+  refrescar();
+};
+for (const parte of ["muslo", "pierna"]) $("largo-" + parte).onchange = async (ev) => {
+  const v = parseFloat(ev.target.value);
+  if (!(v >= 40 && v <= 300)) { $("cal-msg").textContent = "El largo va de 40 a 300 mm."; refrescar(); return; }
+  const r = await api("/api/calibrar", {["largo_" + parte]: v});
+  $("cal-msg").textContent = r && r.ok === false ? r.msg : `Largo del ${parte}: ${v} mm. Las poses y la marcha ya se recalcularon.`;
+  refrescar();
+};
+$("cal-recta").onclick = async () => { await api("/api/calibrar/pose", {pose: "recta"}); $("cal-msg").textContent = "Las 12 en 90°: hombro y muslo verticales, rodilla en L."; };
+$("cal-parado").onclick = async () => { await api("/api/calibrar/pose", {pose: "parado"}); $("cal-msg").textContent = ""; };
+// borrar la calibración pide tocar dos veces (es fácil tocarlo sin querer y se pierde todo)
+let calResetHasta = 0;
+$("cal-reset").onclick = async () => {
+  if (Date.now() > calResetHasta) {
+    calResetHasta = Date.now() + 4000;
+    $("cal-reset").textContent = "¿Seguro? Toca otra vez para borrar tu calibración";
+    setTimeout(() => $("cal-reset").textContent = "Volver a la calibración de fábrica", 4000);
+    return;
+  }
+  calResetHasta = 0;
+  await api("/api/calibrar", {restablecer: true});
+  $("cal-reset").textContent = "Volver a la calibración de fábrica";
+  $("cal-msg").textContent = "Calibración de fábrica restablecida."; refrescar();
+};
+
+/* ======================================== repetir en bucle + ajustar la marcha + diagnóstico */
+const NOMBRES_ACCION = {avanzar: "Caminar", correr: "Correr", retroceder: "Retroceder", izquierda: "Girar a la izquierda",
+  derecha: "Girar a la derecha", feliz: "Trote en el sitio", saludar: "Dar la pata", cola: "Mover la cola",
+  ladrar: "Ladrar", sentarse: "Sentarse", acostarse: "Acostarse", enojado: "Enojado"};
+const AJUSTES_MARCHA = [
+  ["altura",    "Altura (cuánto se agacha)",      1,    "0 = patas rectas · más = más bajo y firme"],
+  ["paso",      "Largo del paso",                 1,    "más = avanza más en cada paso"],
+  ["levanta",   "Alto del paso",                  1,    "más = levanta más el pie (si arrastra los pies)"],
+  ["velocidad", "Velocidad",                      0.05, "1 = normal · 2 = el doble de rápido"],
+  ["abrir",     "Abrir patas",                    1,    "más = patas más separadas, más estable de lado"],
+  ["centro",    "Centro (balance adelante/atrás)",1,    "+ si se cae de cara · − si se cae de cola"],
+];
+let marchaArmada = false;
+function armarMarcha(e) {
+  const sel = $("rep-accion");
+  for (const a of e.acciones_bucle) { const o = document.createElement("option"); o.value = a; o.textContent = NOMBRES_ACCION[a] || a; sel.appendChild(o); }
+  sel.value = "avanzar";
+  for (const [k, nombre, paso, ayuda] of AJUSTES_MARCHA) {
+    const [mn, mx] = e.rangos_marcha[k];
+    const d = document.createElement("div"); d.className = "deslizador";
+    d.innerHTML = `<div><span>${nombre}</span><span id="vm-${k}"></span></div>` +
+      `<input type="range" id="m-${k}" min="${mn}" max="${mx}" step="${paso}" aria-label="${nombre}"><small>${ayuda}</small>`;
+    $("marcha").appendChild(d);
+    const r = d.querySelector("input");
+    r.oninput = () => $("vm-" + k).textContent = Number(r.value).toFixed(paso < 1 ? 2 : 0);
+    r.onchange = async () => { await api("/api/marcha", {[k]: Number(r.value)}); refrescar(); };
+  }
+  marchaArmada = true;
+}
+function pintarMarcha(e) {
+  if (!e.marcha) return;
+  if (!marchaArmada) armarMarcha(e);
+  for (const [k, , paso] of AJUSTES_MARCHA) {
+    const r = $("m-" + k);
+    if (document.activeElement !== r) { r.value = e.marcha[k]; $("vm-" + k).textContent = Number(e.marcha[k]).toFixed(paso < 1 ? 2 : 0); }
+  }
+  const h = e.haciendo || {};
+  $("rep-estado").textContent = h.accion
+    ? `Haciendo: ${NOMBRES_ACCION[h.accion] || h.accion}${h.bucle ? " sin parar · vuelta " + (h.vueltas + 1) : ""}`
+    : "No está repitiendo nada.";
+  $("diag").innerHTML = "";
+  for (const x of e.diagnostico || []) {
+    const f = document.createElement("div"); f.className = "fila " + x.nivel; f.textContent = x.texto; $("diag").appendChild(f);
+  }
+}
+$("b-repetir").onclick = async () => {
+  const r = await api("/api/repetir", {accion: $("rep-accion").value});
+  $("respuesta").textContent = r.msg || ""; $("respuesta").className = r.ok ? "" : "mal"; refrescar();
+};
+$("b-rep-quieto").onclick = () => ordenar("quieto");
+$("b-marcha-reset").onclick = async () => { await api("/api/marcha", {restablecer: true}); refrescar(); };
 
 /* ======================================== órdenes: la frase va a Arché (acciones_robot.manejar) */
 async function ordenar(frase) {

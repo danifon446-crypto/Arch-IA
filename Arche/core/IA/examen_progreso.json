@@ -1,10 +1,6 @@
 {
   "nivel_grupal": 2,
   "dominios": {
-    "sistema": {
-      "racha": 4,
-      "listo": true
-    },
     "codigo": {
       "racha": 5,
       "listo": true
@@ -55,5 +51,5 @@
     }
   },
   "automatico_corriendo": true,
-  "automatico_actualizado_ts": 1792755539.067912
+  "automatico_actualizado_ts": 1794345314.8503525
 }
