@@ -384,9 +384,8 @@ class Banco:
                               "Acerca el perro al router o usa el hotspot del celular cerca."))
         if self.t_esp_info and t - self.t_esp_info > 6 and not self.esp_perdido():
             d.append(("warn", "El ESP32 dejo de mandar sus datos: puede estar trabado. Reinicialo (boton EN)."))
-        if i and not i.get("seq"):
-            d.append(("warn", "El ESP32 tiene el codigo viejo: cada paso viaja por internet y el perro camina a saltos. "
-                              "Sube el perro_esp32.ino nuevo para que reproduzca los pasos solo."))
+        # perro_esp32.ino (el de esta carpeta) no reproduce secuencias solo: Arche le manda cada paso.
+        # Es lo normal, no se avisa. Si la senal es mala el paso se ve a saltos (eso ya lo avisa el RSSI de arriba).
         if i.get("drv") == "pines":
             d.append(("warn", "El ESP32 no encuentra el PCA9685: revisa SDA=21, SCL=22, VCC=3V3 y GND del driver."))
         sueltos = [ar.NOMBRE_SERVO[ar.SERVOS[k]] for k, a in enumerate(i.get("ang") or []) if a == -1 and k < len(ar.SERVOS)]

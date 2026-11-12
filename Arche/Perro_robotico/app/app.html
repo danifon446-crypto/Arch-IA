@@ -409,8 +409,8 @@
     </div>
     <div class="grupo">
       <div class="fila" style="flex-wrap:wrap"><span>Medidas de la pata (mm)</span>
-        <span>muslo <input type="number" id="largo-muslo" min="40" max="300" step="1" inputmode="numeric" style="width:4.5rem"></span>
-        <span>pierna <input type="number" id="largo-pierna" min="40" max="300" step="1" inputmode="numeric" style="width:4.5rem"></span></div>
+        <span>muslo <input type="number" id="largo-muslo" min="40" max="300" step="0.5" inputmode="decimal" style="width:4.5rem"></span>
+        <span>pierna <input type="number" id="largo-pierna" min="40" max="300" step="0.5" inputmode="decimal" style="width:4.5rem"></span></div>
     </div>
     <p class="nota">Mide en las piezas, de centro de eje a centro de eje. <b>Muslo</b>: eje del servo del muslo → eje de la rodilla. <b>Pierna</b>: eje de la rodilla → punta del pie. Con esto Arché calcula los ángulos exactos (cinemática inversa) y el pie camina en línea recta.</p>
     <p class="nota"><b>En L</b> es lo recomendado: la rodilla puede ir de casi recta a muy doblada y le alcanza para echarse. Armada <b>recta</b> solo le quedan unos 80° y no le alcanza.</p>
@@ -825,7 +825,7 @@ function pintarCal(e) {
   $("rod-adelante").className = e.rodillas === "adelante" ? "sel" : "";
   $("r90-90").className = e.rodilla_en_90 >= 45 ? "sel" : "";
   $("r90-0").className = e.rodilla_en_90 < 45 ? "sel" : "";
-  if (e.largos) { poner($("largo-muslo"), Math.round(e.largos.muslo)); poner($("largo-pierna"), Math.round(e.largos.pierna)); }
+  if (e.largos) { poner($("largo-muslo"), Math.round(e.largos.muslo * 2) / 2); poner($("largo-pierna"), Math.round(e.largos.pierna * 2) / 2); }
   for (const c of e.calibracion) {
     const ci = $("ci-" + c.n), ca = $("ca-" + c.n);
     if (document.activeElement !== ci) ci.checked = c.invertir;
@@ -844,7 +844,7 @@ for (const [id, v] of [["r90-90", 90], ["r90-0", 0]]) $(id).onclick = async () =
   refrescar();
 };
 for (const parte of ["muslo", "pierna"]) $("largo-" + parte).onchange = async (ev) => {
-  const v = parseFloat(ev.target.value);
+  const v = parseFloat(String(ev.target.value).replace(",", "."));
   if (!(v >= 40 && v <= 300)) { $("cal-msg").textContent = "El largo va de 40 a 300 mm."; refrescar(); return; }
   const r = await api("/api/calibrar", {["largo_" + parte]: v});
   $("cal-msg").textContent = r && r.ok === false ? r.msg : `Largo del ${parte}: ${v} mm. Las poses y la marcha ya se recalcularon.`;

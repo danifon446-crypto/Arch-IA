@@ -2,12 +2,14 @@
 
 Arche es el cerebro: traduce frases en MOVIMIENTOS (secuencias de angulos)
 y los manda por MQTT al ESP32. El ESP32 solo mueve cada servo al angulo que
-recibe, a traves del driver PCA9685 (ver perro_esp32.ino).
+recibe, a traves del driver PCA9685 (ver perro_esp32/perro_esp32.ino, en esta misma carpeta).
+Ese .ino entiende: BASE/servos (12 angulos o "relajar") y BASE/pata/... (formato viejo).
+No reproduce secuencias solo: Arche manda cada paso (ESP_SECUENCIAS queda en False).
 
 Cada pata tiene 3 servos:
     HOMBRO  abre/cierra la pata hacia el costado (90 = vertical)
     MUSLO   mueve la pata adelante/atras         (90 = vertical)
-    RODILLA dobla la pata                         (90 = recta)
+    RODILLA dobla la pata                         (90 = en L, como se armo)
 El orden es el de los canales del PCA9685:
 
     canal 0 DD hombro   1 DD muslo   2 DD rodilla     DD = delantera derecha
@@ -111,8 +113,9 @@ RODILLA_EN_90 = 90
 # Con estos largos Arche calcula los angulos exactos para poner el pie donde quiere:
 # al caminar el pie se arrastra en linea RECTA por el suelo y el cuerpo no sube y baja.
 # Se cambian en la app (Ajustes > Calibrar servos > Medidas de la pata) y se guardan en calibracion.json.
-LARGO_MUSLO = 110.0
-LARGO_PIERNA = 110.0
+# Medidas de tus piezas (sacadas del STL): muslo 122,5 mm y pierna 132 mm.
+LARGO_MUSLO = 122.5
+LARGO_PIERNA = 132.0
 RANGO_LARGO = (40, 300)
 
 CALIB = _calib_fabrica()
@@ -154,7 +157,7 @@ def _a_servo(nombre, ang):
 # Convencion (despues de INVERTIR):
 #   hombro: 90 = vertical,  MAS de 90 = pata abierta hacia afuera
 #   muslo:  90 = vertical,  MAS de 90 = hacia adelante, MENOS = hacia atras
-#   rodilla: 90 = recta,    MENOS de 90 = doblada
+#   rodilla: 90 = en L (como se armo), MENOS de 90 = mas doblada, MAS de 90 = mas recta
 # Una pose son 12 angulos en el orden de SERVOS. Un paso es pose + segundos de pausa.
 # None = no tocar ese servo.
 NEUTRO = (90,) * 12          # posicion de ARMADO: hombro y muslo verticales, rodilla en "L" (ver RODILLA_EN_90)
@@ -378,7 +381,8 @@ def construir_movimientos():
         "sentarse":  {"frames": [POSES["sentarse"] + (0.7,)], "repetir": 1, "final": None},
         "acostarse": {"frames": [POSES["acostarse"] + (0.7,)], "repetir": 1, "final": None},
         "avanzar":    {"frames": _trote(1, 1), "repetir": None, "final": None},
-        "correr":     {"frames": _trote(1, 1, amplitud=MARCHA["paso"] * 1.3, t=0.10),
+        # t=0.13 y 1.2x el paso: con las medidas 122,5/132 la rodilla no pasa de ~350 grados/s (lo que da un MG996R)
+        "correr":     {"frames": _trote(1, 1, amplitud=MARCHA["paso"] * 1.2, t=0.13),
                        "repetir": None, "final": None},
         "retroceder": {"frames": _trote(-1, -1), "repetir": None, "final": None},
         # giro: un lado empuja hacia adelante y el otro hacia atras
@@ -687,7 +691,7 @@ def cambiar_calibracion(d, guardar=True):
         CALIB.clear()
         CALIB.update(_calib_fabrica())
         RODILLAS, RODILLA_EN_90 = "atras", 90
-        LARGO_MUSLO, LARGO_PIERNA = 110.0, 110.0
+        LARGO_MUSLO, LARGO_PIERNA = 122.5, 132.0
         CAPTURAS.update({"parado": None, "echado": None})
         _resultado_captura.clear()
     elif d.get("rodillas") in ("atras", "adelante"):

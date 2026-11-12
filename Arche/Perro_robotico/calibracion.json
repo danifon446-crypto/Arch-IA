@@ -1,122 +1,94 @@
 {
   "DD_H": {
     "invertir": false,
-    "base": -12,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
-    "max": 90
+    "max": 170
   },
   "DD_M": {
     "invertir": false,
-    "base": -61,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "DD_R": {
     "invertir": false,
-    "base": -49,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "DI_H": {
-    "invertir": false,
-    "base": -9,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "DI_M": {
-    "invertir": false,
-    "base": 99,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "DI_R": {
-    "invertir": false,
-    "base": -73,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
-    "max": 180
+    "max": 170
   },
   "TD_H": {
     "invertir": false,
-    "base": -20,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "TD_M": {
     "invertir": false,
-    "base": 82,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "TD_R": {
     "invertir": false,
-    "base": -97,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "TI_H": {
-    "invertir": false,
-    "base": 7,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "TI_M": {
-    "invertir": false,
-    "base": -45,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "TI_R": {
-    "invertir": false,
-    "base": -26,
+    "invertir": true,
+    "base": 0,
     "ajuste": 0,
     "min": 10,
     "max": 170
   },
   "_rodillas": "atras",
   "_rodilla_en_90": 90,
+  "_largo_muslo": 122.5,
+  "_largo_pierna": 132.0,
   "_capturas": {
-    "parado": {
-      "raw": [
-        90,
-        10,
-        93,
-        93,
-        170,
-        69,
-        82,
-        153,
-        45,
-        109,
-        26,
-        116
-      ],
-      "logico": [
-        102.0,
-        71.0,
-        142.0,
-        102.0,
-        71.0,
-        142.0,
-        102.0,
-        71.0,
-        142.0,
-        102.0,
-        71.0,
-        142.0
-      ],
-      "hora": "2026-11-10 16:18"
-    },
+    "parado": null,
     "echado": null
   }
 }
