@@ -1,8 +1,8 @@
 {
   "corriendo": true,
-  "paso": "generando variaciones de 'quiero que practiques muchas frases'",
-  "aprendidos_ronda": 35,
+  "paso": "generando variaciones de la respuesta a '¿que es arduino y para que se usa?'",
+  "aprendidos_ronda": 44,
   "ultimo_error": null,
-  "actualizado_ts": 1794509610.4178083,
+  "actualizado_ts": 1794533351.6337373,
   "fin_ultima_ronda_ts": 1792481714.0142553
 }
