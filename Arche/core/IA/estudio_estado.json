@@ -1,8 +1,8 @@
 {
-  "corriendo": true,
-  "paso": "generando variaciones de la respuesta a '¿que es arduino y para que se usa?'",
-  "aprendidos_ronda": 44,
+  "corriendo": false,
+  "paso": "terminado",
+  "aprendidos_ronda": 59,
   "ultimo_error": null,
-  "actualizado_ts": 1794533351.6337373,
-  "fin_ultima_ronda_ts": 1792481714.0142553
+  "actualizado_ts": 1794533571.5601509,
+  "fin_ultima_ronda_ts": 1794533571.5546389
 }
