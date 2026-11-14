@@ -30,8 +30,10 @@ Requiere:
     pip install sentence-transformers
 """
 
+import collections
 import json
 import os
+import threading
 
 import numpy as np
 
@@ -55,6 +57,11 @@ POR_DEFECTO = "minilm"
 MODELO_EMBEDDINGS = MODELOS[POR_DEFECTO]["modelo"]
 
 _modelo = None   # singleton, se carga solo una vez
+
+# últimos embeddings calculados: (modelo, prefijo, texto) -> vector
+MAX_RECIENTES = 512
+_recientes = collections.OrderedDict()
+_candado_recientes = threading.Lock()
 _config = None
 
 
@@ -86,6 +93,8 @@ def guardar_config(cfg):
         json.dump(cfg, f, ensure_ascii=False, indent=2)
     _config = None
     _modelo = None
+    with _candado_recientes:
+        _recientes.clear()
 
 
 def umbral_configurado(por_defecto):
@@ -125,9 +134,23 @@ def calcular_embedding(texto):
     representa su significado. El vector viene normalizado, así que
     la similitud coseno se reduce a un simple producto punto.
     """
+    # En una sola orden la MISMA frase se convertía hasta 5 veces (para buscar,
+    # para la red, para el caché de respuestas, para aprender...). Se recuerdan
+    # las últimas: la segunda vez sale al instante. Se entrega una copia.
+    cfg = leer_config()
+    clave = (cfg.get("modelo"), cfg.get("prefijo"), texto)
+    with _candado_recientes:
+        guardado = _recientes.get(clave)
+        if guardado is not None:
+            _recientes.move_to_end(clave)
+            return list(guardado)
     modelo = _cargar_modelo()
-    vector = modelo.encode(leer_config()["prefijo"] + texto, normalize_embeddings=True)
-    return vector.tolist()
+    vector = modelo.encode(cfg["prefijo"] + texto, normalize_embeddings=True).tolist()
+    with _candado_recientes:
+        _recientes[clave] = tuple(vector)
+        while len(_recientes) > MAX_RECIENTES:
+            _recientes.popitem(last=False)
+    return vector
 
 
 def calcular_embeddings(textos, modelo=None, prefijo=None, mostrar_progreso=False):

@@ -75,7 +75,7 @@ ANCLA_SALIDA = "detener_robot()   # el perro se queda quieto y se apaga el modo 
 
 
 def _leer(ruta):
-    with open(ruta, "r", encoding="utf-8") as f:
+    with open(ruta, "r", encoding="utf-8", newline="") as f:      # sin tocar los saltos de línea del archivo
         return f.read()
 
 
@@ -125,7 +125,11 @@ def parchar(texto):
     texto = _una_vez(texto, linea_import, linea_import + n(IMPORT), "import")
 
     linea_config = _linea_que_empieza(texto, ANCLA_CONFIG, "canales_arche.instalar()")
-    texto = _una_vez(texto, linea_config, linea_config + n(CONFIGURAR), "configurar")
+    configurar = CONFIGURAR
+    if "tres_d_arche" in texto:          # Arché 3D ya está conectado: también puede ir de fondo
+        configurar = configurar.replace("    (\"mapa mental\", mapa_mental_arche.manejar),\n",
+                                        "    (\"mapa mental\", mapa_mental_arche.manejar),\n    (\"3d\", tres_d_arche.manejar),\n")
+    texto = _una_vez(texto, linea_config, linea_config + n(configurar), "configurar")
 
     linea_hook, sangria = _linea_con(texto, ANCLA_HOOK, "hook de comandos")
     texto = _una_vez(texto, linea_hook, n(_sangrar(HOOK, sangria)) + linea_hook, "hook de comandos")

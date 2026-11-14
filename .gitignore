@@ -47,3 +47,6 @@ main_antes_*.py
 respaldo_antes_*/
 *.danado
 *.zip
+
+# modelos 3D que crea Arché (son tuyos, no del proyecto)
+Arche/Modelos3D/

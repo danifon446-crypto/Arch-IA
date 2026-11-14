@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arché 3D</title>
+<link rel="stylesheet" href="/estilo.css">
+<script type="importmap">{"imports": {"three": "/lib/three.module.min.js"}}</script>
+</head>
+<body>
+<canvas id="lienzo" aria-label="Vista 3D"></canvas>
+<div id="etiquetas" aria-hidden="true"></div>
+
+<nav id="riel" aria-label="Vistas">
+  <div class="marca" title="Arché 3D"><span class="punto"></span></div>
+  <button data-vista="taller" class="activo" title="Taller de modelos">
+    <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><span>Taller</span></button>
+  <button data-vista="nucleo" title="El núcleo de Arché">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="4" ry="10"/></svg><span>Núcleo</span></button>
+  <button data-vista="perro" title="El perro robot">
+    <svg viewBox="0 0 24 24"><path d="M4 10h13l3-3v6l-2 1v6h-3v-5H9v5H6v-6l-2-1z"/></svg><span>Perro</span></button>
+  <button data-vista="cerebro" title="El mapa de Arché">
+    <svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="13" r="2.6"/><circle cx="6" cy="19" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M7.6 8.6l2.6 2.8M16.4 7.4l-2.8 3.8M10.2 14.8l-2.8 2.8M14.2 14.6l3.4 2.2"/></svg><span>Cerebro</span></button>
+  <div class="estado-arche" id="estadoArche" title="Estado de Arché"><i></i><b>—</b></div>
+</nav>
+
+<header id="cabecera">
+  <h1 id="titulo">Taller</h1>
+  <p id="subtitulo">Crea, revisa y prepara piezas para imprimir.</p>
+</header>
+
+<aside id="panel" aria-label="Panel"></aside>
+
+<section id="barra" aria-label="Pídele algo a Arché">
+  <div id="respuesta" role="status" aria-live="polite"></div>
+  <div id="ideas"></div>
+  <form id="pedir">
+    <input id="texto" autocomplete="off" spellcheck="false"
+           placeholder="Pídele una pieza: «crea una caja de 80x50x30 con tapa»" aria-label="Orden de 3D">
+    <button type="submit" title="Enviar">Crear</button>
+  </form>
+</section>
+
+<div id="soltar">Suelta el archivo .stl u .obj para abrirlo</div>
+<div id="aviso" role="alert"></div>
+<div id="sinllave" hidden>
+  <div>
+    <h2>Abre el taller desde Arché</h2>
+    <p>Esta página solo funciona con la llave que Arché le pone al abrirla.<br>Dile a Arché: <b>«abre el taller 3d»</b>.</p>
+  </div>
+</div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

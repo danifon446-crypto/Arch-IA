@@ -72,23 +72,35 @@ def respuesta_inutil(respuesta):
 def cargar():
     if not os.path.exists(ARCHIVO):
         return []
-    try:
+    def _leer():
         with open(ARCHIVO, "r", encoding="utf-8") as f:
             return json.load(f)
+
+    try:
+        from core.IA import rapido
+        return rapido.cargar(ARCHIVO, _leer)      # solo relee del disco si el archivo cambió
     except Exception:
         return []
 
 
 def guardar(datos):
+    from core.IA import rapido
+    # un ejemplo por línea (antes cada número del embedding ocupaba una línea: 3 veces más pesado)
+    texto, lineas = rapido.a_texto(ARCHIVO, datos)      # no reconvierte lo que no cambió
+    tmp = ARCHIVO + ".tmp"
     ultimo = None
     for i in range(6):          # OneDrive / antivirus bloquean el archivo unos instantes
         try:
-            with open(ARCHIVO, "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
+            # primero a un temporal y luego se cambia de un golpe: nunca queda a medias
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(texto)
+            os.replace(tmp, ARCHIVO)
+            rapido.guardado(ARCHIVO, datos, lineas)      # queda en memoria: no hay que releerlo
             return
         except PermissionError as e:
             ultimo = e
             time.sleep(0.5 * (i + 1))
+    rapido.olvidar(ARCHIVO)
     raise ultimo
 
 
@@ -169,7 +181,25 @@ def buscar_respuesta(pregunta, umbral=UMBRAL_RESPUESTA):
         mejor_score = 0.0
         mejor_dato = None
 
-        for dato in datos:
+        # Camino rápido: todos los parecidos de una sola multiplicación (core/IA/rapido.py).
+        # Del más parecido al menos: el primero que sirva es el que elegía el recorrido de abajo.
+        from core.IA import rapido
+        rapidos = rapido.puntajes(datos, vector_pregunta)
+        if rapidos is not None:
+            import numpy as np
+            indices, scores = rapidos
+            for k in np.argsort(-scores, kind="stable"):
+                if not scores[k] > 0.0:
+                    break
+                if respuesta_inutil(datos[indices[k]].get("respuesta")):
+                    continue
+                mejor_score, mejor_dato = float(scores[k]), datos[indices[k]]
+                break
+            recorrer = []
+        else:
+            recorrer = datos
+
+        for dato in recorrer:
             if not dato.get("embedding") or respuesta_inutil(dato.get("respuesta")):
                 continue
             score = similitud_coseno(vector_pregunta, dato["embedding"])

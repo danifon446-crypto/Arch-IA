@@ -20,6 +20,7 @@ arranca al instante.
 import subprocess
 import sys
 import importlib
+import importlib.util
 
 # nombre del import -> nombre real del paquete en pip (no siempre coinciden)
 DEPENDENCIAS = {
@@ -35,18 +36,24 @@ DEPENDENCIAS = {
     "edge_tts": "edge-tts",                           # voz natural de Arché (core/voz.py)
     "PIL": "pillow",                                  # esfera, fondos y mascota de la ventana (core/interfaz)
     "rich": "rich",                                   # paneles y colores de la consola (core/interfaz)
+    "manifold3d": "manifold3d",                       # sólidos cerrados para las piezas 3D (core/tres_d)
     "pypdf": "pypdf",                                 # leer PDFs para ordenarlos (core/organizador.py)
 }
 
 
 def _esta_instalado(nombre_import):
+    """True si la librería está instalada. Solo la BUSCA, no la carga.
+
+    Antes se hacía importlib.import_module(): eso CARGABA entera cada librería
+    en cada arranque solo para ver si existía (sentence-transformers trae
+    PyTorch, faster-whisper, scikit-learn, scipy...). Eran muchos segundos y
+    cientos de MB de memoria antes de poder escribir la primera orden, para
+    librerías que el resto de Arché carga solo cuando las necesita.
+    find_spec() contesta lo mismo en milésimas."""
     try:
-        importlib.import_module(nombre_import)
-        return True
+        return importlib.util.find_spec(nombre_import) is not None
     except Exception:
-        # No solo ImportError: algunas librerías (ej. sounddevice) fallan
-        # con otro tipo de error si falta una dependencia del sistema
-        # operativo, no solo si falta el paquete de pip en sí.
+        # (ValueError / ImportError si el paquete está a medio instalar)
         return False
 
 
@@ -97,6 +104,7 @@ def verificar_e_instalar(paquetes=None):
                 text=True,
             )
 
+        importlib.invalidate_caches()      # que Python vea lo recién instalado
         if resultado.returncode != 0 or not _esta_instalado(nombre_import):
             fallidas.append((paquete, resultado.stderr.strip()[-500:]))
             print(f"Arché: No pude instalar {paquete} automáticamente.")

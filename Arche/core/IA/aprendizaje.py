@@ -6,6 +6,8 @@ import time
 import unicodedata
 from difflib import SequenceMatcher
 
+from core.IA import rapido      # lectura en memoria y comparación rápida (no cambia lo que se decide)
+
 BASE = os.path.dirname(__file__)
 ARCHIVO = os.path.join(BASE, "conocimiento.json")
 
@@ -150,7 +152,9 @@ def cargar(estricto=False):
             return json.load(archivo)
 
     try:
-        return _unificar_acciones(_con_reintentos(_leer))
+        # rapido.cargar solo llama a _leer si el archivo cambió en el disco;
+        # si no, entrega una copia de lo que ya está en memoria (ver core/IA/rapido.py)
+        return rapido.cargar(ARCHIVO, lambda: _unificar_acciones(_con_reintentos(_leer)))
     except PermissionError:
         # Bloqueado de verdad. Para ESCRIBIR hay que fallar (devolver [] y guardar borraria lo aprendido);
         # para solo consultar se sigue sin datos.
@@ -165,21 +169,27 @@ def guardar(datos):
     """Escribe en un temporal y lo cambia por el real (nunca deja el archivo a medias);
     con reintentos si OneDrive/antivirus lo tienen bloqueado un momento."""
     tmp = ARCHIVO + ".tmp"
+    texto, lineas = rapido.a_texto(ARCHIVO, datos)      # un ejemplo por línea; no reconvierte lo que no cambió
 
     def _escribir():
         with open(tmp, "w", encoding="utf-8") as archivo:
-            json.dump(datos, archivo, indent=4, ensure_ascii=False)
+            archivo.write(texto)
         try:
             os.replace(tmp, ARCHIVO)
         except PermissionError:
             with open(ARCHIVO, "w", encoding="utf-8") as archivo:
-                json.dump(datos, archivo, indent=4, ensure_ascii=False)
+                archivo.write(texto)
             try:
                 os.remove(tmp)
             except OSError:
                 pass
 
-    _con_reintentos(_escribir)
+    try:
+        _con_reintentos(_escribir)
+    except BaseException:
+        rapido.olvidar(ARCHIVO)
+        raise
+    rapido.guardado(ARCHIVO, datos, lineas)      # lo recién guardado queda en memoria: no hay que releerlo
 
 
 # ----------------------------------------------------------------------
@@ -241,7 +251,7 @@ def _contenido_seguro(pregunta_norm, dato):
 
     if "{X}" in template:
         regex = dato.get("regex") or _template_a_regex(template)
-        match = re.match(regex, pregunta_norm)
+        match = rapido.patron(regex).match(pregunta_norm)      # patrón ya compilado
         if match and match.groups():
             return match.group(1).strip()
         return None
@@ -360,7 +370,7 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
     for dato in datos:
         if dato.get("pregunta") == pregunta_norm and dato.get("accion"):
             regex = dato.get("regex")
-            match = re.match(regex, pregunta_norm) if regex else None
+            match = rapido.patron(regex).match(pregunta_norm) if regex else None
             contenido = match.group(1).strip() if match and match.groups() else dato.get("contenido", "")
             return {"accion": dato["accion"], "contenido": contenido}
 
@@ -373,7 +383,7 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
                 return {"accion": dato["accion"], "contenido": dato["contenido"]}
             continue
 
-        match = re.match(regex, pregunta_norm)
+        match = rapido.patron(regex).match(pregunta_norm)      # patrón ya compilado
         if match:
             contenido = match.group(1).strip() if match.groups() else dato["contenido"]
             return {"accion": dato["accion"], "contenido": contenido}
@@ -389,6 +399,12 @@ def resolver(pregunta, umbral_similitud=UMBRAL_SIMILITUD):
 
         partes_fijas = [p for p in template.split("{X}") if p.strip()]
         if not partes_fijas:
+            continue
+
+        # Filtro rápido: solo sirve un candidato que llegue al umbral. Si ninguna
+        # parte fija puede llegar (no hay un trozo seguido lo bastante largo en la
+        # frase), ni se llama al comparador lento. El resultado final es el mismo.
+        if not any(rapido.puede_cubrir(pregunta_norm, parte, umbral_similitud) for parte in partes_fijas):
             continue
 
         score = max(_cobertura(pregunta_norm, parte) for parte in partes_fijas)
@@ -511,6 +527,23 @@ def _resolver_semantico(pregunta_norm, datos, umbral_semantico=UMBRAL_SEMANTICO,
 
     # Mejor vecino (con contenido usable) en total y por intención.
     mejor_por_accion = {}
+    # Camino rápido: todos los parecidos de una sola multiplicación (core/IA/rapido.py).
+    # Se recorren del más parecido al menos parecido: el primero con contenido usable
+    # de cada intención es exactamente el que elegía el recorrido uno por uno.
+    rapidos = rapido.puntajes(datos, vector_pregunta)
+    if rapidos is not None:
+        import numpy as np
+        indices, scores = rapidos
+        for k in np.argsort(-scores, kind="stable"):
+            dato = datos[indices[k]]
+            accion = dato["accion"]
+            if accion in mejor_por_accion:
+                continue
+            contenido_seguro = _contenido_seguro(pregunta_norm, dato)
+            if contenido_seguro is None:
+                continue
+            mejor_por_accion[accion] = (float(scores[k]), {"accion": accion, "contenido": contenido_seguro})
+        entradas_con_embedding = []      # ya está hecho: el recorrido de abajo no corre
     for dato in entradas_con_embedding:
         score = similitud_coseno(vector_pregunta, dato["embedding"])
         actual = mejor_por_accion.get(dato["accion"])

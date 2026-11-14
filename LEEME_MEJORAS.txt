@@ -1,7 +1,8 @@
-MEJORAS DE ARCHÉ — 14 nov 2026
-==============================
+ARCHÉ — MEJORAS + ARCHÉ 3D   (14 nov 2026)
+==========================================
 Esta carpeta tiene la MISMA forma que tu repositorio (Arch-IA): copia su
 contenido encima de la carpeta del repositorio y acepta reemplazar.
+Incluye todo lo de los zips anteriores (multitarea y arreglos): no los necesitas.
 Los archivos salen de lo que hay en GitHub (último cambio: 12 nov). Si en tu
 PC cambiaste alguno de estos archivos y no lo has subido, súbelo primero.
 
@@ -9,60 +10,82 @@ INSTALAR (con Arché cerrado)
 1. Copia todo encima de tu carpeta del repositorio (reemplazar).
 2. En la carpeta Arche:
        python aplicar_parche_blindaje.py
-       python aplicar_parche_multitarea.py      (si no lo habías corrido ya)
-   Cada uno guarda copia de main.py y se puede correr dos veces sin daño.
+       python aplicar_parche_multitarea.py
+       python aplicar_parche_tres_d.py
+   En cualquier orden; cada uno guarda copia de main.py y se puede repetir.
 3. Comprueba todo:
-       python correr_pruebas.py                 -> todo con ✔
-4. Opcional, limpiar lo que sobra:
-       python limpiar_repo.py                   (pregunta antes; no borra, mueve)
+       python correr_pruebas.py          -> 16 archivos con ✔
+4. Abre Arché. La primera vez instala sola una librería (manifold3d).
+   Luego dile:  abre el taller 3d
 
-QUÉ SE ARREGLÓ
-1. Arché ya no se cierra si una orden falla  (aplicar_parche_blindaje.py)
-   El bucle de main.py no tenía protección: un error en cualquier orden
-   cerraba Arché entero (en segundo plano desaparecía sin avisar). Ahora
-   avisa, anota el error para la autorreparación y sigue.
+========================  ARCHÉ 3D  ========================
+Para verlo sin abrir Arché:   python -m core.tres_d   (desde la carpeta Arche)
 
-2. Ya no se pierde la configuración  (core/guardado.py)
-   Si configuracion.json quedaba a medias (apagón, cierre a mitad de un
-   guardado), al abrir Arché lo reemplazaba por los valores de fábrica sin
-   avisar. Lo mismo con programas.json. Ahora configuración, recuerdos,
-   recordatorios, alarmas, rutinas, programas y la configuración de la nube
-   se guardan de forma que nunca quedan a medias, con copia .bak, y un
-   archivo dañado se recupera en vez de pisarse.
+CREAR PIEZAS A MEDIDA (milímetros; también entiende cm)
+  crea una caja de 80x50x30 con tapa          crea un engranaje de 20 dientes módulo 2
+  crea un soporte para servo mg996r           crea una placa de 100x60 con 4 agujeros de 3
+  crea una escuadra de 40 de largo y 40 de alto    crea un separador de 10 para tornillo m3
+  crea un soporte para celular                crea una rueda de 60 con 5 rayos
+  ...y tubo, cilindro, esfera, cono, vaso/maceta, gancho.   «ayuda 3d» las lista todas.
+CAMBIAR LA ÚLTIMA
+  hazla más alta · cambia el ancho a 60 · ponle tapa · hazla al doble
+PIEZAS LIBRES (las arma la IA con formas básicas)
+  diseña en 3d un llavero con forma de hueso
+REVISAR CUALQUIER MODELO PARA IMPRIMIR (también los que bajes de internet)
+  importa C:\ruta\pieza.stl        (o arrástralo a la ventana del taller)
+  analiza el modelo                -> medidas, gramos, metros de filamento,
+                                      tiempo, si está cerrado, si cabe, soportes
+  orienta el modelo para imprimir  -> lo gira a la posición con menos soportes
+  espejo del modelo                -> la pieza del otro lado (pata izq. ↔ der.)
+  escala el modelo al 150%  ·  rota el modelo 90 en x
+  mi impresora es de 220x220x250  ·  uso petg
+Los modelos quedan en Arche/Modelos3D/ como .stl, listos para el slicer.
 
-3. Control desde el celular: seguridad que se había perdido  (remoto.py)
-   Al actualizar remoto.py se habían ido dos cosas de la versión blindada:
-   - el PIN volvió a generarse con un generador predecible -> otra vez seguro;
-   - los PIN incorrectos, las conexiones de fuera de tu red y las órdenes
-     delicadas rechazadas dejaron de anotarse en la bitácora -> otra vez.
-   Para estrenar un PIN del generador seguro, dile: «cambia el pin».
+EL TALLER (página en tu navegador, 4 vistas)
+  Taller   la pieza sobre la cama de tu impresora, en rojo lo que necesitaría
+           soporte, deslizadores que rehacen la pieza al instante, simulación
+           capa por capa y una barra para pedirle piezas.
+  Núcleo   Arché en vivo: cambia al escuchar, pensar y hablar; cada tarea de
+           fondo es un satélite.
+  Perro    el robot en 3D con TUS medidas de pata y los mismos ángulos que van
+           a los servos: prueba cualquier movimiento sin mover el robot. Si
+           Arché lo está moviendo, lo sigue en vivo.
+  Cerebro  mapa 3D de los archivos de Arché y quién usa a quién.
+  Seguridad: solo se abre desde este PC y con una llave que Arché crea cada
+  vez; otra página web no puede mandarle órdenes.
 
-4. El entrenador de la nube corría una versión vieja  (nube/entrenador/)
-   GitHub Actions corre nube/entrenador/ (raíz), pero la versión nueva (la
-   que usa la charla que Arché aprende en modo sueño) estaba copiada en
-   Arche/nube/entrenador/, donde nadie la corre. Va la nueva en su sitio.
+QUÉ TENER EN CUENTA DEL 3D
+- Gramos y tiempo son ESTIMADOS (pared 1,2 mm, relleno 20 %); el slicer manda.
+- Los soportes de servo usan medidas típicas (SG90/MG90S 22,8×12,4 mm, tornillos
+  a 27,8; MG996R 40,7×19,9, tornillos a 49,5×10). Mide el tuyo antes de imprimir.
+- En el Perro, el cuerpo y la cara son aproximados; las patas no.
+- Las piezas libres dependen del modelo de IA: salen mejor con la nube que con
+  Ollama, y hay que mirarlas antes de imprimir. No se probaron con una IA real.
+- three.js (el motor 3D) va incluido: el taller funciona sin internet.
 
-5. «conecta la nube de respaldo» ofrecía la nube de la red, que no puede
-   ser respaldo  (core/IA/cerebro.py).
+========================  MÁS RÁPIDO  ========================
+1. Arranque: al abrir, Arché CARGABA entera cada librería (PyTorch, Whisper,
+   scikit-learn...) solo para ver si estaba instalada. Ahora solo la busca.
+   (core/instalador.py)
+2. Entender cada orden: en cada frase volvía a leer conocimiento.json completo
+   del disco y comparaba ejemplo por ejemplo. Ahora lo tiene en memoria y
+   compara todo de una vez. Medido con 5.000 ejemplos de prueba: de ~1,1 s a
+   ~0,015 s por orden, y aprender algo nuevo de ~3,1 s a ~0,14 s, con las
+   MISMAS decisiones. El archivo además pesa un tercio menos.
+   (core/IA/rapido.py, aprendizaje.py, respuestas.py, embeddings.py)
+   La medición es con datos de prueba; en tu PC depende de cuánto haya aprendido.
 
-6. Abrir apps de Windows ya no pasa por la consola  (core/programaV2.py).
-
-7. Cuatro pruebas viejas fallaban (aprendiz, seguridad, cifrado_guardian,
-   nube_aprendizaje): tres destapaban los puntos 3 y 5; el resto estaban
-   desactualizadas y se pusieron al día.
-
-NUEVO
-- correr_pruebas.py   corre todas las pruebas de una vez.
-- prueba_mejoras.py   comprueba los arreglos de arriba.
-- limpiar_repo.py     saca respaldos viejos, duplicados y busqueda.txt.
-- .gitignore          ya no sube respaldos de main.py ni zips.
-- Multitarea (ver LEEME anterior): parche compatible con el blindaje.
-
-LO QUE REVISÉ Y ESTÁ BIEN
-- Los 228 archivos .py compilan; sin nombres sin definir en código real.
-- No hay claves ni tokens subidos al repositorio público.
-- Sin choques de nombres entre los «from ... import *» de main.py.
+========================  ARREGLOS (del zip anterior)  ========================
+1. Una orden que falla ya no cierra a Arché (aplicar_parche_blindaje.py).
+2. Ya no se pierde la configuración si el archivo queda a medias; también
+   recuerdos, recordatorios, alarmas, rutinas, programas (core/guardado.py).
+3. Control desde el celular: PIN seguro otra vez y bitácora de intentos
+   (remoto.py). Para estrenar PIN: «cambia el pin».
+4. El entrenador de la nube corría una versión vieja (nube/entrenador/).
+5. «conecta la nube de respaldo» ya no ofrece la nube de la red.
+6. Multitarea: «en segundo plano ...», «a la vez: X y Y», «tareas».
+Extras: correr_pruebas.py, limpiar_repo.py (pregunta antes; no borra, mueve).
 
 DESHACER
-- main.py: copia main_antes_blindaje_FECHA.py encima de main.py.
+- main.py: copia el main_antes_..._FECHA.py más viejo de hoy encima de main.py.
 - Lo demás: recupera los archivos desde GitHub.
