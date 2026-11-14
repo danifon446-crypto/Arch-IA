@@ -9,7 +9,7 @@
   "DD_M": {
     "invertir": false,
     "base": 0,
-    "ajuste": 0,
+    "ajuste": -12,
     "min": 10,
     "max": 170
   },
@@ -44,7 +44,7 @@
   "TD_H": {
     "invertir": false,
     "base": 0,
-    "ajuste": 0,
+    "ajuste": -12,
     "min": 10,
     "max": 170
   },

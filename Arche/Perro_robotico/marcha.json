@@ -1,8 +1,8 @@
 {
-  "altura": 25.0,
-  "paso": 15.0,
-  "levanta": 15.0,
-  "velocidad": 0.75,
-  "abrir": 0.0,
-  "centro": 0.0
+  "altura": 25,
+  "paso": 11.0,
+  "levanta": 12.0,
+  "velocidad": 0.5,
+  "abrir": 0,
+  "centro": 0
 }
