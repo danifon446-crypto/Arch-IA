@@ -473,7 +473,8 @@ def probar_nube_completa():
 def conectar_respaldo(leer=input, pedir=None):
     """Guarda la clave de una SEGUNDA nube gratis sin cambiar la principal."""
     pedir = pedir or _pedir_clave
-    candidatas = [p for p, c in nube.PROVEEDORES.items() if c["gratis"] and p != nube.proveedor() and not c.get("respaldo_de")]
+    candidatas = [p for p, c in nube.PROVEEDORES.items() if c["gratis"] and p != nube.proveedor() and not c.get("respaldo_de")
+                  and not c.get("solo_principal")]     # la nube de la red no sirve de respaldo
     if not candidatas:
         _msg("No hay otra nube gratis que agregar.")
         return None

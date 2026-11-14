@@ -1,0 +1,42 @@
+MULTITAREA DE ARCHÉ — varias herramientas a la vez
+==================================================
+
+INSTALAR (con Arché cerrado)
+1. Copia core/multitarea.py dentro de Arche/core/
+2. Copia aplicar_parche_multitarea.py y prueba_multitarea.py dentro de Arche/
+3. En la carpeta Arche:   python aplicar_parche_multitarea.py
+   (hace copia de respaldo de main.py: main_antes_multitarea_FECHA.py)
+4. Comprueba:             python prueba_multitarea.py      -> debe decir 17/17
+5. Abre Arché como siempre.
+
+CÓMO SE USA
+  en segundo plano busca archivos duplicados
+  busca el clima en segundo plano
+  de fondo investiga sobre redes neuronales
+  mientras tanto organiza mis descargas
+  a la vez: investiga sobre arduino, abre spotify y dime las noticias
+  investiga sobre python y al mismo tiempo abre chrome
+
+  tareas                     -> qué hace cada una
+  resultado de la tarea 2    -> lo que dijo esa tarea
+  para la tarea 2            -> la detiene (o la saca de la fila)
+  para todas las tareas
+  tarea 2 sí / tarea 2 no    -> si una tarea te pregunta algo
+
+QUÉ TENER EN CUENTA
+- Mientras corren, sigues hablándole normal. Lo que dice cada tarea sale con
+  su etiqueta "[tarea N]" y al terminar avisa "✔ Terminé la tarea N".
+- Hasta 4 tareas corren a la vez; las demás esperan en fila.
+- Las que usan mouse/teclado/ventanas (control del PC, rutinas) se turnan
+  para no pelearse; las demás no esperan por ellas.
+- Si una tarea necesita confirmación, NO se roba lo que escribes: te avisa
+  y espera "tarea N sí/no" (5 minutos; si no respondes, toma "no").
+- Lo que ninguna herramienta reconoce sola (una charla con Ollama, por
+  ejemplo) no se puede de fondo: Arché te avisa y la hace normal.
+- "abre chrome y luego busca gatos" sigue siendo UNO TRAS OTRO, como antes.
+  Para que sea en paralelo di "a la vez" o "al mismo tiempo".
+- Lo que dicen las tareas sale en la consola y en la ventana, pero no se
+  manda por WhatsApp/Telegram.
+
+DESHACER
+  Copia main_antes_multitarea_FECHA.py encima de main.py.

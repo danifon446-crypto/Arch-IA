@@ -191,7 +191,7 @@ with tempfile.TemporaryDirectory() as carpeta:
             mock.patch.object(examen, "generar_ejercicio", lambda d, n: next(ejercicios)), \
             mock.patch.object(examen, "confirmar_con_la_nube", lambda f, i: confirma.get(f)), \
             mock.patch.object(examen.time, "sleep", lambda s: None), \
-            mock.patch.object(examen.cj, "predecir_jerarquico", lambda emb: resultados[emb]), \
+            mock.patch.object(examen.cj, "predecir_jerarquico", lambda emb, texto=None: resultados[emb]), \
             mock.patch("core.IA.aprendizaje.aprender", lambda f, i, r, fuente="": aprendidas.append(f)):
         res = examen.rendir_examen(dominio="d", cantidad=4, obtener_embedding=lambda f: f, silencioso=True)
     chequear("ronda: el ejercicio malo (la nube dice NO) no cuenta", res["total"], 3)

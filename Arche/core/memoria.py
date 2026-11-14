@@ -3,6 +3,7 @@ import json
 
 from datetime import datetime
 from core.rutas import DATABASE
+from core.guardado import guardar_json
 
 archivo_memoria = os.path.join(DATABASE, "memoria.json")
 
@@ -64,8 +65,7 @@ def recordar(texto):
 
         recuerdos.append(nuevo) 
 
-        with open(archivo_memoria, "w", encoding="utf-8") as archivo:
-            json.dump(recuerdos, archivo, indent=4, ensure_ascii=False)
+        guardar_json(archivo_memoria, recuerdos)      # atómico: nunca queda a medias
 
         print(f"Arché: Lo recordaré como {nuevo['tipo']}.")
 

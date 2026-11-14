@@ -81,28 +81,20 @@ def cargar_programas():
         with open(archivo_programas, "w", encoding="utf-8") as archivo:
             json.dump(PROGRAMAS_POR_DEFECTO, archivo, indent=4, ensure_ascii=False)
         return PROGRAMAS_POR_DEFECTO.copy()
-    try:
-        with open(archivo_programas, "r", encoding="utf-8") as archivo:
-            datos = json.load(archivo)
-        if isinstance(datos, dict):
-            return datos
-    except:
-        pass
-    with open(archivo_programas, "w", encoding="utf-8") as archivo:
-        json.dump(PROGRAMAS_POR_DEFECTO, archivo, indent=4, ensure_ascii=False)
+    # Si el archivo está dañado NO se pisa: leer_json guarda el dañado aparte
+    # y recupera la copia anterior (programas.json.bak) con tus programas.
+    from core.guardado import leer_json
+    datos = leer_json(archivo_programas, defecto=None, tipo=dict)
+    if datos is not None:
+        return datos
     return PROGRAMAS_POR_DEFECTO.copy()
 programas = cargar_programas()
 
 # GUARDAR BASE DE DATOS
 
 def guardar_programas():
-    with open(archivo_programas, "w", encoding="utf-8") as archivo:
-        json.dump(
-            programas,
-            archivo,
-            indent=4,
-            ensure_ascii=False
-        )
+    from core.guardado import guardar_json
+    guardar_json(archivo_programas, programas)      # atómico: nunca queda a medias
 
 
 # ABRIR PROGRAMA
@@ -120,9 +112,9 @@ def abrir_programa(nombre):
         if info["tipo"] == "exe":
             os.startfile(info["ruta"])
         elif info["tipo"] == "app":
-            os.system(
-                f'explorer.exe shell:AppsFolder\\{info["ruta"]}'
-            )
+            # sin pasar por la consola: una ruta rara no puede colar otro comando
+            import subprocess
+            subprocess.run(["explorer.exe", f'shell:AppsFolder\\{info["ruta"]}'])
     except Exception:
         print("Arché: No pude abrir ese programa.")
 

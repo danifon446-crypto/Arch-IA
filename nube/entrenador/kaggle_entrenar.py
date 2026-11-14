@@ -210,6 +210,12 @@ def main():
 
     filas = [ejemplo(m_clasificar(e["frase"]), salida_json(e)) for e in entrenamiento]
     filas += [ejemplo(m_charla(q), r.strip()) for q, r in zip(repaso["entrenar"], respuestas_repaso) if r.strip()]
+    ruta_charla = os.path.join(carpeta, "charla.jsonl")       # lo que Arché aprendió sola (auto-juego)
+    charla = leer_jsonl(ruta_charla) if os.path.exists(ruta_charla) else []
+    if RAPIDO:
+        charla = charla[:8]
+    filas += [ejemplo(m_charla(c["pregunta"]), c["respuesta"]) for c in charla]
+    log(f"Charla aprendida en el auto-juego: {len(charla)} ejemplos")
     filas_val = [ejemplo(m_clasificar(e["frase"]), salida_json(e)) for e in validacion]
     log(f"Filas de entrenamiento: {len(filas)} (con {len(respuestas_repaso)} de repaso)")
 

@@ -123,8 +123,8 @@ def _leer_config():
 
 def _guardar_config(datos):
     os.makedirs(DATABASE, exist_ok=True)
-    with open(ARCHIVO_CONFIG, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
+    from core.guardado import guardar_json
+    guardar_json(ARCHIVO_CONFIG, datos, indent=2)      # atómico: nunca queda a medias
 
 
 def modo():

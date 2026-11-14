@@ -84,8 +84,8 @@ def _cargar():
 
 def _guardar(datos):
     os.makedirs(DATABASE, exist_ok=True)
-    with open(ARCHIVO, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
+    from core.guardado import guardar_json
+    guardar_json(ARCHIVO, datos, indent=2)      # atómico: nunca queda a medias
 
 
 def listar():

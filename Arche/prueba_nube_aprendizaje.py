@@ -441,7 +441,7 @@ with mock.patch.object(alarmas, "ARCHIVO", os.path.join(CARPETA, "alarmas.json")
 
 fuente = open(os.path.join(AQUI, "main.py"), encoding="utf-8").read()
 chequear("main.py: aprender_de_nube entre los módulos de comandos",
-         "cerebro_nube, aprender_de_nube):" in fuente, True)
+         "cerebro_nube, aprender_de_nube" in fuente, True)
 chequear("main.py: aprende de la charla tras contestar la nube", "aprender_de_nube.aprender_de_charla(" in fuente, True)
 chequear("el enrutador natural consulta primero a la nube",
          "aprender_de_nube.resolver(texto)" in open(os.path.join(AQUI, "core/IA/enrutador_natural.py"), encoding="utf-8").read(), True)
@@ -517,7 +517,7 @@ with nube_aislada():
     chequear("probo primero el grande y luego el segundo", modelos_usados[:1] + modelos_usados[-1:],
              ["openai/gpt-oss-120b", "openai/gpt-oss-20b"])
     chequear("el segundo modelo no sale en los menus de proveedores",
-             [n for n, c in nube.PROVEEDORES.items() if not c.get("respaldo_de")], ["groq", "gemini", "anthropic"])
+             [n for n, c in nube.PROVEEDORES.items() if not c.get("respaldo_de")], ["groq", "gemini", "anthropic", "red"])
 
 # conectar la segunda nube sin tocar la principal
 with nube_aislada():

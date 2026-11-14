@@ -34,8 +34,8 @@ def contar_recordatorios():
     return len(cargar_recordatorios())
 
 def guardar_recordatorios(recordatorios):
-    with open(archivo_recordatorios, "w", encoding="utf-8") as archivo:
-        json.dump(recordatorios, archivo, indent=4, ensure_ascii=False)
+    from core.guardado import guardar_json
+    guardar_json(archivo_recordatorios, recordatorios)      # atómico: nunca queda a medias
 
 def crear_recordatorio(texto=None):
     if texto:

@@ -40,3 +40,10 @@ Arche/core/interfaz/config.json.danado-*
 Arche/logs/
 *.lock
 *.log
+
+# respaldos y restos que no van al repositorio
+_papelera_arche/
+main_antes_*.py
+respaldo_antes_*/
+*.danado
+*.zip

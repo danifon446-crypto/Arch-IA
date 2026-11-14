@@ -6,6 +6,7 @@ import json
 
 
 from core.rutas import DATABASE
+from core.guardado import guardar_json, leer_json
 
 archivo_configuracion = os.path.join(
     DATABASE,
@@ -44,39 +45,27 @@ def cargar_config():
     if not os.path.exists(archivo_configuracion):
         guardar_config(CONFIG_DEFAULT)
         return CONFIG_DEFAULT.copy()
-    try:
-        with open(
-            archivo_configuracion,
-            "r",
-            encoding="utf-8"
-        ) as archivo:
-            config = json.load(archivo)
-        # Agrega automáticamente nuevas opciones
-        for clave, valor in CONFIG_DEFAULT.items():
-            if clave not in config:
-                config[clave] = valor
+    # Si el archivo está dañado NO se pisa con los valores de fábrica: leer_json
+    # guarda el dañado aparte y recupera la copia anterior (configuracion.json.bak).
+    config = leer_json(archivo_configuracion, defecto=None, tipo=dict)
+    if config is None:
+        config = CONFIG_DEFAULT.copy()
+    # Agrega automáticamente nuevas opciones (y solo guarda si de verdad cambió algo)
+    faltaban = False
+    for clave, valor in CONFIG_DEFAULT.items():
+        if clave not in config:
+            config[clave] = valor
+            faltaban = True
+    if faltaban:
         guardar_config(config)
-        return config
-    except:
-        guardar_config(CONFIG_DEFAULT)
-        return CONFIG_DEFAULT.copy()
+    return config
 
 
 # GUARDAR CONFIGURACIÓN
 
 
 def guardar_config(config):
-    with open(
-        archivo_configuracion,
-        "w",
-        encoding="utf-8"
-    ) as archivo:
-        json.dump(
-            config,
-            archivo,
-            indent=4,
-            ensure_ascii=False
-        )
+    guardar_json(archivo_configuracion, config)      # atómico: nunca queda a medias
 
 
 # OBTENER CONFIGURACIÓN

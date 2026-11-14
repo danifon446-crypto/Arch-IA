@@ -916,6 +916,9 @@ def red_permitida(ip):
     return d.is_loopback or d.is_private or d.is_link_local or (d.version == 4 and d in _TAILSCALE)
 
 
+ip_permitida = red_permitida      # nombre anterior (lo usan las pruebas de seguridad)
+
+
 def _exe_tailscale():
     import shutil
     exe = shutil.which("tailscale")
@@ -963,16 +966,30 @@ def ip_local():
         return "127.0.0.1"
 
 
+def _pin_aleatorio():
+    """PIN de 6 dígitos sacado del generador seguro del sistema (no adivinable)."""
+    return "%06d" % secrets.randbelow(1_000_000)
+
+
+def _auditar(evento, **detalle):
+    """Deja constancia en la bitácora de seguridad (si el módulo de seguridad está)."""
+    try:
+        from core.seguridad import guardian
+        guardian.auditar(evento, origen="celular", **detalle)
+    except Exception:
+        pass
+
+
 def _pin():
     pin = str(ajustes.obtener("celular_pin") or "")
     if len(pin) != 6 or not pin.isdigit():
-        pin = "%06d" % random.randint(0, 999999)
+        pin = _pin_aleatorio()
         ajustes.fijar("celular_pin", pin)
     return pin
 
 
 def nuevo_pin():
-    ajustes.fijar("celular_pin", "%06d" % random.randint(0, 999999))
+    ajustes.fijar("celular_pin", _pin_aleatorio())
     with _candado:
         _permisos.clear()                  # los permisos de descarga viejos ya no sirven
     return ajustes.obtener("celular_pin")
@@ -1083,6 +1100,8 @@ class _Manejador(BaseHTTPRequestHandler):
             f[0] += 1
             f[1] = ahora + BLOQUEO_IP
             _fallos_globales.append(ahora)
+            n_ip, n_global = f[0], len(_fallos_globales)
+        _auditar("pin_incorrecto", ip=ip, fallos_ip=n_ip, fallos_globales=n_global)
         self._responder(401, "{}")
         return False
 
@@ -1090,6 +1109,7 @@ class _Manejador(BaseHTTPRequestHandler):
     def _red_ok(self):
         if red_permitida(self.client_address[0]):
             return True
+        _auditar("conexion_rechazada_red", ip=self.client_address[0])
         self._responder(403, "Solo desde tu red o Tailscale.", "text/plain; charset=utf-8")
         return False
 
@@ -1214,6 +1234,7 @@ class _Manejador(BaseHTTPRequestHandler):
         if ruta == "/api/enviar":
             texto = str(self._leer_json(2000).get("texto", ""))[:500]
             if es_orden_solo_pc(texto):
+                _auditar("orden_delicada_rechazada", ip=self.client_address[0], texto=texto[:120])
                 return self._json({"ok": False, "mensaje":
                                    f"«{texto[:60]}» solo la acepto desde el PC, por seguridad."})
             entrada.enviar(texto, "celular")

@@ -48,6 +48,7 @@ from turno import ErrorTurno, Supabase   # noqa: E402
 
 MIN_NUEVOS = 500
 MIN_DIAS = 7
+PESO_CHARLA = 4                  # un ejemplo de charla del auto-juego cuenta como 4 frases nuevas
 MAX_HORAS_ENTRENANDO = 14         # Kaggle corta a las 12 h; si pasa de esto algo quedo colgado
 SLUG_DATASET = "arche-datos"
 SLUG_KERNEL = "arche-entrenador"
@@ -200,8 +201,22 @@ def toca_entrenar(estado, nuevos, forzar):
     return True, f"{nuevos} ejemplos nuevos"
 
 
+def leer_charla(supa):
+    """Charla que Arché aprendió sola en su modo sueño (core/evolucion.py la sube a arche_config)."""
+    try:
+        filas = supa.leer("arche_config", {"select": "valor", "clave": "eq.charla_aprendida"})
+        valor = (filas or [{}])[0].get("valor") or {}
+        return int(valor.get("total", 0)), [e for e in valor.get("ejemplos", [])
+                                            if isinstance(e, dict) and e.get("pregunta") and e.get("respuesta")]
+    except Exception:
+        return 0, []
+
+
 def empezar(supa, estado, usuario, forzar, avisar):
     nuevos, max_id = contar_nuevos(supa, estado.get("max_id") or 0)
+    total_charla, charla = leer_charla(supa)
+    charla_nueva = max(0, total_charla - int(estado.get("charla_usada") or 0))
+    nuevos += charla_nueva * PESO_CHARLA
     toca, motivo = toca_entrenar(estado, nuevos, forzar)
     if not toca:
         avisar(f"No entreno todavía: {motivo}.")
@@ -209,7 +224,7 @@ def empezar(supa, estado, usuario, forzar, avisar):
     version = int(estado.get("version") or 0) + 1
     filas = supa.leer_todo("arche_ejemplos", {"select": "frase,intencion,contenido,origen,retirado",
                                               "retirado": "is.false"})
-    paquete = datos.construir(filas, version)
+    paquete = datos.construir(filas, version, charla=charla)
     meta = paquete["meta"]
     avisar(f"Entreno v{version} ({motivo}): {meta['entrenamiento']} para entrenar, {meta['validacion']} de "
            f"validación, {meta['intenciones']} intenciones. Limpieza: {meta['informe_limpieza']}")
@@ -221,7 +236,8 @@ def empezar(supa, estado, usuario, forzar, avisar):
     carpeta = tempfile.mkdtemp(prefix="arche_datos_")
     datos.guardar(paquete, carpeta)
     situacion = subir_dataset(usuario, carpeta, version)
-    estado.update(forzar=False, en_curso=version, max_id_en_curso=max_id, iniciado=iso(ahora()))
+    estado.update(forzar=False, en_curso=version, max_id_en_curso=max_id, iniciado=iso(ahora()),
+                  charla_usada_en_curso=total_charla)
     return seguir_con_dataset(supa, estado, usuario, situacion, avisar)
 
 
@@ -290,7 +306,8 @@ def revisar(supa, estado, usuario, avisar):
     resumen = (f"acierto {nuevo['acierto']:.1%} (base {base['acierto']:.1%}), JSON {nuevo['json_valido']:.0%}, "
                f"charla {nuevo['charla_ok']:.0%}")
     estado.update(estado="libre", en_curso=None, fecha=estado.get("iniciado"),
-                  max_id=estado.pop("max_id_en_curso", estado.get("max_id")))
+                  max_id=estado.pop("max_id_en_curso", estado.get("max_id")),
+                  charla_usada=estado.pop("charla_usada_en_curso", estado.get("charla_usada", 0)))
     if metricas.get("aprobado") and metricas.get("gguf"):
         estado["candidato"] = publicar_en_hf(carpeta, version, metricas)
         estado["version"] = version

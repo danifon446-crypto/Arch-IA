@@ -129,7 +129,23 @@ def partir_y_equilibrar(limpias, semilla=0):
     return equilibrado, validacion
 
 
-def construir(filas, version, semilla=0):
+MAX_CHARLA = 400               # ejemplos de charla aprendida (auto-juego de Arché) por entrenamiento
+
+
+def limpiar_charla(charla):
+    """Charla del auto-juego: sin duplicados, sin respuestas vacias o enormes."""
+    vistas, limpias = set(), []
+    for e in charla or []:
+        p, r = str(e.get("pregunta", "")).strip(), str(e.get("respuesta", "")).strip()
+        clave = normalizar(p)
+        if not p or len(r) < 8 or len(r) > 2500 or clave in vistas or contaminada(p):
+            continue
+        vistas.add(clave)
+        limpias.append({"pregunta": p, "respuesta": r})
+    return limpias[-MAX_CHARLA:]
+
+
+def construir(filas, version, semilla=0, charla=None):
     """Devuelve dict con todo lo que necesita Kaggle (se guarda como archivos en el dataset)."""
     limpias, informe = limpiar(filas)
     entrenamiento, validacion = partir_y_equilibrar(limpias, semilla)
@@ -143,6 +159,7 @@ def construir(filas, version, semilla=0):
         "validacion": len(validacion),
         "intenciones": len({e["intencion"] for e in entrenamiento}),
         "informe_limpieza": informe,
+        "charla_aprendida": len(limpiar_charla(charla)),
     }
     return {
         "meta": meta,
@@ -150,6 +167,7 @@ def construir(filas, version, semilla=0):
         "validacion": validacion,
         "repaso_entrenar": repaso[:-REPASO_VALIDACION],
         "repaso_validar": repaso[-REPASO_VALIDACION:],
+        "charla": limpiar_charla(charla),
     }
 
 
@@ -161,6 +179,9 @@ def guardar(paquete, carpeta):
         with open(os.path.join(carpeta, f"{nombre}.jsonl"), "w", encoding="utf-8") as f:
             for e in paquete[nombre]:
                 f.write(json.dumps(e, ensure_ascii=False) + "\n")
+    with open(os.path.join(carpeta, "charla.jsonl"), "w", encoding="utf-8") as f:
+        for e in paquete.get("charla", []):
+            f.write(json.dumps(e, ensure_ascii=False) + "\n")
     with open(os.path.join(carpeta, "repaso.json"), "w", encoding="utf-8") as f:
         json.dump({"entrenar": paquete["repaso_entrenar"], "validar": paquete["repaso_validar"]},
                   f, ensure_ascii=False, indent=2)
