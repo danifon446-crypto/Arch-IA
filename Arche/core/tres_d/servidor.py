@@ -47,10 +47,25 @@ _ESTATICOS = {
     "/nucleo.js": ("nucleo.js", "text/javascript; charset=utf-8"),
     "/perro.js": ("perro.js", "text/javascript; charset=utf-8"),
     "/cerebro.js": ("cerebro.js", "text/javascript; charset=utf-8"),
+    "/construir.js": ("construir.js", "text/javascript; charset=utf-8"),
+    "/modelar.js": ("modelar.js", "text/javascript; charset=utf-8"),
+    "/malla_edit.js": ("malla_edit.js", "text/javascript; charset=utf-8"),
     "/lib/three.module.min.js": ("lib/three.module.min.js", "text/javascript; charset=utf-8"),
     "/lib/OrbitControls.js": ("lib/OrbitControls.js", "text/javascript; charset=utf-8"),
     "/lib/STLLoader.js": ("lib/STLLoader.js", "text/javascript; charset=utf-8"),
+    "/gestos.js": ("gestos.js", "text/javascript; charset=utf-8"),
+    "/manos.js": ("manos.js", "text/javascript; charset=utf-8"),
 }
+# el detector de manos (MediaPipe Hands de Google, en web/lib/manos/)
+_TIPOS_MANOS = {".js": "text/javascript; charset=utf-8", ".wasm": "application/wasm", ".data": "application/octet-stream",
+                ".tflite": "application/octet-stream", ".binarypb": "application/octet-stream"}
+for _n in ("hands.js", "hands.binarypb", "hands_solution_packed_assets.data", "hands_solution_packed_assets_loader.js",
+           "hands_solution_simd_wasm_bin.js", "hands_solution_simd_wasm_bin.wasm", "hands_solution_simd_wasm_bin.data",
+           "hands_solution_wasm_bin.js", "hands_solution_wasm_bin.wasm", "hand_landmark_lite.tflite", "hand_landmark_full.tflite"):
+    _ESTATICOS["/lib/manos/" + _n] = ("lib/manos/" + _n, _TIPOS_MANOS[os.path.splitext(_n)[1]])
+
+_pedidos = {"manos": 0, "ir": 0, "ir_a": None}          # Arché pide desde la consola o la voz encender las manos en la página abierta
+_ultimo_pulso = [0.0]            # cuándo preguntó la página por última vez (para saber si está abierta)
 
 
 def activo():
@@ -200,7 +215,11 @@ def _lista_modelos():
     for m in dis.listar():
         r = m["receta"]
         que = r.get("alias") or ("pieza libre" if r.get("receta") else "espejo" if r.get("espejo_de") else "importado")
-        salida.append({"nombre": m["nombre"], "que": que, "kb": round(m["bytes"] / 1024), "fecha": m["fecha"],
+        if r.get("construido"):
+            que = "construida"
+        if r.get("modelado"):
+            que = "modelada"
+        salida.append({"nombre": m["nombre"], "que": que, "construido": bool(r.get("construido")), "kb": round(m["bytes"] / 1024), "fecha": m["fecha"],
                        "editable": r.get("pieza") in dis.piezas.CATALOGO, "medidas": r.get("medidas") if r.get("pieza") else None,
                        "pieza": r.get("pieza")})
     return salida
@@ -229,7 +248,10 @@ class _Manejador(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "max-age=3600" if cache else "no-store")
         self.send_header("Content-Security-Policy",
                          "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
-                         "script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'")
+                         "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; "
+                         "media-src 'self' blob: mediastream:; worker-src 'self' blob:; frame-ancestors 'none'")
+        # la página puede pedir la cámara (para las manos); nada más
+        self.send_header("Permissions-Policy", "camera=(self), microphone=(), geolocation=()")
         self.end_headers()
         self.wfile.write(cuerpo)
 
@@ -270,7 +292,8 @@ class _Manejador(BaseHTTPRequestHandler):
         try:
             if url.path == "/api/estado":
                 from . import ajustes
-                return self._json({"version": dis.version(), "ultimo": dis.ultimo(), "arche": _estado_arche(),
+                _ultimo_pulso[0] = time.time()
+                return self._json({"version": dis.version(), "ultimo": dis.ultimo(), "arche": _estado_arche(), "pedidos": dict(_pedidos),
                                    "pose_perro": _pose_perro(), "ajustes": ajustes()})
             if url.path == "/api/modelos":
                 return self._json({"modelos": _lista_modelos(), "ultimo": dis.ultimo(), "carpeta": dis.carpeta()})
@@ -289,6 +312,22 @@ class _Manejador(BaseHTTPRequestHandler):
                 a["frases"] = geo.resumen(a)
                 a["tiempo"] = geo.tiempo_legible(a["horas"])
                 return self._json(a)
+            if url.path == "/api/sugerencias":
+                nombre = self._modelo(q)
+                if not nombre:
+                    return self._responder(404, "{}")
+                from . import asistente
+                return self._json(asistente.sugerencias(nombre))
+            if url.path == "/api/escena":
+                nombre = self._modelo(q)
+                if not nombre:
+                    return self._responder(404, "{}")
+                return self._json({"nombre": nombre, "escena": dis.leer_escena(nombre)})
+            if url.path == "/api/partes":
+                nombre = self._modelo(q)
+                if not nombre:
+                    return self._responder(404, "{}")
+                return self._json({"nombre": nombre, "partes": dis.leer_receta(nombre).get("construido") or []})
             if url.path == "/api/perro":
                 return self._json(datos_perro())
             if url.path == "/api/cerebro":
@@ -336,6 +375,40 @@ class _Manejador(BaseHTTPRequestHandler):
                     malla, finales, notas = dis.piezas.construir(pieza, dict(receta.get("medidas") or {}, **datos["medidas"]))
                     dis.guardar(nombre, malla, {"pieza": pieza, "medidas": finales, "alias": receta.get("alias", pieza)})
                 return self._json({"ok": True, "medidas": finales, "notas": notas, "version": dis.version()})
+            if url.path == "/api/construir":
+                # el modo Construir: vista previa exacta de la pieza armada con partes, o guardarla
+                if not 0 < largo <= 200000:
+                    return self._json({"ok": False, "error": "Pedido vacío o demasiado grande."}, 400)
+                datos = json.loads(self.rfile.read(largo))
+                from . import ajustes, construir, _candado
+                import base64
+                cfg = ajustes()
+                malla, info = construir.construir(datos.get("partes"), cama=cfg["cama"], material=cfg["material"])
+                respuesta = {"ok": True, "info": info}
+                if datos.get("guardar"):
+                    with _candado:
+                        base = dis._limpio(datos.get("guardar"))
+                        nombre = base if (datos.get("reemplazar") and dis.existe(base)) else dis.nombre_libre(base)
+                        dis.guardar(nombre, malla, {"construido": datos.get("partes"), "alias": "construida"})
+                    respuesta.update(nombre=nombre, version=dis.version())
+                else:
+                    respuesta["stl"] = base64.b64encode(geo.stl_bytes(malla)).decode("ascii")
+                return self._json(respuesta)
+            if url.path == "/api/modelar":
+                # Modelar: guardar la escena (todos los objetos unidos en un sólido) y la escena editable
+                if not 0 < largo <= 120 * 1024 * 1024:
+                    return self._json({"ok": False, "error": "La escena es demasiado grande."}, 400)
+                datos = json.loads(self.rfile.read(largo))
+                from . import ajustes, construir, _candado
+                cfg = ajustes()
+                malla, info = construir.unir_mallas(datos.get("objetos"), cama=cfg["cama"], material=cfg["material"])
+                with _candado:
+                    base = dis._limpio(datos.get("nombre") or "modelado")
+                    nombre = base if (datos.get("reemplazar") and dis.existe(base)) else dis.nombre_libre(base)
+                    dis.guardar(nombre, malla, {"modelado": True, "alias": "modelada"})
+                    if isinstance(datos.get("escena"), dict):
+                        dis.guardar_escena(nombre, datos["escena"])
+                return self._json({"ok": True, "nombre": nombre, "info": info, "version": dis.version()})
             if url.path == "/api/subir":
                 if not 0 < largo <= MAX_SUBIDA:
                     return self._json({"ok": False, "error": "Archivo vacío o de más de 80 MB."}, 400)
@@ -385,6 +458,21 @@ def iniciar():
         _hilo.start()
         return True, direccion()
     return False, f"no encontré un puerto libre ({ultimo_error})"
+
+
+def pagina_abierta():
+    """True si una página del taller preguntó hace poco (está abierta en algún lado)."""
+    return activo() and time.time() - _ultimo_pulso[0] < 4.0
+
+
+def pedir_manos():
+    _pedidos["manos"] += 1
+
+
+def pedir_vista(vista, modelo=None):
+    """Que la página abierta se cambie a esa vista (y abra ese modelo)."""
+    _pedidos["ir_a"] = {"vista": vista, "modelo": modelo}
+    _pedidos["ir"] += 1
 
 
 def detener():

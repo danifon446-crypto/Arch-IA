@@ -170,6 +170,17 @@ def leer_bytes(datos, extension=".stl"):
     return malla
 
 
+def stl_bytes(malla, nombre="Arche"):
+    """La malla como STL binario, en memoria."""
+    t = malla.vertices[malla.caras].astype("<f4")
+    normales, _ = malla.normales_y_areas()
+    registro = np.zeros(len(t), dtype=np.dtype([("n", "<f4", 3), ("v", "<f4", (3, 3)), ("a", "<u2")]))
+    registro["n"] = normales.astype("<f4")
+    registro["v"] = t
+    cabecera = (f"Arche 3D - {nombre}".encode("ascii", "replace")[:80]).ljust(80, b" ")
+    return cabecera + struct.pack("<I", len(t)) + registro.tobytes()
+
+
 def escribir_stl(malla, ruta, nombre="Arche"):
     """Guarda la malla como STL binario (el formato que abren todos los slicers)."""
     t = malla.vertices[malla.caras].astype("<f4")

@@ -101,7 +101,8 @@ def main():
         sys.exit("Corre esto desde la carpeta Arche (donde está main.py).")
     necesarios = [os.path.join(CARPETA, n) for n in
                   ("__init__.py", "geometria.py", "piezas.py", "disenador.py", "servidor.py",
-                   os.path.join("web", "index.html"), os.path.join("web", "lib", "three.module.min.js"))]
+                   os.path.join("web", "index.html"), os.path.join("web", "lib", "three.module.min.js"), os.path.join("web", "manos.js"),
+                   os.path.join("web", "lib", "manos", "hands.js"))]
     faltan = [r for r in necesarios if not os.path.exists(r)]
     if faltan:
         sys.exit("Faltan archivos de Arché 3D en core/tres_d/: " + ", ".join(faltan))

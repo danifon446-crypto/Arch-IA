@@ -127,10 +127,14 @@ def _ayuda():
     _out("  CAMBIAR LA ÚLTIMA:  «hazla más alta», «cambia el ancho a 60», «ponle tapa», «hazla al doble»")
     _out("  PIEZAS LIBRES (las arma la IA):  «diseña en 3d un llavero con forma de hueso»")
     _out("  REVISAR PARA IMPRIMIR:  «analiza el modelo», «analiza pata» (medidas, gramos, tiempo, soportes)")
+    _out("  QUE ARCHÉ TE AYUDE:  «qué me recomiendas» (arreglos con números), «arregla la pieza», «aplica la sugerencia 2»,")
+    _out("                       «repara el modelo», «crea un engranaje compañero de 40 dientes»")
     _out("  TRANSFORMAR:  «escala el modelo al 150%», «rota el modelo 90 en x», «espejo del modelo», «orienta el modelo»")
     _out("  TUS ARCHIVOS:  «importa C:\\ruta\\pieza.stl», «modelos 3d», «abre la carpeta de modelos», «borra el modelo X»")
     _out("  IMPRESORA:  «mi impresora es de 220x220x250», «uso petg»")
     _out("  VERLO TODO:  «abre el taller 3d» (modelos, núcleo de Arché, perro y cerebro en 3D)")
+    _out("  COMO BLENDER:  «abre el modelador» / «quiero esculpir» / «edita pata en modelar» (esculpir, extruir caras, modificadores)")
+    _out("  CON LAS MANOS:  «controla con las manos» (la cámara ve tus manos: pellizca para girar, dos manos para acercar)")
 
 
 def manejar(comando):
@@ -149,6 +153,166 @@ def manejar(comando):
 
 def _manejar(original, t):
     from . import servidor
+
+    # ---- Arché te ayuda con la pieza ----
+    r = re.fullmatch(r"(?:que (?:me )?(?:recomiendas|sugieres|le cambiarias|le mejorarias)|como (?:la|lo) mejoro|sugerencias|"
+                     r"ayudame|ayudame con|revisa y mejora|que le falta|que tiene de malo)(?: (?:para |con |a )?(.+))?", t)
+    if r and (r.group(1) is None or re.search(_EL_MODELO, r.group(1)) or dis.buscar(r.group(1))):
+        nombre = _objetivo(r.group(1) or "el modelo")
+        if not nombre:
+            _msg("Todavía no hay ninguna pieza. Crea una o importa un .stl y te digo cómo mejorarla.")
+            return ("tres_d", "error")
+        from . import asistente
+        dis._estado["ultimo"] = nombre
+        lista = asistente.sugerencias(nombre)["sugerencias"]
+        if not lista:
+            _msg(f"{nombre}.stl está bien para imprimir: cerrada, cabe y casi sin soportes. No le cambiaría nada.")
+            return ("tres_d", nombre)
+        _msg(f"Esto le haría a {nombre}.stl:")
+        for i, sug in enumerate(lista, 1):
+            cambio = f"  ({sug['antes']} → {sug['despues']})" if sug["antes"] and sug["despues"] else ""
+            _out(f"  {i}. {sug['titulo']}{cambio}")
+            _out(f"     {sug['por_que']}")
+        if any(sug["orden"] for sug in lista):
+            _out("     Dime «aplica la sugerencia 1» (o el número que quieras), o «arregla la pieza» para el arreglo principal.")
+        return ("tres_d", nombre)
+    r = re.fullmatch(r"(?:aplica|haz|usa)(?: la)? sugerencia(?: (?:numero |n )?(\d+))?|arregla(?:la|lo)?(?: (?:la pieza|el modelo|esto|eso))?", t)
+    if r:
+        nombre = dis.ultimo()
+        if not nombre:
+            _msg("No hay ninguna pieza para arreglar.")
+            return ("tres_d", "error")
+        from . import asistente
+        lista = asistente.sugerencias(nombre)["sugerencias"]
+        if r.group(1):
+            i = int(r.group(1)) - 1
+            sug = lista[i] if 0 <= i < len(lista) else None
+            if sug is None:
+                _msg(f"No hay sugerencia {i + 1}; tengo {len(lista)}.")
+                return ("tres_d", "error")
+        else:
+            sug = next((x for x in lista if x["tipo"] == "arreglo"), None)
+            if sug is None:
+                _msg(f"{nombre}.stl no necesita arreglos. Dime «qué me recomiendas» para ver ideas.")
+                return ("tres_d", nombre)
+        if not sug["orden"]:
+            _msg(f"«{sug['titulo']}» se ajusta en el slicer, no en la pieza: {sug['por_que']}")
+            return ("tres_d", nombre)
+        _msg(f"Aplico: {sug['titulo']}.")
+        return _manejar(sug["orden"], dis._norm(sug["orden"])) or ("tres_d", nombre)
+    r = re.fullmatch(r"repara(?:r)?(?: el| la)? (?:modelo|pieza|malla|stl)(?: (.+))?", t)
+    if r:
+        nombre = _objetivo(r.group(1) or "el modelo")
+        if not nombre:
+            _msg("No hay ningún modelo para reparar.")
+            return ("tres_d", "error")
+        malla = dis.abrir(nombre)
+        if malla.cerrada():
+            _msg(f"{nombre}.stl ya está cerrada; no hay nada que reparar.")
+            return ("tres_d", nombre)
+        from . import asistente
+        nueva, ok = asistente.reparar(malla)
+        if not ok:
+            _msg(f"No pude cerrar {nombre}.stl: tiene huecos de verdad, no solo puntos sueltos. Ábrela en PrusaSlicer "
+                 "(clic derecho → «Reparar») o en 3D Builder de Windows y vuelve a importarla.")
+            return ("tres_d", "error")
+        _respaldar(nombre)
+        dis.guardar(nombre, nueva, dict(dis.leer_receta(nombre), transformado="reparado", pieza=None))
+        _contar(nombre, nueva, f"Reparé {nombre}.stl: ahora la malla está cerrada.")
+        return ("tres_d", nombre)
+    r = re.fullmatch(r"(?:crea|haz|hazme|hazle|disena|genera)(?: un| el| su)? (?:engranaje |pinon )?companero(?: (?:de|con) (\d+) dientes)?", t)
+    if r:
+        base = dis.ultimo()
+        receta = dis.leer_receta(base) if base else {}
+        if receta.get("pieza") != "engranaje":
+            _msg("Para hacer el compañero, primero elige un engranaje (o crea uno: «crea un engranaje de 20 dientes»).")
+            return ("tres_d", "error")
+        m1 = receta["medidas"]
+        z1 = int(round(m1["dientes"]))
+        z2 = int(r.group(1)) if r.group(1) else z1
+        archivo, malla, finales, notas = dis.crear_del_catalogo(
+            "engranaje", {"dientes": z2, "modulo": m1["modulo"], "grosor": m1["grosor"], "agujero": m1["agujero"]},
+            "engranaje", como=dis.nombre_libre(f"engranaje_{z2}_companero"))
+        distancia = m1["modulo"] * (z1 + finales["dientes"]) / 2
+        relacion = finales["dientes"] / z1
+        _contar(archivo, malla, f"Hice {archivo}.stl: {finales['dientes']:g} dientes, módulo {m1['modulo']:g}, para engranar con {base}.")
+        _out(f"       Pon los ejes a {distancia:.1f} mm uno del otro (súmale 0,2 mm de holgura: {distancia + 0.2:.1f} mm).")
+        if relacion > 1.01:
+            _out(f"       Relación {z1}:{finales['dientes']:g}: si mueves {base} con el motor, el nuevo gira {relacion:.2f} veces "
+                 f"más lento y con {relacion:.2f} veces más fuerza.")
+        elif relacion < 0.99:
+            _out(f"       Relación {z1}:{finales['dientes']:g}: si mueves {base} con el motor, el nuevo gira {1 / relacion:.2f} veces "
+                 "más rápido, pero con menos fuerza.")
+        return ("tres_d", archivo)
+
+    # ---- Construir: armar una pieza propia con partes ----
+    r = re.fullmatch(r"(?:abre|abrir|ve a|vamos a|activa|entra a|entra en|quiero)?\s*(?:el )?(?:modo )?construir(?: (?:una pieza|en 3d|piezas))?"
+                     r"|(?:quiero )?(?:armar|construir|disenar) (?:mi propia|una) pieza(?: con (?:partes|formas))?"
+                     r"|(?:edita|editar|abre)(?: el modelo| la pieza)? (.+?) en construir", t)
+    if r:
+        modelo = None
+        if r.group(1):
+            modelo = dis.buscar(r.group(1))
+            if not modelo:
+                _msg(f"No tengo un modelo que se llame «{r.group(1)}».")
+                return ("tres_d", "error")
+        ok, detalle = servidor.iniciar()
+        if not ok:
+            _msg(f"No pude abrir el taller 3D: {detalle}")
+            return ("tres_d", "error")
+        if getattr(_local, "lineas", None) is not None or servidor.pagina_abierta():
+            servidor.pedir_vista("construir", modelo)
+        else:
+            servidor.abrir_navegador("construir" + (f"+{modelo}" if modelo else ""))
+        _msg("Abrí Construir" + (f" con {modelo}" if modelo else "") + ": agrega formas, agárralas con la mano, "
+             "estíralas con las dos manos y ábreles agujeros. Pulgar arriba la guarda.")
+        return ("tres_d", "construir")
+
+    # ---- Modelar: estilo Blender (esculpir, editar caras, modificadores) ----
+    r = re.fullmatch(r"(?:abre|abrir|ve a|vamos a|activa|entra a|entra en|quiero|pon)?\s*(?:el )?(?:modo )?"
+                     r"(?:modelar|modelador|esculpir|escultura|estilo blender|como (?:en )?blender|blender)(?: en 3d| con (?:las |mis )?manos)?"
+                     r"|(?:quiero )?(?:esculpir|modelar) (?:una pieza|algo|en 3d|con (?:las |mis )?manos)"
+                     r"|(?:edita|editar|esculpe|abre)(?: el modelo| la pieza)? (.+?) en (?:modelar|el modelador|blender)", t)
+    if r:
+        modelo = None
+        if r.group(1):
+            modelo = dis.buscar(r.group(1))
+            if not modelo:
+                _msg(f"No tengo un modelo que se llame «{r.group(1)}».")
+                return ("tres_d", "error")
+        ok, detalle = servidor.iniciar()
+        if not ok:
+            _msg(f"No pude abrir el taller 3D: {detalle}")
+            return ("tres_d", "error")
+        if getattr(_local, "lineas", None) is not None or servidor.pagina_abierta():
+            servidor.pedir_vista("modelar", modelo)
+        else:
+            servidor.abrir_navegador("modelar" + (f"+{modelo}" if modelo else ""))
+        _msg("Abrí Modelar" + (f" con {modelo}" if modelo else "") + " (como Blender): modo Objeto, Edición y Escultura. "
+             "Pellizca una cara y jala para extruirla, o esculpe con el dedo. Pulgar arriba la guarda.")
+        return ("tres_d", "modelar")
+
+    # ---- control con las manos (cámara) ----
+    if re.fullmatch(r"(?:activa|enciende|prende|pon|usa|quiero usar|inicia)?\s*(?:el )?(?:control (?:con|de) (?:las |mis )?manos|modo manos|"
+                    r"(?:las |mis )?manos(?: en 3d| para el 3d)?)|(?:controla|maneja|mueve)(?: (?:el|la) (?:modelo|pieza|vista|3d))? con (?:las |mis )?manos", t) \
+            and not re.fullmatch(r"(?:las |mis )?manos", t):
+        ok, detalle = servidor.iniciar()
+        if not ok:
+            _msg(f"No pude abrir el taller 3D: {detalle}")
+            return ("tres_d", "error")
+        if getattr(_local, "lineas", None) is not None:
+            _msg("Toca el botón «Manos» (a la izquierda) para encender la cámara.")
+            return ("tres_d", "manos")
+        if servidor.pagina_abierta():
+            servidor.pedir_manos()
+            _msg("Encendí el control con las manos en el taller 3D que tienes abierto. Ponte frente a la cámara.")
+        else:
+            servidor.abrir_navegador("taller+manos")
+            _msg(f"Abrí el taller 3D con el control de manos ({servidor.direccion()}). Si el navegador pide permiso "
+                 "para la cámara, acéptalo.")
+        _out("       Pellizca (índice y pulgar) y mueve: giras. Con las dos manos pellizcando: separa para acercar.")
+        _out("       Palma abierta quieta un segundo: vuelve al inicio. La imagen de la cámara no sale de tu PC.")
+        return ("tres_d", "manos")
 
     # ---- el taller ----
     r = re.fullmatch(r"(?:abre|abrir|abreme|muestra|muestrame|inicia|lanza|pon|ver|ve al)?\s*(?:el |la |al )?"

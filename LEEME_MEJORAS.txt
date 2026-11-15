@@ -54,6 +54,72 @@ EL TALLER (página en tu navegador, 4 vistas)
   Seguridad: solo se abre desde este PC y con una llave que Arché crea cada
   vez; otra página web no puede mandarle órdenes.
 
+CONSTRUIR: ARMA TU PROPIA PIEZA (nuevo; botón «Construir» o dile «modo construir»)
+  Juntas formas (caja, cilindro, esfera, cono, prisma o una de tus piezas guardadas) y les
+  abres agujeros. Al soltar cada parte, Arché arma en tu PC el sólido EXACTO (el mismo que
+  se imprime) y lo muestra con los agujeros hechos.
+  CON LAS MANOS:
+    · Pellizca una parte y mueve       -> la agarras y la llevas; se pega sola (imán) a los
+                                          bordes y centros de las otras, con líneas guía
+    · Dos manos sobre la parte elegida -> sepáralas de lado = más ancha; de arriba a abajo =
+                                          más alta; gíralas como un volante = la giras
+                                          (se pega a 0°, 15°, 45°, 90°…)
+    · Dedos en V                       -> duplicas la parte
+    · Pulgar abajo                     -> la borras
+    · Mano abierta a la izquierda/derecha -> deshacer / rehacer (hasta 120 pasos)
+    · Pulgar arriba                    -> guardas la pieza
+    · Pellizco rápido                  -> eliges una parte o tocas un botón de la paleta
+  CON EL MOUSE / TECLADO: arrastra las partes; Supr borra, Ctrl+Z / Ctrl+Y, Ctrl+D duplica,
+    flechas mueven 1 mm (con Mayúscula 10 mm), RePág/AvPág suben y bajan.
+  ESCRIBIENDO (barra de abajo): «agrega un cilindro de 20 de diámetro», «agrega una caja de
+    40x20x5», «haz un agujero de 3», «hueco cuadrado de 10», «mueve 15 a la derecha»,
+    «súbela 5», «gírala 45», «acuéstala», «diámetro 12», «hazla agujero», «duplícala»,
+    «bórrala», «deshaz», «guárdala como soporte_camara».
+  ARCHÉ REVISA MIENTRAS CONSTRUYES (con botón para arreglarlo):
+    · partes sueltas que saldrían separadas -> «Juntarlas»: calcula exactamente cuánto
+      moverlas para que se crucen 1 mm (la parte más grande se queda quieta)
+    · agujero de 3 mm para un M3 (no entra al imprimir) -> «Usar 3.2 mm» (M2 a M8)
+    · agujero que no corta nada -> lo lleva a la pieza
+    · cuánto pesa, cuánto tarda, si cabe en tu impresora
+  Para empezar rápido: «Placa con 4 agujeros», «Soporte en L», «Caja abierta».
+  Lo guardado queda editable: en el Taller, «Editar en Construir» vuelve a abrir sus partes.
+  Si cierras la página a medias, al volver sigue donde quedaste.
+
+CONTROL CON LAS MANOS (la cámara del PC)
+  Dile a Arché «controla con las manos», o toca el botón «Manos» del taller.
+  La primera vez el navegador pide permiso para la cámara: acéptalo.
+  Toca «Aprender gestos»: Arché te enseña uno por uno y avanza cuando lo haces bien.
+    · Apunta con el índice            -> un puntero; lo que señalas se ilumina
+    · Pellizco rápido (clic en el aire)-> tocas: botones, la lista de piezas, puntos para medir,
+                                          los nodos del cerebro
+    · Pellizca y mueve                -> giras la pieza (y si la sueltas sigue girando un poco)
+      ...sobre un deslizador          -> lo mueves (la pieza se rehace al instante)
+      ...sobre un panel               -> lo desplazas arriba/abajo
+    · Dos manos pellizcando           -> separa para acercar, junta para alejar, muévelas para desplazar
+    · Mano abierta rápida de lado     -> siguiente / anterior (pieza en el taller, movimiento en el
+                                          perro, vista en el núcleo y el cerebro)
+    · Pulgar arriba                   -> aplica el arreglo que recomienda Arché
+    · Palma abierta quieta 1 segundo  -> vuelve al inicio
+  Si te ve mal, te dice qué hacer: «muy cerca», «muy lejos», «la mano se sale del cuadro».
+  El detector es MediaPipe Hands de Google y viene incluido: funciona sin internet
+  y la imagen de la cámara NUNCA sale de tu PC.
+
+ARCHÉ TE AYUDA DE VERDAD (tarjeta «Arché sugiere» en el taller, o por voz)
+  Revisa TU pieza y propone arreglos con números calculados, y un botón que los aplica:
+    · no cabe          -> la gira para que quepa; si ni así, te dice exactamente a qué % escalarla
+    · mucho soporte    -> la posición con menos voladizo (ej. 34 cm² → 0 cm²)
+    · alta y con poca base -> acostarla (o borde/brim si no conviene)
+    · malla con huecos -> intenta repararla; si no puede, te dice con qué programa hacerlo
+    · pared muy fina   -> la engruesa a 1,6 mm (4 líneas de boquilla 0,4)
+    · relleno          -> cuántos gramos y minutos ahorras con 10 % (eso se cambia en el slicer)
+    · engranaje        -> hace el compañero que engrana y te dice a cuántos mm poner los ejes
+    · caja             -> le pone tapa que encaja;  pieza asimétrica -> la del otro lado
+  Después de aplicar, te muestra el ANTES y el DESPUÉS medidos de nuevo (no lo que esperaba:
+  lo que de verdad quedó).
+  Por voz: «qué me recomiendas», «arregla la pieza», «aplica la sugerencia 2»,
+           «repara el modelo», «hazle un compañero de 40 dientes».
+  MEDIR: toca «Medir» y luego dos puntos de la pieza (con la mano o el mouse): te da los mm.
+
 QUÉ TENER EN CUENTA DEL 3D
 - Gramos y tiempo son ESTIMADOS (pared 1,2 mm, relleno 20 %); el slicer manda.
 - Los soportes de servo usan medidas típicas (SG90/MG90S 22,8×12,4 mm, tornillos

@@ -4,6 +4,9 @@ import { crearTaller } from './taller.js';
 import { crearNucleo } from './nucleo.js';
 import { crearPerro } from './perro.js';
 import { crearCerebro } from './cerebro.js';
+import { crearManos } from './manos.js';
+import { crearConstruir } from './construir.js';
+import { crearModelar } from './modelar.js';
 
 const $ = (s) => document.querySelector(s);
 
@@ -63,12 +66,45 @@ const ctx = { THREE, render, lienzo, api, apiJson, enviar, aviso, etiqueta, colo
 
 const TITULOS = {
   taller: ['Taller', 'Crea, revisa y prepara piezas para imprimir.'],
+  construir: ['Construir', 'Arma tu pieza juntando formas y abriendo agujeros, con las manos o el mouse.'],
+  modelar: ['Modelar', 'Como Blender, con tus manos: esculpe, extruye caras y usa modificadores.'],
   nucleo: ['Núcleo', 'Arché en vivo: cambia cuando escucha, piensa, habla o trabaja.'],
   perro: ['Perro', 'Prueba los movimientos aquí antes de mandarlos al robot.'],
   cerebro: ['Cerebro', 'Cada punto es un archivo de Arché; las líneas, quién usa a quién.'],
 };
 const vistas = {};
 let activa = null;
+let manos = null;
+let pedidosVistos = null;
+let irVistos = null;
+ctx.vistaActiva = () => vistas[activa];
+const ORDEN_VISTAS = ['taller', 'construir', 'modelar', 'nucleo', 'perro', 'cerebro'];
+// mano abierta pasando de lado: cada vista decide qué es «siguiente»; si no, cambia de vista
+ctx.deslizar = (dir) => {
+  const v = vistas[activa];
+  if (v && v.deslizar && v.deslizar(dir)) return;
+  const i = ORDEN_VISTAS.indexOf(activa);
+  cambiar(ORDEN_VISTAS[(i + (dir === 'derecha' ? 1 : ORDEN_VISTAS.length - 1)) % ORDEN_VISTAS.length]);
+};
+// pulgar arriba: aplica lo que Arché recomienda en esta vista
+ctx.aceptar = () => {
+  const v = vistas[activa];
+  if (v && v.aceptar) v.aceptar();
+  else aviso('Aquí no hay nada que aceptar. En el Taller, el pulgar aplica el arreglo que recomienda Arché.');
+};
+// pulgar abajo y dedos en V: solo tienen sentido donde hay algo que borrar o duplicar (Construir)
+ctx.rechazar = () => { const v = vistas[activa]; if (v && v.rechazar) v.rechazar(); else aviso('El pulgar abajo borra la parte elegida en Construir o Modelar.'); };
+ctx.duplicar = () => { const v = vistas[activa]; if (v && v.duplicar) v.duplicar(); else aviso('Los dedos en V duplican la parte elegida en Construir o Modelar.'); };
+// ir a otra vista con un modelo: «Editar en Construir» desde el taller, «Verla en el Taller» desde Construir
+ctx.irA = (nombre, modelo) => {
+  cambiar(nombre);
+  if (modelo && (nombre === 'construir' || nombre === 'modelar')) vistas[nombre].cargar(modelo).catch(() => aviso('No pude abrir esa pieza.'));
+  if (modelo && nombre === 'taller' && vistas.taller.mostrar) vistas.taller.mostrar(modelo);
+};
+ctx.alManos = (encendidas) => {
+  const b = $('#botonManos');
+  if (b) b.classList.toggle('activo', encendidas);
+};
 
 function tamano() {
   render.setSize(innerWidth, innerHeight, false);
@@ -85,7 +121,7 @@ function cambiar(nombre) {
   capaEtiquetas.querySelectorAll('.etq').forEach((e) => { e.style.display = 'none'; });
   activa = nombre;
   document.body.dataset.vista = nombre;
-  document.querySelectorAll('#riel button').forEach((b) => b.classList.toggle('activo', b.dataset.vista === nombre));
+  document.querySelectorAll('#riel button[data-vista]').forEach((b) => b.classList.toggle('activo', b.dataset.vista === nombre));
   $('#titulo').textContent = TITULOS[nombre][0];
   $('#subtitulo').textContent = TITULOS[nombre][1];
   ctx.panel.innerHTML = '';
@@ -103,6 +139,13 @@ async function pulso() {
     caja.className = 'estado-arche ' + visual;
     caja.querySelector('b').textContent = e.arche.dentro_de_arche ? (NOMBRE_ESTADO[visual] || visual) : 'sin Arché';
     for (const v of Object.values(vistas)) v.alEstado && v.alEstado(e);
+    // «controla con las manos» dicho a Arché enciende las manos en esta página
+    if (e.pedidos) {
+      if (pedidosVistos !== null && e.pedidos.manos > pedidosVistos && manos && !manos.activo()) manos.encender();
+      pedidosVistos = e.pedidos.manos;
+      if (irVistos !== null && e.pedidos.ir > irVistos && e.pedidos.ir_a) ctx.irA(e.pedidos.ir_a.vista, e.pedidos.ir_a.modelo);
+      irVistos = e.pedidos.ir;
+    }
   } catch (err) { /* Arché cerrado o sin llave: se reintenta */ }
 }
 
@@ -111,11 +154,25 @@ function iniciar() {
   vistas.nucleo = crearNucleo(ctx);
   vistas.perro = crearPerro(ctx);
   vistas.cerebro = crearCerebro(ctx);
+  vistas.construir = crearConstruir(ctx);
+  vistas.modelar = crearModelar(ctx);
+  // cada vista puede volver a como empezó (lo usa el gesto de la palma abierta)
+  for (const v of Object.values(vistas)) {
+    if (v.reencuadrar) continue;
+    const pos = v.camara.position.clone(), obj = v.controles.target.clone(), auto = v.controles.autoRotate;
+    v.reencuadrar = () => { v.camara.position.copy(pos); v.controles.target.copy(obj); v.controles.autoRotate = auto; };
+  }
+  manos = crearManos(ctx);
+  $('#botonManos').addEventListener('click', () => manos.alternar());
+  window.__arche3d = { manos, vistas, activa: () => activa };       // para las pruebas automáticas
   tamano();
   addEventListener('resize', tamano);
-  document.querySelectorAll('#riel button').forEach((b) => b.addEventListener('click', () => cambiar(b.dataset.vista)));
-  addEventListener('hashchange', () => cambiar(location.hash.slice(1)));
-  cambiar(location.hash.slice(1) || 'taller');
+  document.querySelectorAll('#riel button[data-vista]').forEach((b) => b.addEventListener('click', () => cambiar(b.dataset.vista)));
+  addEventListener('hashchange', () => cambiar(location.hash.slice(1).split('+')[0]));
+  const [vistaInicial, extra] = decodeURIComponent(location.hash.slice(1) || 'taller').split('+');
+  cambiar(vistaInicial);
+  if (extra === 'manos') manos.encender();
+  else if (extra && (vistaInicial === 'construir' || vistaInicial === 'modelar')) vistas[vistaInicial].cargar(extra).catch(() => {});
   pulso();
   setInterval(pulso, 1200);
 
@@ -124,6 +181,7 @@ function iniciar() {
     const dt = Math.min(reloj.getDelta(), 0.1);
     const v = vistas[activa];
     if (!v) return;
+    manos.actualizar(dt);
     v.controles && v.controles.update();
     v.actualizar(dt, reloj.elapsedTime);
     render.render(v.escena, v.camara);

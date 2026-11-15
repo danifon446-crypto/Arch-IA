@@ -532,6 +532,20 @@ def _nodo(nodo, cuenta):
             raise ValueError(f"No conozco la pieza «{nombre}».")
         final, _ = medidas_completas(nombre, nodo.get("medidas") if isinstance(nodo.get("medidas"), dict) else {})
         s = CATALOGO[nombre]["funcion"](**final)
+    elif tipo == "modelo":
+        # un modelo ya guardado (lo que importaste o creaste antes) como parte de otra pieza
+        from . import disenador
+        nombre = disenador._limpio(nodo.get("nombre", ""))
+        if not disenador.existe(nombre):
+            raise ValueError(f"No tengo el modelo «{nombre}».")
+        malla = disenador.abrir(nombre)
+        mesh = m.Mesh(vert_properties=np.asarray(malla.vertices, dtype=np.float32), tri_verts=np.asarray(malla.caras, dtype=np.uint32))
+        mesh.merge()
+        s = m.Manifold(mesh)
+        if s.status() != m.Error.NoError or s.is_empty():
+            raise ValueError(f"El modelo «{nombre}» tiene la malla abierta; repáralo antes de usarlo como parte.")
+        a, b = malla.limites()
+        s = s.translate([-(a[0] + b[0]) / 2, -(a[1] + b[1]) / 2, -a[2]])     # centrado y apoyado, como las demás formas
     elif tipo in ("union", "diferencia", "interseccion", "envolvente"):
         partes = nodo.get("de")
         if not isinstance(partes, list) or not partes:

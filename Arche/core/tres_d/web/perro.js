@@ -222,6 +222,16 @@ export function crearPerro(ctx) {
       }
     },
     salir() { st.visible = false; controles.enabled = false; },
+    // con la mano: deslizar cambia de movimiento
+    deslizar(dir) {
+      const nombres = st.datos && st.datos.hay ? Object.keys(st.datos.secuencias) : [];
+      if (!nombres.length) return false;
+      const i = Math.max(0, nombres.indexOf(st.nombre));
+      const siguiente = nombres[(i + (dir === 'derecha' ? 1 : nombres.length - 1)) % nombres.length];
+      reproducir(siguiente);
+      ctx.aviso('Movimiento: ' + siguiente.replace(/_/g, ' '));
+      return true;
+    },
     alEstado(e) {
       const viva = e.pose_perro;
       const eraVivo = st.vivo;

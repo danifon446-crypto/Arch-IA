@@ -66,7 +66,60 @@ export function crearTaller(ctx) {
   const caja = new THREE.Box3();
   let hayPieza = false;
 
-  const st = { modelos: [], actual: null, analisis: null, catalogo: null, version: -1, voladizos: true,
+  // ---- medir con el dedo (o el mouse): dos toques sobre la pieza ----
+  const medida = new THREE.Group();
+  escena.add(medida);
+  const etqMedida = ctx.etiqueta('medida');
+  const rayo = new THREE.Raycaster();
+  const matPunto = new THREE.MeshBasicMaterial({ color: 0x5fd3c4, depthTest: false });
+  const matRegla = new THREE.LineBasicMaterial({ color: 0x5fd3c4, depthTest: false });
+  let puntosMedida = [];
+  function limpiarMedida() {
+    puntosMedida = [];
+    medida.children.forEach((h) => h.geometry && h.geometry.dispose());
+    medida.clear();
+    etqMedida.style.display = 'none';
+  }
+  function puntoEnPieza(x, y) {
+    const malla = pieza.children[0];
+    if (!malla) return null;
+    rayo.setFromCamera(new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1), camara);
+    const toque = rayo.intersectObject(malla, false).find((h) => h.point.z <= corte.constant + 0.01);
+    return toque ? toque.point.clone() : null;
+  }
+  function medirEn(x, y) {
+    const p = puntoEnPieza(x, y);
+    if (!p) { aviso('Toca sobre la pieza para medir.'); return; }
+    if (puntosMedida.length >= 2) limpiarMedida();
+    puntosMedida.push(p);
+    const radio = Math.max(caja.getSize(new THREE.Vector3()).length() / 180, 0.5);
+    const bola = new THREE.Mesh(new THREE.SphereGeometry(radio, 16, 12), matPunto);
+    bola.renderOrder = 10;
+    bola.position.copy(p);
+    medida.add(bola);
+    if (puntosMedida.length === 2) {
+      const [a, b] = puntosMedida;
+      const linea = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), matRegla);
+      linea.renderOrder = 10;
+      medida.add(linea);
+      const d = a.distanceTo(b);
+      etqMedida.textContent = `${fmt(d)} mm`;
+      aviso(`Distancia ${fmt(d)} mm  ·  X ${fmt(Math.abs(b.x - a.x))}  Y ${fmt(Math.abs(b.y - a.y))}  Z ${fmt(Math.abs(b.z - a.z))}`);
+    } else {
+      aviso('Ahora toca el segundo punto.');
+    }
+  }
+  // un clic con el mouse sobre la pieza también mide (si no fue para girar)
+  let abajo = null;
+  render.domElement.addEventListener('pointerdown', (e) => { if (st.visible && st.midiendo) abajo = [e.clientX, e.clientY]; });
+  render.domElement.addEventListener('pointerup', (e) => {
+    if (!abajo) return;
+    const quieto = Math.hypot(e.clientX - abajo[0], e.clientY - abajo[1]) < 5;
+    abajo = null;
+    if (quieto && st.visible && st.midiendo) medirEn(e.clientX, e.clientY);
+  });
+
+  const st = { midiendo: false, sugerencias: null, modelos: [], actual: null, analisis: null, catalogo: null, version: -1, voladizos: true,
                capa: 1, simulando: false, visible: false, ocupado: false, carpeta: '' };
 
   function colorear(geometria) {
@@ -173,9 +226,67 @@ export function crearTaller(ctx) {
         onclick: () => { st.voladizos = !st.voladizos; const m = pieza.children[0]; if (m) colorear(m.geometry); pintar(); } }),
       el('button', { class: 'btn', text: 'Orientar', title: 'Gira la pieza a la posición que necesita menos soportes', onclick: () => ordenar('orienta el modelo para imprimir') }),
       el('button', { class: 'btn', text: 'Espejo', title: 'Crea la pieza del otro lado', onclick: () => ordenar('espejo del modelo') }),
+      el('button', { class: 'btn' + (st.midiendo ? ' activo' : ''), text: st.midiendo ? 'Midiendo…' : 'Medir',
+        title: 'Toca dos puntos de la pieza (con el mouse o con la mano) y te digo la distancia',
+        onclick: () => { st.midiendo = !st.midiendo; limpiarMedida(); if (st.midiendo) aviso('Toca un punto de la pieza.'); pintar(); } }),
+      el('button', { class: 'btn', text: 'Editar en Construir', title: 'Ábrela en Construir para agregarle o quitarle partes', onclick: () => ctx.irA('construir', st.actual) }),
+      el('button', { class: 'btn', text: 'Editar en Modelar', title: 'Esculpirla o editar sus caras, estilo Blender', onclick: () => ctx.irA('modelar', st.actual) }),
       el('button', { class: 'btn', text: 'Descargar STL', onclick: descargar }),
       el('button', { class: 'btn peligro', text: 'Borrar', onclick: borrar })));
     return t;
+  }
+
+  function tarjetaArche() {
+    const t = el('div', { class: 'tarjeta arche-sugiere' }, el('h2', { text: 'Arché sugiere' }));
+    const datos = st.sugerencias;
+    if (!datos) { t.append(el('p', { class: 'tenue', text: 'Revisando la pieza…' })); return t; }
+    const lista = datos.sugerencias;
+    if (!lista.length) {
+      t.append(el('p', { class: 'tenue', text: 'No le cambiaría nada: está lista para imprimir.' }));
+      return t;
+    }
+    const primera = lista.find((x) => x.tipo === 'arreglo');
+    if (primera) t.append(el('p', { class: 'tenue pista', text: '👍 Pulgar arriba aplica el primer arreglo.' }));
+    for (const sug of lista) {
+      const fila = el('div', { class: 'sugerencia ' + sug.tipo },
+        el('div', { class: 'sug-cabeza' },
+          el('span', { class: 'sug-tipo', text: { arreglo: 'Arreglo', idea: 'Idea', consejo: 'En el slicer' }[sug.tipo] }),
+          el('b', { text: sug.titulo })),
+        el('p', { text: sug.por_que }));
+      if (sug.antes && sug.despues) {
+        fila.append(el('div', { class: 'sug-cambio' }, el('span', { text: sug.antes }), el('i', { text: '→' }), el('span', { text: sug.despues })));
+      }
+      if (sug.orden) {
+        fila.append(el('button', { class: 'btn sug-aplicar', text: sug.tipo === 'idea' ? 'Hacerlo' : 'Aplicar',
+          onclick: () => aplicarSugerencia(sug) }));
+      }
+      t.append(fila);
+    }
+    return t;
+  }
+
+  async function aplicarSugerencia(sug) {
+    if (!sug || !sug.orden || st.ocupado) return;
+    const previo = st.analisis, modeloPrevio = st.actual;
+    await enviar('/api/usar', { n: st.actual }).catch(() => {});
+    await ordenar(sug.orden);
+    // el antes y el después, medidos de nuevo (no lo que se esperaba: lo que de verdad quedó)
+    const ahora = st.analisis;
+    if (previo && ahora && st.actual === modeloPrevio) {
+      const r = $('#respuesta');
+      const dp = previo.dimensiones, da = ahora.dimensiones;
+      const filas = [
+        ['Medidas (mm)', `${fmt(dp[0])}×${fmt(dp[1])}×${fmt(dp[2])}`, `${fmt(da[0])}×${fmt(da[1])}×${fmt(da[2])}`],
+        ['Voladizo', `${fmt(previo.soporte_pct, 0)} %`, `${fmt(ahora.soporte_pct, 0)} %`],
+        ['Plástico', `${fmt(previo.gramos, 0)} g`, `${fmt(ahora.gramos, 0)} g`],
+        ['Tiempo', previo.tiempo, ahora.tiempo],
+        ['¿Cabe?', previo.cabe ? 'sí' : 'no', ahora.cabe ? 'sí' : 'no'],
+      ].filter(([, a, b]) => a !== b);
+      if (filas.length) {
+        r.append(document.createTextNode('\n\nAntes → después:'));
+        for (const [n, a, b] of filas) r.append(document.createTextNode(`\n  ${n}: ${a} → ${b}`));
+      }
+    }
   }
 
   function tarjetaCapas() {
@@ -206,6 +317,7 @@ export function crearTaller(ctx) {
         if (r.notas && r.notas.length) aviso('Ojo: ' + r.notas[0]);
         await cargarPieza(st.actual, false);
         st.analisis = await apiJson('/api/analisis?n=' + encodeURIComponent(st.actual));
+        st.sugerencias = await apiJson('/api/sugerencias?n=' + encodeURIComponent(st.actual)).catch(() => st.sugerencias);
         pintar();
       }, 160);
     };
@@ -240,6 +352,7 @@ export function crearTaller(ctx) {
     if (!st.modelos.length) { p.append(tarjetaVacia()); return; }
     p.append(tarjetaModelos());
     if (st.actual) {
+      p.append(tarjetaArche());
       p.append(tarjetaAnalisis());
       const medidas = tarjetaMedidas();
       if (medidas) p.append(medidas);
@@ -252,14 +365,17 @@ export function crearTaller(ctx) {
 
   // ---- acciones ----
   async function elegir(nombre, reencuadrar) {
+    if (nombre !== st.actual) limpiarMedida();
     st.actual = nombre;
     st.analisis = null;
+    st.sugerencias = null;
     st.simulando = false;
     pintar();
     try {
       enviar('/api/usar', { n: nombre }).catch(() => {});      // las órdenes («hazla más alta») van a este modelo
       await cargarPieza(nombre, reencuadrar);
       st.analisis = await apiJson('/api/analisis?n=' + encodeURIComponent(nombre));
+      st.sugerencias = await apiJson('/api/sugerencias?n=' + encodeURIComponent(nombre)).catch(() => ({ sugerencias: [] }));
     } catch (e) { aviso('No pude abrir ese modelo.'); }
     pintar();
   }
@@ -339,6 +455,11 @@ export function crearTaller(ctx) {
     const campo = $('#texto');
     const texto = campo.value;
     campo.value = '';
+    // en Construir, primero lo intenta Construir («agrega un cilindro», «deshaz»…); si no es suyo, va a Arché
+    if (document.body.dataset.vista === 'construir') {
+      const v = ctx.vistaActiva();
+      if (v && v.ordenEscrita && v.ordenEscrita(texto)) { $('#respuesta').classList.remove('ver'); return; }
+    }
     ordenar(texto);
   });
   for (const idea of IDEAS) $('#ideas').append(el('button', { type: 'button', text: idea, onclick: () => ordenar(idea) }));
@@ -356,6 +477,27 @@ export function crearTaller(ctx) {
   const pA = new THREE.Vector3();
   return {
     escena, camara, controles,
+    reencuadrar() { if (hayPieza) encuadrar(); },
+    mostrar(nombre) { refrescar(nombre).catch(() => {}); },
+    // con la mano: tocar mide (si «Medir» está encendido); deslizar cambia de pieza; pulgar aplica el arreglo
+    tocar(x, y) {
+      if (st.midiendo) medirEn(x, y);
+      else if (puntoEnPieza(x, y)) aviso('Para medir, toca «Medir» y luego dos puntos de la pieza.');
+    },
+    deslizar(dir) {
+      if (st.modelos.length < 2) { aviso('Solo hay una pieza.'); return true; }
+      const i = Math.max(0, st.modelos.findIndex((m) => m.nombre === st.actual));
+      const sig = st.modelos[(i + (dir === 'derecha' ? 1 : st.modelos.length - 1)) % st.modelos.length];
+      elegir(sig.nombre, true);
+      aviso(sig.nombre + '.stl');
+      return true;
+    },
+    aceptar() {
+      const sug = st.sugerencias && st.sugerencias.sugerencias.find((x) => x.tipo === 'arreglo');
+      if (!sug) { aviso('Esta pieza no necesita arreglos.'); return; }
+      aviso('Aplicando: ' + sug.titulo);
+      aplicarSugerencia(sug);
+    },
     entrar() {
       st.visible = true;
       controles.enabled = true;
@@ -377,6 +519,7 @@ export function crearTaller(ctx) {
         const siguiente = st.capa + dt / 7;
         if (siguiente >= 1) { st.simulando = false; ponerCapa(1); } else ponerCapa(siguiente);
       }
+      if (puntosMedida.length === 2) ctx.colocar(etqMedida, pA.copy(puntosMedida[0]).add(puntosMedida[1]).multiplyScalar(0.5), camara);
       if (hayPieza && st.actual) {
         const mn = caja.min, mx = caja.max;
         const d = [mx.x - mn.x, mx.y - mn.y, mx.z - mn.z];

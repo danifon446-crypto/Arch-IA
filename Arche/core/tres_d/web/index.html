@@ -15,12 +15,18 @@
   <div class="marca" title="Arché 3D"><span class="punto"></span></div>
   <button data-vista="taller" class="activo" title="Taller de modelos">
     <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><span>Taller</span></button>
+  <button data-vista="construir" title="Arma tu propia pieza">
+    <svg viewBox="0 0 24 24"><path d="M3 15l6-3 6 3-6 3z"/><path d="M3 15v4l6 3v-4M15 15v4l-6 3"/><path d="M12 4l6 3-6 3-6-3z"/><path d="M6 7v4M18 7v4l-3 1.5"/></svg><span>Construir</span></button>
+  <button data-vista="modelar" title="Modelar como en Blender">
+    <svg viewBox="0 0 24 24"><path d="M12 3c4 0 7 3 7 7 0 3-2 4-2 7H7c0-3-2-4-2-7 0-4 3-7 7-7z"/><path d="M9 20h6M10 13l2-3 2 3"/></svg><span>Modelar</span></button>
   <button data-vista="nucleo" title="El núcleo de Arché">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="4" ry="10"/></svg><span>Núcleo</span></button>
   <button data-vista="perro" title="El perro robot">
     <svg viewBox="0 0 24 24"><path d="M4 10h13l3-3v6l-2 1v6h-3v-5H9v5H6v-6l-2-1z"/></svg><span>Perro</span></button>
   <button data-vista="cerebro" title="El mapa de Arché">
     <svg viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="13" r="2.6"/><circle cx="6" cy="19" r="2.2"/><circle cx="19" cy="18" r="2.2"/><path d="M7.6 8.6l2.6 2.8M16.4 7.4l-2.8 3.8M10.2 14.8l-2.8 2.8M14.2 14.6l3.4 2.2"/></svg><span>Cerebro</span></button>
+  <button id="botonManos" class="manos-boton" title="Controlar con las manos (cámara)">
+    <svg viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5V4a1.5 1.5 0 0 1 3 0v7.5"/><path d="M14 11.5V5.5a1.5 1.5 0 0 1 3 0V14"/><path d="M8 12.5 6.8 11a1.6 1.6 0 0 0-2.5 2l3 4.3A6 6 0 0 0 12.2 20H13a5 5 0 0 0 5-5v-3.5a1.5 1.5 0 0 1 3 0"/></svg><span>Manos</span></button>
   <div class="estado-arche" id="estadoArche" title="Estado de Arché"><i></i><b>—</b></div>
 </nav>
 
@@ -41,6 +47,27 @@
   </form>
 </section>
 
+<section id="manos" hidden aria-label="Control con las manos">
+  <canvas id="manosVista" width="320" height="240"></canvas>
+  <div class="manos-pie"><i></i><span id="manosEstado">Encendiendo la cámara…</span>
+    <button id="manosCerrar" title="Apagar la cámara" aria-label="Apagar la cámara">✕</button></div>
+  <details class="manos-detalles"><summary>Ver los gestos</summary>
+  <ul class="manos-ayuda">
+    <li><b>Apunta</b> con el índice y <b>pellizca rápido</b>: tocar</li>
+    <li><b>Pellizca</b> y mueve: girar (sobre un deslizador: lo mueves)</li>
+    <li><b>Dos manos</b> pellizcando: separa para acercar</li>
+    <li><b>Mano abierta</b> de lado rápido: siguiente</li>
+    <li><b>Pulgar arriba</b>: aplicar lo que Arché recomienda</li>
+    <li><b>Palma abierta</b> quieta: volver al inicio</li>
+  </ul></details>
+  <button id="manosGuia" class="btn guia-boton">Aprender gestos</button>
+</section>
+<section id="guiaManos" hidden role="status" aria-live="polite">
+  <div class="guia-num"></div>
+  <div class="guia-texto"></div>
+  <div class="guia-puntos"></div>
+  <button id="guiaCerrar" title="Cerrar la guía" aria-label="Cerrar la guía">✕</button>
+</section>
 <div id="soltar">Suelta el archivo .stl u .obj para abrirlo</div>
 <div id="aviso" role="alert"></div>
 <div id="sinllave" hidden>

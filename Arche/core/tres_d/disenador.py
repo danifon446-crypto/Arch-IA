@@ -107,6 +107,27 @@ def guardar(nombre, malla, receta):
     return nombre
 
 
+def _ruta_escena(nombre):
+    return os.path.join(carpeta(), _limpio(nombre) + ".escena.json")
+
+
+def guardar_escena(nombre, escena):
+    """La escena de Modelar (objetos, mallas, modificadores) para volver a editarla."""
+    temporal = _ruta_escena(nombre) + ".tmp"
+    with open(temporal, "w", encoding="utf-8") as f:
+        json.dump(escena, f, separators=(",", ":"))
+    os.replace(temporal, _ruta_escena(nombre))
+
+
+def leer_escena(nombre):
+    try:
+        with open(_ruta_escena(nombre), "r", encoding="utf-8") as f:
+            datos = json.load(f)
+            return datos if isinstance(datos, dict) else None
+    except (OSError, ValueError):
+        return None
+
+
 def borrar(nombre):
     """No borra: lo pasa a Modelos3D/_papelera (por si te arrepientes)."""
     if not existe(nombre):
@@ -114,7 +135,7 @@ def borrar(nombre):
     papelera = os.path.join(carpeta(), "_papelera")
     os.makedirs(papelera, exist_ok=True)
     sello = time.strftime("%Y%m%d_%H%M%S")
-    for ruta in (ruta_stl(nombre), _ruta_receta(nombre)):
+    for ruta in (ruta_stl(nombre), _ruta_receta(nombre), _ruta_escena(nombre)):
         if os.path.exists(ruta):
             shutil.move(ruta, os.path.join(papelera, f"{sello}_{os.path.basename(ruta)}"))
     if _estado["ultimo"] == _limpio(nombre):

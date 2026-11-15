@@ -240,6 +240,7 @@ export function crearCerebro(ctx) {
       }
     },
     salir() { st.visible = false; controles.enabled = false; render.domElement.style.cursor = ''; },
+    tocar(x, y) { if (st.datos) elegir(nodoBajo({ clientX: x, clientY: y })); },
     actualizar() {
       if (!st.datos) return;
       const visibles = new Set();
