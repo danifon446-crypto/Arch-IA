@@ -229,74 +229,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "equilibrada",
-    "web_esfera": "grande",
-    "web_luz": 60,
-    "web_inicio": "inicio",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "suave",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "comoda",
-    "web_ancho": 1180,
-    "web_fuente": "sistema",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "redondeadas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -568,74 +501,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "completa",
-    "web_esfera": "pequena",
-    "web_luz": 30,
-    "web_inicio": "inicio",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "contorno",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "compacta",
-    "web_ancho": 1180,
-    "web_fuente": "cascadia",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "cuadradas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -922,74 +788,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "completa",
-    "web_esfera": "grande",
-    "web_luz": 35,
-    "web_inicio": "inicio",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "contorno",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "compacta",
-    "web_ancho": 1180,
-    "web_fuente": "sistema",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "redondeadas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -1246,74 +1045,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "equilibrada",
-    "web_esfera": "pequena",
-    "web_luz": 60,
-    "web_inicio": "hoy",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "suave",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "comoda",
-    "web_ancho": 1180,
-    "web_fuente": "sistema",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "redondeadas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -1480,74 +1212,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "minima",
-    "web_esfera": "grande",
-    "web_luz": 40,
-    "web_inicio": "inicio",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "plana",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "amplia",
-    "web_ancho": 1180,
-    "web_fuente": "sistema",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "redondeadas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -1714,74 +1379,7 @@
     "rend_sugerir": true,
     "ctx_progreso": false,
     "ctx_resultados": false,
-    "ctx_reposo": false,
-    "web_info": "minima",
-    "web_esfera": "grande",
-    "web_luz": 45,
-    "web_inicio": "inicio",
-    "web_acento": "",
-    "web_acento_2": "",
-    "web_degradado": "ninguno",
-    "web_superficie": "plana",
-    "web_radio": 20,
-    "web_vidrio": 14,
-    "web_desenfoque": 14,
-    "web_densidad": "comoda",
-    "web_ancho": 1180,
-    "web_fuente": "sistema",
-    "web_titulos": "normal",
-    "web_peso": "fino",
-    "web_reloj_24h": false,
-    "web_segundos": false,
-    "web_lateral_compacta": true,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "libre",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "agrupados",
-    "web_burbujas": "redondeadas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": false
    },
    "integrado": true
   },
@@ -2057,74 +1655,7 @@
     "rend_sugerir": true,
     "ctx_progreso": true,
     "ctx_resultados": true,
-    "ctx_reposo": true,
-    "web_info": "completa",
-    "web_esfera": "pequena",
-    "web_luz": 35,
-    "web_inicio": "inicio",
-    "web_acento": "#f43f5e",
-    "web_acento_2": "#fb923c",
-    "web_degradado": "ninguno",
-    "web_superficie": "contorno",
-    "web_radio": 23,
-    "web_vidrio": 10,
-    "web_desenfoque": 14,
-    "web_densidad": "compacta",
-    "web_ancho": 1800,
-    "web_fuente": "georgia",
-    "web_titulos": "normal",
-    "web_peso": "normal",
-    "web_reloj_24h": true,
-    "web_segundos": true,
-    "web_lateral_compacta": false,
-    "web_lateral_lado": "izquierda",
-    "web_lateral_contadores": true,
-    "web_secciones": [
-     {
-      "id": "inicio",
-      "ver": true
-     },
-     {
-      "id": "hoy",
-      "ver": true
-     },
-     {
-      "id": "equipo",
-      "ver": true
-     },
-     {
-      "id": "mente",
-      "ver": true
-     },
-     {
-      "id": "ajustes",
-      "ver": true
-     }
-    ],
-    "web_saludo": "",
-    "web_v_clima": true,
-    "web_v_recordatorio": true,
-    "web_v_pendientes": true,
-    "web_v_pomodoro": true,
-    "web_v_equipo": true,
-    "web_botones_dock": true,
-    "web_sugerencias": true,
-    "web_chat_diseno": "panel",
-    "web_ondas_chat": "siempre",
-    "web_avisos_fondo": "ocultos",
-    "web_burbujas": "cuadradas",
-    "web_avatar": true,
-    "web_entendi": true,
-    "web_enter_envia": true,
-    "web_sonido_envio": false,
-    "web_aviso_respuesta": true,
-    "web_clima": true,
-    "web_noticias": true,
-    "web_hoy_pestanas": [],
-    "web_pomodoro_min": 25,
-    "web_descanso_min": 5,
-    "web_pomodoro_sonido": true,
-    "web_pomodoro_arche": false
+    "ctx_reposo": true
    },
    "integrado": true
   }
