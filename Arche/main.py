@@ -52,8 +52,6 @@ from core.IA import catalogo
 from core.IA import entrenador_masivo
 from core.IA import enrutador_natural
 from core import agente as agente_arche          # agente autónomo (Minecraft y más entornos)
-from core import tres_d as tres_d_arche            # Arché 3D: piezas a medida, análisis para imprimir y taller
-from core import multitarea as multitarea_arche    # varias herramientas a la vez (tareas de fondo)
 from core import canales as canales_arche            # mensajes por consola y por otros canales
 from core import whatsapp as whatsapp_arche          # Arché por WhatsApp
 from core import memoria_nube as memoria_nube_arche  # memoria en la nube (Supabase) + turnos sin PC
@@ -415,1002 +413,946 @@ if obtener("autorevision_automatica"):
 _cola_comandos_naturales = []
 
 canales_arche.instalar()                 # a partir de aquí input() recibe consola y WhatsApp
-
-# MULTITAREA (core/multitarea.py): las mismas herramientas del bucle, en el mismo
-# orden, para poder correrlas de fondo y varias a la vez.
-multitarea_arche.configurar([
-    ("mapa mental", mapa_mental_arche.manejar),
-    ("3d", tres_d_arche.manejar),
-    ("seguridad", seguridad_arche.manejar),
-    ("agente", agente_arche.manejar),
-    ("perro robot", manejar_robot),
-    ("memoria nube", memoria_nube_arche.manejar),
-    ("modelo nuevo", modelo_nuevo_arche.manejar),
-    ("mejora continua", mejora_arche.manejar),
-    ("pendientes", pendientes_arche.manejar),
-    ("autonomia", autonomia_arche.manejar),
-    ("voz", voz_arche.manejar),
-    ("alarmas", alarmas_arche.manejar),
-    ("rutinas", rutinas_arche.manejar),
-    ("pc avanzado", pc_avanzado.manejar),
-    ("interfaz", interfaz_arche.manejar),
-    ("internet y nube", cerebro_nube.manejar),
-    ("aprender de la nube", aprender_de_nube.manejar),
-    ("red de aprendizaje", red_arche.manejar),
-    ("github", git_arche.manejar),
-    ("control del pc", acciones_pc.manejar),
-    ("comandos extra", comandos_extra.manejar),
-])
 whatsapp_arche.arrancar_si_corresponde()
 red_arche.iniciar()
 memoria_nube_arche.iniciar()
 modelo_nuevo_arche.iniciar()             # revisa si la nube entrenó un arche-lora nuevo y lo examina             # sube/baja lo aprendido a tu Supabase en segundo plano                      # sincroniza con la red de aprendizaje en segundo plano
 
-# BLINDAJE: una orden que falla ya no cierra a Arché (ver aplicar_parche_blindaje.py)
-_errores_seguidos = []
-
 while True:
-    try:
 
-        if _cola_comandos_naturales:
-            comando_original = _cola_comandos_naturales.pop(0)
+    if _cola_comandos_naturales:
+        comando_original = _cola_comandos_naturales.pop(0)
+    else:
+        comando_original = input("\nTú: ").strip()
+    comando = comando_original.lower()
+
+    if not comando:
+        continue
+
+    # VARIOS PASOS: "abre chrome y luego busca gatos en youtube" -> se parte en
+    # pasos y se encolan (con una pausa entre cada uno) para que el bucle los
+    # procese como si los hubieras escrito uno por uno.
+    # (una rutina se define con varias órdenes adentro: no se parte al crearla)
+    _pasos = [] if re.match(r"^(crea|agrega|guarda|arma)\b.*\brutina\b", comando) \
+        else acciones_pc.dividir_pasos(comando_original)
+    if len(_pasos) > 1:
+        _encolar = []
+        for _i, _paso in enumerate(_pasos):
+            if _i:
+                _encolar.append("espera 2")
+            _encolar.append(_paso)
+        _cola_comandos_naturales[0:0] = _encolar
+        print(f"Arché: Entendido, son {len(_pasos)} pasos. Voy uno por uno.")
+        continue
+
+    # ------------------------------------------------------------------
+    # COMANDOS DETERMINÍSTICOS: se revisan PRIMERO, sin pasar por el
+    # clasificador de IA. Son comparaciones de texto directas, instantáneas.
+    # Si alguno coincide, se maneja aquí y se salta el resto del ciclo con
+    # "continue" -> nunca se llama a analizar()/Ollama para estos casos.
+    # ------------------------------------------------------------------
+
+    # MAPA MENTAL y CANAL DE WHATSAPP: los hace Arché de verdad, no la nube.
+    if mapa_mental_arche.manejar(comando_original):
+        continue
+    if whatsapp_arche.manejar(comando_original):
+        continue
+    if seguridad_arche.manejar(comando_original):   # "estado de seguridad", "bitácora de seguridad"
+        continue
+
+    # AGENTE AUTÓNOMO (core/agente): "en minecraft consigue madera", "agente para", "agente ayuda".
+    if agente_arche.manejar(comando_original):
+        continue
+
+    if comando in ["adiós", "adios", "salir"]:
+        responder_conversacion("adios")
+        detener_robot()   # el perro se queda quieto y se apaga el modo perro
+        agente_arche.detener_todo()   # el agente se detiene y se cierra Minecraft
+        if banco_pruebas is not None and banco_pruebas._banco is not None:
+            banco_pruebas._banco.cerrar()   # banco en paro y vigilante apagado
+        break
+
+    # CONFIGURACIÓN
+
+    if comando in [
+        "configuración",
+        "configuracion",
+        "mostrar configuración",
+        "mostrar configuracion"
+    ]:
+        mostrar()
+        continue
+
+    if comando == "cambiar mi nombre":
+        nuevo = input("Arché: ¿Cómo quieres que te llame?\nTú: ").strip()
+        if nuevo:
+            cambiar("nombre_usuario", nuevo)
+            hablar(f"De acuerdo, ahora te llamaré {nuevo}.")
+        continue
+
+    if comando == "cambiar tu nombre":
+        nuevo = input("Arché: ¿Cómo quieres llamarme?\nTú: ").strip()
+        if nuevo:
+            cambiar("nombre_asistente", nuevo)
+            hablar(f"Ahora mi nombre es {nuevo}.")
+        continue
+
+    if comando in ["restablecer configuración", "restablecer configuracion"]:
+        restaurar()
+        hablar("Configuración restablecida.")
+        continue
+
+    # AYUDA
+    # Determinística, igual que notas/calculadora: no depende de que el
+    # clasificador de IA identifique la intención correctamente. Antes
+    # "ayuda" y "qué hace X" solo se reconocían vía intencion=="ayuda"/
+    # "ayuda_categoria" en analizar() -- si Ollama clasificaba mal (le
+    # pasó con "modificar_codigo"), terminaba proponiendo cambios de
+    # código sobre algo que no tenía nada que ver.
+
+    if comando == "ayuda":
+        ayuda()
+        continue
+
+    if comando.startswith("qué hace") or comando.startswith("que hace"):
+        categoria = comando.replace("qué hace", "", 1).replace("que hace", "", 1)
+        categoria = categoria.replace("¿", "").replace("?", "").strip()
+        ayuda(categoria)
+        continue
+
+    # NOTAS
+
+    if comando.startswith("crea una nota"):
+        nombre_nota = comando.replace("crea una nota", "", 1).strip()
+        if nombre_nota:
+            crear_nota(nombre_nota)
         else:
-            comando_original = input("\nTú: ").strip()
-        comando = comando_original.lower()
+            print("Arché: ¿Cómo quieres llamar la nota?")
+        continue
 
-        if not comando:
+    if comando.startswith("lee la nota"):
+        nombre_nota = comando.replace("lee la nota", "", 1).strip()
+        if nombre_nota:
+            leer_nota(nombre_nota)
+        else:
+            print("Arché: ¿Qué nota quieres leer?")
+        continue
+
+    if comando.startswith("abre la nota"):
+        nombre_nota = comando.replace("abre la nota", "", 1).strip()
+        if nombre_nota:
+            abrir_nota(nombre_nota)
+        else:
+            print("Arché: ¿Qué nota quieres abrir?")
+        continue
+
+    if comando.startswith("agrega a"):
+        nombre_nota = comando.replace("agrega a", "", 1).strip()
+        if nombre_nota:
+            agregar_nota(nombre_nota)
+        else:
+            print("Arché: ¿A qué nota quieres agregar texto?")
+        continue
+
+    if comando.startswith("elimina la nota"):
+        nombre_nota = comando.replace("elimina la nota", "", 1).strip()
+        if nombre_nota:
+            eliminar_nota(nombre_nota)
+        else:
+            print("Arché: ¿Qué nota quieres eliminar?")
+        continue
+
+    if comando in ["mis notas", "listar notas"]:
+        listar_notas()
+        continue
+
+    # ARCHIVOS
+
+    if comando == "actualizar archivos":
+        actualizar_indice()
+        continue
+
+    if comando.startswith("busca archivo"):
+        nombre = comando.replace("busca archivo", "", 1).strip()
+        mostrar_resultados(buscar(nombre), se_buscó_en_indice_vacío=indice_vacio())
+        continue
+
+    if comando.startswith("abre archivo"):
+        nombre = comando.replace("abre archivo", "", 1).strip()
+        buscar_y_abrir(nombre)
+        continue
+
+    # CONTROL DEL PC: búsqueda directa en un sitio ("busca gatos en youtube",
+    # "busca recetas en claude"), qué hay abierto, y qué navegador usar.
+    # Va ANTES del clasificador: son comparaciones directas, instantáneas.
+    # Solo reconoce la búsqueda si nombra un sitio conocido; si no
+    # ("busca inteligencia artificial"), sigue el flujo de siempre.
+
+    # "pon another love en spotify" / "reproduce X en youtube": que SUENE (y reutiliza la pestaña abierta)
+    _reproduccion = control_pc.interpretar_reproduccion(comando_original)
+    if _reproduccion:
+        from core import medios
+        medios.reproducir(*_reproduccion)
+        control_pc.aprender_de_uso(comando_original, f"{_reproduccion[1]} en {_reproduccion[0]}")
+        continue
+
+    _busqueda_en_sitio = control_pc.interpretar_busqueda(comando_original)
+    if _busqueda_en_sitio:
+        control_pc.buscar_en_sitio(*_busqueda_en_sitio)
+        # refuerzo: esta frase queda como ejemplo para las redes (en segundo plano)
+        control_pc.aprender_de_uso(comando_original, f"{_busqueda_en_sitio[1]} en {_busqueda_en_sitio[0]}")
+        continue
+
+    if comando.startswith("aprende buscar en "):
+        control_pc.ensenar_sitio_busqueda(comando.replace("aprende buscar en ", "", 1))
+        continue
+
+    if comando in ["que tengo abierto", "qué tengo abierto", "que navegadores tengo", "qué navegadores tengo",
+                   "que hay abierto", "qué hay abierto", "estado del pc", "estado de mi pc",
+                   "que navegador tengo abierto", "qué navegador tengo abierto"]:
+        print("Arché: " + control_pc.resumen_del_pc())
+        acciones_pc.imprimir_ventanas()
+        continue
+
+    _preferencia_navegador = control_pc.interpretar_preferencia(comando_original)
+    if _preferencia_navegador:
+        _accion, _nav = _preferencia_navegador
+        if _accion == "preguntar":
+            control_pc.fijar_navegador_preferido(None)
+            print("Arché: Listo, cuando haya más de un navegador te voy a preguntar en cuál.")
+        else:
+            _ok, _mensaje = control_pc.fijar_navegador(_nav)
+            print(f"Arché: {_mensaje}")
+        continue
+
+    # BANCO DE PRUEBAS: "banco de pruebas", "estado del banco de pruebas", "para el banco de pruebas".
+    # Va antes del perro porque la parada de emergencia debe poner el banco en paro y seguir al robot.
+    if banco_pruebas is not None:
+        try:
+            _respuesta_banco = banco_pruebas.manejar(comando_original)
+        except Exception as _e:
+            _respuesta_banco = f"El banco de pruebas fallo: {_e}"
+        if _respuesta_banco is not None:
+            print(f"Arché: {_respuesta_banco}")
             continue
 
-        # MULTITAREA: "en segundo plano ...", "a la vez X y Y", "tareas", "para la tarea 2".
-        # Va antes de partir en pasos: "a la vez X y Y" es en paralelo, no uno tras otro.
-        if multitarea_arche.manejar(comando_original):
-            continue
+    # PERRO ROBOTICO (Perro_robotico/acciones_robot.py): "mueve la cola", "sientate",
+    # "activa el modo perro", "mueve el servo 2 a 90", "parada de emergencia".
+    # Devuelve el texto de la respuesta, o None si la frase no es del perro.
+    _respuesta_robot = manejar_robot(comando_original)
+    if _respuesta_robot is not None:
+        print(f"Arché: {_respuesta_robot}")
+        continue
 
-        # VARIOS PASOS: "abre chrome y luego busca gatos en youtube" -> se parte en
-        # pasos y se encolan (con una pausa entre cada uno) para que el bucle los
-        # procese como si los hubieras escrito uno por uno.
-        # (una rutina se define con varias órdenes adentro: no se parte al crearla)
-        _pasos = [] if re.match(r"^(crea|agrega|guarda|arma)\b.*\brutina\b", comando) \
-            else acciones_pc.dividir_pasos(comando_original)
-        if len(_pasos) > 1:
-            _encolar = []
-            for _i, _paso in enumerate(_pasos):
-                if _i:
-                    _encolar.append("espera 2")
-                _encolar.append(_paso)
-            _cola_comandos_naturales[0:0] = _encolar
-            print(f"Arché: Entendido, son {len(_pasos)} pasos. Voy uno por uno.")
-            continue
-
-        # ------------------------------------------------------------------
-        # COMANDOS DETERMINÍSTICOS: se revisan PRIMERO, sin pasar por el
-        # clasificador de IA. Son comparaciones de texto directas, instantáneas.
-        # Si alguno coincide, se maneja aquí y se salta el resto del ciclo con
-        # "continue" -> nunca se llama a analizar()/Ollama para estos casos.
-        # ------------------------------------------------------------------
-
-        # MAPA MENTAL y CANAL DE WHATSAPP: los hace Arché de verdad, no la nube.
-        # ARCHÉ 3D (core/tres_d): "crea una caja de 80x50x30 con tapa", "analiza el modelo", "abre el taller 3d".
-        if tres_d_arche.manejar(comando_original):
-            continue
-        if mapa_mental_arche.manejar(comando_original):
-            continue
-        if whatsapp_arche.manejar(comando_original):
-            continue
-        if seguridad_arche.manejar(comando_original):   # "estado de seguridad", "bitácora de seguridad"
-            continue
-
-        # AGENTE AUTÓNOMO (core/agente): "en minecraft consigue madera", "agente para", "agente ayuda".
-        if agente_arche.manejar(comando_original):
-            continue
-
-        if comando in ["adiós", "adios", "salir"]:
-            responder_conversacion("adios")
-            detener_robot()   # el perro se queda quieto y se apaga el modo perro
-            tres_d_arche.detener_todo()       # se cierra el taller 3D
-            multitarea_arche.detener_todo()   # las tareas de fondo paran
-            agente_arche.detener_todo()   # el agente se detiene y se cierra Minecraft
-            if banco_pruebas is not None and banco_pruebas._banco is not None:
-                banco_pruebas._banco.cerrar()   # banco en paro y vigilante apagado
-            break
-
-        # CONFIGURACIÓN
-
-        if comando in [
-            "configuración",
-            "configuracion",
-            "mostrar configuración",
-            "mostrar configuracion"
-        ]:
-            mostrar()
-            continue
-
-        if comando == "cambiar mi nombre":
-            nuevo = input("Arché: ¿Cómo quieres que te llame?\nTú: ").strip()
-            if nuevo:
-                cambiar("nombre_usuario", nuevo)
-                hablar(f"De acuerdo, ahora te llamaré {nuevo}.")
-            continue
-
-        if comando == "cambiar tu nombre":
-            nuevo = input("Arché: ¿Cómo quieres llamarme?\nTú: ").strip()
-            if nuevo:
-                cambiar("nombre_asistente", nuevo)
-                hablar(f"Ahora mi nombre es {nuevo}.")
-            continue
-
-        if comando in ["restablecer configuración", "restablecer configuracion"]:
-            restaurar()
-            hablar("Configuración restablecida.")
-            continue
-
-        # AYUDA
-        # Determinística, igual que notas/calculadora: no depende de que el
-        # clasificador de IA identifique la intención correctamente. Antes
-        # "ayuda" y "qué hace X" solo se reconocían vía intencion=="ayuda"/
-        # "ayuda_categoria" en analizar() -- si Ollama clasificaba mal (le
-        # pasó con "modificar_codigo"), terminaba proponiendo cambios de
-        # código sobre algo que no tenía nada que ver.
-
-        if comando == "ayuda":
-            ayuda()
-            continue
-
-        if comando.startswith("qué hace") or comando.startswith("que hace"):
-            categoria = comando.replace("qué hace", "", 1).replace("que hace", "", 1)
-            categoria = categoria.replace("¿", "").replace("?", "").strip()
-            ayuda(categoria)
-            continue
-
-        # NOTAS
-
-        if comando.startswith("crea una nota"):
-            nombre_nota = comando.replace("crea una nota", "", 1).strip()
-            if nombre_nota:
-                crear_nota(nombre_nota)
-            else:
-                print("Arché: ¿Cómo quieres llamar la nota?")
-            continue
-
-        if comando.startswith("lee la nota"):
-            nombre_nota = comando.replace("lee la nota", "", 1).strip()
-            if nombre_nota:
-                leer_nota(nombre_nota)
-            else:
-                print("Arché: ¿Qué nota quieres leer?")
-            continue
-
-        if comando.startswith("abre la nota"):
-            nombre_nota = comando.replace("abre la nota", "", 1).strip()
-            if nombre_nota:
-                abrir_nota(nombre_nota)
-            else:
-                print("Arché: ¿Qué nota quieres abrir?")
-            continue
-
-        if comando.startswith("agrega a"):
-            nombre_nota = comando.replace("agrega a", "", 1).strip()
-            if nombre_nota:
-                agregar_nota(nombre_nota)
-            else:
-                print("Arché: ¿A qué nota quieres agregar texto?")
-            continue
-
-        if comando.startswith("elimina la nota"):
-            nombre_nota = comando.replace("elimina la nota", "", 1).strip()
-            if nombre_nota:
-                eliminar_nota(nombre_nota)
-            else:
-                print("Arché: ¿Qué nota quieres eliminar?")
-            continue
-
-        if comando in ["mis notas", "listar notas"]:
-            listar_notas()
-            continue
-
-        # ARCHIVOS
-
-        if comando == "actualizar archivos":
-            actualizar_indice()
-            continue
-
-        if comando.startswith("busca archivo"):
-            nombre = comando.replace("busca archivo", "", 1).strip()
-            mostrar_resultados(buscar(nombre), se_buscó_en_indice_vacío=indice_vacio())
-            continue
-
-        if comando.startswith("abre archivo"):
-            nombre = comando.replace("abre archivo", "", 1).strip()
-            buscar_y_abrir(nombre)
-            continue
-
-        # CONTROL DEL PC: búsqueda directa en un sitio ("busca gatos en youtube",
-        # "busca recetas en claude"), qué hay abierto, y qué navegador usar.
-        # Va ANTES del clasificador: son comparaciones directas, instantáneas.
-        # Solo reconoce la búsqueda si nombra un sitio conocido; si no
-        # ("busca inteligencia artificial"), sigue el flujo de siempre.
-
-        # "pon another love en spotify" / "reproduce X en youtube": que SUENE (y reutiliza la pestaña abierta)
-        _reproduccion = control_pc.interpretar_reproduccion(comando_original)
-        if _reproduccion:
-            from core import medios
-            medios.reproducir(*_reproduccion)
-            control_pc.aprender_de_uso(comando_original, f"{_reproduccion[1]} en {_reproduccion[0]}")
-            continue
-
-        _busqueda_en_sitio = control_pc.interpretar_busqueda(comando_original)
-        if _busqueda_en_sitio:
-            control_pc.buscar_en_sitio(*_busqueda_en_sitio)
-            # refuerzo: esta frase queda como ejemplo para las redes (en segundo plano)
-            control_pc.aprender_de_uso(comando_original, f"{_busqueda_en_sitio[1]} en {_busqueda_en_sitio[0]}")
-            continue
-
-        if comando.startswith("aprende buscar en "):
-            control_pc.ensenar_sitio_busqueda(comando.replace("aprende buscar en ", "", 1))
-            continue
-
-        if comando in ["que tengo abierto", "qué tengo abierto", "que navegadores tengo", "qué navegadores tengo",
-                       "que hay abierto", "qué hay abierto", "estado del pc", "estado de mi pc",
-                       "que navegador tengo abierto", "qué navegador tengo abierto"]:
-            print("Arché: " + control_pc.resumen_del_pc())
-            acciones_pc.imprimir_ventanas()
-            continue
-
-        _preferencia_navegador = control_pc.interpretar_preferencia(comando_original)
-        if _preferencia_navegador:
-            _accion, _nav = _preferencia_navegador
-            if _accion == "preguntar":
-                control_pc.fijar_navegador_preferido(None)
-                print("Arché: Listo, cuando haya más de un navegador te voy a preguntar en cuál.")
-            else:
-                _ok, _mensaje = control_pc.fijar_navegador(_nav)
-                print(f"Arché: {_mensaje}")
-            continue
-
-        # BANCO DE PRUEBAS: "banco de pruebas", "estado del banco de pruebas", "para el banco de pruebas".
-        # Va antes del perro porque la parada de emergencia debe poner el banco en paro y seguir al robot.
-        if banco_pruebas is not None:
-            try:
-                _respuesta_banco = banco_pruebas.manejar(comando_original)
-            except Exception as _e:
-                _respuesta_banco = f"El banco de pruebas fallo: {_e}"
-            if _respuesta_banco is not None:
-                print(f"Arché: {_respuesta_banco}")
-                continue
-
-        # PERRO ROBOTICO (Perro_robotico/acciones_robot.py): "mueve la cola", "sientate",
-        # "activa el modo perro", "mueve el servo 2 a 90", "parada de emergencia".
-        # Devuelve el texto de la respuesta, o None si la frase no es del perro.
-        _respuesta_robot = manejar_robot(comando_original)
-        if _respuesta_robot is not None:
-            print(f"Arché: {_respuesta_robot}")
-            continue
-
-        # VOZ, ALARMAS, RUTINAS, MANTENIMIENTO DEL PC e INTERNET/NUBE. Cada módulo
-        # devuelve None si la frase no es suya, así que todo sigue como siempre.
-        _resultado_modulo = None
-        autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
-        mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
-        for _modulo in (evolucion_arche, memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche, git_arche):
-            _resultado_modulo = _modulo.manejar(comando_original)
-            if _resultado_modulo:
-                break
+    # VOZ, ALARMAS, RUTINAS, MANTENIMIENTO DEL PC e INTERNET/NUBE. Cada módulo
+    # devuelve None si la frase no es suya, así que todo sigue como siempre.
+    _resultado_modulo = None
+    autonomia_arche.registrar(comando_original)      # anota ordenes seguras repetidas (habitos)
+    mejora_arche.latido()                            # mientras hablas, no se pone a mejorar
+    for _modulo in (evolucion_arche, memoria_nube_arche, modelo_nuevo_arche, mejora_arche, pendientes_arche, autonomia_arche, voz_arche, alarmas_arche, rutinas_arche, pc_avanzado, interfaz_arche, cerebro_nube, aprender_de_nube, red_arche, git_arche):
+        _resultado_modulo = _modulo.manejar(comando_original)
         if _resultado_modulo:
-            _intencion_m, _contenido_m = _resultado_modulo
-            if _intencion_m == "ejecutar_rutina" and isinstance(_contenido_m, dict) and _contenido_m.get("pasos"):
-                # los pasos entran a la misma cola que "abre chrome y luego ...",
-                # así cada uno pasa por sus confirmaciones de siempre
-                _cola_comandos_naturales[0:0] = rutinas_arche.pasos_con_pausas(_contenido_m["pasos"])
-            elif _intencion_m in catalogo.POR_ID:
-                # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
-                control_pc.aprender_de_uso(comando_original, _contenido_m if isinstance(_contenido_m, str) else "", _intencion_m)
-            continue
+            break
+    if _resultado_modulo:
+        _intencion_m, _contenido_m = _resultado_modulo
+        if _intencion_m == "ejecutar_rutina" and isinstance(_contenido_m, dict) and _contenido_m.get("pasos"):
+            # los pasos entran a la misma cola que "abre chrome y luego ...",
+            # así cada uno pasa por sus confirmaciones de siempre
+            _cola_comandos_naturales[0:0] = rutinas_arche.pasos_con_pausas(_contenido_m["pasos"])
+        elif _intencion_m in catalogo.POR_ID:
+            # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
+            control_pc.aprender_de_uso(comando_original, _contenido_m if isinstance(_contenido_m, str) else "", _intencion_m)
+        continue
 
-        # CONTROL DEL PC (core/acciones_pc.py): ventanas, volumen, brillo, teclado
-        # y mouse, captura, bloqueo/apagado, portapapeles, carpetas. Si no es una
-        # acción del PC devuelve None y todo sigue como siempre.
-        _accion_pc = acciones_pc.manejar(comando_original)
-        if _accion_pc:
-            if _accion_pc[0] in catalogo.POR_ID:
-                # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
-                control_pc.aprender_de_uso(comando_original, _accion_pc[1], _accion_pc[0])
-            continue
+    # CONTROL DEL PC (core/acciones_pc.py): ventanas, volumen, brillo, teclado
+    # y mouse, captura, bloqueo/apagado, portapapeles, carpetas. Si no es una
+    # acción del PC devuelve None y todo sigue como siempre.
+    _accion_pc = acciones_pc.manejar(comando_original)
+    if _accion_pc:
+        if _accion_pc[0] in catalogo.POR_ID:
+            # refuerzo: la frase queda como ejemplo para las redes (en segundo plano)
+            control_pc.aprender_de_uso(comando_original, _accion_pc[1], _accion_pc[0])
+        continue
 
-        # CALCULADORA
+    # CALCULADORA
 
-        if comando.startswith("calcula"):
-            operacion = comando.replace("calcula", "", 1).strip()
-            if operacion:
-                calcular(operacion)
+    if comando.startswith("calcula"):
+        operacion = comando.replace("calcula", "", 1).strip()
+        if operacion:
+            calcular(operacion)
+        else:
+            print("Arché: ¿Qué operación quieres calcular?")
+        continue
+
+    if comando.startswith("cuanto es"):
+        operacion = comando.replace("cuanto es", "", 1).strip()
+        if operacion:
+            calcular(operacion)
+        else:
+            print("Arché: ¿Qué operación quieres calcular?")
+        continue
+
+    if comando.startswith("cuánto es"):
+        operacion = comando.replace("cuánto es", "", 1).strip()
+        if operacion:
+            calcular(operacion)
+        else:
+            print("Arché: ¿Qué operación quieres calcular?")
+        continue
+
+    if comando in ["historial calculos", "historial cálculos"]:
+        historial()
+        continue
+
+    # RED NEURONAL / CLASIFICADOR
+
+    if comando in ["estado red", "estado de la red", "estado del clasificador", "estado clasificador"]:
+        _mostrar_estado_red()
+        continue
+
+    # TELEMETRÍA
+
+    if comando in ["estadisticas", "estadísticas", "telemetria", "telemetría"]:
+        _mostrar_estadisticas()
+        continue
+
+    # ESTADO DEL SISTEMA
+    # Estas funciones ya existían en core/sistema.py y core/utilidades.py
+    # pero ningún comando las llamaba. _decir() muestra el texto si la
+    # función lo devuelve, y no repite nada si ya lo imprimió ella misma.
+
+    if comando in ["estado del sistema", "estado sistema", "como esta el sistema", "cómo está el sistema",
+                   "como esta mi pc", "cómo está mi pc"]:
+        _decir(hablar_estado_sistema())
+        continue
+
+    if comando in ["procesos que mas consumen", "procesos que más consumen", "que consume mas", "qué consume más"]:
+        _decir(hablar_procesos_que_mas_consumen())
+        continue
+
+    if comando in ["espacio libre", "espacio en disco", "espacio disponible", "cuanto espacio libre tengo",
+                   "cuánto espacio libre tengo"]:
+        from core.utilidades import espacio_disponible
+        print(f"Arché: Te queda {espacio_disponible():.1f}% del disco libre.")
+        continue
+
+    # LIMPIEZA AUTOMÁTICA
+
+    if comando in ["limpiar automatico", "limpiar automático", "limpieza automatica", "limpieza automática"]:
+        from core.IA.limpieza_auto import limpiar_automatico
+        resultado = limpiar_automatico(simular=False)
+        if resultado["borrados"] == 0:
+            print("Arché: No encontré contaminación obvia para limpiar.")
+        else:
+            print(f"Arché: Limpié {resultado['borrados']} entradas contaminadas (backup guardado).")
+            for d in resultado["detalle"]:
+                print(f"  • '{d['pregunta']}' (tenía {d['accion']}/{d['contenido']} mal reutilizado)")
+        continue
+
+    # AUTO-MODIFICACIÓN DE CÓDIGO
+    # Arché nunca escribe directo a un archivo real: genera una
+    # propuesta (buscar/reemplazar acotado), y solo se aplica al
+    # correr "revisar cambios de codigo" con tu aprobación explícita.
+
+    if comando.startswith("escribe en "):
+        resto = comando_original[len("escribe en "):].strip()
+        if " : " in resto:
+            archivo, instruccion = resto.split(" : ", 1)
+            from core.IA.proponer_cambio_codigo import proponer_cambio_ia
+            propuesta, error = proponer_cambio_ia(archivo.strip(), instruccion.strip())
+            if error:
+                print(f"Arché: {error}")
             else:
-                print("Arché: ¿Qué operación quieres calcular?")
+                print(f"Arché: Generé la propuesta {propuesta['id']} para {propuesta['archivo']}. "
+                    f"Corré 'revisar cambios de codigo' para verla y aprobarla.")
+        else:
+            print("Arché: Usá el formato 'escribe en <archivo> : <qué querés que cambie>'.")
+        continue
+
+    if comando in ["revisar cambios de codigo", "revisar cambios de código"]:
+        from core.IA.revisar_cambios_codigo import main as revisar_cambios_codigo
+        ids_antes = conectar_funciones.ids_pendientes()
+        revisar_cambios_codigo()
+        # Si se aprobó una función nueva escrita por Arché, ofrece conectarla
+        # a un comando del chat (esa conexión también pide tu aprobación).
+        conectar_funciones.ofrecer_tras_revision(ids_antes)
+        importlib.reload(comandos_extra)  # para que un comando recién aprobado ya funcione
+        exportar_guia_a_archivo()  # el archivo de comandos incluye lo recién aprobado
+        continue
+
+    if comando.startswith("conecta ") or comando.startswith("conectar "):
+        nombre_funcion = comando_original.split()[-1].strip(".,:;'\"")
+        conectar_funciones.conectar_por_nombre(nombre_funcion)
+        importlib.reload(comandos_extra)
+        exportar_guia_a_archivo()
+        continue
+
+    if comando.startswith("cambia esto") or comando.startswith("mejora esto") or comando.startswith("arreglá esto") or comando.startswith("arregla esto"):
+        instruccion = ""
+        for prefijo in ["cambia esto", "mejora esto", "arreglá esto", "arregla esto"]:
+            if comando_original.lower().startswith(prefijo):
+                instruccion = comando_original[len(prefijo):].strip(" :")
+                break
+        if not instruccion:
+            print("Arché: Decime qué querés que cambie. Ej: 'cambia esto: agregá una función que cuente las notas'.")
             continue
 
-        if comando.startswith("cuanto es"):
-            operacion = comando.replace("cuanto es", "", 1).strip()
-            if operacion:
-                calcular(operacion)
-            else:
-                print("Arché: ¿Qué operación quieres calcular?")
-            continue
+        manejar_pedido_de_cambio(instruccion)
+        continue
 
-        if comando.startswith("cuánto es"):
-            operacion = comando.replace("cuánto es", "", 1).strip()
-            if operacion:
-                calcular(operacion)
-            else:
-                print("Arché: ¿Qué operación quieres calcular?")
-            continue
+    if comando in ["cambios de codigo pendientes", "cambios de código pendientes"]:
+        from core.IA.proponer_cambio_codigo import _cargar_pendientes
+        pendientes = [p for p in _cargar_pendientes() if p["estado"] == "pendiente"]
+        if not pendientes:
+            print("Arché: No tengo propuestas de código pendientes.")
+        else:
+            print(f"Arché: Tengo {len(pendientes)} propuesta(s) pendiente(s):")
+            for p in pendientes:
+                print(f"  • [{p['id']}] {p['archivo']}: {p['que']}")
+        continue
 
-        if comando in ["historial calculos", "historial cálculos"]:
-            historial()
-            continue
+    if comando in ["revisa tu codigo", "revisa tu código", "autorevisate", "autorevísate", "revisate", "revísate"]:
+        from core.IA.autorevision import autorevisar, imprimir_reporte_natural
+        print("Arché: Dale, me reviso entero. Los chequeos rápidos son instantáneos; "
+              "si hay funciones nuevas o modificadas desde la última vez, esas las "
+              "reviso con Ollama, así que puede tardar un poco.")
+        reporte = autorevisar(usar_ollama=True)
+        imprimir_reporte_natural(reporte, sin_ia=False)
+        continue
 
-        # RED NEURONAL / CLASIFICADOR
+    if comando in ["revisa tu codigo sin ia", "revisa tu código sin ia"]:
+        from core.IA.autorevision import autorevisar, imprimir_reporte_natural
+        print("Arché: Dale, corro solo los chequeos deterministas (sin Ollama, instantáneo).")
+        reporte = autorevisar(usar_ollama=False)
+        imprimir_reporte_natural(reporte, sin_ia=True)
+        continue
 
-        if comando in ["estado red", "estado de la red", "estado del clasificador", "estado clasificador"]:
-            _mostrar_estado_red()
-            continue
+    if comando in ["revisate y arregla todo", "revísate y arregla todo", "revisate y arregla", "revísate y arregla"]:
+        from core.IA.autorevision import autorevisar, imprimir_reporte_natural
+        print("Arché: Dale, me reviso entero y esta vez además te dejo armado el parche de "
+              "cada cosa que encuentre. Ojo, esto tarda bastante más -- por cada hallazgo le "
+              "pido a Ollama que redacte el cambio, no solo que lo detecte.")
+        reporte = autorevisar(usar_ollama=True, generar_propuestas=True)
+        imprimir_reporte_natural(reporte, sin_ia=False)
+        continue
 
-        # TELEMETRÍA
+    # MODO ESTUDIO
 
-        if comando in ["estadisticas", "estadísticas", "telemetria", "telemetría"]:
-            _mostrar_estadisticas()
-            continue
+    if comando == "estudiar":
+        from core.IA.estudio import estudiar_todo
+        if _hilo_estudio is not None and _hilo_estudio.is_alive():
+            print("Arché: Ya estoy estudiando. Decime 'detener estudio' si querés que pare.")
+        else:
+            _evento_detener_estudio.clear()
+            _hilo_estudio = threading.Thread(
+                target=estudiar_todo,
+                args=(_evento_detener_estudio,),
+                daemon=True,
+            )
+            _hilo_estudio.start()
+            print("Arché: Empecé a estudiar en segundo plano (una sola ronda). "
+                  "Podés seguir usándome mientras tanto, y decime 'detener estudio' si querés cortarlo antes.")
+        continue
 
-        # ESTADO DEL SISTEMA
-        # Estas funciones ya existían en core/sistema.py y core/utilidades.py
-        # pero ningún comando las llamaba. _decir() muestra el texto si la
-        # función lo devuelve, y no repite nada si ya lo imprimió ella misma.
+    if comando in ["iniciar estudio automatico", "iniciar estudio automático", "activar estudio automatico", "activar estudio automático"]:
+        from core.IA.estudio import iniciar_estudio_en_background
+        if _hilo_estudio is not None and _hilo_estudio.is_alive():
+            print("Arché: El estudio automático ya está corriendo.")
+        else:
+            _evento_detener_estudio.clear()
+            _hilo_estudio = iniciar_estudio_en_background(detener_evento=_evento_detener_estudio)
+            print("Arché: Empecé a estudiar en segundo plano.")
+        continue
 
-        if comando in ["estado del sistema", "estado sistema", "como esta el sistema", "cómo está el sistema",
-                       "como esta mi pc", "cómo está mi pc"]:
-            _decir(hablar_estado_sistema())
-            continue
+    if comando == "detener estudio":
+        if _hilo_estudio is not None and _hilo_estudio.is_alive():
+            _evento_detener_estudio.set()
+            print("Arché: Voy a parar de estudiar después de esta ronda.")
+        else:
+            print("Arché: El estudio automático no está corriendo.")
+        continue
 
-        if comando in ["procesos que mas consumen", "procesos que más consumen", "que consume mas", "qué consume más"]:
-            _decir(hablar_procesos_que_mas_consumen())
-            continue
+    # AUTOREVISIÓN AUTOMÁTICA
 
-        if comando in ["espacio libre", "espacio en disco", "espacio disponible", "cuanto espacio libre tengo",
-                       "cuánto espacio libre tengo"]:
-            from core.utilidades import espacio_disponible
-            print(f"Arché: Te queda {espacio_disponible():.1f}% del disco libre.")
-            continue
+    if comando in ["iniciar autorevision automatica", "iniciar autorevisión automática",
+                   "activar autorevision automatica", "activar autorevisión automática"]:
+        from core.IA.autorevision import iniciar_autorevision_en_background
+        if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
+            print("Arché: La autorevisión automática ya está corriendo.")
+        else:
+            _evento_detener_autorevision.clear()
+            _hilo_autorevision = iniciar_autorevision_en_background(
+                intervalo_seg=int(obtener("autorevision_intervalo_horas") * 3600),
+                detener_evento=_evento_detener_autorevision,
+                avisar=hablar,
+            )
+            cambiar("autorevision_automatica", True)
+            print("Arché: Listo, me voy a autorevisar sola en segundo plano de ahora en más.")
+        continue
 
-        # LIMPIEZA AUTOMÁTICA
+    if comando in ["detener autorevision automatica", "detener autorevisión automática"]:
+        if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
+            _evento_detener_autorevision.set()
+            cambiar("autorevision_automatica", False)
+            print("Arché: Dale, dejo de autorevisarme sola. Podés pedírmelo vos cuando quieras con 'revisate'.")
+        else:
+            print("Arché: La autorevisión automática no está corriendo.")
+        continue
 
-        if comando in ["limpiar automatico", "limpiar automático", "limpieza automatica", "limpieza automática"]:
-            from core.IA.limpieza_auto import limpiar_automatico
-            resultado = limpiar_automatico(simular=False)
-            if resultado["borrados"] == 0:
-                print("Arché: No encontré contaminación obvia para limpiar.")
-            else:
-                print(f"Arché: Limpié {resultado['borrados']} entradas contaminadas (backup guardado).")
-                for d in resultado["detalle"]:
-                    print(f"  • '{d['pregunta']}' (tenía {d['accion']}/{d['contenido']} mal reutilizado)")
-            continue
+    if comando.startswith("autorevisate cada"):
+        resto = comando.replace("autorevisate cada", "", 1).replace("autorevísate cada", "", 1).strip()
+        try:
+            horas = float(resto.split()[0])
+            cambiar("autorevision_intervalo_horas", horas)
+            print(f"Arché: Listo, de ahora en más me autorevisaré cada {horas} hora(s) "
+                  f"(vale a partir del próximo arranque, o de que reinicies la autorevisión automática).")
+        except (ValueError, IndexError):
+            print("Arché: No te entendí el número de horas. Ej: 'autorevisate cada 3'.")
+        continue
 
-        # AUTO-MODIFICACIÓN DE CÓDIGO
-        # Arché nunca escribe directo a un archivo real: genera una
-        # propuesta (buscar/reemplazar acotado), y solo se aplica al
-        # correr "revisar cambios de codigo" con tu aprobación explícita.
-
-        if comando.startswith("escribe en "):
-            resto = comando_original[len("escribe en "):].strip()
+    if comando.startswith("agregar tema"):
+        resto = comando.replace("agregar tema", "", 1).strip()
+        if resto:
+            from core.IA.estudio import agregar_tema
             if " : " in resto:
-                archivo, instruccion = resto.split(" : ", 1)
-                from core.IA.proponer_cambio_codigo import proponer_cambio_ia
-                propuesta, error = proponer_cambio_ia(archivo.strip(), instruccion.strip())
-                if error:
-                    print(f"Arché: {error}")
+                tema, descripcion = resto.split(" : ", 1)
+            else:
+                tema, descripcion = resto, None
+            if agregar_tema(tema.strip(), descripcion):
+                print(f"Arché: Agregué '{tema.strip()}' a mis temas de estudio.")
+            else:
+                print(f"Arché: Ya tenía '{tema.strip()}' en mis temas de estudio.")
+        else:
+            print("Arché: ¿Qué tema quieres que agregue? (opcional: 'agregar tema X : descripción' para temas ambiguos)")
+        continue
+
+    if comando in ["temas de estudio", "mis temas"]:
+        from core.IA.estudio import cargar_temas, _texto_tema
+        temas = cargar_temas()
+        if temas:
+            print("Arché: Mis temas de estudio son:")
+            for item in temas:
+                tema, descripcion = _texto_tema(item)
+                if descripcion:
+                    print(f"  • {tema} ({descripcion})")
                 else:
-                    print(f"Arché: Generé la propuesta {propuesta['id']} para {propuesta['archivo']}. "
-                        f"Corré 'revisar cambios de codigo' para verla y aprobarla.")
-            else:
-                print("Arché: Usá el formato 'escribe en <archivo> : <qué querés que cambie>'.")
-            continue
+                    print(f"  • {tema}")
+        else:
+            print("Arché: Todavía no tengo temas de estudio. Agrega uno con 'agregar tema <tema>'.")
+        continue
 
-        if comando in ["revisar cambios de codigo", "revisar cambios de código"]:
-            from core.IA.revisar_cambios_codigo import main as revisar_cambios_codigo
-            ids_antes = conectar_funciones.ids_pendientes()
-            revisar_cambios_codigo()
-            # Si se aprobó una función nueva escrita por Arché, ofrece conectarla
-            # a un comando del chat (esa conexión también pide tu aprobación).
-            conectar_funciones.ofrecer_tras_revision(ids_antes)
-            importlib.reload(comandos_extra)  # para que un comando recién aprobado ya funcione
-            exportar_guia_a_archivo()  # el archivo de comandos incluye lo recién aprobado
-            continue
+    # GRAN SABIO / RAPHAEL: análisis, riesgo, voz analítica y objetivos.
+    # Es solo información -- no aplica ni decide nada por su cuenta.
 
-        if comando.startswith("conecta ") or comando.startswith("conectar "):
-            nombre_funcion = comando_original.split()[-1].strip(".,:;'\"")
-            conectar_funciones.conectar_por_nombre(nombre_funcion)
-            importlib.reload(comandos_extra)
-            exportar_guia_a_archivo()
-            continue
+    if comando.startswith("analiza "):
+        gran_sabio.analizar(comando_original[len("analiza "):])
+        continue
 
-        if comando.startswith("cambia esto") or comando.startswith("mejora esto") or comando.startswith("arreglá esto") or comando.startswith("arregla esto"):
-            instruccion = ""
-            for prefijo in ["cambia esto", "mejora esto", "arreglá esto", "arregla esto"]:
-                if comando_original.lower().startswith(prefijo):
-                    instruccion = comando_original[len(prefijo):].strip(" :")
-                    break
-            if not instruccion:
-                print("Arché: Decime qué querés que cambie. Ej: 'cambia esto: agregá una función que cuente las notas'.")
-                continue
+    if comando.startswith("riesgo "):
+        gran_sabio.calcular_riesgo_de(comando_original[len("riesgo "):].strip())
+        continue
 
-            manejar_pedido_de_cambio(instruccion)
-            continue
+    if comando.startswith("impacto "):
+        gran_sabio.analizar_impacto(comando_original[len("impacto "):].strip())
+        continue
 
-        if comando in ["cambios de codigo pendientes", "cambios de código pendientes"]:
-            from core.IA.proponer_cambio_codigo import _cargar_pendientes
-            pendientes = [p for p in _cargar_pendientes() if p["estado"] == "pendiente"]
-            if not pendientes:
-                print("Arché: No tengo propuestas de código pendientes.")
-            else:
-                print(f"Arché: Tengo {len(pendientes)} propuesta(s) pendiente(s):")
-                for p in pendientes:
-                    print(f"  • [{p['id']}] {p['archivo']}: {p['que']}")
-            continue
+    if comando in ["modo gran sabio on", "activar modo gran sabio", "activar gran sabio"]:
+        gran_sabio.activar_voz(True)
+        continue
 
-        if comando in ["revisa tu codigo", "revisa tu código", "autorevisate", "autorevísate", "revisate", "revísate"]:
-            from core.IA.autorevision import autorevisar, imprimir_reporte_natural
-            print("Arché: Dale, me reviso entero. Los chequeos rápidos son instantáneos; "
-                  "si hay funciones nuevas o modificadas desde la última vez, esas las "
-                  "reviso con Ollama, así que puede tardar un poco.")
-            reporte = autorevisar(usar_ollama=True)
-            imprimir_reporte_natural(reporte, sin_ia=False)
-            continue
+    if comando in ["modo gran sabio off", "desactivar modo gran sabio", "desactivar gran sabio"]:
+        gran_sabio.activar_voz(False)
+        continue
 
-        if comando in ["revisa tu codigo sin ia", "revisa tu código sin ia"]:
-            from core.IA.autorevision import autorevisar, imprimir_reporte_natural
-            print("Arché: Dale, corro solo los chequeos deterministas (sin Ollama, instantáneo).")
-            reporte = autorevisar(usar_ollama=False)
-            imprimir_reporte_natural(reporte, sin_ia=True)
-            continue
+    if comando.startswith("objetivo:") or comando.startswith("objetivo :"):
+        gran_sabio.agregar_objetivo(comando_original.split(":", 1)[1])
+        continue
 
-        if comando in ["revisate y arregla todo", "revísate y arregla todo", "revisate y arregla", "revísate y arregla"]:
-            from core.IA.autorevision import autorevisar, imprimir_reporte_natural
-            print("Arché: Dale, me reviso entero y esta vez además te dejo armado el parche de "
-                  "cada cosa que encuentre. Ojo, esto tarda bastante más -- por cada hallazgo le "
-                  "pido a Ollama que redacte el cambio, no solo que lo detecte.")
-            reporte = autorevisar(usar_ollama=True, generar_propuestas=True)
-            imprimir_reporte_natural(reporte, sin_ia=False)
-            continue
+    if comando in ["objetivos", "mis objetivos"]:
+        gran_sabio.listar_objetivos()
+        continue
 
-        # MODO ESTUDIO
+    if comando.startswith("logre ") or comando.startswith("logré "):
+        gran_sabio.completar_objetivo(comando_original.split(" ", 1)[1])
+        continue
 
-        if comando == "estudiar":
-            from core.IA.estudio import estudiar_todo
-            if _hilo_estudio is not None and _hilo_estudio.is_alive():
-                print("Arché: Ya estoy estudiando. Decime 'detener estudio' si querés que pare.")
-            else:
-                _evento_detener_estudio.clear()
-                _hilo_estudio = threading.Thread(
-                    target=estudiar_todo,
-                    args=(_evento_detener_estudio,),
-                    daemon=True,
-                )
-                _hilo_estudio.start()
-                print("Arché: Empecé a estudiar en segundo plano (una sola ronda). "
-                      "Podés seguir usándome mientras tanto, y decime 'detener estudio' si querés cortarlo antes.")
-            continue
+    if comando in ["sembrar catalogo", "sembrar el catalogo"]:
+        entrenador_masivo.sembrar_catalogo()
+        continue
 
-        if comando in ["iniciar estudio automatico", "iniciar estudio automático", "activar estudio automatico", "activar estudio automático"]:
-            from core.IA.estudio import iniciar_estudio_en_background
-            if _hilo_estudio is not None and _hilo_estudio.is_alive():
-                print("Arché: El estudio automático ya está corriendo.")
-            else:
-                _evento_detener_estudio.clear()
-                _hilo_estudio = iniciar_estudio_en_background(detener_evento=_evento_detener_estudio)
-                print("Arché: Empecé a estudiar en segundo plano.")
-            continue
+    if comando in ["estado banco", "estado del banco"]:
+        print(entrenador_masivo.estado_banco())
+        continue
 
-        if comando == "detener estudio":
-            if _hilo_estudio is not None and _hilo_estudio.is_alive():
-                _evento_detener_estudio.set()
-                print("Arché: Voy a parar de estudiar después de esta ronda.")
-            else:
-                print("Arché: El estudio automático no está corriendo.")
-            continue
-
-        # AUTOREVISIÓN AUTOMÁTICA
-
-        if comando in ["iniciar autorevision automatica", "iniciar autorevisión automática",
-                       "activar autorevision automatica", "activar autorevisión automática"]:
-            from core.IA.autorevision import iniciar_autorevision_en_background
-            if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
-                print("Arché: La autorevisión automática ya está corriendo.")
-            else:
-                _evento_detener_autorevision.clear()
-                _hilo_autorevision = iniciar_autorevision_en_background(
-                    intervalo_seg=int(obtener("autorevision_intervalo_horas") * 3600),
-                    detener_evento=_evento_detener_autorevision,
-                    avisar=hablar,
-                )
-                cambiar("autorevision_automatica", True)
-                print("Arché: Listo, me voy a autorevisar sola en segundo plano de ahora en más.")
-            continue
-
-        if comando in ["detener autorevision automatica", "detener autorevisión automática"]:
-            if _hilo_autorevision is not None and _hilo_autorevision.is_alive():
-                _evento_detener_autorevision.set()
-                cambiar("autorevision_automatica", False)
-                print("Arché: Dale, dejo de autorevisarme sola. Podés pedírmelo vos cuando quieras con 'revisate'.")
-            else:
-                print("Arché: La autorevisión automática no está corriendo.")
-            continue
-
-        if comando.startswith("autorevisate cada"):
-            resto = comando.replace("autorevisate cada", "", 1).replace("autorevísate cada", "", 1).strip()
-            try:
-                horas = float(resto.split()[0])
-                cambiar("autorevision_intervalo_horas", horas)
-                print(f"Arché: Listo, de ahora en más me autorevisaré cada {horas} hora(s) "
-                      f"(vale a partir del próximo arranque, o de que reinicies la autorevisión automática).")
-            except (ValueError, IndexError):
-                print("Arché: No te entendí el número de horas. Ej: 'autorevisate cada 3'.")
-            continue
-
-        if comando.startswith("agregar tema"):
-            resto = comando.replace("agregar tema", "", 1).strip()
-            if resto:
-                from core.IA.estudio import agregar_tema
-                if " : " in resto:
-                    tema, descripcion = resto.split(" : ", 1)
-                else:
-                    tema, descripcion = resto, None
-                if agregar_tema(tema.strip(), descripcion):
-                    print(f"Arché: Agregué '{tema.strip()}' a mis temas de estudio.")
-                else:
-                    print(f"Arché: Ya tenía '{tema.strip()}' en mis temas de estudio.")
-            else:
-                print("Arché: ¿Qué tema quieres que agregue? (opcional: 'agregar tema X : descripción' para temas ambiguos)")
-            continue
-
-        if comando in ["temas de estudio", "mis temas"]:
-            from core.IA.estudio import cargar_temas, _texto_tema
-            temas = cargar_temas()
-            if temas:
-                print("Arché: Mis temas de estudio son:")
-                for item in temas:
-                    tema, descripcion = _texto_tema(item)
-                    if descripcion:
-                        print(f"  • {tema} ({descripcion})")
-                    else:
-                        print(f"  • {tema}")
-            else:
-                print("Arché: Todavía no tengo temas de estudio. Agrega uno con 'agregar tema <tema>'.")
-            continue
-
-        # GRAN SABIO / RAPHAEL: análisis, riesgo, voz analítica y objetivos.
-        # Es solo información -- no aplica ni decide nada por su cuenta.
-
-        if comando.startswith("analiza "):
-            gran_sabio.analizar(comando_original[len("analiza "):])
-            continue
-
-        if comando.startswith("riesgo "):
-            gran_sabio.calcular_riesgo_de(comando_original[len("riesgo "):].strip())
-            continue
-
-        if comando.startswith("impacto "):
-            gran_sabio.analizar_impacto(comando_original[len("impacto "):].strip())
-            continue
-
-        if comando in ["modo gran sabio on", "activar modo gran sabio", "activar gran sabio"]:
-            gran_sabio.activar_voz(True)
-            continue
-
-        if comando in ["modo gran sabio off", "desactivar modo gran sabio", "desactivar gran sabio"]:
-            gran_sabio.activar_voz(False)
-            continue
-
-        if comando.startswith("objetivo:") or comando.startswith("objetivo :"):
-            gran_sabio.agregar_objetivo(comando_original.split(":", 1)[1])
-            continue
-
-        if comando in ["objetivos", "mis objetivos"]:
-            gran_sabio.listar_objetivos()
-            continue
-
-        if comando.startswith("logre ") or comando.startswith("logré "):
-            gran_sabio.completar_objetivo(comando_original.split(" ", 1)[1])
-            continue
-
-        if comando in ["sembrar catalogo", "sembrar el catalogo"]:
-            entrenador_masivo.sembrar_catalogo()
-            continue
-
-        if comando in ["estado banco", "estado del banco"]:
-            print(entrenador_masivo.estado_banco())
-            continue
-
-        if comando in ["entrenar a fondo", "entrenamiento a fondo"]:
-            confirmar = input(
-                "Arché: Esto genera y juzga ejemplos nuevos para cada intención del catálogo "
-                "-- tarda un rato (llama a Ollama dos veces por cada frase candidata: una para "
-                "generarla, otra para juzgarla). ¿Lo corro en segundo plano mientras seguís "
-                "usándome? [s/n]\nTú: "
-            ).strip().lower()
-            if confirmar in ("s", "si", "sí"):
-                if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
-                    print("Arché: Ya estoy entrenando a fondo.")
-                else:
-                    _evento_detener_entrenamiento.clear()
-                    _hilo_entrenamiento = threading.Thread(
-                        target=entrenador_masivo.entrenar_a_fondo,
-                        kwargs={"detener_evento": _evento_detener_entrenamiento},
-                        daemon=True,
-                    )
-                    _hilo_entrenamiento.start()
-                    print("Arché: Empecé a entrenar a fondo en segundo plano. Decime 'detener entrenamiento' si querés cortarlo antes.")
-            else:
-                print("Arché: Dale, cancelado.")
-            continue
-
-        if comando in ["entrenar rapido", "entrenar rápido", "entrenamiento rapido"]:
+    if comando in ["entrenar a fondo", "entrenamiento a fondo"]:
+        confirmar = input(
+            "Arché: Esto genera y juzga ejemplos nuevos para cada intención del catálogo "
+            "-- tarda un rato (llama a Ollama dos veces por cada frase candidata: una para "
+            "generarla, otra para juzgarla). ¿Lo corro en segundo plano mientras seguís "
+            "usándome? [s/n]\nTú: "
+        ).strip().lower()
+        if confirmar in ("s", "si", "sí"):
             if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
-                print("Arché: Ya estoy entrenando.")
+                print("Arché: Ya estoy entrenando a fondo.")
             else:
                 _evento_detener_entrenamiento.clear()
                 _hilo_entrenamiento = threading.Thread(
-                    target=entrenador_masivo.entrenar_rapido,
+                    target=entrenador_masivo.entrenar_a_fondo,
                     kwargs={"detener_evento": _evento_detener_entrenamiento},
                     daemon=True,
                 )
                 _hilo_entrenamiento.start()
-                print("Arché: Empecé a entrenar rápido (sin juez) en segundo plano.")
-            continue
+                print("Arché: Empecé a entrenar a fondo en segundo plano. Decime 'detener entrenamiento' si querés cortarlo antes.")
+        else:
+            print("Arché: Dale, cancelado.")
+        continue
 
-        if comando in ["detener entrenamiento"]:
-            if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
-                _evento_detener_entrenamiento.set()
-                print("Arché: Voy a parar el entrenamiento a fondo después de esta intención.")
+    if comando in ["entrenar rapido", "entrenar rápido", "entrenamiento rapido"]:
+        if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
+            print("Arché: Ya estoy entrenando.")
+        else:
+            _evento_detener_entrenamiento.clear()
+            _hilo_entrenamiento = threading.Thread(
+                target=entrenador_masivo.entrenar_rapido,
+                kwargs={"detener_evento": _evento_detener_entrenamiento},
+                daemon=True,
+            )
+            _hilo_entrenamiento.start()
+            print("Arché: Empecé a entrenar rápido (sin juez) en segundo plano.")
+        continue
+
+    if comando in ["detener entrenamiento"]:
+        if _hilo_entrenamiento is not None and _hilo_entrenamiento.is_alive():
+            _evento_detener_entrenamiento.set()
+            print("Arché: Voy a parar el entrenamiento a fondo después de esta intención.")
+        else:
+            print("Arché: No estoy entrenando a fondo ahora mismo.")
+        continue
+
+    if comando in ["modo natural on", "activar modo natural", "activar enrutador natural"]:
+        enrutador_natural.activar(True)
+        print("Arché: Listo, ahora también entiendo frases libres para TODO lo que sé hacer "
+              "(antes de esto, Ollama solo reconocía mis comandos de charla; ahora reconoce "
+              "el catálogo completo -- notas, archivos, calculadora, sistema, y el resto).")
+        continue
+
+    if comando in ["modo natural off", "desactivar modo natural", "desactivar enrutador natural"]:
+        enrutador_natural.activar(False)
+        print("Arché: Dale, vuelvo a necesitar los comandos tal cual (o lo que reconozca comprender()).")
+        continue
+
+    # AULA DE ENTRENAMIENTO PROGRESIVO: clasificador jerárquico + examen.
+    # No reemplaza al clasificador actual (clasificador.py) -- corre
+    # aparte, en sus propios archivos, hasta que decidas activarlo.
+
+    if comando in ["entrenar jerarquico", "entrenar clasificador jerarquico"]:
+        from core.IA.clasificador_jerarquico import entrenar_jerarquico
+        entrenar_jerarquico()
+        continue
+
+    if comando in ["estado red jerarquica", "estado clasificador jerarquico"]:
+        from core.IA.clasificador_jerarquico import info_jerarquico
+        info = info_jerarquico()
+        for nombre, datos_info in info.items():
+            if datos_info["activo"]:
+                print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
             else:
-                print("Arché: No estoy entrenando a fondo ahora mismo.")
-            continue
+                print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
+        continue
 
-        if comando in ["modo natural on", "activar modo natural", "activar enrutador natural"]:
-            enrutador_natural.activar(True)
-            print("Arché: Listo, ahora también entiendo frases libres para TODO lo que sé hacer "
-                  "(antes de esto, Ollama solo reconocía mis comandos de charla; ahora reconoce "
-                  "el catálogo completo -- notas, archivos, calculadora, sistema, y el resto).")
-            continue
-
-        if comando in ["modo natural off", "desactivar modo natural", "desactivar enrutador natural"]:
-            enrutador_natural.activar(False)
-            print("Arché: Dale, vuelvo a necesitar los comandos tal cual (o lo que reconozca comprender()).")
-            continue
-
-        # AULA DE ENTRENAMIENTO PROGRESIVO: clasificador jerárquico + examen.
-        # No reemplaza al clasificador actual (clasificador.py) -- corre
-        # aparte, en sus propios archivos, hasta que decidas activarlo.
-
-        if comando in ["entrenar jerarquico", "entrenar clasificador jerarquico"]:
-            from core.IA.clasificador_jerarquico import entrenar_jerarquico
-            entrenar_jerarquico()
-            continue
-
-        if comando in ["estado red jerarquica", "estado clasificador jerarquico"]:
-            from core.IA.clasificador_jerarquico import info_jerarquico
-            info = info_jerarquico()
-            for nombre, datos_info in info.items():
-                if datos_info["activo"]:
-                    print(f"  • {nombre}: activo, {datos_info['precision']:.0%} precisión, {datos_info['n_ejemplos']} ejemplos")
-                else:
-                    print(f"  • {nombre}: inactivo (sin datos suficientes todavía)")
-            continue
-
-        if comando in ["examen", "rendir examen"]:
-            from core.IA.examen import rendir_examen
-            try:
-                rendir_examen()
-            except RuntimeError as e:
-                print(f"Arché: {e}")
-            continue
-
-        if comando in ["estado examen", "estado del examen"]:
-            from core.IA.examen import estado_examen
-            print(estado_examen())
-            continue
-
-        if comando in ["iniciar examen automatico", "iniciar examen automático", "activar examen automatico"]:
-            from core.IA.examen import iniciar_examen_en_background
-            if _hilo_examen is not None and _hilo_examen.is_alive():
-                print("Arché: El examen automático ya está corriendo.")
-            else:
-                _evento_detener_examen.clear()
-                _hilo_examen = iniciar_examen_en_background(detener_evento=_evento_detener_examen, avisar=hablar)
-                print("Arché: Empecé a examinarme en segundo plano.")
-            continue
-
-        if comando in ["detener examen automatico", "detener examen automático"]:
-            if _hilo_examen is not None and _hilo_examen.is_alive():
-                _evento_detener_examen.set()
-                print("Arché: Voy a parar de examinarme después de esta ronda.")
-            else:
-                print("Arché: El examen automático no está corriendo.")
-            continue
-
-        # GUÍA DE COMANDOS (se arma sola desde main.py + catálogo, ver
-        # core/guia_comandos.py) y CARGA MANUAL DE EJEMPLOS (core/IA/ensenar.py).
-
-        if comando in ["comandos", "guia", "guía", "guia de comandos", "guía de comandos",
-                       "lista de comandos", "que comandos hay", "qué comandos hay"]:
-            from core.guia_comandos import mostrar_guia
-            mostrar_guia()
-            continue
-
-        if comando in ["comandos todo", "comandos completos", "comandos completo", "lista completa de comandos",
-                       "todos los comandos", "guia completa"]:
-            from core.guia_comandos import mostrar_guia
-            mostrar_guia(completo=True)
-            continue
-
-        if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando ", "buscar comandos ", "que comando sirve para ")):
-            from core.guia_comandos import buscar_en_guia
-            buscar_en_guia(comando.split(" ", 2)[2] if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando")) else comando.split(" para ", 1)[1])
-            continue
-
-        if comando.startswith("comandos de ") or comando.startswith("comandos "):
-            from core.guia_comandos import mostrar_guia
-            mostrar_guia(comando.split(" ", 1)[1].replace("de ", "", 1) if comando.startswith("comandos de ") else comando.split(" ", 1)[1])
-            continue
-
-        if comando in ["proximos pasos", "próximos pasos", "que hago ahora", "qué hago ahora",
-                       "que me falta", "qué me falta", "siguiente paso"]:
-            from core.guia_comandos import mostrar_proximos_pasos
-            mostrar_proximos_pasos()
-            continue
-
-        if comando.startswith("enseñar ") or comando.startswith("ensenar "):
-            from core.IA.ensenar import comando_ensenar
-            comando_ensenar(comando_original)
-            continue
-
-        if comando.startswith("importar ejemplos"):
-            from core.IA.ensenar import importar_ejemplos
-            importar_ejemplos()
-            continue
-
-        if comando in ["intenciones", "lista de intenciones", "mis intenciones"]:
-            from core.IA.ensenar import listar_intenciones
-            print(listar_intenciones())
-            continue
-
-        if comando.startswith("intenciones de "):
-            from core.IA.ensenar import listar_intenciones
-            print(listar_intenciones(comando.split(" ", 2)[2]))
-            continue
-
-        # COMANDOS CONECTADOS POR ARCHÉ (registro en core/comandos_extra.py):
-        # funciones que Arché escribió y vos aprobaste conectar a una frase.
-        # Van después de los comandos fijos de arriba, así que nunca los pisan.
-
-        if comandos_extra.manejar(comando_original):
-            continue
-
-        # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)
-        # Respuestas instantáneas sin pasar por el clasificador ni Ollama.
-
-        if responder_conversacion(comando):
-            continue
-
-        # AUTOCONOCIMIENTO (changelog / dependencia de Ollama)
-
-        respuesta_auto = manejar_autoconocimiento(comando)
-        if respuesta_auto:
-            print(f"Arché: {respuesta_auto}")
-            continue
-
-        # Nada determinístico coincidió -> antes de caer al clasificador viejo
-        # (que solo conoce ~17 intenciones), probamos el enrutador natural,
-        # que conoce las ~60 del catálogo completo. Es opt-in ("modo natural
-        # on") para no cambiarle el comportamiento a nadie que no lo pida.
-        resultado = None
-        if enrutador_natural.activo():
-            ruteo = enrutador_natural.enrutar(comando_original)
-            if ruteo:
-                id_intencion, argumento, confianza = ruteo
-                entrada = catalogo.POR_ID.get(id_intencion)
-                if entrada and entrada["comando"]:
-                    # Tiene un comando fijo equivalente (ej. "crea una nota {X}")
-                    # -> se reinyecta y lo procesa el MISMO chequeo determinístico
-                    # de siempre, sin duplicar ninguna función acá.
-                    comando_canonico = catalogo.armar_comando(entrada, argumento)
-                    if entrada.get("confirmar"):
-                        print(f"Arché: Entendí que pedís: {entrada['descripcion']}"
-                              f"{f' ({argumento})' if argumento else ''}. Es delicado, "
-                              f"¿lo confirmo? [s/n]")
-                        ok = input("Tú: ").strip().lower()
-                        if ok not in ("s", "si", "sí"):
-                            print("Arché: Dale, cancelado.")
-                            continue
-                    else:
-                        print(f"Arché: (Entendí: {entrada['descripcion']})")
-                    _cola_comandos_naturales.append(comando_canonico)
-                    continue
-                elif entrada:
-                    # Sin comando fijo (saludo, conversar, buscar, abrir, memoria,
-                    # modificar_codigo...) -> se arma el MISMO formato que ya
-                    # devuelve analizar(), y sigue por el switch de siempre, unas
-                    # líneas más abajo, sin tocarlo.
-                    resultado = {"intencion": id_intencion, "contenido": argumento}
-
-        # Nada determinístico ni el enrutador natural coincidió -> AHORA sí
-        # vale la pena clasificar con la IA (resolver() por plantillas primero,
-        # Ollama como último recurso dentro de analizar()). La telemetría del
-        # resultado ya se registra DENTRO de analizar() (en cerebroIA.py), con
-        # información más precisa de qué capa resolvió el comando -- por eso
-        # acá no se vuelve a registrar.
-        if resultado is None:
-            resultado = analizar(comando)
-        intencion = resultado["intencion"]
-        contenido = resultado["contenido"]
-
-        # un saludo es corto y trae una palabra de saludo; una frase larga sin ella (p. ej. "explicame que es una
-        # red neuronal") no es un saludo aunque una red se haya equivocado: se trata como charla.
-        if intencion == "saludo" and not re.search(
-                r"\b(hola|holi|ola|buen[oa]s?|hey|saludos|que tal|que mas|como (?:estas|andas|vas|te va)|alo|buenas)\b",
-                comando.lower().replace("é", "e").replace("á", "a")):
-            intencion, contenido = "conversar", comando
-
-        if intencion == "saludo":
-            saludar(obtener("nombre_usuario"))
-
-        elif intencion == "presentacion":
-            presentarse()
-
-        elif intencion == "hora":
-            decir_hora()
-
-        elif intencion == "fecha":
-            decir_fecha()
-
-        # AYUDA
-
-        elif intencion == "ayuda":
-            ayuda()
-
-        elif intencion == "ayuda_categoria":
-            categoria = comando.lower()
-            categoria = categoria.replace("qué hace", "")
-            categoria = categoria.replace("que hace", "")
-            categoria = categoria.replace("¿", "")
-            categoria = categoria.replace("?", "")
-            categoria = categoria.strip()
-            ayuda(categoria)
-
-        # MEMORIA
-
-        elif intencion == "recordar":
-            if contenido:
-                recordar(contenido)
-            else:
-                print("Arché: ¿Qué quieres que recuerde?")
-
-        elif intencion == "mostrar_memoria":
-            mostrar_recuerdos()
-
-        # RECORDATORIOS
-
-        elif intencion == "crear_recordatorio":
-            crear_recordatorio(contenido)
-
-        elif intencion == "mostrar_recordatorios":
-            mostrar_recordatorios()
-
-        elif intencion == "completar_recordatorio":
-            completar_recordatorio()
-
-        elif intencion == "eliminar_recordatorio":
-            eliminar_recordatorio()
-
-        # AUTO-MODIFICACIÓN RECONOCIDA EN LENGUAJE NATURAL
-        # (el trigger literal "cambia esto: ..." ya se maneja arriba, entre
-        # los comandos deterministas -- esto es para cuando lo decís de
-        # forma mas natural, sin ese formato exacto)
-
-        elif intencion == "modificar_codigo":
-            texto_instruccion = contenido if contenido else comando_original
-            manejar_pedido_de_cambio(texto_instruccion)
-
-        # BÚSQUEDAS EN GOOGLE
-
-        elif intencion in ("buscar", "buscar_en_sitio"):
-            # si el contenido nombra un sitio ("gatos en youtube"), busca ahí
-            _en_sitio = control_pc.interpretar_busqueda("busca " + contenido) if contenido else None
-            if _en_sitio:
-                control_pc.buscar_en_sitio(*_en_sitio)
-            elif intencion == "buscar_en_sitio" and contenido and control_pc.separar_sitio(contenido)[1]:
-                # la red entendió que hay un sitio, pero Arché todavía no lo conoce
-                _consulta, _sitio = control_pc.separar_sitio(contenido)
-                control_pc.buscar_en_sitio_desconocido(_sitio, _consulta)
-            elif contenido:
-                buscar_google(contenido)
-            else:
-                respuesta = input("Arché: ¿Qué quieres buscar?\nTú: ").strip().lower()
-                if respuesta:
-                    buscar_google(respuesta)
-
-        # PÁGINAS WEB Y PROGRAMAS
-
-        elif intencion == "abrir":
-            nombre = contenido
-            if not nombre:
-                nombre = input("Arché: ¿Qué deseas abrir?\nTú: ").strip().lower()
-
-            if nombre in sitios:
-                abrir_navegador(nombre)
-            elif nombre in programas:
-                abrir_programa(nombre)
-            else:
-                tipo = input(
-                    "Arché: ¿Es una página web (1) o un programa (2)?\nTú: "
-                ).strip()
-                if tipo == "1":
-                    buscar_sitio(nombre)
-                elif tipo == "2":
-                    aprender_programa(nombre)
-                else:
-                    print("Arché: Cancelado.")
-
-        elif intencion == "conversar":
-            contenido_norm = _normalizar(contenido)
-
-            if contenido_norm in PREGUNTAS_FRECUENTES:
-                # Capa 0: lookup fijo, comparación de texto exacta.
-                # No calcula embeddings ni llama a Ollama.
-                respuesta_fija = PREGUNTAS_FRECUENTES[contenido_norm]
-                print(f"Arché: {respuesta_fija}")
-                registrar_comando(contenido, "conversar", resuelto_por="pregunta_frecuente")
-            else:
-                respuesta_propia = buscar_respuesta(contenido)
-
-                if respuesta_propia:
-                    # Capa 1: caché de respuestas por similitud semántica.
-                    print(f"Arché: {respuesta_propia}")
-                    registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
-                else:
-                    # Capa 2: última instancia. Piensa con la nube si hay clave e
-                    # internet (y busca en la web si la pregunta pide algo actual);
-                    # si no, o si la nube falla, responde Ollama como siempre.
-                    _r = cerebro_nube.responder(contenido)
-                    if _r["aviso"]:
-                        print(f"Arché: ({_r['aviso']})")
-                    print(f"Arché: {_r['texto']}")
-                    evolucion_arche.revisar_respuesta(contenido, _r["texto"], _r["fuente"])  # si no supo, lo estudia de noche
-                    if _r["cacheable"]:
-                        # solo lo que contesta Ollama sin internet se guarda en el caché
-                        guardar_respuesta(contenido, _r["texto"])
-                    registrar_comando(contenido, "conversar",
-                                      resuelto_por="nube" if _r["fuente"] == "nube" else "ollama_conversar")
-                    if _r["fuente"] == "nube":
-                        # en segundo plano: si fue conocimiento estable, queda guardado bajo varias formas de preguntarlo
-                        aprender_de_nube.aprender_de_charla(contenido, _r["texto"], volatil=_r["web"])
-
-        # COMANDO DESCONOCIDO
-
-        elif intencion == "desconocido":
-            _respuesta_habilidad = evolucion_arche.orden_no_entendida(comando_original)
-            if _respuesta_habilidad:
-                print(f"Arché: {_respuesta_habilidad}")      # una habilidad que se fabricó sola
-            else:
-                print("Arché: Aún no sé hacer eso. Lo anoto y esta noche intento aprender a hacerlo.")
-    except (EOFError, KeyboardInterrupt):
-        raise                              # cerrar la consola / Ctrl+C: igual que siempre
-    except Exception as _error_orden:
-        _ahora_error = time.time()
-        _errores_seguidos[:] = [t for t in _errores_seguidos if _ahora_error - t < 20] + [_ahora_error]
-        if len(_errores_seguidos) >= 8:
-            raise                          # algo está roto de fondo: mejor cerrar que quedar en bucle
-        del _cola_comandos_naturales[:]    # no seguir con los pasos de una cadena rota
+    if comando in ["examen", "rendir examen"]:
+        from core.IA.examen import rendir_examen
         try:
-            from core.IA import registro_errores as _registro_errores
-            _registro_errores.registrar(_error_orden, frase=globals().get("comando_original", ""),
-                                        origen="comando")
-        except Exception:
-            pass
-        print(f"Arché: Esa orden me dio un error ({type(_error_orden).__name__}: "
-              f"{str(_error_orden)[:150]}). Lo anoté para repararlo y sigo aquí.")
+            rendir_examen()
+        except RuntimeError as e:
+            print(f"Arché: {e}")
+        continue
+
+    if comando in ["estado examen", "estado del examen"]:
+        from core.IA.examen import estado_examen
+        print(estado_examen())
+        continue
+
+    if comando in ["iniciar examen automatico", "iniciar examen automático", "activar examen automatico"]:
+        from core.IA.examen import iniciar_examen_en_background
+        if _hilo_examen is not None and _hilo_examen.is_alive():
+            print("Arché: El examen automático ya está corriendo.")
+        else:
+            _evento_detener_examen.clear()
+            _hilo_examen = iniciar_examen_en_background(detener_evento=_evento_detener_examen, avisar=hablar)
+            print("Arché: Empecé a examinarme en segundo plano.")
+        continue
+
+    if comando in ["detener examen automatico", "detener examen automático"]:
+        if _hilo_examen is not None and _hilo_examen.is_alive():
+            _evento_detener_examen.set()
+            print("Arché: Voy a parar de examinarme después de esta ronda.")
+        else:
+            print("Arché: El examen automático no está corriendo.")
+        continue
+
+    # GUÍA DE COMANDOS (se arma sola desde main.py + catálogo, ver
+    # core/guia_comandos.py) y CARGA MANUAL DE EJEMPLOS (core/IA/ensenar.py).
+
+    if comando in ["comandos", "guia", "guía", "guia de comandos", "guía de comandos",
+                   "lista de comandos", "que comandos hay", "qué comandos hay"]:
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia()
+        continue
+
+    if comando in ["comandos todo", "comandos completos", "comandos completo", "lista completa de comandos",
+                   "todos los comandos", "guia completa"]:
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia(completo=True)
+        continue
+
+    if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando ", "buscar comandos ", "que comando sirve para ")):
+        from core.guia_comandos import buscar_en_guia
+        buscar_en_guia(comando.split(" ", 2)[2] if comando.startswith(("comandos buscar ", "comando buscar ", "buscar comando")) else comando.split(" para ", 1)[1])
+        continue
+
+    if comando.startswith("comandos de ") or comando.startswith("comandos "):
+        from core.guia_comandos import mostrar_guia
+        mostrar_guia(comando.split(" ", 1)[1].replace("de ", "", 1) if comando.startswith("comandos de ") else comando.split(" ", 1)[1])
+        continue
+
+    if comando in ["proximos pasos", "próximos pasos", "que hago ahora", "qué hago ahora",
+                   "que me falta", "qué me falta", "siguiente paso"]:
+        from core.guia_comandos import mostrar_proximos_pasos
+        mostrar_proximos_pasos()
+        continue
+
+    if comando.startswith("enseñar ") or comando.startswith("ensenar "):
+        from core.IA.ensenar import comando_ensenar
+        comando_ensenar(comando_original)
+        continue
+
+    if comando.startswith("importar ejemplos"):
+        from core.IA.ensenar import importar_ejemplos
+        importar_ejemplos()
+        continue
+
+    if comando in ["intenciones", "lista de intenciones", "mis intenciones"]:
+        from core.IA.ensenar import listar_intenciones
+        print(listar_intenciones())
+        continue
+
+    if comando.startswith("intenciones de "):
+        from core.IA.ensenar import listar_intenciones
+        print(listar_intenciones(comando.split(" ", 2)[2]))
+        continue
+
+    # COMANDOS CONECTADOS POR ARCHÉ (registro en core/comandos_extra.py):
+    # funciones que Arché escribió y vos aprobaste conectar a una frase.
+    # Van después de los comandos fijos de arriba, así que nunca los pisan.
+
+    if comandos_extra.manejar(comando_original):
+        continue
+
+    # CONVERSACIÓN RÁPIDA (gracias, cómo estás, buenos días, etc.)
+    # Respuestas instantáneas sin pasar por el clasificador ni Ollama.
+
+    if responder_conversacion(comando):
+        continue
+
+    # AUTOCONOCIMIENTO (changelog / dependencia de Ollama)
+
+    respuesta_auto = manejar_autoconocimiento(comando)
+    if respuesta_auto:
+        print(f"Arché: {respuesta_auto}")
+        continue
+
+    # Nada determinístico coincidió -> antes de caer al clasificador viejo
+    # (que solo conoce ~17 intenciones), probamos el enrutador natural,
+    # que conoce las ~60 del catálogo completo. Es opt-in ("modo natural
+    # on") para no cambiarle el comportamiento a nadie que no lo pida.
+    resultado = None
+    if enrutador_natural.activo():
+        ruteo = enrutador_natural.enrutar(comando_original)
+        if ruteo:
+            id_intencion, argumento, confianza = ruteo
+            entrada = catalogo.POR_ID.get(id_intencion)
+            if entrada and entrada["comando"]:
+                # Tiene un comando fijo equivalente (ej. "crea una nota {X}")
+                # -> se reinyecta y lo procesa el MISMO chequeo determinístico
+                # de siempre, sin duplicar ninguna función acá.
+                comando_canonico = catalogo.armar_comando(entrada, argumento)
+                if entrada.get("confirmar"):
+                    print(f"Arché: Entendí que pedís: {entrada['descripcion']}"
+                          f"{f' ({argumento})' if argumento else ''}. Es delicado, "
+                          f"¿lo confirmo? [s/n]")
+                    ok = input("Tú: ").strip().lower()
+                    if ok not in ("s", "si", "sí"):
+                        print("Arché: Dale, cancelado.")
+                        continue
+                else:
+                    print(f"Arché: (Entendí: {entrada['descripcion']})")
+                _cola_comandos_naturales.append(comando_canonico)
+                continue
+            elif entrada:
+                # Sin comando fijo (saludo, conversar, buscar, abrir, memoria,
+                # modificar_codigo...) -> se arma el MISMO formato que ya
+                # devuelve analizar(), y sigue por el switch de siempre, unas
+                # líneas más abajo, sin tocarlo.
+                resultado = {"intencion": id_intencion, "contenido": argumento}
+
+    # Nada determinístico ni el enrutador natural coincidió -> AHORA sí
+    # vale la pena clasificar con la IA (resolver() por plantillas primero,
+    # Ollama como último recurso dentro de analizar()). La telemetría del
+    # resultado ya se registra DENTRO de analizar() (en cerebroIA.py), con
+    # información más precisa de qué capa resolvió el comando -- por eso
+    # acá no se vuelve a registrar.
+    if resultado is None:
+        resultado = analizar(comando)
+    intencion = resultado["intencion"]
+    contenido = resultado["contenido"]
+
+    # un saludo es corto y trae una palabra de saludo; una frase larga sin ella (p. ej. "explicame que es una
+    # red neuronal") no es un saludo aunque una red se haya equivocado: se trata como charla.
+    if intencion == "saludo" and not re.search(
+            r"\b(hola|holi|ola|buen[oa]s?|hey|saludos|que tal|que mas|como (?:estas|andas|vas|te va)|alo|buenas)\b",
+            comando.lower().replace("é", "e").replace("á", "a")):
+        intencion, contenido = "conversar", comando
+
+    if intencion == "saludo":
+        saludar(obtener("nombre_usuario"))
+
+    elif intencion == "presentacion":
+        presentarse()
+
+    elif intencion == "hora":
+        decir_hora()
+
+    elif intencion == "fecha":
+        decir_fecha()
+
+    # AYUDA
+
+    elif intencion == "ayuda":
+        ayuda()
+
+    elif intencion == "ayuda_categoria":
+        categoria = comando.lower()
+        categoria = categoria.replace("qué hace", "")
+        categoria = categoria.replace("que hace", "")
+        categoria = categoria.replace("¿", "")
+        categoria = categoria.replace("?", "")
+        categoria = categoria.strip()
+        ayuda(categoria)
+
+    # MEMORIA
+
+    elif intencion == "recordar":
+        if contenido:
+            recordar(contenido)
+        else:
+            print("Arché: ¿Qué quieres que recuerde?")
+
+    elif intencion == "mostrar_memoria":
+        mostrar_recuerdos()
+
+    # RECORDATORIOS
+
+    elif intencion == "crear_recordatorio":
+        crear_recordatorio(contenido)
+
+    elif intencion == "mostrar_recordatorios":
+        mostrar_recordatorios()
+
+    elif intencion == "completar_recordatorio":
+        completar_recordatorio()
+
+    elif intencion == "eliminar_recordatorio":
+        eliminar_recordatorio()
+
+    # AUTO-MODIFICACIÓN RECONOCIDA EN LENGUAJE NATURAL
+    # (el trigger literal "cambia esto: ..." ya se maneja arriba, entre
+    # los comandos deterministas -- esto es para cuando lo decís de
+    # forma mas natural, sin ese formato exacto)
+
+    elif intencion == "modificar_codigo":
+        texto_instruccion = contenido if contenido else comando_original
+        manejar_pedido_de_cambio(texto_instruccion)
+
+    # BÚSQUEDAS EN GOOGLE
+
+    elif intencion in ("buscar", "buscar_en_sitio"):
+        # si el contenido nombra un sitio ("gatos en youtube"), busca ahí
+        _en_sitio = control_pc.interpretar_busqueda("busca " + contenido) if contenido else None
+        if _en_sitio:
+            control_pc.buscar_en_sitio(*_en_sitio)
+        elif intencion == "buscar_en_sitio" and contenido and control_pc.separar_sitio(contenido)[1]:
+            # la red entendió que hay un sitio, pero Arché todavía no lo conoce
+            _consulta, _sitio = control_pc.separar_sitio(contenido)
+            control_pc.buscar_en_sitio_desconocido(_sitio, _consulta)
+        elif contenido:
+            buscar_google(contenido)
+        else:
+            respuesta = input("Arché: ¿Qué quieres buscar?\nTú: ").strip().lower()
+            if respuesta:
+                buscar_google(respuesta)
+
+    # PÁGINAS WEB Y PROGRAMAS
+
+    elif intencion == "abrir":
+        nombre = contenido
+        if not nombre:
+            nombre = input("Arché: ¿Qué deseas abrir?\nTú: ").strip().lower()
+
+        if nombre in sitios:
+            abrir_navegador(nombre)
+        elif nombre in programas:
+            abrir_programa(nombre)
+        else:
+            tipo = input(
+                "Arché: ¿Es una página web (1) o un programa (2)?\nTú: "
+            ).strip()
+            if tipo == "1":
+                buscar_sitio(nombre)
+            elif tipo == "2":
+                aprender_programa(nombre)
+            else:
+                print("Arché: Cancelado.")
+
+    elif intencion == "conversar":
+        contenido_norm = _normalizar(contenido)
+
+        if contenido_norm in PREGUNTAS_FRECUENTES:
+            # Capa 0: lookup fijo, comparación de texto exacta.
+            # No calcula embeddings ni llama a Ollama.
+            respuesta_fija = PREGUNTAS_FRECUENTES[contenido_norm]
+            print(f"Arché: {respuesta_fija}")
+            registrar_comando(contenido, "conversar", resuelto_por="pregunta_frecuente")
+        else:
+            respuesta_propia = buscar_respuesta(contenido)
+
+            if respuesta_propia:
+                # Capa 1: caché de respuestas por similitud semántica.
+                print(f"Arché: {respuesta_propia}")
+                registrar_comando(contenido, "conversar", resuelto_por="cache_respuestas")
+            else:
+                # Capa 2: última instancia. Piensa con la nube si hay clave e
+                # internet (y busca en la web si la pregunta pide algo actual);
+                # si no, o si la nube falla, responde Ollama como siempre.
+                _r = cerebro_nube.responder(contenido)
+                if _r["aviso"]:
+                    print(f"Arché: ({_r['aviso']})")
+                print(f"Arché: {_r['texto']}")
+                evolucion_arche.revisar_respuesta(contenido, _r["texto"], _r["fuente"])  # si no supo, lo estudia de noche
+                if _r["cacheable"]:
+                    # solo lo que contesta Ollama sin internet se guarda en el caché
+                    guardar_respuesta(contenido, _r["texto"])
+                registrar_comando(contenido, "conversar",
+                                  resuelto_por="nube" if _r["fuente"] == "nube" else "ollama_conversar")
+                if _r["fuente"] == "nube":
+                    # en segundo plano: si fue conocimiento estable, queda guardado bajo varias formas de preguntarlo
+                    aprender_de_nube.aprender_de_charla(contenido, _r["texto"], volatil=_r["web"])
+
+    # COMANDO DESCONOCIDO
+
+    elif intencion == "desconocido":
+        _respuesta_habilidad = evolucion_arche.orden_no_entendida(comando_original)
+        if _respuesta_habilidad:
+            print(f"Arché: {_respuesta_habilidad}")      # una habilidad que se fabricó sola
+        else:
+            print("Arché: Aún no sé hacer eso. Lo anoto y esta noche intento aprender a hacerlo.")

@@ -57,6 +57,29 @@ GRILLA_HIPERPARAMETROS = {
     "activation": ["relu", "tanh"],
 }
 
+# NEUROGÉNESIS: el tamaño de la red ya no es fijo. core/evolucion.py prueba de
+# noche redes más anchas y más profundas y, si aciertan más, guarda la ganadora
+# en Database/evolucion/arquitectura.json. Aquí se suma a la grilla, así cada
+# entrenamiento puede elegir la red que creció (o las de siempre, si rinden más).
+def _arquitectura_crecida():
+    try:
+        from core.rutas import DATABASE
+        with open(os.path.join(DATABASE, "evolucion", "arquitectura.json"), encoding="utf-8") as f:
+            capas = json.load(f).get("actual", {}).get("hidden_layer_sizes")
+        if capas and all(isinstance(c, int) and 8 <= c <= 4096 for c in capas) and len(capas) <= 6:
+            return tuple(capas)
+    except (OSError, ValueError, ImportError, AttributeError):
+        pass
+    return None
+
+
+def grilla():
+    g = {k: list(v) for k, v in GRILLA_HIPERPARAMETROS.items()}
+    crecida = _arquitectura_crecida()
+    if crecida and crecida not in g["hidden_layer_sizes"]:
+        g["hidden_layer_sizes"].insert(0, crecida)
+    return g
+
 # ----------------------------------------------------------------------
 # Rasgos de PALABRAS y de LETRAS (además del embedding)
 # ----------------------------------------------------------------------
@@ -225,8 +248,8 @@ def _ajustar(X, y_cod, n_folds, n_jobs):
     from sklearn.base import clone
 
     cv = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
-    grilla = {f"red__{k}": v for k, v in GRILLA_HIPERPARAMETROS.items()}
-    busqueda = GridSearchCV(_nueva_red(), grilla, cv=cv, scoring="accuracy", n_jobs=n_jobs)
+    parametros = {f"red__{k}": v for k, v in grilla().items()}
+    busqueda = GridSearchCV(_nueva_red(), parametros, cv=cv, scoring="accuracy", n_jobs=n_jobs)
     busqueda.fit(X, y_cod)
     hiper = {k.split("__", 1)[-1]: v for k, v in busqueda.best_params_.items()}
     red_final = busqueda.best_estimator_

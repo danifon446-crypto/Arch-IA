@@ -1,0 +1,140 @@
+RAPHAEL — lo nuevo de Arché
+===========================
+
+Todo vive en una carpeta nueva: core/raphael/. Se conecta a main.py con un solo parche.
+No necesita librerías nuevas (usa psutil, numpy, sounddevice y tkinter, que Arché ya tiene).
+
+
+INSTALAR (con Arché cerrado)
+1. Copia la carpeta  core/raphael/  completa dentro de  Arche/core/
+2. Copia  aplicar_parche_raphael.py,  prueba_raphael.py  y este LEEME dentro de  Arche/
+3. En la carpeta Arche:   python prueba_raphael.py          -> debe decir 29/29
+4. En la carpeta Arche:   python aplicar_parche_raphael.py  (hace copia: main_antes_raphael_FECHA.py)
+5. En la carpeta Arche:   python seguridad.py sellar        (para que tu guardián de seguridad
+                                                              apruebe los archivos nuevos)
+6. Abre Arché y di:  qué hay de nuevo
+
+
+QUÉ HACE CADA PARTE
+-------------------
+
+GRAN SABIO → RAPHAEL  (core/raphael/sabio.py)
+  Es el cerebro de la fábrica de habilidades que ya tenías (evolucion.py, Fase 6):
+  - Antes de que entre una habilidad nueva, la revisa: pruebas de verdad (3+ asserts),
+    palabras clave que no se roben la charla, descripción. Si no pasa, no entra.
+  - Rangos: Común → Extra (5 aciertos) → Única (15) → Definitiva (40). Si falla mucho baja,
+    y si falla más de lo que acierta, se descarta y la vuelve a anotar para aprenderla mejor.
+  - Fusión: dos habilidades se funden en una superior (sola, una vez al día, si hay dos Únicas).
+  - Evolución: con 100 puntos el Gran Sabio evoluciona a Raphael. Sus avisos pasan de
+    «Respuesta:» a «Informe:», piensa con 5 líneas a la vez, caza 2 presas por día y
+    Tempest trabaja con 4 subordinados a la vez.
+    Puntos = habilidades por rango (1/3/8/20) + fusiones x10 + presas x5 + misiones x2 + nombres x3
+
+  estado del sabio · rangos · fusiona <habilidad> y <habilidad> · la habilidad falló
+
+
+DEPREDADOR  (core/raphael/depredador.py + jaula.py)
+  Cuando la fábrica no logra hacerse una habilidad, Arché sale a cazarla en GitHub:
+  busca repos de Python con licencia libre (MIT, Apache, BSD...), con estrellas y mantenidos,
+  los baja a la JAULA (solo texto, NUNCA se ejecuta nada de ahí), los escanea como un antivirus
+  (y con Windows Defender), y si están limpios escribe una habilidad NUEVA con esa técnica.
+  Esa habilidad pasa por la jaula, el Gran Sabio y la caja de arena de la evolución.
+  - Lo peligroso se bloquea para siempre y te avisa.
+  - Si la habilidad necesita leer archivos o internet, NO se la queda sin tu permiso.
+  - Caza sola 1 presa por día (2 siendo Raphael), solo cuando no estás usando el PC.
+
+  caza <lo que quieres que aprenda> · presas · absorbe presa N · descarta presa N
+  depredador apagado / encendido · token de github <token>   (opcional: más búsquedas por hora)
+
+
+TEMPEST  (core/raphael/tempest.py)
+  Un equipo de subordinados que trabajan EN PARALELO en una misión:
+  estratega (planea y revisa lecciones), investigador (internet), programador (código),
+  probador (lo revisa con la jaula y lo corre aislado), cronista (informe final).
+  Empiezan sin nombre. Al nombrarlos evolucionan: Sin nombre → Nombrado → Élite (10 xp)
+  → Comandante (30 xp) → Señor (80 xp). Cada rango les da más capacidad.
+  El código que escriben queda en la carpeta de la misión; NUNCA tocan el código de Arché.
+
+  misión: <lo que quieres> · tu equipo · nombra al investigador <Nombre>
+  ponle <Nombre> al programador · misiones · informe de la misión N · abre la misión N
+  cancela la misión
+
+  Ejemplo:  misión: investiga qué servos aguantan el peso del perro y hazme un script que calcule el torque
+
+
+IMAGINACIÓN  (core/raphael/imaginacion.py)
+  Antes de que Arché cambie su propio código, imagina qué puede pasar: qué funciones cambia,
+  quién más las usa, si se parece a un fracaso conocido y, si el riesgo lo amerita, 3 futuros
+  posibles. Si ve que rompería algo seguro, lo descarta antes de gastar la prueba completa.
+
+  imagina: <plan> · qué pasaría si <algo> · piensa a fondo: <pregunta> · qué imaginaste
+
+
+CRONISTA  (core/raphael/cronista.py + ritmo.py + fracasos_semilla.py)
+  - Aprende TU RITMO: a qué hora empiezas y terminas el día (solo horas, no qué haces).
+  - RESUMEN DE LA MAÑANA: sale solo cuando llegas al PC a tu hora de siempre:
+      noticias generales (3) + tecnología, IA, robótica, espacio, ciberseguridad (5)
+      + un fracaso reciente de las noticias + el FRACASO DEL DÍA (de una biblioteca de 44:
+      Titanic, Challenger, Ariane 5, Therac-25, Tacoma, Chirajara, Hidroituango, CrowdStrike...)
+  - RESUMEN DE LA NOCHE: qué hicimos, qué aprendí, presas, misiones, alertas.
+  - LECCIONES: cada fracaso deja una lección. Tempest y la Imaginación las consultan
+    y te avisan: "Esto se parece a lo que pasó con ...".
+  - Te llega en la consola, en voz alta (si la voz está activa), como notificación de
+    Windows y en el globo del avatar. Entre las 23:00 y las 6:00 no habla ni notifica.
+
+  ponme al día · fracaso del día · cuéntame un fracaso de <tema> · cuéntame más de la N
+  resumen de hoy · lecciones · se parece a algún fracaso: <idea>
+  mis noticias · agrega X a mis noticias · quita X de mis noticias
+  tu ritmo · dame las noticias a las 6:30 · noticias a tu ritmo
+  resumen de la noche a las 10 · resúmenes apagados / encendidos
+
+
+GUARDIÁN DEL PC  (core/raphael/guardian.py)
+  (Batería, RAM, CPU y disco ya los vigila autonomia.py; esto no los repite.)
+  - Impostores: programas con nombre de Windows fuera de C:\Windows, o nombres casi iguales.
+  - Programas nuevos corriendo desde Temp, Descargas o Público (y si tienen firma digital).
+  - Algo nuevo que se agregó para arrancar con Windows.
+  - Mineros: mucho uso de CPU durante mucho rato mientras no estás.
+  - Temperatura (si Windows la deja leer).
+  El primer día solo aprende lo normal de tu PC. Nunca cierra nada solo.
+
+  estado del guardián · escanea mi pc · alertas del guardián · confía en <programa>
+  termina el proceso N   (solo uno que él marcó) · guardián apagado / encendido
+
+
+CONVERSACIÓN VIVA  (core/raphael/voz_viva.py)
+  Mejora el «oye Arché» que ya tenías:
+  - Después de «oye Arché» sigues hablando 20 segundos sin repetirlo (y se renueva cada vez
+    que ella termina de hablar). «eso es todo» cierra la conversación.
+  - Si hablas fuerte encima de ella, se calla y te escucha. (Mejor con audífonos.)
+  - Con «aprende mi voz» graba 3 frases tuyas; con «solo obedece mi voz» ignora a otros.
+    Es una huella sencilla: distingue voces distintas, no imitadores.
+  - Ignora las frases que Whisper "inventa" en el silencio.
+
+  conversación viva encendida / apagada · aprende mi voz · solo obedece mi voz
+  obedece a todos · sensibilidad de interrupción alta / media / baja
+
+
+AVATAR  (core/raphael/avatar.py)
+  Una esfera de luz en la esquina del escritorio, siempre encima, que reacciona de verdad:
+  azul en reposo, rosa cuando habla, morada con puntos cuando piensa (Tempest, Depredador),
+  roja cuando hay una alerta, dorada cuando logra algo, apagada con «z» cuando no estás.
+  Los avisos salen en un globo a su lado. Clic: te abre la burbuja para escribirle.
+  Arrastrar: la mueves. Clic derecho: esconder / más grande / más pequeña.
+
+  muestra el avatar · esconde el avatar · avatar grande · avatar pequeño
+
+
+DÓNDE GUARDA LAS COSAS
+  Database/raphael/   (estado de cada parte, informes, misiones de Tempest, ritmo)
+  La jaula del Depredador queda vacía después de cada caza.
+
+SEGURIDAD
+  - core/raphael/ es núcleo protegido: la evolución de Arché no lo puede reescribir sola.
+  - Nada bajado de internet se ejecuta. Lo que Arché escribe a partir de eso pasa por 3 filtros.
+  - El código de Tempest se corre solo si la jaula no le encuentra nada raro, aislado y con
+    límite de 30 segundos, y en la carpeta de la misión.
+
+DESHACER
+  Copia main_antes_raphael_FECHA.py encima de main.py. (La carpeta core/raphael puede quedarse:
+  sin el parche no hace nada.)

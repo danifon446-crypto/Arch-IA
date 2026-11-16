@@ -48,6 +48,8 @@ from turno import ErrorTurno, Supabase   # noqa: E402
 
 MIN_NUEVOS = 500
 MIN_DIAS = 7
+# CRECIMIENTO DE LA LoRA: con más datos, más capacidad (rango). Nunca baja de lo que ya aprobó.
+RANGOS_LORA = [(0, 16), (1500, 32), (4000, 64), (10000, 128)]   # (ejemplos de entrenamiento, rango)
 PESO_CHARLA = 4                  # un ejemplo de charla del auto-juego cuenta como 4 frases nuevas
 MAX_HORAS_ENTRENANDO = 14         # Kaggle corta a las 12 h; si pasa de esto algo quedo colgado
 SLUG_DATASET = "arche-datos"
@@ -101,8 +103,8 @@ def kaggle(*args, revisar=True):
     return salida
 
 
-def estado_kernel(usuario):
-    texto = kaggle("kernels", "status", f"{usuario}/{SLUG_KERNEL}").lower()
+def estado_kernel(usuario, slug=SLUG_KERNEL):
+    texto = kaggle("kernels", "status", f"{usuario}/{slug}").lower()
     for palabra in ("complete", "error", "cancel", "running", "queued"):
         if palabra in texto:
             return palabra, texto.strip()
@@ -148,10 +150,22 @@ def esperar_dataset(usuario, minutos):
     return ultimo
 
 
-def lanzar_kernel(usuario, version):
+def elegir_rango(n_entrenamiento, estado):
+    """Rango de la LoRA segun cuantos datos hay; crece solo y nunca baja del ultimo aprobado.
+    Si el ultimo entrenamiento NO aprobo con ese rango, no sube mas hasta que apruebe."""
+    rango = max(r for minimo, r in RANGOS_LORA if n_entrenamiento >= minimo)
+    aprobado = int(estado.get("rango_lora") or 16)
+    if estado.get("ultimo_rechazado_rango") and rango > aprobado:
+        rango = min(rango, int(estado["ultimo_rechazado_rango"]))
+    return max(rango, aprobado)
+
+
+def lanzar_kernel(usuario, version, rango=16):
     carpeta = tempfile.mkdtemp(prefix="arche_kernel_")
     with open(os.path.join(AQUI, "kaggle_entrenar.py"), encoding="utf-8") as f:
         codigo = f.read().replace('VERSION = "__VERSION__"', f'VERSION = "{version}"', 1)
+    codigo = codigo.replace("LORA_R, LORA_ALPHA, LORA_DROPOUT = 16, 32, 0.05",
+                            f"LORA_R, LORA_ALPHA, LORA_DROPOUT = {int(rango)}, {int(rango) * 2}, 0.05", 1)
     with open(os.path.join(carpeta, "kaggle_entrenar.py"), "w", encoding="utf-8") as f:
         f.write(codigo)
     with open(os.path.join(carpeta, "kernel-metadata.json"), "w", encoding="utf-8") as f:
@@ -161,6 +175,102 @@ def lanzar_kernel(usuario, version):
                    "dataset_sources": [f"{usuario}/{SLUG_DATASET}"], "competition_sources": [],
                    "kernel_sources": [], "model_sources": []}, f)
     kaggle("kernels", "push", "-p", carpeta, "--accelerator", ACELERADOR)
+
+
+# ------------------------------------------------------------------
+# El profesor (kaggle_profesor.py): un modelo grande que genera ejemplos y el examen fijo
+# ------------------------------------------------------------------
+SLUG_PROFESOR = "arche-profesor"
+DIAS_ENTRE_PROFESOR = 2
+MAX_HORAS_PROFESOR = 6
+MAX_CHARLA_PROFESOR = 2000
+MAX_EXAMEN_PROFESOR = 250
+
+
+def lanzar_profesor(usuario, temas):
+    carpeta = tempfile.mkdtemp(prefix="arche_profesor_")
+    with open(os.path.join(AQUI, "kaggle_profesor.py"), encoding="utf-8") as f:
+        codigo = f.read().replace('TEMAS_JSON = "[]"', "TEMAS_JSON = " + json.dumps(json.dumps(temas[:40])), 1)
+    with open(os.path.join(carpeta, "kaggle_profesor.py"), "w", encoding="utf-8") as f:
+        f.write(codigo)
+    with open(os.path.join(carpeta, "kernel-metadata.json"), "w", encoding="utf-8") as f:
+        json.dump({"id": f"{usuario}/{SLUG_PROFESOR}", "title": SLUG_PROFESOR, "code_file": "kaggle_profesor.py",
+                   "language": "python", "kernel_type": "script", "is_private": "true",
+                   "enable_gpu": "true", "enable_internet": "true", "machine_shape": ACELERADOR,
+                   "dataset_sources": [], "competition_sources": [], "kernel_sources": [], "model_sources": []}, f)
+    kaggle("kernels", "push", "-p", carpeta, "--accelerator", ACELERADOR)
+
+
+def leer_jsonl(ruta):
+    if not os.path.exists(ruta):
+        return []
+    with open(ruta, encoding="utf-8") as f:
+        return [json.loads(l) for l in f if l.strip()]
+
+
+def guardar_lo_del_profesor(supa, nuevos, examen):
+    """Suma lo nuevo a Supabase sin duplicar. Devuelve (ejemplos agregados, preguntas de examen agregadas)."""
+    charla = leer_config(supa, "charla_profesor", {}) or {}
+    previos = charla.get("ejemplos", [])
+    vistas = {datos.normalizar(e["pregunta"]) for e in previos}
+    agregados = [{"pregunta": e["pregunta"], "respuesta": e["respuesta"], "tema": e.get("tema", "")}
+                 for e in nuevos if datos.normalizar(e["pregunta"]) not in vistas]
+    guardar_config(supa, "charla_profesor", {"total": int(charla.get("total", 0)) + len(agregados),
+                                             "ejemplos": (previos + agregados)[-MAX_CHARLA_PROFESOR:]})
+    ex = leer_config(supa, "examen_profesor", {}) or {}
+    items = ex.get("items", [])
+    vistas_ex = {datos.normalizar(e["pregunta"]) for e in items}
+    nuevas_ex = [{"pregunta": e["pregunta"], "claves": e["claves"], "area": e.get("tema", "general")[:40]}
+                 for e in examen if e.get("claves") and datos.normalizar(e["pregunta"]) not in vistas_ex]
+    lugar = max(0, MAX_EXAMEN_PROFESOR - len(items))           # el examen fijo crece hasta un tope y se queda
+    if nuevas_ex[:lugar]:
+        guardar_config(supa, "examen_profesor", {"items": items + nuevas_ex[:lugar], "actualizado": iso(ahora())})
+    return len(agregados), len(nuevas_ex[:lugar])
+
+
+def recoger_profesor(supa, usuario, avisar):
+    """Si el profesor estaba corriendo y terminó, guarda su trabajo. Devuelve True si SIGUE corriendo."""
+    prof = leer_config(supa, "profesor", {}) or {}
+    if prof.get("estado") == "corriendo":
+        situacion, texto = estado_kernel(usuario, SLUG_PROFESOR)
+        horas = (ahora() - (de_iso(prof.get("iniciado") or "") or ahora())).total_seconds() / 3600
+        if situacion in ("running", "queued") and horas <= MAX_HORAS_PROFESOR:
+            avisar(f"El profesor sigue trabajando en Kaggle ({horas:.1f} h).")
+            return True
+        prof.update(estado="libre", fecha=iso(ahora()))
+        if situacion == "complete":
+            carpeta = tempfile.mkdtemp(prefix="arche_salida_prof_")
+            kaggle("kernels", "output", f"{usuario}/{SLUG_PROFESOR}", "-p", carpeta, "-o", "-q")
+            n, ne = guardar_lo_del_profesor(supa, leer_jsonl(os.path.join(carpeta, "profesor.jsonl")),
+                                            leer_jsonl(os.path.join(carpeta, "examen.jsonl")))
+            try:
+                with open(os.path.join(carpeta, "resumen_profesor.json"), encoding="utf-8") as f:
+                    resumen = json.load(f)
+            except (OSError, ValueError):
+                resumen = {}
+            prof["nota"] = (f"el profesor ({resumen.get('modelo', '?')}) dejó {n} ejemplos nuevos y "
+                            f"{ne} preguntas para el examen fijo")
+            shutil.rmtree(carpeta, ignore_errors=True)
+        else:
+            prof["nota"] = f"el profesor no terminó en Kaggle: {situacion} {texto[-200:]}"
+        guardar_config(supa, "profesor", prof)
+        avisar(prof["nota"])
+    return False
+
+
+def lanzar_profesor_si_toca(supa, usuario, avisar):
+    """Solo con la GPU libre (el entrenador no está en Kaggle) y cada DIAS_ENTRE_PROFESOR días."""
+    prof = leer_config(supa, "profesor", {}) or {}
+    if prof.get("estado") == "corriendo":
+        return
+    ultima = de_iso(prof.get("fecha") or "")
+    if ultima and (ahora() - ultima).days < DIAS_ENTRE_PROFESOR:
+        return
+    temas = (leer_config(supa, "temas_profesor", {}) or {}).get("temas", [])
+    lanzar_profesor(usuario, [t for t in temas if isinstance(t, str)])
+    prof.update(estado="corriendo", iniciado=iso(ahora()))
+    guardar_config(supa, "profesor", prof)
+    avisar(f"Lancé al profesor en Kaggle con {len(temas)} temas de Arché (+ los temas base).")
 
 
 # ------------------------------------------------------------------
@@ -201,15 +311,30 @@ def toca_entrenar(estado, nuevos, forzar):
     return True, f"{nuevos} ejemplos nuevos"
 
 
-def leer_charla(supa):
-    """Charla que Arché aprendió sola en su modo sueño (core/evolucion.py la sube a arche_config)."""
+def leer_config(supa, clave, defecto=None):
     try:
-        filas = supa.leer("arche_config", {"select": "valor", "clave": "eq.charla_aprendida"})
-        valor = (filas or [{}])[0].get("valor") or {}
-        return int(valor.get("total", 0)), [e for e in valor.get("ejemplos", [])
-                                            if isinstance(e, dict) and e.get("pregunta") and e.get("respuesta")]
+        filas = supa.leer("arche_config", {"select": "valor", "clave": f"eq.{clave}"})
+        valor = (filas or [{}])[0].get("valor")
+        return valor if valor is not None else defecto
     except Exception:
-        return 0, []
+        return defecto
+
+
+def guardar_config(supa, clave, valor):
+    supa._pedir("POST", "arche_config", {"on_conflict": "clave"}, [{"clave": clave, "valor": valor}],
+                extra={"Prefer": "return=minimal,resolution=merge-duplicates"})
+
+
+def leer_charla(supa):
+    """Charla para entrenar: la del auto-juego de Arché (charla_aprendida) + la del profesor
+    (charla_profesor). Devuelve (contador total que solo crece, ejemplos)."""
+    total, ejemplos = 0, []
+    for clave in ("charla_aprendida", "charla_profesor"):
+        valor = leer_config(supa, clave, {}) or {}
+        total += int(valor.get("total", 0))
+        ejemplos += [e for e in valor.get("ejemplos", [])
+                     if isinstance(e, dict) and e.get("pregunta") and e.get("respuesta")]
+    return total, ejemplos
 
 
 def empezar(supa, estado, usuario, forzar, avisar):
@@ -237,14 +362,16 @@ def empezar(supa, estado, usuario, forzar, avisar):
     datos.guardar(paquete, carpeta)
     situacion = subir_dataset(usuario, carpeta, version)
     estado.update(forzar=False, en_curso=version, max_id_en_curso=max_id, iniciado=iso(ahora()),
-                  charla_usada_en_curso=total_charla)
+                  charla_usada_en_curso=total_charla,
+                  rango_en_curso=elegir_rango(meta["entrenamiento"] + meta.get("charla_aprendida", 0), estado))
+    avisar(f"Rango de la LoRA para v{version}: {estado['rango_en_curso']}")
     return seguir_con_dataset(supa, estado, usuario, situacion, avisar)
 
 
 def seguir_con_dataset(supa, estado, usuario, situacion, avisar):
     version = estado["en_curso"]
     if situacion == "ready":
-        lanzar_kernel(usuario, version)
+        lanzar_kernel(usuario, version, estado.get("rango_en_curso") or estado.get("rango_lora") or 16)
         estado.update(estado="entrenando", iniciado=iso(ahora()), nota=f"entrenando v{version} en Kaggle")
         guardar_estado(supa, estado)
         avisar(f"Lancé el entrenamiento v{version} en Kaggle (GPU {ACELERADOR}).")
@@ -311,9 +438,14 @@ def revisar(supa, estado, usuario, avisar):
     if metricas.get("aprobado") and metricas.get("gguf"):
         estado["candidato"] = publicar_en_hf(carpeta, version, metricas)
         estado["version"] = version
+        estado["rango_lora"] = estado.pop("rango_en_curso", estado.get("rango_lora", 16))
+        estado.pop("ultimo_rechazado_rango", None)
         estado["nota"] = f"v{version} aprobó en Kaggle: {resumen}. Tu PC la examina antes de usarla."
     else:
         estado["nota"] = f"v{version} NO aprobó: {'; '.join(metricas.get('motivos') or [])} ({resumen})"
+        rechazado = estado.pop("rango_en_curso", None)
+        if rechazado and int(rechazado) > int(estado.get("rango_lora") or 16):
+            estado["ultimo_rechazado_rango"] = int(rechazado)   # no sigue subiendo hasta aprobar con este
     guardar_estado(supa, estado)
     avisar(estado["nota"])
     shutil.rmtree(carpeta, ignore_errors=True)
@@ -330,16 +462,33 @@ def main(argv):
         return 0
     supa = Supabase(os.environ["SUPABASE_URL"].strip(), os.environ["SUPABASE_SERVICE_KEY"].strip())
     usuario = os.environ["KAGGLE_USERNAME"].strip()
-    try:
+    codigo_profesor, profesor_corriendo = 0, False
+    try:                                     # 1) si el profesor terminó, su trabajo entra a este mismo ciclo
+        profesor_corriendo = recoger_profesor(supa, usuario, print)
+    except ErrorTurno as e:
+        print(f"El profesor no pudo terminar: {e}")
+        codigo_profesor = 1
+    try:                                     # 2) el entrenador, como siempre (una sola GPU a la vez)
         estado = leer_estado(supa)
         if estado["estado"] == "entrenando":
-            return revisar(supa, estado, usuario, print)
-        if estado["estado"] == "esperando_datos":
-            return seguir_con_dataset(supa, estado, usuario, esperar_dataset(usuario, minutos=10), print)
-        return empezar(supa, estado, usuario, "--forzar" in argv, print)
+            codigo = revisar(supa, estado, usuario, print)
+        elif estado["estado"] == "esperando_datos":
+            codigo = seguir_con_dataset(supa, estado, usuario, esperar_dataset(usuario, minutos=10), print)
+        elif profesor_corriendo:
+            print("El entrenador espera: el profesor está usando la GPU de Kaggle.")
+            codigo = 0
+        else:
+            codigo = empezar(supa, estado, usuario, "--forzar" in argv, print)
     except ErrorTurno as e:
         print(f"El entrenador no pudo terminar: {e}")
         return 1
+    try:                                     # 3) si la GPU quedó libre, le toca al profesor
+        if not profesor_corriendo and leer_estado(supa)["estado"] == "libre":
+            lanzar_profesor_si_toca(supa, usuario, print)
+    except ErrorTurno as e:
+        print(f"No pude lanzar al profesor: {e}")
+        codigo_profesor = 1
+    return codigo or codigo_profesor
 
 
 if __name__ == "__main__":

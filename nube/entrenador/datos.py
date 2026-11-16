@@ -129,7 +129,7 @@ def partir_y_equilibrar(limpias, semilla=0):
     return equilibrado, validacion
 
 
-MAX_CHARLA = 400               # ejemplos de charla aprendida (auto-juego de Arché) por entrenamiento
+MAX_CHARLA = 2500              # charla para entrenar: auto-juego de Arché + profesor (kaggle_profesor.py)
 
 
 def limpiar_charla(charla):

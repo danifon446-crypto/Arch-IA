@@ -81,7 +81,7 @@ def herramienta_rutina(orden):
 
 def herramienta_falla(orden):
     if orden.startswith("explota"):
-        raise ValueError("falla de prueba")
+        print("falla de prueba")
     return None
 
 

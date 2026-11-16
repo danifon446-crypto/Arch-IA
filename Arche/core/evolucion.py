@@ -20,6 +20,9 @@ ARCHÉ QUE EVOLUCIONA SOLA. Todo en un solo archivo, por fases:
                             examen y la ganadora sobrevive (con arbol genealogico).
   FASE 6  Fabrica ......... cuando falla varias veces en el mismo tipo de tarea, escribe una
                             habilidad nueva, la prueba aislada y, si funciona, se la queda.
+  FASE 7  Neurogenesis .... sus redes neuronales crecen solas: prueba redes mas anchas y mas
+                            profundas con tus datos; si aciertan mas, se queda con la grande.
+                            La LoRA tambien sube de rango sola cuando hay mas datos (nube).
 
 YA VIENE CONECTADO en main.py (iniciar, la tupla de modulos, revisar_respuesta en la charla y
 orden_no_entendida cuando no entiende algo). Todo lo demas lo hace sola, sin que intervengas:
@@ -35,6 +38,7 @@ COMANDOS:
     duerme / sueña ahora                        que soñaste
     consejo: <pregunta>   (debate: <pregunta> muestra la discusion)
     tu nivel                                    tus habilidades
+    tus redes                                   crece tus redes
     tu arbol genealogico                        deshaz la evolucion
     evolucion apagada / evolucion encendida
 
@@ -242,11 +246,37 @@ def _modelos():
         return "arche-lora", "qwen2.5-coder:7b"
 
 
-def _llm(prompt, sistema="", temperatura=0.5, codigo=False, max_tokens=500):
-    """Llama a Ollama. Devuelve "" si falla (Arche sigue funcionando igual)."""
+JUECES_PREFERIDOS = ["qwen2.5:3b", "qwen2.5:3b-instruct", "llama3.2:3b"]   # mejores jueces que caben en 7 GB
+_juez_cache = {"modelo": None, "cuando": 0}
+
+
+def _modelo_juez():
+    """Un modelo general más grande que arche-lora para CALIFICAR (si no hay, usa arche-lora)."""
+    if time.time() - _juez_cache["cuando"] < 3600:
+        return _juez_cache["modelo"]
+    elegido = None
+    try:
+        import ollama
+        lista = ollama.list()
+        modelos = lista.get("models", []) if isinstance(lista, dict) else getattr(lista, "models", [])
+        nombres = {(m.get("model") or m.get("name") if isinstance(m, dict) else getattr(m, "model", "")) or ""
+                   for m in modelos}
+        nombres |= {n.split(":latest")[0] for n in nombres}
+        elegido = next((j for j in JUECES_PREFERIDOS if j in nombres), None)
+    except Exception:
+        pass
+    _juez_cache.update(modelo=elegido, cuando=time.time())
+    return elegido
+
+
+def _llm(prompt, sistema="", temperatura=0.5, codigo=False, max_tokens=500, juez=False):
+    """Llama a Ollama. Devuelve "" si falla (Arche sigue funcionando igual).
+    juez=True usa el modelo juez (más grande) si está instalado."""
     try:
         import ollama
         modelo, modelo_codigo = _modelos()
+        if juez and not codigo:
+            modelo = _modelo_juez() or modelo
         mensajes = []
         if sistema:
             mensajes.append({"role": "system", "content": sistema})
@@ -352,6 +382,59 @@ _EXAMEN_INICIAL = [
 ]
 
 
+ARCH_EXAMEN_FIJO = os.path.join(CARPETA, "examen_fijo.json")
+MIN_EXAMEN_FIJO = 30          # con menos preguntas no vale la pena usarlo
+VENTAJA_PARA_GANAR = 3        # una hija gana solo si saca 3+ puntos más (2 puntos puede ser suerte)
+
+
+def _examen_fijo():
+    """El examen que hizo el profesor en Kaggle. Nunca cambia por lo que Arché aprenda,
+    así la nota de hoy se puede comparar con la de ayer."""
+    ex = _cargar(ARCH_EXAMEN_FIJO, [])
+    return ex if len(ex) >= MIN_EXAMEN_FIJO else None
+
+
+def _bajar_examen_fijo():
+    try:
+        from core import memoria_nube
+        if not memoria_nube.activo():
+            return []
+        filas = memoria_nube._pedir("GET", "arche_config", {"select": "valor", "clave": "eq.examen_profesor"}) or []
+        items = ((filas[0].get("valor") or {}).get("items") if filas else None) or []
+        items = [{"area": str(i.get("area", "general"))[:40], "pregunta": i["pregunta"],
+                  "claves": [_norm(c) for c in i.get("claves", []) if c]}
+                 for i in items if isinstance(i, dict) and i.get("pregunta") and i.get("claves")]
+        antes = len(_cargar(ARCH_EXAMEN_FIJO, []))
+        if len(items) > antes:
+            _guardar(ARCH_EXAMEN_FIJO, items)
+            return [f"mi examen fijo creció a {len(items)} preguntas (hechas por el profesor)"]
+    except Exception as e:
+        _diario("nube", f"no pude bajar el examen fijo: {e}"[:200])
+    return []
+
+
+def _subir_temas_al_profesor():
+    """Le dice al profesor de Kaggle qué estudiar: lo que no supo, sus áreas flojas y sus intereses."""
+    try:
+        from core import memoria_nube
+        if not memoria_nube.activo():
+            return []
+        temas = [i["tema"] for i in _no_se_pendientes("conocimiento")[:20]]
+        hist = [h for h in _estado()["historial_nivel"] if h.get("examen") == "fijo"]
+        if hist:
+            temas += [a for a, n in sorted(hist[-1].get("areas", {}).items(), key=lambda x: x[1])[:6]]
+        temas += [i["tema"] for i in _cargar(ARCH_NO_SE, []) if i["tipo"] == "conocimiento"][-10:]
+        temas += INTERESES
+        limpios = list(dict.fromkeys(t.strip()[:120] for t in temas if t and not _tiene_personal(t)))[:40]
+        memoria_nube._pedir("POST", "arche_config", {"on_conflict": "clave"},
+                            [{"clave": "temas_profesor", "valor": {"temas": limpios, "actualizado": _ahora()}}],
+                            prefer="return=minimal,resolution=merge-duplicates")
+        return []
+    except Exception as e:
+        _diario("nube", f"no pude subir los temas: {e}"[:200])
+        return []
+
+
 def _examen():
     ex = _cargar(ARCH_EXAMEN, None)
     if not ex:
@@ -378,9 +461,11 @@ def _nota_respuesta(respuesta, claves):
 
 
 def rendir_examen(genoma=None, muestra=None):
-    """Nota de 0 a 100 por area y total, respondiendo con ese 'genoma' (forma de pensar)."""
+    """Nota de 0 a 100 por area y total, respondiendo con ese 'genoma' (forma de pensar).
+    Usa el examen FIJO del profesor si ya existe; si no, el examen propio (que crece)."""
     genoma = genoma or genoma_actual()
-    preguntas = _examen()
+    fijo = _examen_fijo()
+    preguntas = fijo or _examen()
     if muestra and len(preguntas) > muestra:
         random.seed(_hoy())        # misma muestra para todas las hijas del mismo dia (justo)
         preguntas = random.sample(preguntas, muestra)
@@ -393,7 +478,7 @@ def rendir_examen(genoma=None, muestra=None):
         por_area.setdefault(p["area"], []).append(_nota_respuesta(r, p["claves"]))
     notas = {a: round(100 * sum(v) / len(v)) for a, v in por_area.items() if v}
     total = round(sum(notas.values()) / len(notas)) if notas else 0
-    return {"total": total, "areas": notas}
+    return {"total": total, "areas": notas, "examen": "fijo" if fijo else "propio"}
 
 
 def _registrar_nivel(resultado):
@@ -864,7 +949,7 @@ def consejo(pregunta, contexto=""):
                  "Como juez, decide la mejor respuesta: toma lo correcto de cada voz y descarta lo débil. "
                  "Responde directamente a la pregunta, claro y breve.",
                  sistema="Eres Arché, la que decide después de escuchar a sus voces internas.",
-                 temperatura=0.3, max_tokens=400)
+                 temperatura=0.3, max_tokens=400, juez=True)
     return final, debate
 
 
@@ -874,7 +959,7 @@ def calificar(pregunta, respuesta):
         return 0
     r = _llm(f"Pregunta: {pregunta}\nRespuesta: {respuesta}\n\nCalifica de 0 a 10 qué tan correcta, útil y "
              'clara es. Sé exigente. Responde SOLO un JSON: {"nota": 0, "por_que": "breve"}',
-             sistema="Eres un examinador estricto.", temperatura=0.0, max_tokens=120)
+             sistema="Eres un examinador estricto.", temperatura=0.0, max_tokens=120, juez=True)
     d = _json_de(r)
     try:
         return max(0, min(10, int(float(d.get("nota", 0))))) if isinstance(d, dict) else 0
@@ -956,7 +1041,7 @@ def seleccion_natural(hijas=HIJAS_POR_NOCHE):
     """Las hijas compiten en el examen con la madre; la mejor se vuelve la nueva Arché."""
     g = _genomas()
     madre = g["todos"][g["actual"]]
-    muestra = 25
+    muestra = 40
     nota_madre = rendir_examen(madre, muestra)["total"]
     madre["nota"] = nota_madre
     mejor, nota_mejor = madre, nota_madre
@@ -966,7 +1051,7 @@ def seleccion_natural(hijas=HIJAS_POR_NOCHE):
         hija = _mutar(madre)
         hija["nota"] = rendir_examen(hija, muestra)["total"]
         g["todos"][hija["id"]] = hija
-        if hija["nota"] > nota_mejor:          # gana solo si es ESTRICTAMENTE mejor
+        if hija["nota"] >= nota_mejor + VENTAJA_PARA_GANAR:   # gana solo si es CLARAMENTE mejor
             mejor, nota_mejor = hija, hija["nota"]
     g["actual"] = mejor["id"]
     # se guardan las ganadoras y su linaje; las perdedoras viejas se descartan
@@ -1210,6 +1295,162 @@ def usar_habilidad(texto):
 
 
 # ------------------------------------------------------------------
+# FASE 7 — Neurogénesis: sus redes neuronales crecen solas
+# ------------------------------------------------------------------
+# Cada noche prueba versiones MÁS GRANDES de su red de intenciones (más neuronas
+# por capa, o una capa más) contra la actual, con validación cruzada sobre tus
+# datos reales. Si una acierta más, esa se vuelve su nuevo tamaño y se reentrena.
+# Si una red más grande no ayuda (pocos datos), no crece: crecer sin datos solo
+# hace que memorice. Por eso, antes de crecer, se genera ejemplos nuevos.
+
+ARCH_ARQUITECTURA = os.path.join(CARPETA, "arquitectura.json")
+MAX_NEURONAS = 2048          # tope total (la laptop entrena en CPU)
+MAX_CAPAS = 4
+MEJORA_MINIMA = 0.01         # +1 punto de acierto para aceptar una red más grande
+MIN_CLASE_NEURO = 3          # ejemplos mínimos por intención para medir en serio
+
+
+def _arquitectura():
+    a = _cargar(ARCH_ARQUITECTURA, None)
+    if a:
+        return a
+    capas, alpha, act = [128], 0.01, "tanh"
+    try:
+        from core.IA.clasificador import _cargar_modelo
+        _, meta, _ = _cargar_modelo()
+        hp = (meta or {}).get("hiperparametros") or {}
+        capas = list(hp.get("hidden_layer_sizes") or capas)
+        alpha, act = hp.get("alpha", alpha), hp.get("activation", act)
+    except Exception:
+        pass
+    return {"actual": {"hidden_layer_sizes": capas, "alpha": alpha, "activation": act, "score": None},
+            "historial": []}
+
+
+def _candidatas(capas):
+    """Hijas más grandes: más ancha y más profunda (respetando los topes)."""
+    capas = list(capas)
+    salida = []
+    ancha = [min(1024, int(round(c * 1.5 / 32.0)) * 32 or 32) for c in capas]
+    if ancha != capas and sum(ancha) <= MAX_NEURONAS:
+        salida.append(("más ancha", ancha))
+    if len(capas) < MAX_CAPAS:
+        profunda = capas + [max(64, capas[-1] // 2)]
+        if sum(profunda) <= MAX_NEURONAS:
+            salida.append(("una capa más", profunda))
+    return salida
+
+
+def _datos_redes():
+    """X, y con las intenciones que tienen ejemplos suficientes para medir."""
+    from core.IA.evaluar_redes import _datos
+    _, _, X, y = _datos()
+    from collections import Counter
+    conteo = Counter(y)
+    mascara = [conteo[c] >= MIN_CLASE_NEURO for c in y]
+    import numpy as np
+    m = np.array(mascara, dtype=bool)
+    return X[m], y[m]
+
+
+def _medir_red(capas, alpha, activacion, X, y):
+    """Acierto con validación cruzada (mismos folds para todas: comparación justa)."""
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
+    from sklearn.preprocessing import LabelEncoder
+    from core.IA.clasificador import _nueva_red
+    yc = LabelEncoder().fit_transform(y)
+    red = _nueva_red().set_params(red__hidden_layer_sizes=tuple(capas), red__alpha=alpha,
+                                  red__activation=activacion, red__early_stopping=True)
+    cv = StratifiedKFold(n_splits=MIN_CLASE_NEURO, shuffle=True, random_state=42)
+    return float(cross_val_score(red, X, yc, cv=cv, scoring="accuracy", n_jobs=-1).mean())
+
+
+def _mas_ejemplos_para_redes():
+    """Más datos = vale la pena una red más grande. Usa el generador que ya tiene Arché."""
+    try:
+        from core.IA import entrenador_masivo
+        r = entrenador_masivo.entrenar_rapido(por_intencion=3, detener_evento=_detener, silencioso=True) or {}
+        n = int(r.get("aceptadas", 0))
+        return [f"me generé {n} frases nuevas para entrenar mis redes"] if n else []
+    except Exception as e:
+        _diario("neuro", f"no pude generar ejemplos: {e}"[:200])
+        return []
+
+
+def neurogenesis(medir=None, datos=None, reentrenar=None):
+    """Prueba redes más grandes y se queda con la que más acierte. Devuelve lo que hizo."""
+    medir = medir or _medir_red
+    try:
+        X, y = datos if datos is not None else _datos_redes()
+    except Exception as e:
+        _diario("neuro", f"sin datos para medir: {e}"[:200])
+        return []
+    if len(set(y)) < 2 or len(y) < 30:
+        return ["mis redes no crecieron: todavía tengo pocos ejemplos"]
+    a = _arquitectura()
+    act = a["actual"]
+    capas, alpha, activacion = list(act["hidden_layer_sizes"]), act["alpha"], act["activation"]
+    try:
+        actual = medir(capas, alpha, activacion, X, y)
+    except Exception as e:
+        _diario("neuro", f"no pude medir la red actual: {e}"[:200])
+        return []
+    mejor_capas, mejor_score, mejor_tipo = capas, actual, None
+    for tipo, cand in _candidatas(capas):
+        if _detener.is_set():
+            break
+        try:
+            score = medir(cand, alpha, activacion, X, y)
+        except Exception as e:
+            _diario("neuro", f"{cand}: {e}"[:200])
+            continue
+        _diario("neuro", f"probé {cand} ({tipo}): {score:.1%} contra {actual:.1%} de {capas}")
+        if score >= mejor_score + MEJORA_MINIMA:
+            mejor_capas, mejor_score, mejor_tipo = cand, score, tipo
+    a["actual"]["score"] = round(mejor_score, 4)
+    if mejor_tipo is None:
+        _guardar(ARCH_ARQUITECTURA, a)
+        return [f"probé redes más grandes pero la actual {tuple(capas)} sigue siendo la mejor ({actual:.0%})"]
+    a["historial"].append({"cuando": _ahora(), "de": capas, "a": mejor_capas, "como": mejor_tipo,
+                           "antes": round(actual, 4), "despues": round(mejor_score, 4), "ejemplos": int(len(y))})
+    a["actual"]["hidden_layer_sizes"] = mejor_capas
+    _guardar(ARCH_ARQUITECTURA, a)
+    try:
+        if reentrenar:
+            reentrenar()
+        else:
+            from core.IA import clasificador, clasificador_jerarquico
+            clasificador.entrenar(silencioso=True)
+            clasificador_jerarquico.entrenar_jerarquico(silencioso=True)
+    except Exception as e:
+        _diario("neuro", f"creció pero no pude reentrenar: {e}"[:200])
+    _diario("neuro", f"mi red creció de {tuple(capas)} a {tuple(mejor_capas)} ({actual:.1%} -> {mejor_score:.1%})")
+    return [f"mi red neuronal creció ({mejor_tipo}): {tuple(capas)} → {tuple(mejor_capas)} neuronas, "
+            f"acierto {actual:.0%} → {mejor_score:.0%}"]
+
+
+def texto_redes():
+    a = _arquitectura()
+    act = a["actual"]
+    lineas = [f"Mi red de intenciones hoy: {tuple(act['hidden_layer_sizes'])} "
+              f"({sum(act['hidden_layer_sizes'])} neuronas ocultas"
+              + (f", acierto {act['score']:.0%})" if act.get("score") else ")")]
+    for h in a["historial"][-8:]:
+        lineas.append(f"  {h['cuando'][:10]}: {tuple(h['de'])} → {tuple(h['a'])} ({h['como']}), "
+                      f"{h['antes']:.0%} → {h['despues']:.0%}")
+    if not a["historial"]:
+        lineas.append("  Todavía no ha crecido: lo intento cada noche cuando tenga datos para aprovecharlo.")
+    try:
+        from core.IA import modelo_nuevo
+        lora = ((modelo_nuevo.estado_nube() or {}).get("rango_lora"))
+        if lora:
+            lineas.append(f"Mi LoRA (el modelo de lenguaje) entrena con rango {lora}.")
+    except Exception:
+        pass
+    return "\n".join(lineas)
+
+
+# ------------------------------------------------------------------
 # MODO SUEÑO — junta todas las fases
 # ------------------------------------------------------------------
 
@@ -1220,16 +1461,22 @@ def dormir_y_sonar():
     _detener.clear()
     hechos = []
     pasos = [
+        ("examen fijo", _bajar_examen_fijo),        # primero: todo lo demás se mide con él
         ("ordenar memoria", _consolidar_memoria),
         ("curiosidad", _curiosidad),
         ("auto-reparación", _reparar_errores),
         ("fábrica de habilidades", fabricar_habilidades),
+        ("más ejemplos para mis redes", _mas_ejemplos_para_redes),
+        ("neurogénesis", neurogenesis),
         ("auto-juego", auto_juego),
         ("selección natural", seleccion_natural),
         ("subir a la nube", _subir_charla_a_la_nube),
+        ("temas para el profesor", _subir_temas_al_profesor),
         ("modelo nuevo", _adoptar_modelo_nuevo),
     ]
-    antes = (_estado()["historial_nivel"] or [{}])[-1].get("total")
+    def _ultimo(tipo):
+        mismos = [h for h in _estado()["historial_nivel"] if h.get("examen", "propio") == tipo]
+        return mismos[-1]["total"] if mismos else None
     for nombre, paso in pasos:
         if _detener.is_set():
             hechos.append("me desperté antes de terminar")
@@ -1240,6 +1487,7 @@ def dormir_y_sonar():
             _diario("error_sueno", f"{nombre}: {e}"[:300])
     if not _detener.is_set():
         resultado = rendir_examen()
+        antes = _ultimo(resultado["examen"])
         _registrar_nivel(resultado)
         if antes is not None:
             hechos.append(f"mi nivel pasó de {antes} a {resultado['total']}")
@@ -1388,7 +1636,10 @@ def manejar(comando):
             _msg("Aún no me he examinado. Lo hago la próxima vez que duerma.")
         else:
             ult = hist[-1]
-            prim = hist[0]
+            mismos = [h for h in hist if h.get("examen", "propio") == ult.get("examen", "propio")]
+            prim = mismos[0]
+            if ult.get("examen") == "fijo":
+                _msg(f"(Examen fijo del profesor: {len(_cargar(ARCH_EXAMEN_FIJO, []))} preguntas que no cambian.)")
             areas = ", ".join(f"{a} {n}" for a, n in sorted(ult["areas"].items()))
             _msg(f"Nivel {ult['total']}/100 (empecé en {prim['total']}). Por área: {areas}. "
                  f"Ejemplos para reentrenarme: {ejemplos_para_lora()}.")
@@ -1399,6 +1650,17 @@ def manejar(comando):
         _msg("Habilidades que me fabriqué:\n" + "\n".join(f"  • {i['tarea']} (usada {i['usos']} veces)" for i in hab.values())
              if hab else "Todavía no me he fabricado ninguna habilidad.")
         return ("evolucion", "habilidades")
+
+    if c in ("tus redes", "tus redes neuronales", "como van tus redes", "cuantas neuronas tienes"):
+        _msg(texto_redes())
+        return ("evolucion", "redes")
+
+    m = re.match(r"^(crece|haz crecer) tus redes", c)
+    if m:
+        _msg("Voy a probar redes más grandes con mis datos (tarda unos minutos)...")
+        _detener.clear()
+        _msg("; ".join(neurogenesis()) or "No pude medir mis redes.")
+        return ("evolucion", "redes")
 
     if c in ("tu arbol genealogico", "arbol genealogico"):
         _msg("Mi linaje, de la versión actual hacia atrás:\n" + "\n".join("  " + l for l in arbol_genealogico()))
