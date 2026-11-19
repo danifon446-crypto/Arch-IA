@@ -21,8 +21,8 @@ Todo lo nuevo de Arché en un solo lugar. main.py solo llama a cuatro cosas:
   ritmo.py            aprende a qué hora empiezas y terminas tu día
   guardian.py         vigila impostores, programas raros, arranque automático, mineros
   voz_viva.py         conversación seguida, interrupciones, reconocer tu voz
-  avatar.py           Arché en tu escritorio, con la misma forma y colores de tu interfaz
-  avatar_ventana.py   la ventana transparente del avatar (corre aparte, como la interfaz web)
+  avatar.py           Arché en tu escritorio: solo la figura, sobre una ventana transparente de Windows
+  avatar_dibujo.py    el mismo dibujo de tu interfaz web (dibujarOrbe de app.js) pasado a Python
 """
 
 import threading
@@ -61,7 +61,7 @@ CONVERSACIÓN VIVA
   conversación viva encendida / apagada · aprende mi voz · solo obedece mi voz
   obedece a todos · sensibilidad de interrupción alta/media/baja
 AVATAR
-  muestra el avatar · esconde el avatar · avatar grande · avatar pequeño
+  muestra el avatar · esconde el avatar · avatar grande · avatar pequeño · avatar sin halo · estado del avatar
   (su forma, colores y tamaño son los de tu interfaz: cámbialos allá y el avatar cambia solo)"""
 
 

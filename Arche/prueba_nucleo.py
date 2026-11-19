@@ -593,50 +593,79 @@ def avatar_muestra_el_mismo_estado_que_la_interfaz():
 
 
 @prueba
-def avatar_usa_el_mismo_dibujo_de_app_js():
-    with open(avatar.APP_JS, encoding="utf-8") as f:
-        app = f.read()
-    codigo, nombres = avatar.funciones_de_dibujo(app)
-    assert {"dibujarOrbe", "esferaBase", "rgba", "hexRgb"} <= nombres, nombres
-    assert avatar.extraer_funcion(app, "dibujarOrbe") in codigo           # copiado tal cual, sin cambios
-    js = avatar.js_avatar()
-    assert "function dibujarOrbe" in js and "/api/avatar" in js
-    falso = "function a(x) { const s = '}{'; return b(x) + `${'{'}`; }\nfunction b(y) { /* } */ return y; }\nfunction c() {}"
-    cod, usadas = avatar.funciones_de_dibujo(falso, "a")
-    assert usadas == {"a", "b"} and "function c" not in cod
+def avatar_dibuja_los_cinco_estilos_con_fondo_transparente():
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        return
+    from core.nucleo import avatar_dibujo as D
+    colores = {"azul": "#2f4fd1", "morado": "#6b34c9", "rojo": "#b81f45", "azul_claro": "#5b7cff",
+               "morado_claro": "#9b6bff", "panel2": "#1b1f33", "texto": "#e8e4ff", "alerta": "#e0435f"}
+    for estilo in D.ESTILOS:
+        for estado in ("reposo", "escuchando", "pensando", "hablando", "desconectado"):
+            d = D.Dibujante(200)
+            im = d.dibujar(estado, 1500, {"estilo_voz": estilo, "efecto_particulas": 30}, colores)
+            assert im.size == (200, 200) and im.mode == "RGBA"
+            assert im.getpixel((1, 1))[3] == 0, (estilo, estado)            # las esquinas no tienen nada
+            assert im.getchannel("A").getextrema()[1] > 100, (estilo, estado)   # la figura sí se ve
+    # el color que pones en la interfaz es el que sale
+    rojo = D.Dibujante(200).dibujar("reposo", 0, {"estilo_voz": "geometrica", "orbe_color": "#ff0000", "efecto_brillo": 0},
+                                    colores)
+    pixeles = [rojo.getpixel((x, 100)) for x in range(200)]
+    assert any(r > 200 and g < 60 and b < 60 and a > 150 for r, g, b, a in pixeles)
+    # sin halo (brillo 0) hay mucho más espacio vacío que con halo
+    con = D.Dibujante(200).dibujar("reposo", 0, {"estilo_voz": "geometrica", "efecto_brillo": 100}, colores)
+    vacio = lambda im: sum(1 for v in im.getchannel("A").tobytes() if v == 0)
+    assert vacio(rojo) > vacio(con)
+    globo = D.poner_globo(con, "Aviso de prueba para el globo del avatar", colores, alerta=True)
+    assert globo.getpixel((100, 14))[3] > 200
 
 
 @prueba
-def avatar_se_sirve_desde_la_interfaz_web_y_sigue_los_ajustes():
-    import urllib.request
-    from core.interfaz import web, ajustes
+def avatar_convierte_la_imagen_al_formato_de_windows():
+    try:
+        import numpy  # noqa: F401
+    except ImportError:
+        return
+    from PIL import Image
+    im = Image.new("RGBA", (2, 1))
+    im.putpixel((0, 0), (200, 100, 50, 128))       # medio transparente
+    im.putpixel((1, 0), (10, 20, 30, 0))           # invisible
+    b = avatar.a_bgra_premultiplicado(im)
+    assert len(b) == 8
+    assert abs(b[0] - 25) <= 1 and abs(b[1] - 50) <= 1 and abs(b[2] - 100) <= 1 and b[3] == 128    # B, G, R x alfa
+    assert b[4:8] == bytes([0, 0, 0, 0])
+
+
+@prueba
+def avatar_sigue_los_ajustes_de_la_interfaz():
+    from core.interfaz import ajustes
     archivo_real = ajustes._ARCHIVO
     p = Parche()
     p.poner(ajustes, "_ARCHIVO", os.path.join(_TMP, "config_interfaz.json"))
     p.poner(ajustes, "_datos", None)
     try:
-        avatar.instalar_en_servidor()
-        web.iniciar()
-        base = f"http://127.0.0.1:{web._puerto}"
-
-        def pedir(ruta, llave=True):
-            req = urllib.request.Request(base + ruta, headers={"X-Llave": web._llave} if llave else {})
-            try:
-                with urllib.request.urlopen(req, timeout=5) as r:
-                    return r.status, r.read()
-            except urllib.error.HTTPError as e:
-                return e.code, b""
-        assert pedir("/avatar", False)[0] == 200 and pedir("/avatar.js", False)[0] == 200
-        assert pedir("/api/avatar", llave=False)[0] == 401
         ajustes.fijar("estilo_voz", "geometrica")
-        d = json.loads(pedir("/api/avatar")[1])
-        assert d["ajustes"]["estilo_voz"] == "geometrica" and "colores" in d["tema"]
+        datos, colores = avatar.ajustes_de_la_interfaz()
+        assert datos["estilo_voz"] == "geometrica" and colores.get("azul_claro")
         ajustes.fijar("estilo_voz", "anillos")                       # cambias la interfaz...
-        assert json.loads(pedir("/api/avatar")[1])["ajustes"]["estilo_voz"] == "anillos"   # ...y el avatar también
-        assert pedir("/api/estado")[0] == 200                         # la interfaz normal sigue igual
+        assert avatar.ajustes_de_la_interfaz()[0]["estilo_voz"] == "anillos"     # ...y el avatar también
+        # y si lo cambió OTRO proceso (el archivo cambia por fuera), también se entera
+        with open(ajustes._ARCHIVO, "w", encoding="utf-8") as f:
+            json.dump({"estilo_voz": "ondas"}, f)
+        os.utime(ajustes._ARCHIVO, (1, 1))
+        avatar._sincro["revisado"] = 0
+        assert avatar.ajustes_de_la_interfaz()[0]["estilo_voz"] == "ondas"
+        try:
+            import numpy  # noqa: F401
+            from core.nucleo import avatar_dibujo
+            assert avatar.cuadro(avatar_dibujo.Dibujante(120), 300).size == (120, 120)
+        except ImportError:
+            pass
     finally:
         p.quitar()
         ajustes._datos = None
+        avatar._sincro.update(mtime=None, revisado=0)
         assert ajustes._ARCHIVO == archivo_real
 
 
@@ -668,16 +697,24 @@ def parche_de_main_se_aplica_una_vez_y_compila():
     import aplicar_parche_nucleo as parche
     with open("main.py", encoding="utf-8") as f:
         original = f.read()
+    if parche.MARCA in original:                  # tu main.py ya tiene el parche: se comprueba que quedó bien
+        for trozo in (parche.IMPORT.strip(), parche.ARRANQUE.strip(), "nucleo_arche.manejar(comando_original)",
+                      "nucleo_arche.detener_todo()"):
+            assert original.count(trozo) == 1, trozo
+        compile(original, "main.py", "exec")
+        assert parche.parchar(original) == (original, False)
+        return
     nuevo, cambio = parche.parchar(original)
     assert cambio
     for trozo in (parche.IMPORT, parche.ARRANQUE, "nucleo_arche.manejar(comando_original)", parche.DETENER):
         assert nuevo.count(trozo) == 1, trozo
     compile(nuevo, "main.py", "exec")
-    assert nuevo.index("nucleo_arche.manejar") < nuevo.index("# VARIOS PASOS")
-    assert nuevo.index("nucleo_arche.manejar") > nuevo.index("multitarea_arche.manejar(comando_original)")
+    assert nuevo.index("nucleo_arche.manejar") < nuevo.index("# VARIOS PASOS")       # antes de partir en pasos
+    assert nuevo.index("nucleo_arche.manejar") > nuevo.index("if not comando:")      # después de leer la orden
     assert parche.parchar(nuevo) == (nuevo, False)
     crlf, cambio = parche.parchar(original.replace("\n", "\r\n"))
-    assert cambio and "\r\n        nucleo_arche.registrar_actividad" in crlf
+    assert cambio and "nucleo_arche.registrar_actividad(comando_original)\r\n" in crlf
+    compile(crlf.replace("\r\n", "\n"), "main.py", "exec")
 
 
 def main():

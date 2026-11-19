@@ -2,7 +2,7 @@ NÚCLEO DE ARCHÉ — lo nuevo
 ==========================
 
 Todo vive en una carpeta nueva: core/nucleo/. Se conecta a main.py con un solo parche.
-No necesita librerías nuevas (usa psutil, numpy, sounddevice, tkinter y pywebview, que Arché ya usa).
+No necesita librerías nuevas (usa psutil, numpy, pillow, sounddevice y tkinter, que Arché ya usa).
 
 
 INSTALAR (con Arché cerrado)
@@ -10,8 +10,9 @@ INSTALAR (con Arché cerrado)
    - si NO corriste aplicar_parche_raphael.py: borra core/raphael, aplicar_parche_raphael.py y prueba_raphael.py
    - si SÍ lo corriste: copia main_antes_raphael_FECHA.py encima de main.py y luego borra lo de arriba
 1. Copia la carpeta  core/nucleo/  completa dentro de  Arche/core/
+   (si ya tenías una core/nucleo de antes, bórrala primero y copia esta)
 2. Copia  aplicar_parche_nucleo.py,  prueba_nucleo.py  y este LEEME dentro de  Arche/
-3. En la carpeta Arche:   python prueba_nucleo.py           -> debe decir 31/31
+3. En la carpeta Arche:   python prueba_nucleo.py           -> debe decir 32/32
 4. En la carpeta Arche:   python aplicar_parche_nucleo.py   (hace copia: main_antes_nucleo_FECHA.py)
 5. En la carpeta Arche:   python seguridad.py sellar        (para que tu guardián de seguridad
                                                               apruebe los archivos nuevos)
@@ -120,22 +121,24 @@ CONVERSACIÓN VIVA  (core/nucleo/voz_viva.py)
   obedece a todos · sensibilidad de interrupción alta / media / baja
 
 
-AVATAR  (core/nucleo/avatar.py + avatar_ventana.py)
-  Arché en una esquina del escritorio, siempre encima, con fondo transparente.
-  Es EXACTAMENTE la figura de tu interfaz:
-  - Con la interfaz web (pywebview): usa el mismo código de dibujo de core/interfaz/web/app.js
-    (se copia solo cada vez que abre, así que si un día cambias app.js, el avatar también cambia)
-    y los mismos ajustes y colores del tema.
-  - Sin pywebview: usa el mismo dibujo de la ventana clásica, con los mismos ajustes y tema.
-  Si en la interfaz cambias la forma (esfera, ondas, anillos, núcleo, geométrica), el color,
-  el tamaño, la velocidad, el brillo, las chispas o el tema, el avatar cambia solo en menos de
-  un segundo. Muestra lo mismo que la interfaz (reposo, escuchando, pensando, hablando) y se
-  atenúa cuando llevas más de 30 minutos sin usar el PC.
-  Los avisos salen en un globo a su lado (borde rojo si es una alerta).
+AVATAR  (core/nucleo/avatar.py + avatar_dibujo.py)
+  Arché en una esquina del escritorio, siempre encima. Se ve SOLO la figura: sin ventana,
+  sin cuadro y sin fondo, y donde no hay figura los clics pasan a lo que está detrás.
+  - La figura es el mismo dibujo de tu interfaz web (dibujarOrbe de app.js) pasado a Python:
+    misma forma, colores, halo, chispas y tiempos.
+  - Lee en cada cuadro los mismos ajustes y el tema de la interfaz. Si allá cambias la forma
+    (esfera, ondas, anillos, núcleo, geométrica), el color, el tamaño, la velocidad, el brillo,
+    las chispas o el tema, el avatar cambia solo en un segundo.
+  - Usa una ventana por capas de Windows (transparencia real por píxel). No usa pywebview.
+  - Muestra lo mismo que la interfaz (reposo, escuchando, pensando, hablando) y se atenúa
+    cuando llevas más de 30 minutos sin usar el PC.
+  - Los avisos salen un momento en un globo encima de la figura (borde rojo si es alerta).
   Clic: abre la interfaz (o la burbuja si usas arche_fondo.pyw). Arrastrar: lo mueves.
 
   muestra el avatar · esconde el avatar · avatar grande · avatar pequeño
-  (grande/pequeño cambia la ventanita; el tamaño de la figura es tu ajuste «Tamaño de la esfera»)
+  avatar sin halo / avatar con halo · estado del avatar
+  (grande/pequeño cambia el espacio del avatar; el tamaño de la figura dentro es tu ajuste
+   «Tamaño de la esfera» de la interfaz)
 
 
 LO QUE SE QUEDÓ IGUAL A LO QUE PEDISTE
@@ -153,7 +156,6 @@ SEGURIDAD
   - Nada bajado de internet se ejecuta. Lo que Arché escribe a partir de eso pasa por 3 filtros.
   - El código del equipo se corre solo si la cuarentena no le encuentra nada raro, aislado y con
     límite de 30 segundos, y en la carpeta de la misión.
-  - El avatar usa el mismo servidor local de la interfaz (solo 127.0.0.1, con llave).
 
 DESHACER
   Copia main_antes_nucleo_FECHA.py encima de main.py. (La carpeta core/nucleo puede quedarse:

@@ -18,6 +18,7 @@ No toca ningún otro archivo. Para deshacerlo: copia main_antes_nucleo_FECHA.py 
 
 import os
 import py_compile
+import re
 import shutil
 import sys
 import time
@@ -26,31 +27,35 @@ MAIN = "main.py"
 MARCA = "nucleo_arche"
 NUEVOS = [os.path.join("core", "nucleo", n) for n in (
     "__init__.py", "comun.py", "analista.py", "depredador.py", "cuarentena.py", "imaginacion.py", "equipo.py",
-    "cronista.py", "fracasos_semilla.py", "ritmo.py", "guardian.py", "voz_viva.py", "avatar.py", "avatar_ventana.py")]
+    "cronista.py", "fracasos_semilla.py", "ritmo.py", "guardian.py", "voz_viva.py", "avatar.py", "avatar_dibujo.py")]
 
 IMPORT = "from core import nucleo as nucleo_arche             # núcleo: habilidades, Depredador, equipo, Cronista, Guardián\n"
 
 ARRANQUE = ("nucleo_arche.iniciar()                  # núcleo: niveles, caza, equipo, noticias, guardián, voz viva, avatar\n")
 
+# El gancho y el «adiós» se escriben con la MISMA sangría que tenga tu main.py
+# (hay versiones con el bucle dentro de un try y otras sin él).
 HOOK = (
-    "        # NÚCLEO (core/nucleo): anota la hora (aprende tu ritmo) y atiende sus órdenes:\n"
-    "        # «misión: ...», «caza ...», «ponme al día», «fracaso del día», «estado del guardián»...\n"
-    "        # Va antes de partir en pasos para que «misión: X y luego Y» llegue entera.\n"
-    "        nucleo_arche.registrar_actividad(comando_original)\n"
-    "        if nucleo_arche.manejar(comando_original):\n"
-    "            continue\n"
+    "# NÚCLEO (core/nucleo): anota la hora (aprende tu ritmo) y atiende sus órdenes:\n"
+    "# «misión: ...», «caza ...», «ponme al día», «fracaso del día», «estado del guardián»...\n"
+    "# Va antes de partir en pasos para que «misión: X y luego Y» llegue entera.\n"
+    "nucleo_arche.registrar_actividad(comando_original)\n"
+    "if nucleo_arche.manejar(comando_original):\n"
+    "    continue\n"
     "\n"
 )
 
-DETENER = "            nucleo_arche.detener_todo()   # el núcleo se detiene (misiones, avatar, reloj)\n"
+DETENER = "nucleo_arche.detener_todo()   # el núcleo se detiene (misiones, avatar, reloj)\n"
 
-# (ancla preferida, alternativas) — si tu main.py cambió un poco, se prueban las otras.
-ANCLAS_IMPORT = ["from core import mapa_mental as mapa_mental_arche    # mapas mentales hechos por Arché\n",
-                 "from core import evolucion as evolucion_arche    # evoluciona sola: sueño, curiosidad, se automodifica, reentrena\n"]
-ANCLAS_ARRANQUE = ["evolucion_arche.iniciar()\n"]
-ANCLAS_HOOK = ["        # VARIOS PASOS:", "        _pasos = [] if re.match("]
-ANCLAS_DETENER = ["            agente_arche.detener_todo()", "            multitarea_arche.detener_todo()",
-                  "            detener_robot()"]
+ANCLAS_IMPORT = ["from core import mapa_mental as mapa_mental_arche",
+                 "from core import evolucion as evolucion_arche",
+                 "from core.IA import enrutador_natural"]
+ANCLAS_ARRANQUE = ["evolucion_arche.iniciar()"]
+# Regex (en orden de preferencia). El grupo 1 es la sangría de esa línea.
+ANCLAS_HOOK = [r"^([ \t]+)# VARIOS PASOS:", r"^([ \t]+)_pasos = \[\] if re\.match\(",
+               r"^([ \t]+)if not comando:\s*$"]
+ANCLAS_DETENER = [r"^([ \t]+)agente_arche\.detener_todo\(\)", r"^([ \t]+)multitarea_arche\.detener_todo\(\)",
+                  r"^([ \t]+)detener_robot\(\)", r"^([ \t]+)responder_conversacion\(\"adios\"\)"]
 
 
 def _leer(ruta):
@@ -63,33 +68,66 @@ def _escribir(ruta, texto):
         f.write(texto)
 
 
-def _una(texto, anclas, nombre):
-    for a in anclas:
-        if texto.count(a) == 1:
-            return a
+def _error(nombre):
     raise RuntimeError(f"No encontré el lugar para «{nombre}» en main.py (o aparece más de una vez). "
                        "No se tocó nada. Mándale a Claude tu main.py y lo ajusta.")
+
+
+def _linea_completa(texto, inicio_linea, nombre):
+    """La línea (sin el salto) que empieza exactamente con 'inicio_linea', si hay una sola."""
+    lineas = [l for l in texto.splitlines() if l.startswith(inicio_linea)]
+    if len(lineas) != 1:
+        return None
+    return lineas[0]
+
+
+def _con_sangria(bloque, sangria, nl):
+    return "".join((sangria + l if l.strip() else "") + nl for l in bloque.split("\n")[:-1])
 
 
 def parchar(texto):
     if MARCA in texto:
         return texto, False
     nl = "\r\n" if "\r\n" in texto else "\n"
-    n = lambda s: s.replace("\n", nl)
 
-    a = n(_una(texto, [n(x) for x in ANCLAS_IMPORT], "imports"))
-    texto = texto.replace(a, a + n(IMPORT))
+    # 1. import (después de una línea de import conocida)
+    linea = next((l for a in ANCLAS_IMPORT for l in [_linea_completa(texto, a, "imports")] if l), None)
+    if not linea:
+        _error("imports")
+    texto = texto.replace(linea + nl, linea + nl + IMPORT.replace("\n", nl), 1)
 
-    a = n(_una(texto, [n(x) for x in ANCLAS_ARRANQUE], "arranque"))
-    texto = texto.replace(a, a + n(ARRANQUE))
+    # 2. arranque (después de evolucion_arche.iniciar(), sin sangría)
+    linea = _linea_completa(texto, ANCLAS_ARRANQUE[0], "arranque")
+    if not linea:
+        _error("arranque")
+    texto = texto.replace(linea + nl, linea + nl + ARRANQUE.replace("\n", nl), 1)
 
-    a = _una(texto, [n(x) for x in ANCLAS_HOOK], "gancho de órdenes")
-    texto = texto.replace(a, n(HOOK) + a)
+    # 3. gancho de órdenes (antes de partir en pasos), con la sangría del bucle
+    for patron in ANCLAS_HOOK:
+        encontrados = list(re.finditer(patron, texto, re.M))
+        if len(encontrados) == 1:
+            m = encontrados[0]
+            sangria = m.group(1)
+            if patron.endswith(r"if not comando:\s*$"):
+                # va DESPUÉS de "if not comando: continue"
+                fin = texto.index(nl, texto.index(nl, m.end()) + len(nl)) + len(nl)
+                texto = texto[:fin] + nl + _con_sangria(HOOK, sangria, nl) + texto[fin:]
+            else:
+                texto = texto[:m.start()] + _con_sangria(HOOK, sangria, nl) + texto[m.start():]
+            break
+    else:
+        _error("gancho de órdenes")
 
-    a = _una(texto, [n(x) for x in ANCLAS_DETENER], "adiós")
-    i = texto.index(a)
-    fin = texto.index(nl, i) + len(nl)
-    texto = texto[:fin] + n(DETENER) + texto[fin:]
+    # 4. al decir «adiós»
+    for patron in ANCLAS_DETENER:
+        encontrados = list(re.finditer(patron, texto, re.M))
+        if len(encontrados) == 1:
+            m = encontrados[0]
+            fin = texto.index(nl, m.start()) + len(nl)
+            texto = texto[:fin] + m.group(1) + DETENER.replace("\n", nl) + texto[fin:]
+            break
+    else:
+        _error("adiós")
     return texto, True
 
 

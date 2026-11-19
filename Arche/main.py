@@ -58,6 +58,7 @@ from core import memoria_nube as memoria_nube_arche  # memoria en la nube (Supab
 from core.IA import modelo_nuevo as modelo_nuevo_arche  # entrenador automático de arche-lora (Fase 4)
 from core import compartir as red_arche              # red de aprendizaje entre varios PC
 from core import mapa_mental as mapa_mental_arche    # mapas mentales hechos por Arché
+from core import nucleo as nucleo_arche             # núcleo: habilidades, Depredador, equipo, Cronista, Guardián
 
 #Perro
 import os, sys
@@ -373,6 +374,7 @@ autonomia_arche.resumen_del_dia()
 mejora_arche.iniciar()
 mejora_arche.resumen_pendiente()
 evolucion_arche.iniciar()
+nucleo_arche.iniciar()                  # núcleo: niveles, caza, equipo, noticias, guardián, voz viva, avatar
 
 # ------------------------------------------------------------------
 # MODO ESTUDIO: ya NO arranca solo al iniciar Arché. Vos decidís
@@ -429,6 +431,13 @@ while True:
     if not comando:
         continue
 
+    # NÚCLEO (core/nucleo): anota la hora (aprende tu ritmo) y atiende sus órdenes:
+    # «misión: ...», «caza ...», «ponme al día», «fracaso del día», «estado del guardián»...
+    # Va antes de partir en pasos para que «misión: X y luego Y» llegue entera.
+    nucleo_arche.registrar_actividad(comando_original)
+    if nucleo_arche.manejar(comando_original):
+        continue
+
     # VARIOS PASOS: "abre chrome y luego busca gatos en youtube" -> se parte en
     # pasos y se encolan (con una pausa entre cada uno) para que el bucle los
     # procese como si los hubieras escrito uno por uno.
@@ -468,6 +477,7 @@ while True:
         responder_conversacion("adios")
         detener_robot()   # el perro se queda quieto y se apaga el modo perro
         agente_arche.detener_todo()   # el agente se detiene y se cierra Minecraft
+        nucleo_arche.detener_todo()   # el núcleo se detiene (misiones, avatar, reloj)
         if banco_pruebas is not None and banco_pruebas._banco is not None:
             banco_pruebas._banco.cerrar()   # banco en paro y vigilante apagado
         break
