@@ -308,6 +308,13 @@ def resumen_nocturno():
     for origen, textos in por_origen.items():
         if origen in titulos:
             lineas.append(f"  • {titulos[origen]}: " + " | ".join(t.split("\n")[0][:110] for t in textos[-3:]))
+    try:
+        from core.nucleo import limpieza
+        texto_limpieza = limpieza.resumen_de_hoy()
+        if texto_limpieza:
+            lineas.append("  • " + texto_limpieza)
+    except Exception:
+        pass
     e = _estado()
     if e["lecciones"]:
         l = e["lecciones"][-1]

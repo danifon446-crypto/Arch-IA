@@ -217,7 +217,7 @@ def informe(texto, titulo="Arché", importante=False, nivel="info", origen="", c
                     de Windows (fuera de las horas de silencio).
       nivel      -> 'info' | 'alerta' (el avatar se pone rojo) | 'logro'.
     """
-    texto = (texto or "").strip()
+    texto = sin_markdown((texto or "").strip())
     if not texto:
         return
     linea = (prefijo_informe() if con_prefijo else "") + texto
@@ -227,13 +227,15 @@ def informe(texto, titulo="Arché", importante=False, nivel="info", origen="", c
     _ultimo_globo.update(texto=texto, cuando=time.time(), nivel=nivel)
 
     silencio = en_horas_de_silencio()
-    if importante and not silencio:
+    if not silencio and (importante or config("informes_con_voz")):
         if config("informes_con_voz"):
             try:
                 from core import voz
-                voz.decir(linea.split("\n")[0])
+                if voz.activa():
+                    voz.decir(linea if threading.current_thread() is not threading.main_thread() else "")
             except Exception:
                 pass
+    if importante and not silencio:
         # Con arche_fondo.pyw lo que se imprime desde un hilo de fondo ya sale como notificación.
         if os.environ.get("ARCHE_FONDO") != "1":
             try:
@@ -252,9 +254,36 @@ def ultimo_globo():
     return dict(_ultimo_globo)
 
 
-def msg(texto):
-    """Respuesta normal a una orden (sin prefijo de informe)."""
+def sin_markdown(texto):
+    """Quita los ** __ # y las líneas de tabla que el modelo a veces pone: en la consola se ven feas
+    y la voz las lee mal."""
+    t = str(texto or "")
+    t = re.sub(r"\*\*(.+?)\*\*", r"\1", t)
+    t = re.sub(r"(?m)^#{1,6}\s*", "", t)
+    t = re.sub(r"(?m)^\s*\|?\s*:?-{3,}.*$\n?", "", t)                       # separadores de tabla
+    t = re.sub(r"(?m)^\s*\|(.+)\|\s*$", lambda m: "  " + " · ".join(c.strip() for c in m.group(1).split("|")), t)
+    return t
+
+
+def decir_en_voz(texto):
+    """Lee en voz alta (si la voz está activa) lo que se dice desde un hilo de fondo: la voz de Arché
+    solo lee sola lo que sale del hilo principal."""
+    if threading.current_thread() is threading.main_thread():
+        return                                         # eso ya lo lee core/voz.py solo
+    try:
+        from core import voz
+        if voz.activa():
+            voz.decir(texto)
+    except Exception:
+        pass
+
+
+def msg(texto, voz=True):
+    """Respuesta normal a una orden (sin prefijo de informe). voz=False para mensajes de progreso."""
+    texto = sin_markdown(texto)
     print(f"Arché: {texto}")
+    if voz:
+        decir_en_voz(texto)
 
 
 # ------------------------------------------------------------------
@@ -278,9 +307,15 @@ def nube_lista():
         return False
 
 
+_TEXTO_PLANO = ("Escribe en texto plano: sin Markdown (nada de **, #, ni tablas con |). "
+                "Usa frases cortas y viñetas con «•» si hace falta.")
+
+
 def pensar(prompt, sistema="", max_tokens=600, temperatura=0.4, codigo=False, preferir_nube=True):
     """Devuelve texto ('' si ningún modelo respondió). El código lo escribe el modelo de código local
     salvo que la nube esté disponible y preferir_nube=True (la nube suele programar mejor)."""
+    if not codigo and "JSON" not in prompt and "Markdown" not in prompt:
+        sistema = (sistema + "\n" if sistema else "") + _TEXTO_PLANO
     if preferir_nube and nube_lista():
         try:
             from core.IA import nube
@@ -291,6 +326,38 @@ def pensar(prompt, sistema="", max_tokens=600, temperatura=0.4, codigo=False, pr
         except Exception:
             pass
     return _ollama(prompt, sistema=sistema, temperatura=temperatura, codigo=codigo, max_tokens=max_tokens)
+
+
+_INICIO_CODIGO = re.compile(r"""^(?:import |from |def |class |async def |@|#|[A-Z_][A-Z0-9_]*\s*=|"|')""")
+
+
+def extraer_codigo(texto):
+    """Saca SOLO el código Python de lo que respondió un modelo (que a veces lo envuelve en explicaciones).
+    Prefiere el bloque ``` más largo con 'def'. Si no hay bloques, quita el texto de antes y de después."""
+    import ast
+    texto = (texto or "").replace("\r\n", "\n")
+    bloques = re.findall(r"```[ \t]*(?:python|py|python3)?[ \t]*\n(.*?)```", texto, re.S | re.I)
+    if bloques:
+        con_def = [b for b in bloques if "def " in b] or bloques
+        return max(con_def, key=len).strip()
+    if texto.count("```") == 1:                       # bloque que abrió y nunca cerró (respuesta cortada)
+        texto = re.split(r"```[ \t]*(?:python|py)?[ \t]*\n?", texto, maxsplit=1, flags=re.I)[1]
+    lineas = texto.split("\n")
+    while lineas and lineas[0].strip() and not _INICIO_CODIGO.match(lineas[0].strip()):
+        lineas.pop(0)                                 # «Aquí está la habilidad:» y cosas así
+    codigo = "\n".join(lineas).strip()
+    # si al final quedó texto suelto, se va quitando de abajo hacia arriba mientras no compile
+    lineas = codigo.split("\n")
+    for _ in range(min(15, len(lineas))):
+        try:
+            ast.parse("\n".join(lineas))
+            return "\n".join(lineas).strip()
+        except SyntaxError:
+            ultima = lineas[-1] if lineas else ""
+            if ultima.startswith((" ", "\t")):
+                break
+            lineas.pop()
+    return codigo
 
 
 def en_hilo(funcion, *args, nombre="arche-nucleo", **kwargs):

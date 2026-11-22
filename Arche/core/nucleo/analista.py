@@ -490,6 +490,21 @@ def instalar_ganchos():
         return original_aplicar(cambios, motivo, prueba_extra=prueba_extra)
 
     evo.aplicar_cambio_autonomo = aplicar_con_analisis
+
+    # Que el autotest en otro proceso imprima en UTF-8 (en Windows, sin esto, una tilde rara lo puede tumbar)
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    original_autotest = evo._correr_autotest
+
+    def autotest_con_diagnostico(*a, **k):
+        import time as _t
+        inicio = _t.time()
+        r = original_autotest(*a, **k)
+        segundos = round(_t.time() - inicio)
+        comun.anotar(comun.ruta("autotest.jsonl"), {"cuando": comun.ahora_txt(), "segundos": segundos,
+                                                     "ok": r is not None, "fallan": sorted(r) if r else []})
+        return r
+
+    evo._correr_autotest = autotest_con_diagnostico
     _ganchos_instalados = True
 
 
@@ -560,3 +575,45 @@ def manejar(comando):
             comun.msg(_texto_estado())
         return True
     return False
+
+
+# ------------------------------------------------------------------
+# Diagnóstico de las pruebas (para cuando dice «no pude correr mis pruebas»)
+# ------------------------------------------------------------------
+
+def diagnostico_pruebas():
+    """Corre el autotest como lo corre la evolución y explica qué pasa. Tarda lo que tarde el autotest."""
+    import subprocess
+    import sys
+    import time
+    from core import evolucion as evo
+    inicio = time.time()
+    try:
+        r = subprocess.run([sys.executable, "-m", "core.IA.autotest"], cwd=evo.BASE, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=evo.TIEMPO_PRUEBAS,
+                           env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+    except subprocess.TimeoutExpired:
+        return (f"Mis pruebas tardan más de {evo.TIEMPO_PRUEBAS // 60} minutos, así que se cortan. Pasa cuando el PC "
+                "está muy cargado (Ollama, el modelo de voz, una misión...). Por eso ahora las habilidades nuevas no "
+                "las necesitan; la limpieza sí, y espera a que no uses el PC.")
+    segundos = round(time.time() - inicio)
+    salida = (r.stdout or "") + (r.stderr or "")
+    m = re.search(r"(\d+)/(\d+) (?:pruebas )?pasaron", salida)
+    if not m:
+        return (f"Mis pruebas se cayeron antes de terminar ({segundos} s). Lo último que dijeron:\n" +
+                "\n".join(salida.strip().splitlines()[-6:]))
+    fallan = re.findall(r"MAL\s+(\S+)", salida)
+    return (f"Mis pruebas corren bien: {m.group(1)}/{m.group(2)} pasaron en {segundos} s"
+            + (f" (fallan: {', '.join(fallan[:4])})" if fallan else "") + ".")
+
+
+_manejar_base = manejar
+
+
+def manejar(comando):    # noqa: F811
+    c = comun.norm(comando)
+    if c in ("diagnostica tus pruebas", "por que no corren tus pruebas", "revisa tus pruebas", "prueba tus pruebas"):
+        comun.msg("Corro mis pruebas como las corre la evolución; puede tardar varios minutos.", voz=False)
+        comun.en_hilo(lambda: comun.msg(diagnostico_pruebas()), nombre="arche-diagnostico")
+        return True
+    return _manejar_base(comando)

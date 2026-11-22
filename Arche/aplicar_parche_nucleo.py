@@ -27,7 +27,7 @@ MAIN = "main.py"
 MARCA = "nucleo_arche"
 NUEVOS = [os.path.join("core", "nucleo", n) for n in (
     "__init__.py", "comun.py", "analista.py", "depredador.py", "cuarentena.py", "imaginacion.py", "equipo.py",
-    "cronista.py", "fracasos_semilla.py", "ritmo.py", "guardian.py", "voz_viva.py", "avatar.py", "avatar_dibujo.py")]
+    "cronista.py", "fracasos_semilla.py", "ritmo.py", "guardian.py", "voz_viva.py", "avatar.py", "avatar_dibujo.py", "limpieza.py", "resolver.py")]
 
 IMPORT = "from core import nucleo as nucleo_arche             # núcleo: habilidades, Depredador, equipo, Cronista, Guardián\n"
 

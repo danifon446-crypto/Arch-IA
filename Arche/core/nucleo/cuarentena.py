@@ -117,7 +117,9 @@ def _escanear_python(texto, rel):
             importados.add((nodo.module or "").split(".")[0])
         elif isinstance(nodo, ast.Call):
             nombre, base = _nombre_llamada(nodo)
-            if nombre in _LLAMADAS_EJECUCION and not (nodo.args and isinstance(nodo.args[0], ast.Constant)):
+            # eval/exec/compile de Python son llamadas sueltas; model.eval() (PyTorch) o re.compile() no lo son
+            es_suelta = isinstance(nodo.func, ast.Name) or base == "builtins"
+            if es_suelta and nombre in _LLAMADAS_EJECUCION and not (nodo.args and isinstance(nodo.args[0], ast.Constant)):
                 hallazgos.append((6, rel, f"ejecuta código armado en el momento ({nombre})"))
             if nombre in _LLAMADAS_SISTEMA or (base == "os" and nombre in ("system", "popen")):
                 hallazgos.append((4, rel, f"ejecuta comandos del sistema ({nombre})"))
@@ -139,7 +141,7 @@ def _escanear_python(texto, rel):
         hallazgos.append((2 * len(peligrosos), rel, "usa " + ", ".join(sorted(peligrosos))))
     if {"pynput", "keyboard", "pyHook"} & importados and re.search(r"(?i)on_press|hook|Listener", texto):
         hallazgos.append((8, rel, "escucha el teclado (posible keylogger)"))
-    if decodifica and re.search(r"\b(?:exec|eval)\s*\(", texto):
+    if decodifica and re.search(r"(?<![.\w])(?:exec|eval)\s*\(", texto):
         hallazgos.append((10, rel, "decodifica algo y lo ejecuta (código escondido)"))
     if usa_walk and cifra and escribe_binario:
         hallazgos.append((10, rel, "recorre carpetas y cifra archivos (patrón de ransomware)"))
@@ -256,7 +258,10 @@ def revisar_habilidad(codigo, permisos=()):
                     return False, f"importa {n} sin tener permiso"
         if isinstance(nodo, ast.Call):
             nombre, base = _nombre_llamada(nodo)
-            if nombre in _PROHIBIDO_SIEMPRE_LLAMADA:
+            suelta = isinstance(nodo.func, ast.Name) or base == "builtins"
+            if nombre in _LLAMADAS_EJECUCION and not suelta:
+                pass                                       # re.compile(), model.eval(): no son las de Python
+            elif nombre in _PROHIBIDO_SIEMPRE_LLAMADA:
                 return False, f"usa {nombre}()"
             if base in ("os", "shutil") and nombre in _PROHIBIDO_SOBRE_OS:
                 return False, f"usa {base}.{nombre}()"

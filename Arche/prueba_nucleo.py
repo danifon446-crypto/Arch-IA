@@ -29,7 +29,7 @@ import core.rutas  # noqa: E402
 core.rutas.DATABASE = _TMP
 
 from core import evolucion as evo  # noqa: E402
-from core.nucleo import (comun, cuarentena, analista, depredador, ritmo, cronista, equipo, imaginacion,  # noqa: E402
+from core.nucleo import (comun, cuarentena, analista, depredador, ritmo, cronista, equipo, imaginacion, limpieza, resolver,  # noqa: E402
                           guardian, voz_viva, avatar)
 import core.nucleo as nucleo  # noqa: E402
 
@@ -451,7 +451,9 @@ def _parches_caza(p, repos_zip, codigo_habilidad):
 
     def _get(url, binario=False, **k):
         if "api.github.com/search" in url:
-            return {"items": [_repo(n) for n in repos_zip]}
+            import urllib.parse
+            consulta = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)["q"][0].replace("language:python", "")
+            return {"items": [_repo(n, description=consulta) for n in repos_zip]}
         for n, z in repos_zip.items():
             if n in url:
                 return z
@@ -462,7 +464,93 @@ def _parches_caza(p, repos_zip, codigo_habilidad):
     tmp = tempfile.mkdtemp()
     p.poner(evo, "ARCH_HABILIDADES", os.path.join(tmp, "hab.json"))
     p.poner(evo, "aplicar_cambio_autonomo", lambda c, m, prueba_extra=None: (aplicados.update(c), (True, "ok"))[1])
+    # las habilidades NUEVAS van por el camino corto: aquí se simula sin escribir en core/habilidades_auto
+    p.poner(depredador, "instalar_habilidad_nueva",
+            lambda nombre, codigo, motivo: (aplicados.update({f"core/habilidades_auto/{nombre}.py": codigo}), (True, "lista"))[1])
     return informes, aplicados
+
+
+@prueba
+def depredador_descarta_repos_de_otro_tema_y_no_confunde_model_eval():
+    assert depredador.trata_del_tema(_repo("x/unitsnet-py", description="Unit conversion library"), "unit conversion")
+    assert not depredador.trata_del_tema(_repo("bshall/hubert", description="HuBERT content encoders"), "unit conversion")
+    assert depredador.traducir_tema("convertir unidades de medida") == "convert units measurement"
+    d = tempfile.mkdtemp()
+    with open(os.path.join(d, "m.py"), "w", encoding="utf-8") as f:
+        f.write("import re\nmodel.eval()\npatron = re.compile('a+')\n")
+    assert cuarentena.escanear(d, usar_defender=False)["veredicto"] == "limpio"
+    shutil.rmtree(d)
+    assert cuarentena.revisar_habilidad(HABILIDAD_BUENA.replace("    import re", "    import re\n    _p = re.compile('x')"))[0]
+
+
+@prueba
+def depredador_saca_el_codigo_y_lo_hace_corregir_si_viene_roto():
+    import ast
+    for respuesta in ("Aquí está:\n```python\nPALABRAS = ['x']\ndef ejecutar(t):\n    return t\n```\nEspero que sirva.",
+                      "Claro, esta es:\nPALABRAS = ['x']\n\ndef ejecutar(t):\n    return t\n\nConvierte unidades.",
+                      "```python\nPALABRAS = ['x']\ndef ejecutar(t):\n    return t\n"):
+        ast.parse(comun.extraer_codigo(respuesta))
+    respuestas = ["Listo:\n```python\n" + HABILIDAD_BUENA + "\ndef roto(:\n    pass\n```",
+                  "```python\n" + HABILIDAD_BUENA + "\n```"]
+    llamadas = []
+    p = Parche()
+
+    def _falso(prompt, **k):
+        llamadas.append(prompt)
+        return respuestas[min(len(llamadas), len(respuestas)) - 1]
+    p.poner(comun, "pensar", _falso)
+    d = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(d, "conv.py"), "w", encoding="utf-8") as f:
+            f.write("def c(x):\n    return x * 9 / 5 + 32\n")
+        codigo, _ = depredador.digerir({"full_name": "a/b", "license": {"spdx_id": "MIT"}}, d, "convertir temperatura",
+                                       ["temperature"])
+        assert codigo and "def roto" not in codigo and len(llamadas) == 2
+        assert "error de sintaxis" in llamadas[1]
+    finally:
+        p.quitar()
+        shutil.rmtree(d)
+
+
+@prueba
+def depredador_instala_habilidad_nueva_sin_el_autotest_completo():
+    from core import evolucion as evo
+    carpeta = evo.CARPETA_HABILIDADES
+    creada_carpeta = not os.path.isdir(carpeta)
+    ruta_buena = os.path.join(carpeta, "prueba_rapida_tmp.py")
+    ruta_mala = os.path.join(carpeta, "prueba_mala_tmp.py")
+    try:
+        assert depredador.instalar_habilidad_nueva("prueba_rapida_tmp", HABILIDAD_BUENA, "prueba") == (True, "lista")
+        assert os.path.exists(ruta_buena)
+        ok, por_que = depredador.instalar_habilidad_nueva("prueba_mala_tmp", HABILIDAD_BUENA.replace("212.0 F", "999"),
+                                                          "prueba")
+        assert not ok and "prueba" in por_que and not os.path.exists(ruta_mala)
+    finally:
+        for r in (ruta_buena, ruta_mala):
+            if os.path.exists(r):
+                os.remove(r)
+        if creada_carpeta:
+            shutil.rmtree(carpeta, ignore_errors=True)
+
+
+@prueba
+def depredador_hace_corregir_una_prueba_que_falla():
+    mala = HABILIDAD_BUENA.replace('== "212.0 F"', '== "212 grados F"')
+    respuestas = ["```python\n" + mala + "\n```", "```python\n" + HABILIDAD_BUENA + "\n```"]
+    llamadas = []
+    p = Parche()
+    p.poner(comun, "pensar", lambda prompt, **k: (llamadas.append(prompt), respuestas[min(len(llamadas), 2) - 1])[1])
+    d = tempfile.mkdtemp()
+    try:
+        with open(os.path.join(d, "conv.py"), "w", encoding="utf-8") as f:
+            f.write("def c(x):\n    return x * 9 / 5 + 32\n")
+        codigo, _ = depredador.digerir({"full_name": "a/b", "license": {"spdx_id": "MIT"}}, d, "convertir temperatura",
+                                       ["temperature"])
+        assert codigo and "212.0 F" in codigo and len(llamadas) == 2
+        assert "probar() falla" in llamadas[1] and "~~~" not in llamadas[1]
+    finally:
+        p.quitar()
+        shutil.rmtree(d)
 
 
 @prueba
@@ -670,6 +758,178 @@ def avatar_sigue_los_ajustes_de_la_interfaz():
 
 
 # ------------------------------------------------------------------
+# Limpieza sola
+# ------------------------------------------------------------------
+
+@prueba
+def limpieza_quita_lineas_y_planifica_sin_romper():
+    texto = "import os\n\n\ndef a():\n    return 1\n\n\ndef b():\n    return a()\n\n\ndef c():\n    return 3\n"
+    nuevo = limpieza.quitar_lineas(texto, [(12, 13)])
+    assert "def c" not in nuevo and "def b" in nuevo
+    compile(nuevo, "x", "exec")
+    assert limpieza._modulo("core/interfaz/__init__.py") == "core.interfaz"
+    assert limpieza._modulo("core/IA/web.py") == "core.IA.web"
+    assert not limpieza.archivo_tocable("main.py")
+    assert not limpieza.archivo_tocable("core/nucleo/comun.py")
+    assert not limpieza.archivo_tocable("prueba_nucleo.py")
+
+
+@prueba
+def limpieza_solo_unifica_funciones_puras():
+    pura = "import unicodedata\n\n\ndef f(t):\n    return unicodedata.normalize('NFD', str(t)).lower()\n"
+    otra = "import unicodedata\nX = 1\n\n\ndef f(t):\n    return unicodedata.normalize('NFD', str(t)).lower()\n"
+    assert limpieza.es_pura_en_ambos("f", pura, otra)
+    con_ruta = "import json\nARCH = 'a.json'\n\n\ndef g():\n    return json.load(open(ARCH))\n"
+    assert not limpieza.es_pura_en_ambos("g", con_ruta, con_ruta.replace("a.json", "b.json"))   # usa una ruta propia
+    distinto_import = "import json as js\n\n\ndef h():\n    return js.dumps(1)\n"
+    assert not limpieza.es_pura_en_ambos("h", distinto_import, "import simplejson as js\n" + distinto_import[19:])
+
+
+@prueba
+def limpieza_no_toca_lo_que_se_menciona_en_otros_archivos():
+    limpieza._textos.update(cuando=1e18, archivos={"core/x.py": "def suelta():\n    pass\n",
+                                                   "arche_fondo.pyw": "presencia.suelta()",
+                                                   "core/y.py": "def sola():\n    pass\n"})
+    try:
+        assert limpieza.se_menciona_fuera("suelta", "core/x.py")       # la usa un .pyw que la autorevisión no lee
+        assert not limpieza.se_menciona_fuera("sola", "core/y.py")
+    finally:
+        limpieza._textos.update(cuando=0.0, archivos={})
+
+
+@prueba
+def limpieza_devuelve_sola_una_funcion_que_si_hacia_falta():
+    rel = "core/_prueba_limpieza_tmp.py"
+    ruta = os.path.join(AQUI, rel)
+    with open(ruta, "w", encoding="utf-8") as f:
+        f.write("def queda():\n    return 1\n")
+    p = Parche()
+    avisos = []
+    p.poner(comun, "informe", lambda t, **k: avisos.append(t))
+    try:
+        lote = limpieza._guardar_en_cementerio(rel, [("perdida", "def perdida():\n    return 2\n")], "")
+        e = limpieza._estado()
+        e["quitadas"].append({"archivo": rel, "nombre": "perdida", "cuando": comun.ahora_txt(), "lote": lote})
+        limpieza._guardar(e)
+        assert limpieza.revisar_error(NameError("name 'perdida' is not defined")) == "perdida"
+        with open(ruta, encoding="utf-8") as f:
+            assert "def perdida" in f.read()
+        assert avisos and f"{rel}::perdida" in limpieza._estado()["no_tocar"]
+        assert limpieza.revisar_error(NameError("name 'nada_que_ver' is not defined")) is None
+    finally:
+        p.quitar()
+        os.remove(ruta)
+
+
+@prueba
+def limpieza_calla_el_aviso_al_abrir_y_lo_guarda_para_la_noche():
+    from core.IA import autorevision
+    original = autorevision.iniciar_autorevision_en_background
+    recibido = {}
+    autorevision.iniciar_autorevision_en_background = lambda *a, **k: recibido.update(k)
+    limpieza._ganchos["listo"] = False
+    try:
+        limpieza.instalar()
+        hablados = []
+        autorevision.iniciar_autorevision_en_background(intervalo_seg=10, avisar=hablados.append)
+        recibido["avisar"]("Me autorevisé y encontré 1216 cosa(s)...")
+        assert not hablados                                           # ya no te lo dice al abrir
+        assert "1216" in limpieza._estado()["ultimo_aviso_autorevision"]
+    finally:
+        autorevision.iniciar_autorevision_en_background = original
+        limpieza._ganchos["listo"] = False
+
+
+# ------------------------------------------------------------------
+# Resolver al vuelo
+# ------------------------------------------------------------------
+
+PROGRAMA_KM = "```python\nkm = 10\nprint(f'{km} kilómetros son {km * 0.621371:.2f} millas')\n```"
+
+
+@prueba
+def resolver_reconoce_pedidos_de_calculo_sin_robar_ordenes():
+    for f in ("convierte 10 km a millas", "cuántos centímetros hay en 2 metros", "qué día cae el 25 de diciembre",
+              "cuanto es el 15% de 80000", "escribe hola mundo al revés", "cuenta las vocales de murcielago",
+              "genera una contraseña segura", "100 en binario", "cuantos dias faltan para navidad"):
+        assert resolver.parece_calculo(f), f
+    for f in ("pasa a la siguiente canción", "convierte este archivo a pdf", "pon una alarma en 5 minutos",
+              "sube el volumen a 50", "abre chrome", "qué hora es", "mueve el servo 2 a 90", "cuántos años tienes"):
+        assert not resolver.parece_calculo(f), f
+
+
+@prueba
+def resolver_revisa_el_programa_antes_de_correrlo():
+    assert resolver.revisar_programa("import math\nprint(math.sqrt(16))")[0]
+    for malo in ("import os\nprint(os.listdir('.'))", "import urllib.request\nprint(1)", "print(open('x').read())",
+                 "print(eval('1+1'))", "x = 1", "print(().__class__)"):
+        assert not resolver.revisar_programa(malo)[0], malo
+    ok, salida = resolver.correr("import math\nprint(round(math.pi, 2))")
+    assert ok and salida == "3.14"
+    ok, salida = resolver.correr("while True:\n    pass") if False else (False, "")   # (el límite de tiempo lo pone evolución)
+
+
+@prueba
+def resolver_resuelve_corrige_y_sabe_cuando_no_es_para_el():
+    p = Parche()
+    respuestas = []
+    p.poner(comun, "pensar", lambda prompt, **k: respuestas.pop(0))
+    try:
+        respuestas[:] = [PROGRAMA_KM]
+        assert resolver.resolver("convierte 10 km a millas")[:2] == (True, "10 kilómetros son 6.21 millas")
+        respuestas[:] = ["```python\nprint(1/0)\n```", PROGRAMA_KM]          # falla, le muestra el error, lo corrige
+        ok, texto, _ = resolver.resolver("convierte 10 km a millas")
+        assert ok and "6.21" in texto
+        respuestas[:] = ["NO_SE_PUEDE: necesita internet para saber el precio del dólar hoy"]
+        ok, texto, _ = resolver.resolver("a cuánto está el dólar")
+        assert ok is None and "internet" in texto
+        respuestas[:] = ["```python\nimport os\nprint(os.getcwd())\n```"] * 3
+        assert resolver.resolver("dime algo")[0] is False                 # nunca corre algo no permitido
+    finally:
+        p.quitar()
+
+
+@prueba
+def resolver_aprende_una_habilidad_tras_tres_pedidos_parecidos():
+    instaladas = {}
+    p = Parche()
+    p.poner(comun, "informe", lambda *a, **k: None)
+    p.poner(comun, "en_hilo", lambda f, *a, **k: f(*a))
+    p.poner(comun, "pensar", lambda prompt, **k: "```python\n" + HABILIDAD_BUENA + "\n```")
+    p.poner(depredador, "instalar_habilidad_nueva", lambda n, c, m: (instaladas.update({n: c}), (True, "lista"))[1])
+    from core import evolucion as evo
+    tmp = tempfile.mkdtemp()
+    p.poner(evo, "ARCH_HABILIDADES", os.path.join(tmp, "hab.json"))
+    try:
+        for grados in (10, 25, 40):
+            resolver.anotar_resuelto(f"convierte {grados} celsius a fahrenheit", "print(1)", f"{grados * 9 / 5 + 32} F")
+        assert len(instaladas) == 1
+        nombre = next(iter(instaladas))
+        assert nombre.startswith("aprendida_") and nombre in evo._cargar(evo.ARCH_HABILIDADES, {})
+        assert resolver._ya_hay_habilidad("convierte 90 celsius a fahrenheit")
+    finally:
+        p.quitar()
+        shutil.rmtree(tmp)
+
+
+@prueba
+def resolver_entra_cuando_arche_no_entiende_sin_bloquearla():
+    from core import evolucion as evo
+    original = evo.orden_no_entendida
+    lanzados = []
+    p = Parche()
+    p.poner(evo, "orden_no_entendida", lambda frase: None)
+    p.poner(resolver, "_responder_en_hilo", lambda texto: lanzados.append(texto))
+    try:
+        resolver.instalar()
+        respuesta = evo.orden_no_entendida("cuantas veces cabe 7 en 100")
+        assert "resolverlo" in respuesta and lanzados == ["cuantas veces cabe 7 en 100"]
+    finally:
+        p.quitar()
+        assert evo.orden_no_entendida is original
+
+
+# ------------------------------------------------------------------
 # Conjunto
 # ------------------------------------------------------------------
 
@@ -681,7 +941,7 @@ def nucleo_atiende_lo_suyo_y_deja_pasar_lo_demas():
     p.poner(comun, "en_hilo", lambda *a, **k: None)
     try:
         for frase in ("qué hay de nuevo", "estado del núcleo", "rangos", "presas", "tu equipo", "misiones",
-                      "estado del guardián", "alertas del guardián", "tu ritmo", "lecciones", "fracaso del día",
+                      "estado del guardián", "alertas del guardián", "tu ritmo", "lecciones", "fracaso del día", "estado de la limpieza",
                       "estado de la voz viva", "misión: investiga los mejores servos para un perro robot",
                       "piensa a fondo: ¿conviene MG996R o DS3218?", "caza leer códigos QR"):
             assert nucleo.manejar(frase), frase

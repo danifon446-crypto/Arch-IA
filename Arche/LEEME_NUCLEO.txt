@@ -12,7 +12,7 @@ INSTALAR (con Arché cerrado)
 1. Copia la carpeta  core/nucleo/  completa dentro de  Arche/core/
    (si ya tenías una core/nucleo de antes, bórrala primero y copia esta)
 2. Copia  aplicar_parche_nucleo.py,  prueba_nucleo.py  y este LEEME dentro de  Arche/
-3. En la carpeta Arche:   python prueba_nucleo.py           -> debe decir 32/32
+3. En la carpeta Arche:   python prueba_nucleo.py           -> debe decir 46/46
 4. En la carpeta Arche:   python aplicar_parche_nucleo.py   (hace copia: main_antes_nucleo_FECHA.py)
 5. En la carpeta Arche:   python seguridad.py sellar        (para que tu guardián de seguridad
                                                               apruebe los archivos nuevos)
@@ -93,6 +93,43 @@ CRONISTA  (core/nucleo/cronista.py + ritmo.py + fracasos_semilla.py)
   mis noticias · agrega X a mis noticias · quita X de mis noticias
   tu ritmo · dame las noticias a las 6:30 · noticias a tu ritmo
   resumen de la noche a las 10 · resúmenes apagados / encendidos
+
+
+RESOLVER AL VUELO  (core/nucleo/resolver.py)
+  Lo que Arché no sabe hacer ya no termina en «no sé, lo intento esta noche»:
+  1. Si ya tiene una habilidad para eso, la usa.
+  2. Si no, el modelo (la nube si está conectada; si no, Ollama) escribe un programa CORTO solo para
+     tu pedido. Arché lo revisa (solo librería estándar; sin internet, archivos ni comandos), lo
+     corre aislado con límite de tiempo y te da el resultado. Si falla, le muestra el error al
+     modelo para que lo corrija (hasta 2 veces). Mientras tanto puedes seguir usándola.
+  3. Cuando un mismo tipo de pedido le funciona 3 veces, escribe una HABILIDAD permanente usando
+     tus pedidos reales como pruebas, y desde ahí responde al instante.
+  Entra solo con pedidos de cálculo o texto claros (convierte, cuántos… hay en, qué día cae,
+  porcentajes, promedio, binario, romanos, al revés, contar letras, contraseñas…) y con lo que
+  Arché no entendió. No se roba órdenes como alarmas, volumen, música o abrir programas.
+  Si algo no se puede con un programa (necesita internet, archivos o el PC), lo dice.
+
+  resuelve: <pedido> · qué aprendiste resolviendo · resolver apagado / resolver encendido
+
+
+LIMPIEZA SOLA DE SU CÓDIGO  (core/nucleo/limpieza.py)
+  Lo que encuentra la autorevisión ya no te lo avisa al abrir: lo resuelve sola cuando llevas
+  20 minutos sin usar el PC, y te lo cuenta en el resumen de la noche.
+  - Lo seguro (imports sin usar, 'except:' desnudos): pone la mejora continua en nivel «total».
+  - Funciones que nadie usa: las quita por lotes pequeños. Antes guarda una copia en el
+    CEMENTERIO (Database/nucleo/cementerio/), así que nada se pierde.
+  - Funciones duplicadas idénticas: deja una y el otro archivo la importa de ahí. Solo lo hace si
+    la función no depende de nada propio de su archivo (rutas, configuración) y no crea un
+    import circular.
+  - Cada lote pasa por la imaginación, la copia aparte con todo el autotest y el autotest en el
+    código real (si algo falla, vuelve sola atrás). Máximo 4 lotes por día.
+  - Antes de quitar algo busca su nombre en TODOS los archivos de Arché (también .pyw, .js,
+    .html, .json). Si aparece en cualquier lado, no lo toca.
+  - Si después aparece un error que nombra una función que quitó, la devuelve sola y te avisa.
+  - Nunca toca main.py, el núcleo protegido, core/nucleo, las habilidades ni las pruebas.
+
+  estado de la limpieza · qué limpiaste · límpiate ahora · devuelve la función <nombre>
+  limpieza apagada / limpieza encendida
 
 
 GUARDIÁN DEL PC  (core/nucleo/guardian.py)

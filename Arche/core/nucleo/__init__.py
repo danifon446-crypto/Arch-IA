@@ -20,6 +20,8 @@ Todo lo nuevo de Arché en un solo lugar. main.py solo llama a cuatro cosas:
   fracasos_semilla.py la biblioteca base de fracasos
   ritmo.py            aprende a qué hora empiezas y terminas tu día
   guardian.py         vigila impostores, programas raros, arranque automático, mineros
+  limpieza.py         resuelve sola lo que encuentra la autorevisión (código muerto, duplicadas)
+  resolver.py         resuelve al vuelo lo que no sabe hacer (un programa corto) y lo vuelve habilidad
   voz_viva.py         conversación seguida, interrupciones, reconocer tu voz
   avatar.py           Arché en tu escritorio: solo la figura, sobre una ventana transparente de Windows
   avatar_dibujo.py    el mismo dibujo de tu interfaz web (dibujarOrbe de app.js) pasado a Python
@@ -35,7 +37,8 @@ _iniciado = {"listo": False}
 
 # Orden en que cada parte revisa una frase. Las frases son específicas, así que no se pisan
 # con los comandos que Arché ya tenía.
-_PARTES = ("analista", "depredador", "equipo", "imaginacion", "cronista", "guardian", "voz_viva", "avatar")
+_PARTES = ("analista", "depredador", "equipo", "imaginacion", "cronista", "guardian", "limpieza", "voz_viva", "avatar",
+           "resolver")       # el resolvedor va de último: solo toma lo que nadie más reconoce como suyo
 
 AYUDA = """Lo nuevo de Arché (Núcleo):
 
@@ -54,6 +57,12 @@ CRONISTA
   resumen de hoy · lecciones · se parece a algún fracaso: <idea>
   mis noticias · agrega X a mis noticias · quita X de mis noticias
   tu ritmo · dame las noticias a las 7 · noticias a tu ritmo · resúmenes apagados
+RESOLVER AL VUELO
+  (lo que no sepa hacer lo resuelve con un programa: «convierte 10 km a millas», «qué día cae el 25 de diciembre»)
+  resuelve: <pedido> · qué aprendiste resolviendo · resolver apagado / encendido
+LIMPIEZA DE SU CÓDIGO
+  estado de la limpieza · qué limpiaste · límpiate ahora · devuelve la función <nombre>
+  limpieza apagada / encendida
 GUARDIÁN DEL PC
   estado del guardián · escanea mi pc · alertas del guardián · confía en <programa>
   termina el proceso N · guardián apagado / encendido
@@ -72,8 +81,8 @@ def _parte(nombre):
 
 def _tic():
     """Lo que el reloj hace cada minuto. Cada parte se protege sola: un error no apaga a las demás."""
-    from core.nucleo import ritmo, cronista, guardian, depredador, analista
-    for funcion in (ritmo.muestrear, cronista.revisar, guardian.revisar, depredador.revisar):
+    from core.nucleo import ritmo, cronista, guardian, depredador, analista, limpieza
+    for funcion in (ritmo.muestrear, cronista.revisar, guardian.revisar, depredador.revisar, limpieza.revisar):
         try:
             funcion()
         except Exception as e:
@@ -105,7 +114,15 @@ def iniciar(con_avatar=True, con_voz=True):
     if _iniciado["listo"]:
         return
     _iniciado["listo"] = True
-    from core.nucleo import analista, imaginacion
+    from core.nucleo import analista, imaginacion, limpieza, resolver
+    try:
+        resolver.instalar()               # lo que no sepa hacer, lo resuelve al vuelo con un programa
+    except Exception as e:
+        print(f"Arché: (El resolvedor no se pudo conectar: {e})")
+    try:
+        limpieza.instalar()               # limpia su código sola y calla el aviso de la autorevisión al abrir
+    except Exception as e:
+        print(f"Arché: (La limpieza sola no se pudo conectar: {e})")
     try:
         analista.instalar_ganchos()          # el núcleo revisa cada habilidad nueva y lleva sus niveles
     except Exception as e:

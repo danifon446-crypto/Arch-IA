@@ -64,6 +64,18 @@ def _estado():
     e.setdefault("lista_negra", [])
     e.setdefault("cazas_por_dia", {})
     e.setdefault("intentos", {})
+    if not e.get("perdon_eval"):
+        # La cuarentena confundía model.eval() (PyTorch) y re.compile() con eval()/compile() de Python.
+        # Lo que quedó en la lista negra SOLO por eso sale de ella (una sola vez).
+        solo_eval = {p.get("repo") for p in e["presas"] if p.get("estado") == "peligrosa"
+                     and set(re.split(r";\s*", p.get("motivo", ""))) <= {"ejecuta código armado en el momento (eval)",
+                                                                       "ejecuta código armado en el momento (compile)"}}
+        e["lista_negra"] = [r for r in e["lista_negra"] if r not in solo_eval]
+        for p in e["presas"]:
+            if p.get("repo") in solo_eval:
+                p["estado"] = "falsa_alarma"
+        e["perdon_eval"] = True
+        comun.guardar(ARCH, e)
     return e
 
 
@@ -143,18 +155,78 @@ def _hay_internet():
 # 2. Buscar presas
 # ------------------------------------------------------------------
 
+# Palabras comunes -> inglés, para cuando el modelo no traduce bien (GitHub está casi todo en inglés).
+DICCIONARIO = {
+    "convertir": "convert", "conversor": "converter", "convertidor": "converter", "unidades": "units",
+    "unidad": "unit", "medida": "measurement", "medidas": "measurement", "leer": "read", "lector": "reader",
+    "archivo": "file", "archivos": "files", "imagen": "image", "imagenes": "images", "foto": "photo",
+    "fotos": "photos", "texto": "text", "resumir": "summarize", "resumen": "summary", "calcular": "calculate",
+    "calculadora": "calculator", "traducir": "translate", "traductor": "translator", "voz": "speech",
+    "audio": "audio", "fecha": "date", "fechas": "dates", "hora": "time", "clima": "weather", "codigo": "code",
+    "qr": "qr", "codigos": "codes", "barras": "barcode", "correo": "email", "correos": "email",
+    "descargar": "download", "musica": "music", "video": "video", "videos": "video", "extraer": "extract",
+    "tabla": "table", "tablas": "tables", "excel": "excel", "pdf": "pdf", "word": "docx", "ordenar": "sort",
+    "organizar": "organize", "buscar": "search", "detectar": "detect", "reconocer": "recognize",
+    "rostro": "face", "rostros": "faces", "cara": "face", "objetos": "objects", "objeto": "object",
+    "temperatura": "temperature", "moneda": "currency", "monedas": "currency", "dinero": "money",
+    "matematicas": "math", "ecuaciones": "equations", "ecuacion": "equation", "graficar": "plot",
+    "grafica": "chart", "graficas": "charts", "comprimir": "compress", "contrasena": "password",
+    "contrasenas": "passwords", "generar": "generate", "generador": "generator", "limpiar": "clean",
+    "duplicados": "duplicates", "nombres": "names", "renombrar": "rename", "servo": "servo", "servos": "servos",
+    "motor": "motor", "motores": "motors", "robot": "robot", "sensor": "sensor", "sensores": "sensors",
+    "cinematica": "kinematics", "inversa": "inverse", "directa": "forward", "pantalla": "screen",
+    "captura": "screenshot", "teclado": "keyboard", "raton": "mouse", "notas": "notes", "tareas": "tasks",
+    "recordatorios": "reminders", "noticias": "news", "pagina": "webpage", "paginas": "webpages",
+    "subtitulos": "subtitles", "transcribir": "transcribe", "ortografia": "spell check", "palabras": "words",
+}
+_VACIAS_BUSQUEDA = {"de", "la", "el", "los", "las", "un", "una", "y", "o", "a", "en", "con", "para", "por", "que",
+                    "como", "mis", "mi", "del", "al", "se", "sin", "sobre", "hacer", "algo", "cosas"}
+
+
+def traducir_tema(tema):
+    """Traducción palabra a palabra de lo más común (sin modelo). '' si no reconoce nada."""
+    salida = []
+    for p in comun.norm(tema).split():
+        if p in _VACIAS_BUSQUEDA:
+            continue
+        if p in DICCIONARIO:
+            salida.append(DICCIONARIO[p])
+    return " ".join(dict.fromkeys(salida))
+
+
+def _parece_espanol(texto):
+    t = comun.norm(texto)
+    return bool(set(t.split()) & (_VACIAS_BUSQUEDA | set(DICCIONARIO))) and not set(t.split()) <= set(DICCIONARIO.values())
+
+
 def busquedas_para(tema):
     """Búsquedas cortas en inglés (GitHub está casi todo en inglés)."""
     r = comun.pensar(
         "Dame 2 búsquedas MUY cortas (2-4 palabras, en inglés) para encontrar en GitHub una librería o script "
-        f"de Python que sirva para: «{tema}». Responde solo una lista JSON de textos.",
+        f"de Python que sirva para: «{tema}». Responde solo una lista JSON de textos en inglés.",
         max_tokens=80, temperatura=0.2)
     lista = comun.json_de(r)
     salida = [str(x).strip() for x in lista if str(x).strip()][:2] if isinstance(lista, list) else []
-    base = " ".join(sorted(comun.palabras(tema), key=len, reverse=True)[:3])
-    if base and base not in salida:
-        salida.append(base)
+    salida = [s for s in salida if not _parece_espanol(s)]
+    traducido = traducir_tema(tema)
+    if traducido and traducido not in salida:
+        salida.insert(0 if not salida else 1, traducido)
+    if not salida:                       # no se pudo traducir nada: se busca tal cual
+        salida.append(" ".join(sorted(comun.palabras(tema), key=len, reverse=True)[:3]))
     return salida[:3]
+
+
+def trata_del_tema(repo, consulta):
+    """True si el nombre, la descripción o los temas del repo hablan de lo que se busca
+    (GitHub a veces devuelve repos que solo comparten una palabra suelta, como «units»)."""
+    claves = {p for p in comun.palabras(consulta) if len(p) >= 3}
+    if not claves:
+        return True
+    texto = comun.norm(" ".join([repo.get("full_name", "").replace("/", " ").replace("-", " ").replace("_", " "),
+                                 repo.get("description") or "", " ".join(repo.get("topics") or [])]))
+    raices = {p[:5] for p in re.findall(r"[a-z0-9]{3,}", texto)}
+    coinciden = sum(1 for c in claves if c[:5] in raices)
+    return coinciden >= min(2, len(claves))
 
 
 def es_buena_presa(repo, lista_negra=()):
@@ -179,13 +251,31 @@ def es_buena_presa(repo, lista_negra=()):
     return True, "ok"
 
 
+_ultima_busqueda = {"error": "", "consultas": []}
+
+
 def buscar_presas(tema, lista_negra=()):
     vistos, buenas = set(), []
-    for consulta in busquedas_para(tema):
+    _ultima_busqueda.update(error="", consultas=busquedas_para(tema))
+    consultas = []
+    for c in _ultima_busqueda["consultas"]:
+        palabras = c.split()
+        consultas.append(c)
+        if len(palabras) > 2:
+            consultas.append(" ".join(palabras[:2]))          # si la búsqueda larga no trae nada, una más corta
+    for consulta in dict.fromkeys(consultas):
+        if len(buenas) >= 4:
+            break
         q = urllib.parse.quote(f"{consulta} language:python")
         try:
-            datos = _get(f"https://api.github.com/search/repositories?q={q}&sort=stars&order=desc&per_page=10")
-        except (urllib.error.URLError, ValueError, OSError):
+            # orden por relevancia (no por estrellas: por estrellas salen repos famosos de otra cosa)
+            datos = _get(f"https://api.github.com/search/repositories?q={q}&per_page=20")
+        except urllib.error.HTTPError as e:
+            _ultima_busqueda["error"] = ("GitHub me pidió esperar (límite de búsquedas por hora; con «token de github "
+                                         "<token>» tengo más)") if e.code in (403, 429) else f"GitHub respondió {e.code}"
+            continue
+        except (urllib.error.URLError, ValueError, OSError) as e:
+            _ultima_busqueda["error"] = f"no pude conectarme a GitHub ({getattr(e, 'reason', e)})"
             continue
         for repo in datos.get("items", []):
             nombre = repo.get("full_name")
@@ -193,10 +283,9 @@ def buscar_presas(tema, lista_negra=()):
                 continue
             vistos.add(nombre)
             ok, _ = es_buena_presa(repo, lista_negra)
-            if ok:
+            if ok and trata_del_tema(repo, consulta):
                 buenas.append(repo)
         time.sleep(2)            # sin token GitHub deja ~10 búsquedas por minuto
-    buenas.sort(key=lambda r: -int(r.get("stargazers_count", 0)))
     return buenas[:4]
 
 
@@ -263,21 +352,74 @@ def digerir(repo, carpeta, tema, consultas):
     if not codigo_presa:
         return None, "no tenía código útil"
     lic = ((repo.get("license") or {}).get("spdx_id") or "").upper()
-    r = comun.pensar(
+    pedido = (
         f"Eres el Depredador de Arché, una asistente en Python. Te comiste el repositorio {repo['full_name']} "
         f"(licencia {lic}). Extrae SOLO la técnica que sirve para esta tarea: «{tema}», y escribe una habilidad "
         "NUEVA para Arché, autocontenida (no puede importar el paquete del repositorio porque no está instalado). "
-        "Reescríbela con tus palabras; no copies bloques largos.\n\n" + _FORMATO +
-        f"\n\nREADME:\n{readme}\n\nCÓDIGO DE LA PRESA:\n{codigo_presa}\n\nSolo el código.",
-        temperatura=0.2, codigo=True, max_tokens=1600)
-    codigo = re.sub(r"```(?:python)?", "", r or "").strip()
+        "Reescríbela con tus palabras; no copies bloques largos. Que sea CORTA (menos de 120 líneas) y completa.\n\n"
+        + _FORMATO +
+        f"\n\nREADME:\n{readme}\n\nCÓDIGO DE LA PRESA:\n{codigo_presa}\n\n"
+        "Responde SOLO con el código dentro de un bloque ```python, sin explicaciones.")
+    codigo = comun.extraer_codigo(comun.pensar(pedido, temperatura=0.2, codigo=True, max_tokens=2500))
     if not codigo:
         return None, "el modelo no respondió"
+    # Si tiene errores, se los muestro al modelo para que lo corrija (hasta 2 veces).
+    from core.nucleo import analista, cuarentena
+    for intento in range(3):
+        problema = _problema_de(codigo, analista, cuarentena)
+        if not problema:
+            break
+        if intento == 2:
+            return None, problema
+        nuevo = comun.extraer_codigo(comun.pensar(
+            f"Esta habilidad de Python para Arché tiene un problema: {problema}.\n"
+            "Devuélvela COMPLETA y corregida (más corta si hace falta), con el mismo formato:\n" + _FORMATO +
+            f"\n\nCÓDIGO:\n```python\n{codigo[:6000]}\n```\n\nResponde SOLO con el código en un bloque ```python.",
+            temperatura=0.1, codigo=True, max_tokens=2500))
+        if nuevo:
+            codigo = nuevo
     m = re.search(r"(?im)^\s*#\s*NECESITA\s*:\s*(.+)$", codigo[:400])
     permisos = tuple(sorted({p for p in ("archivos", "red") if m and p in comun.norm(m.group(1))}))
     cabecera = (f"# Absorbida por el Depredador de Arché desde {repo.get('html_url', '')} (licencia {lic}).\n"
                 "# La técnica se reescribió para Arché; no es una copia del original.\n")
     return cabecera + codigo, permisos
+
+
+def _problema_de(codigo, analista, cuarentena):
+    """'' si la habilidad está bien; si no, el problema explicado para que el modelo lo corrija."""
+    import ast
+    try:
+        ast.parse(codigo)
+    except SyntaxError as e:
+        lineas = codigo.splitlines()
+        linea = lineas[e.lineno - 1].strip() if e.lineno and e.lineno <= len(lineas) else ""
+        return f"error de sintaxis en la línea {e.lineno} ({e.msg}): «{linea[:80]}»"
+    m = re.search(r"(?im)^\s*#\s*NECESITA\s*:\s*(.+)$", codigo[:400])
+    permisos = tuple(sorted({p for p in ("archivos", "red") if m and p in comun.norm(m.group(1))}))
+    ok, por_que = cuarentena.revisar_habilidad(codigo, permisos)
+    if not ok:
+        return por_que
+    ok, por_que, _ = analista.analizar_habilidad(codigo)
+    if not ok:
+        return por_que
+    return _falla_su_prueba(codigo)
+
+
+def _falla_su_prueba(codigo):
+    """'' si su probar() pasa (corrida aislada); si no, qué falló, para que el modelo lo corrija."""
+    import tempfile
+    from core import evolucion as evo
+    with tempfile.TemporaryDirectory(prefix="arche_hab_") as tmp:
+        with open(os.path.join(tmp, "hab.py"), "w", encoding="utf-8") as f:
+            f.write(codigo)
+        ok, salida = evo._correr_aislado("import sys; sys.path.insert(0, '.')\nimport hab\nhab.probar()\nprint('ok')\n",
+                                         cwd=tmp, tiempo=90)
+    if ok:
+        return ""
+    lineas = [l for l in salida.strip().splitlines()
+              if l.strip() and "File " not in l and not set(l.strip()) <= set("~^ ")][-4:]
+    return ("su probar() falla (o la función devuelve otra cosa, o la prueba espera un formato distinto; "
+            "corrige lo que esté mal): " + " | ".join(l.strip() for l in lineas)[:400])
 
 
 def _registrar(nombre, tema, repo, permisos, item_id=None):
@@ -296,8 +438,45 @@ def _registrar(nombre, tema, repo, permisos, item_id=None):
             pass
 
 
+def instalar_habilidad_nueva(nombre, codigo, motivo):
+    """Camino corto para una habilidad NUEVA (un archivo aparte que no cambia nada de Arché): su propia
+    prueba en un proceso aislado, escribirla y comprobar que carga desde Arché. Sin el autotest
+    completo, que en un PC cargado puede tardar más de 10 minutos. (ok, explicación)."""
+    from core import evolucion as evo
+    ruta = os.path.join(evo.CARPETA_HABILIDADES, nombre + ".py")
+    if os.path.exists(ruta):
+        return False, "ya existe una habilidad con ese nombre"
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix="arche_hab_") as tmp:
+        with open(os.path.join(tmp, "hab.py"), "w", encoding="utf-8") as f:
+            f.write(codigo)
+        ok, salida = evo._correr_aislado("import sys; sys.path.insert(0, '.')\nimport hab\nhab.probar()\nprint('ok')\n",
+                                         cwd=tmp, tiempo=90)
+    if not ok:
+        return False, "no pasó su propia prueba: " + salida.strip()[-200:]
+    os.makedirs(evo.CARPETA_HABILIDADES, exist_ok=True)
+    init = os.path.join(evo.CARPETA_HABILIDADES, "__init__.py")
+    if not os.path.exists(init):
+        with open(init, "w", encoding="utf-8") as f:
+            f.write('"""Habilidades que Arché se fabricó sola."""\n')
+    with open(ruta, "w", encoding="utf-8", newline="") as f:
+        f.write(codigo)
+    ok, salida = evo._correr_aislado(f"import sys; sys.path.insert(0, '.')\nfrom core.habilidades_auto import {nombre} as h\n"
+                                     "h.probar()\nprint('ok')\n", cwd=evo.BASE, tiempo=120)
+    if not ok:
+        os.remove(ruta)
+        return False, "no cargó dentro de Arché: " + salida.strip()[-200:]
+    try:
+        evo._diario("habilidad_nueva", motivo, archivo=f"core/habilidades_auto/{nombre}.py")
+    except Exception:
+        pass
+    return True, "lista"
+
+
 def _aplicar(nombre, codigo, tema):
     from core import evolucion as evo
+    if not os.path.exists(os.path.join(evo.CARPETA_HABILIDADES, nombre + ".py")):
+        return instalar_habilidad_nueva(nombre, codigo, f"presa del Depredador: {tema}")
     rel = f"core/habilidades_auto/{nombre}.py"
     cambios = {rel: codigo}
     if not os.path.exists(os.path.join(evo.CARPETA_HABILIDADES, "__init__.py")):
@@ -329,7 +508,10 @@ def cazar(tema, item_id=None, manual=False, avisar=print):
         consultas = busquedas_para(tema)
         repos = buscar_presas(tema, e["lista_negra"])
         if not repos:
-            return False, "no encontré presas con licencia libre y en buen estado"
+            if _ultima_busqueda["error"]:
+                return False, _ultima_busqueda["error"]
+            return False, ("busqué " + " / ".join(f"«{c}»" for c in _ultima_busqueda["consultas"]) +
+                           " y no encontré presas con licencia libre y en buen estado")
         from core import evolucion as evo
         from core.nucleo import analista
         motivos = []
@@ -507,7 +689,7 @@ def manejar(comando):
         comun.msg(f"Salgo a cazar «{tema}» en GitHub. Todo pasa por cuarentena antes de tocarme; te aviso.")
 
         def _caza():
-            ok, por_que = cazar(tema, manual=True, avisar=lambda t: comun.msg(t))
+            ok, por_que = cazar(tema, manual=True, avisar=lambda t: comun.msg(t, voz=False))
             if not ok:
                 comun.msg(f"Depredador: no pude absorber «{tema}» — {por_que}.")
         comun.en_hilo(_caza, nombre="arche-depredador")

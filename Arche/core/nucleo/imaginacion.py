@@ -50,6 +50,15 @@ def _funciones(texto):
     for nodo in arbol.body:
         if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
             salida[nodo.name] = (_firma(nodo), ast.dump(nodo, include_attributes=False))
+        elif isinstance(nodo, ast.ImportFrom):
+            # «from x import f»: f sigue existiendo en este módulo (la limpieza unifica así las duplicadas)
+            for alias in nodo.names:
+                if alias.name != "*":
+                    salida.setdefault(alias.asname or alias.name, ("alias", ast.dump(nodo, include_attributes=False)))
+        elif isinstance(nodo, ast.Assign):
+            for t in nodo.targets:
+                if isinstance(t, ast.Name) and isinstance(nodo.value, (ast.Name, ast.Attribute)):
+                    salida.setdefault(t.id, ("alias", ast.dump(nodo, include_attributes=False)))
         elif isinstance(nodo, ast.ClassDef):
             for sub in nodo.body:
                 if isinstance(sub, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -62,7 +71,7 @@ def comparar(viejo, nuevo):
     agregadas = sorted(set(fn) - set(fv))
     quitadas = sorted(set(fv) - set(fn))
     cambiadas = sorted(n for n in set(fv) & set(fn) if fv[n][1] != fn[n][1])
-    firma_cambiada = sorted(n for n in cambiadas if fv[n][0] != fn[n][0])
+    firma_cambiada = sorted(n for n in cambiadas if fv[n][0] != fn[n][0] and "alias" not in (fv[n][0], fn[n][0]))
     return {"agregadas": agregadas, "quitadas": quitadas, "cambiadas": cambiadas, "firma_cambiada": firma_cambiada}
 
 
