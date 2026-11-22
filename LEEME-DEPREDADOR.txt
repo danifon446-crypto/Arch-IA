@@ -1,0 +1,11 @@
+DEPREDADOR MEJORADO - como instalarlo
+1. Descomprime el zip ENCIMA de tu carpeta Arch-IA (acepta reemplazar). Cambia/agrega:
+   Arche/core/nucleo/fuentes.py      NUEVO: GitHub, GitLab y Codeberg
+   Arche/core/nucleo/depredador.py   caza en las 3 plataformas
+   Arche/core/nucleo/cuarentena.py   distingue un programa de seguridad de un ladron
+   Arche/prueba_depredador.py        NUEVO: 16 pruebas
+   Arche/core/nucleo/resolver.py     ARREGLO: las tildes se leian mal en Windows (prueba que fallaba)
+   Arche/prueba_nucleo.py            con una prueba nueva para eso
+2. Probar (sin internet): cd Arche ; python prueba_depredador.py ; python prueba_nucleo.py   (las dos: todo OK)
+3. Como estos archivos son nucleo protegido: python seguridad.py sellar
+Comandos: "fuentes" | "depredador sin gitlab" | "depredador con gitlab" | "token de gitlab xxx" | "token de codeberg xxx"

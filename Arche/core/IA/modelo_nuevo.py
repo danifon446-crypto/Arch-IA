@@ -71,11 +71,7 @@ def _leer_json(ruta, defecto):
         return defecto
 
 
-def _escribir_json(ruta, datos):
-    tmp = ruta + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
-    os.replace(tmp, ruta)
+from core.compartir import _escribir_json  # era una copia idéntica: se usa la de core/compartir.py
 
 
 def _estado():
@@ -188,9 +184,7 @@ def _crear_en_ollama(nombre, ruta_gguf):
 # ------------------------------------------------------------------
 # Examen local
 # ------------------------------------------------------------------
-def _norm(texto):
-    texto = unicodedata.normalize("NFKD", str(texto or "").strip().lower())
-    return "".join(c for c in texto if not unicodedata.combining(c))
+from core.memoria_nube import _norm  # era una copia idéntica: se usa la de core/memoria_nube.py
 
 
 def _clasificar_corto(modelo, frase):

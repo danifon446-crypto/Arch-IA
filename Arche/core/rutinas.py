@@ -37,11 +37,7 @@ PAUSA_ENTRE_PASOS = "espera 2"
 NOMBRES_RESERVADOS = {"natural", "natural on", "natural off", "voz", "nube", "ollama", "auto"}
 
 
-def _sin_tildes(texto):
-    t = str(texto).lower()
-    for a, b in (("á", "a"), ("é", "e"), ("í", "i"), ("ó", "o"), ("ú", "u"), ("ü", "u"), ("ñ", "n")):
-        t = t.replace(a, b)
-    return t
+from core.alarmas import _sin_tildes  # era una copia idéntica: se usa la de core/alarmas.py
 
 
 def _clave(nombre):

@@ -76,19 +76,10 @@ class ErrorMemoria(Exception):
 # ------------------------------------------------------------------
 # Archivos locales
 # ------------------------------------------------------------------
-def _leer_json(ruta, defecto):
-    try:
-        with open(ruta, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return defecto
+from core.compartir import _leer_json  # era una copia idéntica: se usa la de core/compartir.py
 
 
-def _escribir_json(ruta, datos):
-    tmp = ruta + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(datos, f, indent=2, ensure_ascii=False)
-    os.replace(tmp, ruta)
+from core.compartir import _escribir_json  # era una copia idéntica: se usa la de core/compartir.py
 
 
 def _cfg():

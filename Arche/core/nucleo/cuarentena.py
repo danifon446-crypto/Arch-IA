@@ -31,13 +31,22 @@ import shutil
 import subprocess
 import zipfile
 
-EXTENSIONES_TEXTO = {".py", ".md", ".txt", ".rst", ".toml", ".cfg", ".ini", ".json", ".yml", ".yaml", ".pth"}
+EXTENSIONES_TEXTO = {".py", ".md", ".txt", ".rst", ".toml", ".cfg", ".ini", ".json", ".yml", ".yaml", ".pth",
+                     ".yar", ".yara", ".rules"}                   # las últimas: reglas de detección (solo se LEEN)
 MAX_ARCHIVOS = 400
 MAX_BYTES_ARCHIVO = 300_000
 MAX_BYTES_TOTAL = 12_000_000
+# Los archivos de licencia no tienen extensión (LICENSE, COPYING...): se dejan pasar para poder leer la licencia.
+_R_ARCHIVO_LICENCIA = re.compile(r"(?i)^(?:licen[sc]e|copying|unlicense)(?:[-_.][\w.-]*)?$")
+# Lo que SÍ se considera código que se podría ejecutar (todo lo demás es texto o datos que solo se leen).
+_EXT_CODIGO = {".py", ".pth"}
 
 # (patron, peso, explicación). Peso >= 10 en un solo hallazgo = peligroso.
 _REGLAS_TEXTO = [
+    (r"(?i)(?:ignore|disregard)\s+(?:all\s+|any\s+)?(?:previous|prior|above)\s+instructions"
+     r"|ignora\s+(?:todas\s+)?las\s+instrucciones\s+anteriores"
+     r"|you\s+are\s+now\s+(?:an?\s+)?(?:unrestricted|jailbroken|dan)\b", 6,
+     "trae órdenes escondidas dirigidas a la IA que lo lee"),
     (r"(?i)Login Data|Local State|\\Cookies\b|key4\.db|logins\.json|Web Data", 10,
      "lee contraseñas o cookies del navegador"),
     (r"(?i)discord(?:app)?\.com/api/webhooks", 10, "manda datos a un webhook de Discord"),
@@ -75,7 +84,8 @@ def descomprimir_seguro(datos_zip, destino):
                 continue
             nombre = info.filename.replace("\\", "/")
             ext = os.path.splitext(nombre)[1].lower()
-            if ext not in EXTENSIONES_TEXTO or info.file_size > MAX_BYTES_ARCHIVO:
+            es_licencia = bool(_R_ARCHIVO_LICENCIA.match(os.path.basename(nombre)))
+            if (ext not in EXTENSIONES_TEXTO and not es_licencia) or info.file_size > MAX_BYTES_ARCHIVO:
                 continue
             if nombre.startswith("/") or ".." in nombre.split("/"):
                 continue
@@ -92,6 +102,75 @@ def descomprimir_seguro(datos_zip, destino):
     return extraidos
 
 
+# ------------------------------------------------------------------
+# Licencia (para plataformas cuya API no la dice, como Codeberg)
+# ------------------------------------------------------------------
+
+_NO_LIBRES = {"gpl", "agpl", "lgpl", "cc-by", "personalizada", "bsd-4-clause"}
+
+
+def clasificar_licencia(texto):
+    """Reconoce por su texto las licencias libres más comunes. Devuelve el identificador SPDX en minúsculas
+    ('mit', 'apache-2.0'...), uno de _NO_LIBRES si es copyleft o rara, o '' si no la reconoce."""
+    t = re.sub(r"\s+", " ", (texto or "").lower())
+    if "gnu affero general public license" in t:
+        return "agpl"
+    if "gnu lesser general public license" in t:
+        return "lgpl"
+    if "gnu general public license" in t:
+        return "gpl"
+    if "commons clause" in t or "non-commercial" in t or "noncommercial" in t:
+        return "personalizada"
+    if "cc0 1.0 universal" in t:
+        return "cc0-1.0"
+    if "creative commons" in t:
+        return "cc-by"
+    if "do what the fuck you want" in t:
+        return "wtfpl"
+    if "free and unencumbered software released into the public domain" in t:
+        return "unlicense"
+    if "mozilla public license" in t and "2.0" in t:
+        return "mpl-2.0"
+    if "apache license" in t and "version 2.0" in t:
+        return "apache-2.0"
+    if "permission is hereby granted, free of charge" in t:
+        return "mit"
+    if "altered source versions must be plainly marked" in t:
+        return "zlib"
+    if "redistribution and use in source and binary forms" in t:
+        if "all advertising materials" in t:
+            return "bsd-4-clause"
+        return "bsd-3-clause" if ("neither the name" in t or "may be used to endorse" in t) else "bsd-2-clause"
+    if re.search(r"permission to use, copy, modify, and(?:/or)? distribute this software for any purpose "
+                 r"with or without fee is hereby granted", t):
+        return "isc" if "provided that the above copyright notice" in t else "0bsd"
+    return ""
+
+
+def detectar_licencia(carpeta):
+    """Lee los archivos LICENSE/COPYING de la cuarentena (hasta 2 carpetas de profundidad) y devuelve su
+    licencia ('' si no hay o no la reconoce). Si hay varias y alguna es copyleft, gana esa (lo prudente)."""
+    encontradas = []
+    base = os.path.abspath(carpeta)
+    for raiz, dirs, archivos in os.walk(base):
+        if os.path.relpath(raiz, base).count(os.sep) >= 2:
+            dirs[:] = []
+        for nombre in sorted(archivos):
+            if not _R_ARCHIVO_LICENCIA.match(nombre):
+                continue
+            try:
+                with open(os.path.join(raiz, nombre), "r", encoding="utf-8", errors="replace") as f:
+                    clase = clasificar_licencia(f.read(40_000))
+            except OSError:
+                continue
+            if clase:
+                encontradas.append(clase)
+    for c in encontradas:
+        if c in _NO_LIBRES:
+            return c
+    return encontradas[0] if encontradas else ""
+
+
 def _nombre_llamada(nodo):
     f = nodo.func
     if isinstance(f, ast.Name):
@@ -102,7 +181,9 @@ def _nombre_llamada(nodo):
     return "", ""
 
 
-def _escanear_python(texto, rel):
+def _escanear_python(texto, rel, ejecutable=None):
+    """ejecutable: el mismo texto sin comentarios, docstrings ni listas de datos (para los regex)."""
+    ejecutable = texto if ejecutable is None else ejecutable
     hallazgos = []
     try:
         arbol = ast.parse(texto)
@@ -139,9 +220,9 @@ def _escanear_python(texto, rel):
     peligrosos = importados & _MODULOS_SISTEMA
     if peligrosos:
         hallazgos.append((2 * len(peligrosos), rel, "usa " + ", ".join(sorted(peligrosos))))
-    if {"pynput", "keyboard", "pyHook"} & importados and re.search(r"(?i)on_press|hook|Listener", texto):
+    if {"pynput", "keyboard", "pyHook"} & importados and re.search(r"(?i)on_press|hook|Listener", ejecutable):
         hallazgos.append((8, rel, "escucha el teclado (posible keylogger)"))
-    if decodifica and re.search(r"(?<![.\w])(?:exec|eval)\s*\(", texto):
+    if decodifica and re.search(r"(?<![.\w])(?:exec|eval)\s*\(", ejecutable):
         hallazgos.append((10, rel, "decodifica algo y lo ejecuta (código escondido)"))
     if usa_walk and cifra and escribe_binario:
         hallazgos.append((10, rel, "recorre carpetas y cifra archivos (patrón de ransomware)"))
@@ -173,13 +254,71 @@ def _defender(carpeta):
         return None
 
 
+def _es_dato(n):
+    """True si el nodo es solo datos fijos (textos, números, listas/diccionarios de eso, re.compile('...'))."""
+    if isinstance(n, ast.Constant):
+        return True
+    if isinstance(n, ast.UnaryOp) and isinstance(n.op, (ast.USub, ast.UAdd)):
+        return _es_dato(n.operand)
+    if isinstance(n, (ast.List, ast.Tuple, ast.Set)):
+        return all(_es_dato(e) for e in n.elts)
+    if isinstance(n, ast.Dict):
+        return all(k is not None and _es_dato(k) and _es_dato(v) for k, v in zip(n.keys, n.values))
+    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "compile" \
+            and isinstance(n.func.value, ast.Name) and n.func.value.id == "re":
+        return all(_es_dato(a) for a in n.args) and all(_es_dato(k.value) for k in n.keywords)
+    return False
+
+
+def texto_ejecutable(texto):
+    """El código SIN lo que no se ejecuta ni decide nada: comentarios, docstrings y listas/diccionarios de
+    datos fijos (como las listas de 'cosas que buscar' de un antivirus). Un programa de seguridad menciona
+    'Login Data' o 'CurrentVersion\\Run' en esas listas para DETECTAR; un ladrón las usa para ROBAR, y eso
+    se ve en cómo las usa, no en que existan. Si el archivo no se puede analizar, se devuelve entero."""
+    texto = texto.replace("\r\n", "\n").replace("\r", "\n")
+    try:
+        arbol = ast.parse(texto)
+    except (SyntaxError, ValueError, RecursionError):
+        return texto
+    crudo = texto.encode("utf-8", "replace")
+    inicios = [0]
+    for linea in crudo.split(b"\n"):
+        inicios.append(inicios[-1] + len(linea) + 1)
+    borrar, ocultos = [], set()
+    for nodo in ast.walk(arbol):
+        if id(nodo) in ocultos:
+            continue
+        es_docstring = isinstance(nodo, ast.Expr) and isinstance(nodo.value, ast.Constant) \
+            and isinstance(nodo.value.value, str)
+        es_lista = isinstance(nodo, (ast.List, ast.Tuple, ast.Set, ast.Dict)) and _es_dato(nodo)
+        if not (es_docstring or es_lista) or not hasattr(nodo, "end_lineno"):
+            continue
+        try:
+            a = inicios[nodo.lineno - 1] + nodo.col_offset
+            b = inicios[nodo.end_lineno - 1] + nodo.end_col_offset
+        except IndexError:
+            continue
+        borrar.append((a, b))
+        ocultos.update(id(h) for h in ast.walk(nodo))
+    sobra = bytearray(crudo)
+    for a, b in borrar:
+        sobra[a:b] = b" " * (b - a)
+    limpio = sobra.decode("utf-8", "replace")
+    return re.sub(r"(?m)^[ \t]*#.*$", "", limpio)
+
+
 def escanear(carpeta, usar_defender=True):
     """
     Revisa todo lo que hay en la cuarentena. Devuelve
       {"veredicto": "limpio"|"sospechoso"|"peligroso", "puntos": int, "hallazgos": [(peso, archivo, por_que)],
-       "defender": True/False/None}
+       "menciones": [(archivo, por_que)], "defender": True/False/None}
+
+    hallazgos: lo que está en CÓDIGO que se podría ejecutar (decide el veredicto).
+    menciones: lo mismo, pero solo escrito en documentos, comentarios o listas de datos (README, reglas de
+               detección, listas de rutas a vigilar). NO sube el veredicto —así un buen programa de seguridad
+               no se confunde con un ladrón—, pero el Depredador no se queda esa presa sin tu permiso.
     """
-    hallazgos = []
+    hallazgos, menciones = [], []
     for raiz, _, archivos in os.walk(carpeta):
         for nombre in archivos:
             ruta = os.path.join(raiz, nombre)
@@ -189,11 +328,19 @@ def escanear(carpeta, usar_defender=True):
                     texto = f.read(MAX_BYTES_ARCHIVO)
             except OSError:
                 continue
+            es_codigo = os.path.splitext(nombre)[1].lower() in _EXT_CODIGO or nombre.lower() == "setup.py"
+            ejecutable = texto_ejecutable(texto) if nombre.endswith(".py") else texto
             for patron, peso, por_que in _REGLAS_TEXTO:
-                if re.search(patron, texto):
+                if not re.search(patron, texto):
+                    continue
+                if es_codigo and re.search(patron, ejecutable):
                     hallazgos.append((peso, rel, por_que))
+                elif por_que.startswith("trae órdenes"):
+                    hallazgos.append((peso, rel, por_que))      # órdenes a la IA: cuentan donde estén
+                else:
+                    menciones.append((rel, por_que))
             if nombre.endswith(".py"):
-                hallazgos += _escanear_python(texto, rel)
+                hallazgos += _escanear_python(texto, rel, ejecutable)
             hallazgos += _escanear_setup(texto, rel)
     defender = _defender(carpeta) if usar_defender else None
     if defender:
@@ -207,7 +354,9 @@ def escanear(carpeta, usar_defender=True):
     else:
         veredicto = "limpio"
     hallazgos.sort(key=lambda h: -h[0])
-    return {"veredicto": veredicto, "puntos": puntos, "hallazgos": hallazgos[:25], "defender": defender}
+    unicas = list(dict.fromkeys(menciones))
+    return {"veredicto": veredicto, "puntos": puntos, "hallazgos": hallazgos[:25], "menciones": unicas[:25],
+            "defender": defender}
 
 
 def vaciar(carpeta):
@@ -221,7 +370,7 @@ def vaciar(carpeta):
 _PROHIBIDO_SIEMPRE_IMPORT = {"subprocess", "socket", "ctypes", "winreg", "multiprocessing", "shutil", "pickle",
                              "marshal", "ftplib", "smtplib", "telnetlib", "pty", "pynput", "keyboard"}
 _PROHIBIDO_SIEMPRE_LLAMADA = {"eval", "exec", "compile", "__import__", "system", "popen", "remove", "unlink",
-                              "rmdir", "rmtree", "removedirs", "kill", "spawn", "startfile", "chmod",
+                              "rmdir", "rmtree", "removedirs", "kill", "terminate", "send_signal", "spawn", "startfile", "chmod",
                               "write_text", "write_bytes", "touch", "mkdir", "makedirs", "symlink_to", "truncate"}
 # Estas solo son peligrosas sobre os (texto.replace() es normal; os.replace() mueve archivos).
 _PROHIBIDO_SOBRE_OS = {"rename", "replace", "renames", "chdir", "putenv"}

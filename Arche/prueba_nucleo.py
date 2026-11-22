@@ -870,6 +870,22 @@ def resolver_revisa_el_programa_antes_de_correrlo():
 
 
 @prueba
+def resolver_lee_bien_las_tildes_aunque_la_consola_use_otra_codificacion():
+    # En Windows el programa imprimía en cp1252 y «kilómetros» llegaba como «kil�metros».
+    p = Parche()
+    vistos = []
+    original = evo._correr_aislado
+    p.poner(evo, "_correr_aislado", lambda codigo, **k: (vistos.append(codigo), original(codigo, **k))[1])
+    try:
+        ok, salida = resolver.correr("print('10 kilómetros son 6.21 millas, ñandú')")
+        assert ok and salida == "10 kilómetros son 6.21 millas, ñandú", salida
+        assert vistos[0].startswith("import sys; sys.stdout.reconfigure(encoding='utf-8')")
+        assert vistos[0].count("\n") == 1                       # una sola línea añadida: los números de línea se mueven 1
+    finally:
+        p.quitar()
+
+
+@prueba
 def resolver_resuelve_corrige_y_sabe_cuando_no_es_para_el():
     p = Parche()
     respuestas = []

@@ -131,9 +131,16 @@ def revisar_programa(codigo):
     return True, "ok"
 
 
+_UTF8 = "import sys; sys.stdout.reconfigure(encoding='utf-8'); sys.stderr.reconfigure(encoding='utf-8')\n"
+
+
 def correr(codigo):
     """(ok, salida) corriendo el programa aislado, en una carpeta temporal y con límite de tiempo."""
     from core import evolucion as evo
+    # En Windows el programa imprime con la codificación de la consola (cp1252) y aquí se lee como UTF-8:
+    # «kilómetros» llegaba como «kil�metros». Python se lanza con -I, que ignora PYTHONIOENCODING, así que
+    # se le pide UTF-8 desde dentro del propio programa (en una sola línea, para no mover los números de línea).
+    codigo = _UTF8 + codigo
     with tempfile.TemporaryDirectory(prefix="arche_resolver_") as tmp:
         ok, salida = evo._correr_aislado(codigo, cwd=tmp, tiempo=TIEMPO_PROGRAMA)
     salida = (salida or "").strip()
