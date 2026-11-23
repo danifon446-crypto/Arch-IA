@@ -67,3 +67,6 @@ Arche/Perro_robotico/robot_config.json
 
 # Llave privada del HTTPS del celular
 Arche/core/interfaz/certificado_celular/
+
+# Parches temporales que se descargan para aplicar
+*.patch
