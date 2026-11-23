@@ -50,3 +50,20 @@ respaldo_antes_*/
 
 # modelos 3D que crea Arché (son tuyos, no del proyecto)
 Arche/Modelos3D/
+
+# --- Generados al correr Arché (no son código; cambian solos) ---
+Arche/core/IA/cambios_codigo_log.jsonl
+Arche/core/IA/para_revisar.jsonl
+Arche/core/IA/errores_aprendidos.json
+Arche/core/IA/estudio_estado.json
+Arche/core/IA/examen_progreso.json
+Arche/core/IA/historial_versiones.json
+Arche/core/IA/guia_comandos_vistos.json
+Arche/busqueda.txt
+# El historial de precisión SÍ se sube (Arche/core/IA/historial_precision.jsonl) a propósito.
+
+# --- Datos de tu red local ---
+Arche/Perro_robotico/robot_config.json
+
+# Llave privada del HTTPS del celular
+Arche/core/interfaz/certificado_celular/

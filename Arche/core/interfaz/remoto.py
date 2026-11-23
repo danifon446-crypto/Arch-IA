@@ -53,6 +53,7 @@ import random
 import re
 import secrets
 import socket
+import ssl
 import sys
 import tempfile
 import threading
@@ -1003,15 +1004,42 @@ def _puerto():
     return _servidor.server_address[1] if _servidor is not None else ajustes.obtener("celular_puerto")
 
 
+CARPETA_CERT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "certificado_celular")
+ARCHIVO_CERT = os.path.join(CARPETA_CERT, "celular.crt")
+ARCHIVO_LLAVE = os.path.join(CARPETA_CERT, "celular.key")
+
+
+def _contexto_tls():
+    """
+    Si existen celular.crt y celular.key (los crea  python crear_certificado_celular.py ),
+    el servidor habla HTTPS y el PIN ya no viaja en texto claro por la wifi.
+    Sin ellos sigue como siempre (HTTP). Devuelve None si no hay certificado o no sirve.
+    """
+    if not (os.path.exists(ARCHIVO_CERT) and os.path.exists(ARCHIVO_LLAVE)):
+        return None
+    try:
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        ctx.load_cert_chain(ARCHIVO_CERT, ARCHIVO_LLAVE)
+        return ctx
+    except (OSError, ssl.SSLError) as e:
+        print(f"Arché: (celular: el certificado HTTPS no sirve, sigo en HTTP: {e})")
+        return None
+
+
+def _esquema():
+    return "https" if _servidor is not None and getattr(_servidor, "con_tls", False) else "http"
+
+
 def direccion():
     """La dirección en la wifi de casa."""
-    return f"http://{ip_local()}:{_puerto()}"
+    return f"{_esquema()}://{ip_local()}:{_puerto()}"
 
 
 def direccion_afuera():
     """La dirección para entrar desde cualquier red (Tailscale), o None si no está."""
     ip = ip_tailscale()
-    return f"http://{ip}:{_puerto()}" if ip else None
+    return f"{_esquema()}://{ip}:{_puerto()}" if ip else None
 
 
 def instrucciones_afuera():
@@ -1303,6 +1331,7 @@ class _Servidor(ThreadingHTTPServer):
     # peticiones caen en cualquiera (por eso a veces "no dejaba entrar": respondía el de WhatsApp).
     allow_reuse_address = sys.platform != "win32"
     daemon_threads = True
+    con_tls = False
 
 
 def _puertos_ocupados_por_arche():
@@ -1332,6 +1361,13 @@ def iniciar():
     for puerto in dict.fromkeys(candidatos):
         try:
             _servidor = _Servidor(("0.0.0.0", puerto), _Manejador)
+            ctx = _contexto_tls()
+            if ctx is not None:
+                _servidor.socket = ctx.wrap_socket(_servidor.socket, server_side=True)
+                _servidor.con_tls = True
+            else:
+                print("Arché: (celular en HTTP: el PIN viaja sin cifrar por tu wifi. "
+                      "Para HTTPS corre  python crear_certificado_celular.py )")
             break
         except OSError as e:
             _servidor, error = None, e

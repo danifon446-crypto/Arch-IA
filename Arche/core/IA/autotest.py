@@ -741,8 +741,28 @@ _registrar_pruebas_aprendidas()
 
 # ==================== RUNNER ====================
 
+def _aislar_registros():
+    """
+    Manda el log y la lista de pendientes de cambios de código a una carpeta temporal
+    mientras corren los tests. Sin esto, los tests que simulan un cambio roto escriben
+    en el log REAL (cambios_codigo_log.jsonl) y lo llenan de falsos fallos en cada
+    autotest. Devuelve la función que lo deja todo como estaba.
+    """
+    from core.IA import proponer_cambio_codigo as pc, revisar_cambios_codigo as rc
+    tmp = Path(tempfile.mkdtemp(prefix="arche_autotest_registros_"))
+    antes = (pc.ARCHIVO_LOG, pc.ARCHIVO_PENDIENTES, rc.ARCHIVO_LOG, rc.ARCHIVO_PENDIENTES)
+    pc.ARCHIVO_LOG = rc.ARCHIVO_LOG = tmp / "log.jsonl"
+    pc.ARCHIVO_PENDIENTES = rc.ARCHIVO_PENDIENTES = tmp / "pendientes.json"
+
+    def restaurar():
+        pc.ARCHIVO_LOG, pc.ARCHIVO_PENDIENTES, rc.ARCHIVO_LOG, rc.ARCHIVO_PENDIENTES = antes
+        shutil.rmtree(tmp, ignore_errors=True)
+    return restaurar
+
+
 def main():
     print("Arché -- autotest")
+    restaurar_registros = _aislar_registros()
 
     ok, fallo = 0, 0
     pruebas = _TESTS
@@ -766,6 +786,7 @@ def main():
             print(f"  MAL  {nombre}  (error inesperado, no un assert)")
             print("       " + "\n       ".join(traceback.format_exc().splitlines()[-3:]))
 
+    restaurar_registros()
     for entorno in _entorno_aprendidas:
         shutil.rmtree(entorno, ignore_errors=True)
 

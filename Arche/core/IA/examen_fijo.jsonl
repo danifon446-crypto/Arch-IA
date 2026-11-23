@@ -1,0 +1,608 @@
+{"frase": "hola", "intencion": "saludo", "dominio": "conversacion"}
+{"frase": "cual fue la ultima operacion", "intencion": "ultimo_calculo", "dominio": "calculadora"}
+{"frase": "encuentra el archivo de algo", "intencion": "buscar_archivo", "dominio": "archivos"}
+{"frase": "revisa si hay archivos nuevos", "intencion": "actualizar_archivos", "dominio": "archivos"}
+{"frase": "sincroniza los archivos de arche", "intencion": "actualizar_archivos", "dominio": "archivos"}
+{"frase": "que procesos estan consumiendo recursos", "intencion": "programas_cpu", "dominio": "computador"}
+{"frase": "que programas estan consumiendo mas", "intencion": "programas_cpu", "dominio": "computador"}
+{"frase": "hay internet", "intencion": "estado_red", "dominio": "arche"}
+{"frase": "guarda en tu memoria que algo", "intencion": "recordar", "dominio": "memoria"}
+{"frase": "marca como logrado terminar arche", "intencion": "objetivo_logrado", "dominio": "arche"}
+{"frase": "que objetivos tengo pendientes", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "deten el estudio", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "para el estudio", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "inicia un examen", "intencion": "examen", "dominio": "arche"}
+{"frase": "hazme una prueba", "intencion": "examen", "dominio": "arche"}
+{"frase": "ponme una prueba sobre el tema", "intencion": "examen", "dominio": "arche"}
+{"frase": "quiero apagar la autorevision", "intencion": "autorevision_off", "dominio": "arche"}
+{"frase": "dime quien eres", "intencion": "presentacion", "dominio": "conversacion"}
+{"frase": "conversemos", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "tengo ganas de hablar", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "necesito ayuda", "intencion": "ayuda", "dominio": "arche"}
+{"frase": "que puedo hacer con los recordatorios", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "busca recetas de arepas", "intencion": "buscar", "dominio": "web"}
+{"frase": "inicia el bloc de notas", "intencion": "abrir", "dominio": "web"}
+{"frase": "lista mis notas por favor", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "que notas he creado", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "quiero revisar mis calculos anteriores", "intencion": "historial_calculos", "dominio": "calculadora"}
+{"frase": "muestrame todas las operaciones", "intencion": "historial_calculos", "dominio": "calculadora"}
+{"frase": "sigue con el estudio", "intencion": "estudiar", "dominio": "arche"}
+{"frase": "dime si estoy en modo examen", "intencion": "estado_examen", "dominio": "arche"}
+{"frase": "quiero buscar algo en internet", "intencion": "buscar", "dominio": "web"}
+{"frase": "que temas estan registrados", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "muestrame el progreso jerarquico", "intencion": "estado_jerarquico", "dominio": "arche"}
+{"frase": "inicia una evaluacion de conocimientos", "intencion": "examen", "dominio": "arche"}
+{"frase": "pon arche en modo examen", "intencion": "examen_on", "dominio": "arche"}
+{"frase": "muestrame las metas actuales", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "dime cuales son mis metas", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "quiero hablar un momento", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "elimina ese recordatorio pendiente", "intencion": "eliminar_recordatorio", "dominio": "memoria"}
+{"frase": "agrega contenido a la nota", "intencion": "agregar_nota", "dominio": "notas"}
+{"frase": "quiero abrir un documento", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "dime como esta mi computador", "intencion": "diagnostico_pc", "dominio": "computador"}
+{"frase": "comprueba el espacio disponible", "intencion": "espacio_discos", "dominio": "computador"}
+{"frase": "que cosas tengo pendientes", "intencion": "mostrar_recordatorios", "dominio": "memoria"}
+{"frase": "que avisos tengo pendientes", "intencion": "mostrar_recordatorios", "dominio": "memoria"}
+{"frase": "quiero localizar un archivo", "intencion": "buscar_archivo", "dominio": "archivos"}
+{"frase": "cuanto espacio hay entre la tierra y la luna", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "en que fecha estamos", "intencion": "fecha", "dominio": "tiempo"}
+{"frase": "investiga sobre universidad de cundinamarca", "intencion": "buscar", "dominio": "web"}
+{"frase": "buscame informacion de recetas de pasta", "intencion": "buscar", "dominio": "web"}
+{"frase": "encuentra informacion sobre robots con arduino", "intencion": "buscar", "dominio": "web"}
+{"frase": "ve a chrome", "intencion": "abrir", "dominio": "web"}
+{"frase": "buscame musica relajante en spotify", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "ponme gatos graciosos en youtube", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "tengo chrome abierto", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "pasa a bloc de notas", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "activa la ventana de spotify", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "manda el explorador a la barra de tareas", "intencion": "minimizar_ventana", "dominio": "computador"}
+{"frase": "oculta bloc de notas", "intencion": "minimizar_ventana", "dominio": "computador"}
+{"frase": "pon el explorador en pantalla completa", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "agranda la ventana de el explorador", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "expande chrome", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "maximiza la ventana de discord", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "aumenta el volumen", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "baja un poco el volumen", "intencion": "bajar_volumen", "dominio": "computador"}
+{"frase": "salta esta cancion", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "brillo al 30 por ciento", "intencion": "brillo_a", "dominio": "computador"}
+{"frase": "pon el brillo en 30", "intencion": "brillo_a", "dominio": "computador"}
+{"frase": "digita llamar a mama", "intencion": "teclear_texto", "dominio": "computador"}
+{"frase": "oprime esc", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "aprieta alt+tab", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "que copie", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "callate", "intencion": "callar", "dominio": "computador"}
+{"frase": "di hola", "intencion": "probar_voz", "dominio": "computador"}
+{"frase": "testea la voz", "intencion": "probar_voz", "dominio": "computador"}
+{"frase": "pon la voz de salome", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "muestrame mis temporizadores", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "muestrame la rutina estudio", "intencion": "ver_rutina", "dominio": "computador"}
+{"frase": "esta lento mi pc", "intencion": "diagnostico_pc", "dominio": "computador"}
+{"frase": "que puedo borrar sin problema", "intencion": "analizar_limpieza", "dominio": "computador"}
+{"frase": "analiza la limpieza", "intencion": "analizar_limpieza", "dominio": "computador"}
+{"frase": "encuentrame mis archivos de el proyecto de arduino", "intencion": "buscar_archivos_tema", "dominio": "computador"}
+{"frase": "donde estan mis archivos de la universidad", "intencion": "buscar_archivos_tema", "dominio": "computador"}
+{"frase": "devuelve lo que limpiaste", "intencion": "restaurar_papelera", "dominio": "computador"}
+{"frase": "cuentame las noticias de arduino", "intencion": "noticias", "dominio": "web"}
+{"frase": "usa el modelo local", "intencion": "usar_ollama", "dominio": "configuracion"}
+{"frase": "quiero editar la nota algo", "intencion": "abrir_nota", "dominio": "notas"}
+{"frase": "que notas tengo", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "cuanto da 15*4", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "abre la configuracion", "intencion": "mostrar_config", "dominio": "configuracion"}
+{"frase": "cambiame el nombre", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "que hace notas", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "repasa lo que sabes", "intencion": "estudiar", "dominio": "arche"}
+{"frase": "activa el estudio automatico", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "que temas estudias", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "aprende sobre historia de colombia", "intencion": "agregar_tema", "dominio": "arche"}
+{"frase": "evaluate ahora", "intencion": "examen", "dominio": "arche"}
+{"frase": "como vas en el examen", "intencion": "estado_examen", "dominio": "arche"}
+{"frase": "examinate sola en segundo plano", "intencion": "examen_on", "dominio": "arche"}
+{"frase": "que metas faltan", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "anota como objetivo terminar el informe", "intencion": "agregar_objetivo", "dominio": "arche"}
+{"frase": "ve a youtube", "intencion": "abrir", "dominio": "web"}
+{"frase": "encuentrame arduino en wikipedia", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "quiero que uses chrome siempre", "intencion": "fijar_navegador", "dominio": "computador"}
+{"frase": "manda spotify a la barra de tareas", "intencion": "minimizar_ventana", "dominio": "computador"}
+{"frase": "haz mas grande word", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "ajusta el brillo al 70", "intencion": "brillo_a", "dominio": "computador"}
+{"frase": "pon el brillo en 70", "intencion": "brillo_a", "dominio": "computador"}
+{"frase": "teclea esto llamar a mama", "intencion": "teclear_texto", "dominio": "computador"}
+{"frase": "pulsa alt+tab", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "pulsa esc", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "pon la lectura corta", "intencion": "lectura_voz", "dominio": "computador"}
+{"frase": "inicia la rutina estudio", "intencion": "ejecutar_rutina", "dominio": "computador"}
+{"frase": "testea la nube", "intencion": "probar_nube", "dominio": "configuracion"}
+{"frase": "que la nube te ayude a programar", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "usa la nube para el estudio", "intencion": "nube_estudio_on", "dominio": "configuracion"}
+{"frase": "agrega otra nube", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "quiero usar groq en la nube", "intencion": "proveedor_nube", "dominio": "configuracion"}
+{"frase": "lista los modelos de la nube", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "la nube puede usar mi memoria", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "cuentale a la nube lo que sabes de mi", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "lo que aprendiste de la nube", "intencion": "ver_aprendido_nube", "dominio": "arche"}
+{"frase": "mis lecciones de la nube", "intencion": "ver_aprendido_nube", "dominio": "arche"}
+{"frase": "cuanto has aprendido de la nube", "intencion": "aprendiz_estado", "dominio": "configuracion"}
+{"frase": "anota como objetivo mejorar el examen", "intencion": "agregar_objetivo", "dominio": "arche"}
+{"frase": "busca musica relajante en spotify", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "quiero que aprendas a buscar en mercadolibre", "intencion": "aprender_sitio_busqueda", "dominio": "web"}
+{"frase": "muestrame la ventana de spotify", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "expande bloc de notas", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "oprime alt+tab", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "manda el atajo esc", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "despiertame a las 7 de la manana", "intencion": "poner_alarma", "dominio": "computador"}
+{"frase": "empieza la rutina descanso", "intencion": "ejecutar_rutina", "dominio": "computador"}
+{"frase": "que pasos tiene la rutina descanso", "intencion": "ver_rutina", "dominio": "computador"}
+{"frase": "cuanto es 100/8", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "que has mejorado", "intencion": "estado_mejora", "dominio": "computador"}
+{"frase": "ultimo calulo sin mas", "intencion": "ultimo_calculo", "dominio": "calculadora"}
+{"frase": "podrias explicarme brevemente como funciona la fotosintesis", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "estado sistm a", "intencion": "diagnostico_pc", "dominio": "computador"}
+{"frase": "buscame informacion de inteligencia artificial", "intencion": "buscar", "dominio": "web"}
+{"frase": "ponme zapatos en mercadolibre", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "quiero ver restaurantes cerca en maps", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "ensenate a buscar en netflix", "intencion": "aprender_sitio_busqueda", "dominio": "web"}
+{"frase": "aprende a buscar dentro de netflix", "intencion": "aprender_sitio_busqueda", "dominio": "web"}
+{"frase": "hazme la operacion 7*6", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "para que sirve recordatorios", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "aprende sobre python", "intencion": "agregar_tema", "dominio": "arche"}
+{"frase": "pon la nube estudio", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "desactiva el modo aprendiz", "intencion": "aprendiz_off", "dominio": "configuracion"}
+{"frase": "busca informacion y resumeme electronica", "intencion": "investigar", "dominio": "web"}
+{"frase": "que hace programas", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "muestrame lo que he aprendido en la nube de", "intencion": "ver_aprendido_nube", "dominio": "arche"}
+{"frase": "no guardes esta informacion en tu memoria no la", "intencion": "no_compartir_memoria", "dominio": "configuracion"}
+{"frase": "encuentrame gatos graciosos en youtube", "intencion": "buscar_en_sitio", "dominio": "web"}
+{"frase": "ajusta el brillo al 20", "intencion": "brillo_a", "dominio": "computador"}
+{"frase": "oprime ctrl+c", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "que clima hace en medellin", "intencion": "clima", "dominio": "web"}
+{"frase": "va a llover en bogota", "intencion": "clima", "dominio": "web"}
+{"frase": "revisa el perro robot", "intencion": "robot_estado", "dominio": "robot"}
+{"frase": "averigua robots con arduino en internet", "intencion": "buscar", "dominio": "web"}
+{"frase": "maximiza la ventana de el explorador", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "muestrame la carpeta de videos", "intencion": "abrir_carpeta", "dominio": "computador"}
+{"frase": "habla con el volumen en 50", "intencion": "volumen_voz", "dominio": "computador"}
+{"frase": "que dice la nota de la algo", "intencion": "leer_nota", "dominio": "notas"}
+{"frase": "abre la algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "muestrame el documento del algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "revisa si el disco esta lleno", "intencion": "espacio_discos", "dominio": "computador"}
+{"frase": "tu nuevo nombre es luna", "intencion": "cambiar_nombre_asistente", "dominio": "configuracion"}
+{"frase": "de ahora en adelante te digo max", "intencion": "cambiar_nombre_asistente", "dominio": "configuracion"}
+{"frase": "apunta que algo", "intencion": "recordar", "dominio": "memoria"}
+{"frase": "ya entregue el algo", "intencion": "completar_recordatorio", "dominio": "memoria"}
+{"frase": "listo ya lo hice", "intencion": "completar_recordatorio", "dominio": "memoria"}
+{"frase": "agrega electronica como tema", "intencion": "agregar_tema", "dominio": "arche"}
+{"frase": "cambia mi nombre a daniel", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "ya no estudies mas", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "arranca el modo de examen", "intencion": "examen_on", "dominio": "arche"}
+{"frase": "como estan las redes de dominio", "intencion": "estado_jerarquico", "dominio": "arche"}
+{"frase": "que tan lleno esta el banco", "intencion": "estado_banco", "dominio": "arche"}
+{"frase": "saludos arche", "intencion": "saludo", "dominio": "conversacion"}
+{"frase": "como corrijo un dato de la memoria", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "busca como programar un esp32", "intencion": "buscar", "dominio": "web"}
+{"frase": "buscame tutoriales de python", "intencion": "buscar", "dominio": "web"}
+{"frase": "busca imagenes de robots cuadrupedos", "intencion": "buscar", "dominio": "web"}
+{"frase": "abre outlook", "intencion": "abrir", "dominio": "web"}
+{"frase": "a ver sientate", "intencion": "robot_sentarse", "dominio": "robot"}
+{"frase": "levantate", "intencion": "robot_pararse", "dominio": "robot"}
+{"frase": "perro levantate", "intencion": "robot_pararse", "dominio": "robot"}
+{"frase": "ponte de pie ya", "intencion": "robot_pararse", "dominio": "robot"}
+{"frase": "ponte parado", "intencion": "robot_pararse", "dominio": "robot"}
+{"frase": "tumbate", "intencion": "robot_acostarse", "dominio": "robot"}
+{"frase": "tirate al piso", "intencion": "robot_acostarse", "dominio": "robot"}
+{"frase": "detente", "intencion": "robot_quieto", "dominio": "robot"}
+{"frase": "para", "intencion": "robot_quieto", "dominio": "robot"}
+{"frase": "menea la cola", "intencion": "robot_cola", "dominio": "robot"}
+{"frase": "a ver mueve la cola", "intencion": "robot_cola", "dominio": "robot"}
+{"frase": "dame la pata", "intencion": "robot_saludar", "dominio": "robot"}
+{"frase": "saluda a los invitados", "intencion": "robot_saludar", "dominio": "robot"}
+{"frase": "desactiva el modo perro", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "vuelve a ser un robot normal", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "prueba que el robot funcione", "intencion": "robot_estado", "dominio": "robot"}
+{"frase": "emergencia deten los motores", "intencion": "robot_emergencia", "dominio": "robot"}
+{"frase": "vuelve a hablar en voz alta", "intencion": "activar_voz", "dominio": "computador"}
+{"frase": "lee tus respuestas en voz alta", "intencion": "activar_voz", "dominio": "computador"}
+{"frase": "pausa la cancion", "intencion": "pausar_reproducir", "dominio": "computador"}
+{"frase": "deten la musica un momento", "intencion": "pausar_reproducir", "dominio": "computador"}
+{"frase": "usa la nube cuando haya internet", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "pon el modo nube", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "jajaja que chistoso", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "manana tengo parcial de calculo", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "como se dice computador en ingles", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "quien invento la bombilla", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "gracias por la ayuda", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "podrias volver al codigo anterior", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "deshaz lo que cambiaste recientemente", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "hablame de los habitos que arche ha detectado", "intencion": "estado_autonomia", "dominio": "computador"}
+{"frase": "vuelva la voz a como estaba", "intencion": "restablecer_voz", "dominio": "computador"}
+{"frase": "deje la voz como venia", "intencion": "restablecer_voz", "dominio": "computador"}
+{"frase": "puedes mostrarme las alarmas pendientes", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "me ensena los avisos que quedan", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "texto y voz al unisono desde el principio", "intencion": "sincronia_voz_on", "dominio": "computador"}
+{"frase": "por favor prioriza la respuesta de la nube", "intencion": "aprendiz_off", "dominio": "configuracion"}
+{"frase": "usted puede hacer que la nube responda primero", "intencion": "aprendiz_off", "dominio": "configuracion"}
+{"frase": "oye pon la voz naturalonline", "intencion": "motor_voz", "dominio": "computador"}
+{"frase": "pon la voz localfast", "intencion": "motor_voz", "dominio": "computador"}
+{"frase": "mmm ponle a la lista de estudio la revolucion francesa", "intencion": "agregar_tema", "dominio": "arche"}
+{"frase": "mmm muestrame el estado del clasificador", "intencion": "estado_red", "dominio": "arche"}
+{"frase": "quitar el temporizador que esta activo", "intencion": "cancelar_alarma", "dominio": "computador"}
+{"frase": "arche adelanta lo seguro por favor", "intencion": "autonomia_proactiva", "dominio": "computador"}
+{"frase": "quitale el sonido al equipo", "intencion": "silenciar", "dominio": "computador"}
+{"frase": "por favor prueba la nube completa", "intencion": "probar_nube", "dominio": "configuracion"}
+{"frase": "haz el estudio usando unicamente ollama", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "pidale a ollama que haga el estudio", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "muestrame los modos que guarde", "intencion": "ver_rutinas", "dominio": "computador"}
+{"frase": "me ensenas mis modos", "intencion": "ver_rutinas", "dominio": "computador"}
+{"frase": "oye arche pone mas texto en la nota algo", "intencion": "agregar_nota", "dominio": "notas"}
+{"frase": "enfoca el panel de outlook ahora", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "ver configuracion del asistente gracias", "intencion": "mostrar_config", "dominio": "configuracion"}
+{"frase": "no dejes que la nube vea lo que recuerdo", "intencion": "no_compartir_memoria", "dominio": "configuracion"}
+{"frase": "asegurate de que la nube no almacene nada mio", "intencion": "no_compartir_memoria", "dominio": "configuracion"}
+{"frase": "texto primero voz cuando termine gracias", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "por favor activa la nube en modo estudio", "intencion": "nube_estudio_on", "dominio": "configuracion"}
+{"frase": "hace que el estudio y tareas usen la nube", "intencion": "nube_estudio_on", "dominio": "configuracion"}
+{"frase": "verifica si hay archivos repetidos", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "oye me podrias decir cuanto sale 48*7", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "oye que sirve la herramienta de transcripcion", "intencion": "ayuda_categoria", "dominio": "arche"}
+{"frase": "por favor bloquea la pantalla", "intencion": "bloquear_pc", "dominio": "computador"}
+{"frase": "activa la nube para que arche piense", "intencion": "conectar_nube", "dominio": "configuracion"}
+{"frase": "quiero que suene mas fuerte", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "dime que archivos viejos tengo en la carpeta descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "puedes probar la voz por favor", "intencion": "probar_voz", "dominio": "computador"}
+{"frase": "testea la voz de arche por favor", "intencion": "probar_voz", "dominio": "computador"}
+{"frase": "vuelve al track anterior", "intencion": "cancion_anterior", "dominio": "computador"}
+{"frase": "esconde la ventana de notas rapidas", "intencion": "minimizar_ventana", "dominio": "computador"}
+{"frase": "el robot perro ya esta conectado sabes", "intencion": "robot_estado", "dominio": "robot"}
+{"frase": "puedes localizar los archivos de tutoriales de python", "intencion": "buscar_archivos_tema", "dominio": "computador"}
+{"frase": "mmm detente perro apaga el modo", "intencion": "robot_emergencia", "dominio": "robot"}
+{"frase": "alto total perro apaga modo", "intencion": "robot_emergencia", "dominio": "robot"}
+{"frase": "haz que la nube sepa lo que recuerdo", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "permita a la nube saber lo que se de mi", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "por favor usa la nube para depurar mi codigo", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "pidale a la nube que genere mi script", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "hagame falta que la nube autocodifique ahora", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "por favor escribe el codigo solo con ollama", "intencion": "nube_codigo_off", "dominio": "configuracion"}
+{"frase": "proxima cancion", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "pon la cancion que sigue", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "avance a la siguiente cancion", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "pasame la cancion siguiente", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "por favor sube el volumen", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "sube el volumen", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "pues abreme el archivo algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "puedes abrir el fichro algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "requiero que solo sea local", "intencion": "usar_ollama", "dominio": "configuracion"}
+{"frase": "cambia tu tono a un poco mas agudo", "intencion": "tono_voz", "dominio": "computador"}
+{"frase": "hace el estudio solo con ollama", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "mmm activa el modoo cine nocturno", "intencion": "ejecutar_rutina", "dominio": "computador"}
+{"frase": "inicia rutna trabajo concentrado", "intencion": "ejecutar_rutina", "dominio": "computador"}
+{"frase": "oye abre el documeto algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "dame acceso al archivo algo", "intencion": "abrir_archivo", "dominio": "archivos"}
+{"frase": "mmm muestrame la ventana de chrome", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "devuelveme la voz estandar", "intencion": "restablecer_voz", "dominio": "computador"}
+{"frase": "vuelva la voz a los parametros originales", "intencion": "restablecer_voz", "dominio": "computador"}
+{"frase": "undo tu ultimo cambio", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "puedes volver al estado anterior", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "muestrame el texto del portapapeles", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "pues cuentame la fecha actual", "intencion": "fecha", "dominio": "tiempo"}
+{"frase": "cancela el timer que esta activo", "intencion": "cancelar_alarma", "dominio": "computador"}
+{"frase": "traeme al frente la app de spotify ya", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "verifica nivel de bateria ahora", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "recupera lo que esta en la papelera", "intencion": "restaurar_papelera", "dominio": "computador"}
+{"frase": "deshaz la eliminacion que hice", "intencion": "restaurar_papelera", "dominio": "computador"}
+{"frase": "muestrame lo mas antiguo de la carpeta descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "que modelos estan disponibles en la nube", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "quiero ver mis modos", "intencion": "ver_rutinas", "dominio": "computador"}
+{"frase": "me puedes preguntar el navegador antes", "intencion": "preguntar_navegador", "dominio": "computador"}
+{"frase": "por favor que la nube responda antes", "intencion": "aprendiz_off", "dominio": "configuracion"}
+{"frase": "mmm quiero ver lo que arche controla y los habitos que ve", "intencion": "estado_autonomia", "dominio": "computador"}
+{"frase": "mmm la pantalla esta re brillante apagale un poco", "intencion": "bajar_brillo", "dominio": "computador"}
+{"frase": "a ver pon menos brillo porfa", "intencion": "bajar_brillo", "dominio": "computador"}
+{"frase": "arche pon el texto primero y la voz al final", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "bloquea la pantalla de bloqueo por favor", "intencion": "bloquear_pc", "dominio": "computador"}
+{"frase": "pasar a la siguiente cancion", "intencion": "siguiente_cancion", "dominio": "computador"}
+{"frase": "cuando la nube principal no funcione use ollama", "intencion": "nube_respaldo_off", "dominio": "configuracion"}
+{"frase": "arche que se examinen sola en segundo plano", "intencion": "examen_on", "dominio": "arche"}
+{"frase": "arche ponte a mejorar ya", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "tengo curiosidad por mis notas guardadas", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "que pasos tiene la rutina yoga relajante", "intencion": "ver_rutina", "dominio": "computador"}
+{"frase": "que incluye la rutina de estiramiento nocturno", "intencion": "ver_rutina", "dominio": "computador"}
+{"frase": "por favor dime los pasos de la rutina de ciclismo indoor", "intencion": "ver_rutina", "dominio": "computador"}
+{"frase": "puede decirme cual consume mas ram", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "quiero que el texto y la voz empiecen juntos", "intencion": "sincronia_voz_on", "dominio": "computador"}
+{"frase": "consulto la mejora de arche cuando no se uso", "intencion": "estado_mejora", "dominio": "computador"}
+{"frase": "deten el estudia ya", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "me ayudas a ubicar la algo", "intencion": "buscar_archivo", "dominio": "archivos"}
+{"frase": "que ollama haga todo el estudio y las tareaa", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "mmm confia en ollama para estudio y tareas", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "arche deja el estudio y texto en manos de ollama", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "pega la ventan derecha pronto", "intencion": "acomodar_ventana", "dominio": "computador"}
+{"frase": "por favor usa la nube para pensar con arche", "intencion": "conectar_nube", "dominio": "configuracion"}
+{"frase": "necesito la nube para estudio y tareas de texto", "intencion": "nube_estudio_on", "dominio": "configuracion"}
+{"frase": "muestrame si hay archivos duplicados", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "teclea lo siguiente gracias: la reunion fue productiva", "intencion": "teclear_texto", "dominio": "computador"}
+{"frase": "adelanta lo seguro sin que te lo pida", "intencion": "autonomia_proactiva", "dominio": "computador"}
+{"frase": "por favor avanza y hazlo tu", "intencion": "autonomia_proactiva", "dominio": "computador"}
+{"frase": "por favor lee la lectura de la receta de pastel", "intencion": "lectura_voz", "dominio": "computador"}
+{"frase": "por favor que el codigo sea generado unicamente por ollama", "intencion": "nube_codigo_off", "dominio": "configuracion"}
+{"frase": "quitame el modo perro", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "cambia a la ventana de notepad++ ahora", "intencion": "enfocar_ventana", "dominio": "computador"}
+{"frase": "poneme una alarmita pa las 900", "intencion": "poner_alarma", "dominio": "computador"}
+{"frase": "oye arche buscam info de la selva amazonica y resume", "intencion": "investigar", "dominio": "web"}
+{"frase": "que esta abierto en mi computadora", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "que hay copiado", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "quiero mas brillo en la pantalla", "intencion": "subir_brillo", "dominio": "computador"}
+{"frase": "por favor habla mas despacio", "intencion": "velocidad_voz", "dominio": "computador"}
+{"frase": "quiero que hables mas rapido ahora", "intencion": "velocidad_voz", "dominio": "computador"}
+{"frase": "puede hacer un screenshot por favor", "intencion": "captura_pantalla", "dominio": "computador"}
+{"frase": "hace que la nube me ayude a programar ahora", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "oye archi ponme un recordatorio pa' algo", "intencion": "crear_recordatorio", "dominio": "memoria"}
+{"frase": "si la nube principal se va usa la de backup gratis", "intencion": "nube_respaldo_on", "dominio": "configuracion"}
+{"frase": "si la nube principal se cae prueba la gratis y luego ollama", "intencion": "nube_respaldo_on", "dominio": "configuracion"}
+{"frase": "cortame con el estudio", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "no sigas con el estudio", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "por favor pon en el portapapeles la frase de bienvenida", "intencion": "copiar_portapapeles", "dominio": "computador"}
+{"frase": "responde tu antes y deja que la nube revise", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "responde tu primero y que la nube evalue", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "por favor muestrame el estado de mis redes jerarquicas", "intencion": "estado_jerarquico", "dominio": "arche"}
+{"frase": "estado de mis redes jerarquicas por favor", "intencion": "estado_jerarquico", "dominio": "arche"}
+{"frase": "quiero que te revises sola", "intencion": "autorevision_on", "dominio": "arche"}
+{"frase": "oye que clima hace en bogota ahora", "intencion": "clima", "dominio": "web"}
+{"frase": "oye arche deja que la nube vea lo que recuerdo de mi", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "permite que la nube vea mis recuerdos en arche", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "baje un poco el sonido", "intencion": "bajar_volumen", "dominio": "computador"}
+{"frase": "usa la voz de alta fidelidad", "intencion": "motor_voz", "dominio": "computador"}
+{"frase": "quisiera saber en que modo esta la nube", "intencion": "estado_nube", "dominio": "configuracion"}
+{"frase": "podrias iniciar un temporizador de 45 segundos", "intencion": "poner_temporizador", "dominio": "computador"}
+{"frase": "quiere que cuente 10 segundos y suene", "intencion": "poner_temporizador", "dominio": "computador"}
+{"frase": "quiero que el cerebro use la nube al estar online", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "sube el nivel de voz a 55 por ciento", "intencion": "volumen_voz", "dominio": "computador"}
+{"frase": "configure su voz en 85%", "intencion": "volumen_voz", "dominio": "computador"}
+{"frase": "dime las capacidades del perro robot por favor", "intencion": "robot_ayuda", "dominio": "robot"}
+{"frase": "pues dame el total de 102/3", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "sabes el numero que sale de 55+33", "intencion": "calcular", "dominio": "calculadora"}
+{"frase": "oye arche ponme la autonomia alta ya", "intencion": "nivel_autonomia", "dominio": "computador"}
+{"frase": "que programa esta devorando la memoria ram", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "por favor entrena las redes jerarquicas", "intencion": "entrenar_jerarquico", "dominio": "arche"}
+{"frase": "por favor revisa mis calculos pasados", "intencion": "historial_calculos", "dominio": "calculadora"}
+{"frase": "reduzca el volumen", "intencion": "bajar_volumen", "dominio": "computador"}
+{"frase": "por favor notificame en una hora", "intencion": "crear_aviso", "dominio": "computador"}
+{"frase": "muestrame tus estadisticas de uso", "intencion": "estadisticas", "dominio": "arche"}
+{"frase": "por favor dame tus numeros de uso", "intencion": "estadisticas", "dominio": "arche"}
+{"frase": "dame la rola que sono antes", "intencion": "cancion_anterior", "dominio": "computador"}
+{"frase": "pone la nube tanto para estudio como para tareas de texto", "intencion": "nube_estudio_on", "dominio": "configuracion"}
+{"frase": "mmm analiza cuanta cache hay para limpiar", "intencion": "analizar_limpieza", "dominio": "computador"}
+{"frase": "archi dime cuanta basura temporal hay", "intencion": "analizar_limpieza", "dominio": "computador"}
+{"frase": "que tanto cache puedo eliminar sin riesgo", "intencion": "analizar_limpieza", "dominio": "computador"}
+{"frase": "dime que tienes guardado sobre mi", "intencion": "mostrar_memoria", "dominio": "memoria"}
+{"frase": "por favor haz que el robot mueva la cola", "intencion": "robot_cola", "dominio": "robot"}
+{"frase": "devuelveme lo que limpie", "intencion": "restaurar_papelera", "dominio": "computador"}
+{"frase": "establece chromium como mi opcion unica siempre", "intencion": "fijar_navegador", "dominio": "computador"}
+{"frase": "mmm quisiera agregarle algo a la nota algo", "intencion": "agregar_nota", "dominio": "notas"}
+{"frase": "agregale contenido a la nota algo", "intencion": "agregar_nota", "dominio": "notas"}
+{"frase": "ayudame a localizar archivos duplicados aqui", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "oye sube el volume", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "puedes darme noticias sobre la deforestacion en amazonia", "intencion": "noticias", "dominio": "web"}
+{"frase": "por favor trae titulares de la crisis hidrica en cundinamarca", "intencion": "noticias", "dominio": "web"}
+{"frase": "quisiera ver mis modos guardados", "intencion": "ver_rutinas", "dominio": "computador"}
+{"frase": "por favor cambiame el nombre", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "activa el estudio en segundo plano", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "activele el estudio a mi asistente", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "pon el estudio a correr sin que lo vea", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "muestrame los reportes de ventas del ultimo trimestre", "intencion": "buscar_archivos_tema", "dominio": "computador"}
+{"frase": "oye cambia mi nombre por favor", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "no me digas ese nombre cambialo", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "por favor teclea este mensaje: reunion a las tres", "intencion": "teclear_texto", "dominio": "computador"}
+{"frase": "muestrame los archivos viejos en descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "oye cambiame el nommbre", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "cambialo no me gusta ese nombre", "intencion": "cambiar_nombre_usuario", "dominio": "configuracion"}
+{"frase": "usa brave siempre sin preguntar", "intencion": "fijar_navegador", "dominio": "computador"}
+{"frase": "muestrame los temporizadores activos", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "cuales son los navegadores abiertos", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "dime lo que hay en el portapapeles", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "que hay copiado en el portapapeles", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "aumenta la velocidad un poco", "intencion": "velocidad_voz", "dominio": "computador"}
+{"frase": "habla mas rapido sin pausa", "intencion": "velocidad_voz", "dominio": "computador"}
+{"frase": "ver voces naturales en espanol por favor", "intencion": "voces_online", "dominio": "computador"}
+{"frase": "muestrame que tareas son de la nube", "intencion": "nube_tareas_estado", "dominio": "configuracion"}
+{"frase": "arche que la nube teclee y corrija mi codigo usando ollama", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "dame la nube que escriba y revise mi codigo con ollama", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "pon el estudio en modo 24/7", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "coloca estudio en background ahora mismo", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "pasame a silencio responde por escrito", "intencion": "desactivar_voz", "dominio": "computador"}
+{"frase": "dime cuantos ejemplos tienes por intencion", "intencion": "estado_banco", "dominio": "arche"}
+{"frase": "ensename a buscar en eventosculturales", "intencion": "aprender_sitio_busqueda", "dominio": "web"}
+{"frase": "si la nube principal falla usa ollama", "intencion": "nube_respaldo_off", "dominio": "configuracion"}
+{"frase": "puedes hacer que el robot perro me de la pata", "intencion": "robot_saludar", "dominio": "robot"}
+{"frase": "por favor manten mi informacion lejos de la nube", "intencion": "no_compartir_memoria", "dominio": "configuracion"}
+{"frase": "quiero que arche aprenda de la nube", "intencion": "aprender_nube_on", "dominio": "arche"}
+{"frase": "muestrame el texto y luego reproduce la voz", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "muestrame el texto y espera para hablar", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "por favor que la voz inicie tras el texto", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "oye anota algo", "intencion": "crear_nota", "dominio": "notas"}
+{"frase": "pues haz una nota con algo", "intencion": "crear_nota", "dominio": "notas"}
+{"frase": "mmm apunta algo", "intencion": "crear_nota", "dominio": "notas"}
+{"frase": "que modelos puedo usar en la nube", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "pongeme timer de 1 hora", "intencion": "poner_temporizador", "dominio": "computador"}
+{"frase": "dame aviso tras 20 segundos", "intencion": "poner_temporizador", "dominio": "computador"}
+{"frase": "puedes minimizar todo", "intencion": "mostrar_escritorio", "dominio": "computador"}
+{"frase": "le pido que la nube responda primero", "intencion": "aprendiz_off", "dominio": "configuracion"}
+{"frase": "activa la voz de esteban", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "pon la voz de isabel por favor", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "utiliza la voz de diego ahora", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "que porcentaje de bateria queda", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "porfa elimina los habitos que arhe guardo en mis repeticiones", "intencion": "olvidar_habitos", "dominio": "computador"}
+{"frase": "veo cuantas respuestas mias estan en sintonia con la nube", "intencion": "aprendiz_estado", "dominio": "configuracion"}
+{"frase": "aumenta un poco el brillo de la pantalla", "intencion": "subir_brillo", "dominio": "computador"}
+{"frase": "por favor captura la pantalla", "intencion": "captura_pantalla", "dominio": "computador"}
+{"frase": "ponte de pie perro robot", "intencion": "robot_pararse", "dominio": "robot"}
+{"frase": "la pantalla esta muy clara apagala", "intencion": "bajar_brillo", "dominio": "computador"}
+{"frase": "que recuerdas de mi porfa", "intencion": "mostrar_memoria", "dominio": "memoria"}
+{"frase": "mmm muestrame los temas que manejas", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "por favor lee la lectura clima de hoy", "intencion": "lectura_voz", "dominio": "computador"}
+{"frase": "muestrame la lectura receta de pastel", "intencion": "lectura_voz", "dominio": "computador"}
+{"frase": "mmm usa ollama cuando no haya net", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "cerebro automatico nube si internet", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "usa modelo grande si no internet ollama", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "por favor oprime space", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "me puedes dar los titulares de noticias sobre la deforestacion en amazonas", "intencion": "noticias", "dominio": "web"}
+{"frase": "dime las ultimas noticias de la inflacion en colombia", "intencion": "noticias", "dominio": "web"}
+{"frase": "por favor avisame dentro de dos dias con notificacion", "intencion": "crear_aviso", "dominio": "computador"}
+{"frase": "que navegadores andan abiertos ya", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "arche dime que vigilas y los habitos que ves", "intencion": "estado_autonomia", "dominio": "computador"}
+{"frase": "arche que vigilas y que habitos detectas", "intencion": "estado_autonomia", "dominio": "computador"}
+{"frase": "comienza la revision automatica ahora", "intencion": "autorevision_on", "dominio": "arche"}
+{"frase": "por favor revisa mi historial de operaciones", "intencion": "historial_calculos", "dominio": "calculadora"}
+{"frase": "que programa esta usando mas cpu", "intencion": "programas_cpu", "dominio": "computador"}
+{"frase": "por favor usa solo ollama local", "intencion": "usar_ollama", "dominio": "configuracion"}
+{"frase": "tiene usted mis recordatorios", "intencion": "mostrar_recordatorios", "dominio": "memoria"}
+{"frase": "que tal va tu rednn", "intencion": "estado_red", "dominio": "arche"}
+{"frase": "ver mis modos guardados ya", "intencion": "ver_rutinas", "dominio": "computador"}
+{"frase": "dime que tengo copiado", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "puedes mostrarme lo copiado", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "continua reproduciendo por favor", "intencion": "pausar_reproducir", "dominio": "computador"}
+{"frase": "puede decirme quien es usted", "intencion": "presentacion", "dominio": "conversacion"}
+{"frase": "revierte el ultimo ajuste que hizo arche", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "cambio maximiza el panel de power point", "intencion": "maximizar_ventana", "dominio": "computador"}
+{"frase": "mmm no me olvide de algo", "intencion": "crear_recordatorio", "dominio": "memoria"}
+{"frase": "recuerdame que tengo que algo", "intencion": "crear_recordatorio", "dominio": "memoria"}
+{"frase": "quiero lo que pusiste en la papelera", "intencion": "restaurar_papelera", "dominio": "computador"}
+{"frase": "no quiero que te revises sola", "intencion": "autorevision_off", "dominio": "arche"}
+{"frase": "muestrame las metas que quedan por lograr", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "si la nube falla pon la gratis primero y despues ollama", "intencion": "nube_respaldo_on", "dominio": "configuracion"}
+{"frase": "por favor investiga sobre la historia del cafe", "intencion": "investigar", "dominio": "web"}
+{"frase": "hablame de tus aprendizajes de la nube", "intencion": "ver_aprendido_nube", "dominio": "arche"}
+{"frase": "dime que aprendiste de la nube hoy", "intencion": "ver_aprendido_nube", "dominio": "arche"}
+{"frase": "la pantalla esta muy oscura suba el brillo", "intencion": "subir_brillo", "dominio": "computador"}
+{"frase": "dime si el perro robot esta activo", "intencion": "robot_estado", "dominio": "robot"}
+{"frase": "puedes chequear el perro robot", "intencion": "robot_estado", "dominio": "robot"}
+{"frase": "usted podria indicarme su identidad", "intencion": "presentacion", "dominio": "conversacion"}
+{"frase": "oye apaga el modo perro", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "elimina el modo perro", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "encuentrame los archivos sobre la auditoria interna de finanzas", "intencion": "buscar_archivos_tema", "dominio": "computador"}
+{"frase": "oye arche pon la ventana izquierda en la mitad", "intencion": "acomodar_ventana", "dominio": "computador"}
+{"frase": "que la nube no tenga acceso a mis recuerdos", "intencion": "no_compartir_memoria", "dominio": "configuracion"}
+{"frase": "por favor haz que arche se mejore sola", "intencion": "mejorarse_sola", "dominio": "computador"}
+{"frase": "muestre el escritorio por favor", "intencion": "mostrar_escritorio", "dominio": "computador"}
+{"frase": "suba el volumen por favor", "intencion": "subir_volumen", "dominio": "computador"}
+{"frase": "porfa que la nube haga autocodificacion y checkeo de codigo", "intencion": "nube_codigo_on", "dominio": "configuracion"}
+{"frase": "oye cuanta bateria me queda", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "mmm guarda lo que veo en la pantalla", "intencion": "captura_pantalla", "dominio": "computador"}
+{"frase": "toma un pantallazo rapido", "intencion": "captura_pantalla", "dominio": "computador"}
+{"frase": "haga el estudio y texto exclusivamente con ollama", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "sabe que hora es", "intencion": "hora", "dominio": "tiempo"}
+{"frase": "verifica la mejora de arche cuando no la usan", "intencion": "estado_mejora", "dominio": "computador"}
+{"frase": "encuentra duplicados para liberar espacio", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "que ventans tengo abiertas en el pc", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "quiero saber los programas que tengo corriendo", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "mmm para el autoexamen ya", "intencion": "examen_off", "dominio": "arche"}
+{"frase": "cancela el test automatico gracias", "intencion": "examen_off", "dominio": "arche"}
+{"frase": "mmm quiero que responda yo primero y que la nube aprenda", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "dame la primera respuesta y deja que la nube la use", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "hazme yo la respuesta y que la nube la capture", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "cuanta energia me queda", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "pidale a ollama que haga las tareas de texto", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "deje que ollama haga el trabajo de texto", "intencion": "nube_estudio_off", "dominio": "configuracion"}
+{"frase": "puedes ver mis alarmas", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "conecta otra nube sin modificar la actual", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "borra los habitos que escribiste porfa", "intencion": "olvidar_habitos", "dominio": "computador"}
+{"frase": "dime las funciones del robot perro", "intencion": "robot_ayuda", "dominio": "robot"}
+{"frase": "dime el porcentaje de bateria por favor", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "activa modo aprendiz y responde tu primero", "intencion": "aprendiz_on", "dominio": "configuracion"}
+{"frase": "verifica si chrome esta abierto", "intencion": "que_tengo_abierto", "dominio": "computador"}
+{"frase": "puedes buscar archivos repetidos por favor", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "no hables escribe la respuesta", "intencion": "desactivar_voz", "dominio": "computador"}
+{"frase": "hey arche arranca tu ciclo de mejora", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "activa la voz de valeria por favor", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "puedes preguntar en que navegador abrir cada vez", "intencion": "preguntar_navegador", "dominio": "computador"}
+{"frase": "quiero elegir el navegador cada vez avisame", "intencion": "preguntar_navegador", "dominio": "computador"}
+{"frase": "puedes hablar en voz alta", "intencion": "activar_voz", "dominio": "computador"}
+{"frase": "oye me podrias explicar que es una red neuronal", "intencion": "conversar", "dominio": "conversacion"}
+{"frase": "pon la voz de isabel en el dispositivo", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "habla con la voz de carmen ahora", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "cuales son tus areas de estudio", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "ensename los temas que manejas", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "que materias cubres", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "agrega otra nube gratis por favor", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "agregue una nube adicional sin cambiar la actual", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "por favor indica los objetivos que quedan por cumplir", "intencion": "objetivos", "dominio": "arche"}
+{"frase": "archi quiero saber mi nivel actual", "intencion": "estado_examen", "dominio": "arche"}
+{"frase": "dime ya mi nivel en el aula", "intencion": "estado_examen", "dominio": "arche"}
+{"frase": "pon el texto al instante y la voz cuando se termine de cargar", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "refresca el indice de archivos", "intencion": "actualizar_archivos", "dominio": "archivos"}
+{"frase": "verifique la ultima operacion que hice", "intencion": "ultimo_calculo", "dominio": "calculadora"}
+{"frase": "digame que hay en el portapapeles", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "sal del modo perro por favor", "intencion": "robot_modo_off", "dominio": "robot"}
+{"frase": "puedes darme tus numeros de uso", "intencion": "estadisticas", "dominio": "arche"}
+{"frase": "dime los temporizadores que estan corriendo", "intencion": "ver_alarmas", "dominio": "computador"}
+{"frase": "comprate el atajo win+l ya", "intencion": "presionar_tecla", "dominio": "computador"}
+{"frase": "necesito elegir el navegador preguntame antes", "intencion": "preguntar_navegador", "dominio": "computador"}
+{"frase": "muestrame los archivos antiguos de descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "muestrame los elementos mas antiguos de descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "haz tu ciclo de mejora ya gracias", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "muestre en que tareas ayuda la nube", "intencion": "nube_tareas_estado", "dominio": "configuracion"}
+{"frase": "por favor usa ollama sin la nube", "intencion": "usar_ollama", "dominio": "configuracion"}
+{"frase": "trabaja con el modelo local sin usar nube", "intencion": "usar_ollama", "dominio": "configuracion"}
+{"frase": "cancela la alarma siguiente porfa", "intencion": "cancelar_alarma", "dominio": "computador"}
+{"frase": "si se traba la nube principal salta a ollama", "intencion": "nube_respaldo_off", "dominio": "configuracion"}
+{"frase": "pon el texto de una y la voz al final", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "texto primero voz despues sin demoras", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "muestrame los archivos antiguos de mis descargas", "intencion": "descargas_viejas", "dominio": "computador"}
+{"frase": "me puedes preguntar el navegador antes de abrir", "intencion": "preguntar_navegador", "dominio": "computador"}
+{"frase": "activa la voz de valentina", "intencion": "elegir_voz", "dominio": "computador"}
+{"frase": "por favor borra lo que registraste", "intencion": "olvidar_habitos", "dominio": "computador"}
+{"frase": "necesito el texto antes de la narracion", "intencion": "sincronia_voz_off", "dominio": "computador"}
+{"frase": "por favor borra el temporizador que inicie", "intencion": "cancelar_alarma", "dominio": "computador"}
+{"frase": "cancelar el temporizador que esta corriendo", "intencion": "cancelar_alarma", "dominio": "computador"}
+{"frase": "necesito que inicies el ciclo de mejora", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "inicia ya el proceso de mejora gracias", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "por favor activa tu ciclo de mejora", "intencion": "mejorar_ahora", "dominio": "computador"}
+{"frase": "si la nube principal no funciona redirige a ollama", "intencion": "nube_respaldo_off", "dominio": "configuracion"}
+{"frase": "arche no sigas con la nube", "intencion": "aprender_nube_off", "dominio": "arche"}
+{"frase": "hey arche para el estudio en la nube", "intencion": "aprender_nube_off", "dominio": "arche"}
+{"frase": "deja que la nube use mi historial", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "reproduce de nuevo", "intencion": "pausar_reproducir", "dominio": "computador"}
+{"frase": "quiero usar la nube si hay wifi", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "activa ollama cuando no tengas internet", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "usa la nube al estar online ollama si no", "intencion": "usar_nube", "dominio": "configuracion"}
+{"frase": "cuantas coincidencias tuve con la nube por favor", "intencion": "aprendiz_estado", "dominio": "configuracion"}
+{"frase": "que temas estudias tu", "intencion": "temas_estudio", "dominio": "arche"}
+{"frase": "dime cuando pasen 3 horas", "intencion": "crear_aviso", "dominio": "computador"}
+{"frase": "dame la lista de notas que guarde", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "ver notas guardadas ya", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "cuales son mis notas guardadas", "intencion": "listar_notas", "dominio": "notas"}
+{"frase": "quiero una nube extra sin afectar la actual", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "la bateria esta en carga", "intencion": "ver_bateria", "dominio": "computador"}
+{"frase": "por favor revisa sola cada cierto tiempo", "intencion": "autorevision_on", "dominio": "arche"}
+{"frase": "entrena el clasificador por dominio", "intencion": "entrenar_jerarquico", "dominio": "arche"}
+{"frase": "dime cuando pasen 2 horas pon sonido", "intencion": "crear_aviso", "dominio": "computador"}
+{"frase": "oye que programa se esta comiendo la ram", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "arche dime cual proceso gasta mas ram", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "que proceso consume mas ram", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "dime el soft que mas ram ocupa", "intencion": "programas_memoria", "dominio": "computador"}
+{"frase": "dame lista de los modelos de la nube conectada", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "necesito los modelos de la nube conectada ahora", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "muestrame lista modelos nube conectada", "intencion": "modelos_nube", "dominio": "configuracion"}
+{"frase": "ensename el registro de calculos", "intencion": "historial_calculos", "dominio": "calculadora"}
+{"frase": "por favor pon el estudio automatico", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "activa estudio automatico ahora", "intencion": "iniciar_estudio", "dominio": "arche"}
+{"frase": "me puedes mostrar cuantas interacciones has tenido", "intencion": "estadisticas", "dominio": "arche"}
+{"frase": "oye arche muestrame lo que tengo en el portapapeles", "intencion": "ver_portapapeles", "dominio": "computador"}
+{"frase": "por favor permite que la nube conozca lo que recuerdo", "intencion": "compartir_memoria", "dominio": "configuracion"}
+{"frase": "pon una nube extra gratis", "intencion": "conectar_respaldo", "dominio": "configuracion"}
+{"frase": "ajuste el sonido al 30 %", "intencion": "volumen_a", "dominio": "computador"}
+{"frase": "haga un conteo de 20 segundos", "intencion": "poner_temporizador", "dominio": "computador"}
+{"frase": "arche activa mejora continua completa con tu codigo", "intencion": "nivel_mejora", "dominio": "computador"}
+{"frase": "quiero la mejora apagada de arche sin que haga nada mas", "intencion": "nivel_mejora", "dominio": "computador"}
+{"frase": "mmm cuentame lo que recuerdas de mi", "intencion": "mostrar_memoria", "dominio": "memoria"}
+{"frase": "sube el voice a 59% porfa", "intencion": "volumen_voz", "dominio": "computador"}
+{"frase": "dime los archivos con mayor tamano en mi ordenador", "intencion": "archivos_grandes", "dominio": "computador"}
+{"frase": "que archivos estan consumiendo mas espacio por favor", "intencion": "archivos_grandes", "dominio": "computador"}
+{"frase": "encuentrame archivos repetidos", "intencion": "buscar_duplicados", "dominio": "computador"}
+{"frase": "arche para el aprendizaje de la nube", "intencion": "aprender_nube_off", "dominio": "arche"}
+{"frase": "deshace ese ultimo cambio que arche hizo sola", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "quiere que hable solo por pantalla", "intencion": "desactivar_voz", "dominio": "computador"}
+{"frase": "cierra y pon la pantalla lock", "intencion": "bloquear_pc", "dominio": "computador"}
+{"frase": "hace que arche use la nube como cerebro", "intencion": "conectar_nube", "dominio": "configuracion"}
+{"frase": "deshace lo que cambiaste antes", "intencion": "deshacer_mejora", "dominio": "computador"}
+{"frase": "tu bloquea el equipo ahora", "intencion": "bloquear_pc", "dominio": "computador"}
+{"frase": "puedes parar el estudio", "intencion": "detener_estudio", "dominio": "arche"}
+{"frase": "puedes poner una nube de respaldo gratis", "intencion": "conectar_respaldo", "dominio": "configuracion"}

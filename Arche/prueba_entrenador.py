@@ -88,7 +88,7 @@ def probar_ciclo(filas):
     callar = lambda *_: None
     try:
         ciclo.subir_dataset = lambda u, c, v: lanzados.append(("dataset", v)) or "processing"
-        ciclo.lanzar_kernel = lambda u, v: lanzados.append(("kernel", v))
+        ciclo.lanzar_kernel = lambda u, v, r=16: lanzados.append(("kernel", v))
         ciclo.MIN_NUEVOS = 10 ** 6
         ciclo.empezar(supa, ciclo.leer_estado(supa), "david", False, callar)
         chequear("sin datos suficientes no entrena", lanzados, [])

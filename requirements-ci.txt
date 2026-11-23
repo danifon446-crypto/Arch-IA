@@ -1,0 +1,8 @@
+# Lo mínimo para correr las pruebas en GitHub (Linux, sin voz ni ventana).
+numpy
+scikit-learn
+imbalanced-learn
+psutil
+cryptography
+pillow
+rich

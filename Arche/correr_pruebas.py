@@ -17,7 +17,10 @@ import sys
 import time
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-SALTAR = {"prueba_manual.py"}            # esa es para usar a mano
+SALTAR = {
+    "prueba_manual.py",     # esa es para usar a mano
+    "prueba_raphael.py",    # aplica aplicar_parche_raphael.py a main.py, que ya está parchado: obsoleta
+}
 TIEMPO_MAXIMO = 300                      # segundos por prueba
 
 

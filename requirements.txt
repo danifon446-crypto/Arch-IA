@@ -1,0 +1,30 @@
+# Dependencias de Arché. Instalar con:  pip install -r requirements.txt
+# (También las instala sola core/instalador.py la primera vez que abres Arché.)
+
+# Núcleo / redes neuronales
+numpy
+scipy
+scikit-learn
+imbalanced-learn
+sentence-transformers
+
+# Modelos
+ollama
+
+# Voz
+sounddevice
+faster-whisper
+edge-tts
+
+# Sistema e interfaz
+psutil
+pillow
+rich
+cryptography
+
+# Búsqueda y documentos
+ddgs
+pypdf
+
+# Piezas 3D
+manifold3d
